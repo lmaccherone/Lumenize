@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>ChartTime.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="resources/base.css" />
+  <link rel="stylesheet" media="all" href="resources/module.css" />
+</head>
+<body>
+  <header>
+    <h1>ChartTime.coffee</h1>
+  </header>
+  <div id="content">
+    <div id="sidebar">
+      
+      <h4>Classes</h4>
+      <ul class="classlist">
+        
+        <li><a href="#ChartTime">ChartTime</a></li>
+        
+      </ul>
+      
+      
+    </div>
+    <div id="main">
+      
+      <div id="module_docstring">
+        <h1>ChartTime</h1>
+
+<p>Copyright (c) 2012, Lawrence S. Maccherone, Jr.</p>
+
+<p><em>Time axis creation/manipulation for charts</em></p>
+
+<h2>Features</h2>
+
+<ul>
+<li>Generate the values for time series chart axis</li>
+<li>Allows for custom granularities like release/iteration/iteration_day</li>
+<li>Knockout weekends and holidays</li>
+<li>Knockout non-work hours</li>
+<li>Drill up and down granularity (coneceptually supported by ChartTime, consumed by Lumenize)</li>
+<li>Work with precision around timezone differences</li>
+<li>Month is 1-indexed instead of 0-indexed like Javascript's Date object</li>
+<li>Date/Time math (add 3 months, subtract 2 weeks, etc.)</li>
+<li>Tested</li>
+<li>Documented</li>
+</ul>
+
+<h2>Credits</h2>
+
+<p>Authors:</p>
+
+<ul>
+<li><a href="http://maccherone.com">Larry Maccherone</a> (Larry @at@ Maccherone .dot. com)</li>
+<li>Jennifer Maccherone</li>
+</ul>
+
+<p>Running:</p>
+
+<ul>
+<li><a href="https://github.com/mde/timezone-js">timezoneJS</a> - library for <a href="http://www.twinsun.com/tz/tz-link.htm">tz</a> parsing</li>
+<li><a href="http://nodejs.org/">Node.js</a></li>
+<li><a href="http://coffeescript.org/">CoffeeScript</a></li>
+</ul>
+
+<p>Developing/Documenting:</p>
+
+<ul>
+<li><a href="https://github.com/lmaccherone/coffeedoc">coffeedoc</a> (Larry Maccherone's fork) forked from <a href="https://github.com/omarkhan/coffeedoc">coffeedoc</a></li>
+<li><a href="https://github.com/lmaccherone/coffeedoctest">coffeedoctest</a> (by Larry Maccherone)</li>
+<li><a href="https://github.com/caolan/nodeunit">nodeunit</a></li>
+</ul>
+
+<h2>Installation and developing</h2>
+
+<p>To install in the node_modules directory of your project, run the following from the root folder of your project:</p>
+
+<p><code>npm install ChartTime</code></p>
+
+<p>To install globally:</p>
+
+<p><code>sudo npm install -g ChartTime</code></p>
+
+<p>Or if you want the latest from source, download/clone from GitHub and run:</p>
+
+<p><code>cake install</code></p>
+
+<p>If you want to add functionality to ChartTime and submit a pull request, add tests for your upgrades and make sure all test pass with:</p>
+
+<p><code>cake test</code></p>
+
+<p>Also, add examples in the "docstrings", then generate the docs (which will also confirm that the examples give the expected output when run):</p>
+
+<p><code>cake docs</code></p>
+
+<h2>Documentation and source code</h2>
+
+<ul>
+<li><a href="http://lmaccherone.github.com/ChartTime/docs/index.html">API Documentation</a></li>
+<li><a href="https://github.com/lmaccherone/ChartTime">github.com/lmaccherone/ChartTime</a></li>
+</ul>
+
+<h2>Granularity</h2>
+
+<p>Each ChartTime object has a granularity. This means that you never have to
+worry about any bits lower than your specified granularity. A day has only
+year, month, and day segments. You are never tempted to specify 11:59pm
+to specify the end of a day-long timebox.</p>
+
+<p>ChartTime supports the following granularities:</p>
+
+<ul>
+<li><code>year</code>
+<ul><li><code>month</code>
+<ul><li><code>day</code>
+<ul><li><code>hour</code>
+<ul><li><code>minute</code>
+<ul><li><code>second</code>
+<ul><li><code>millisecond</code></li></ul></li></ul></li></ul></li></ul></li></ul></li>
+<li><code>quarter</code> (but not quarter_month, day, etc.)</li>
+<li><code>week</code> (ISO-8601 style week numbering)
+<ul><li><code>week_day</code> (Monday = 1, Sunday = 7)</li></ul></li></ul></li>
+</ul>
+
+<p>Also, you can define your own custom hierarchical granularities, for example...</p>
+
+<ul>
+<li><code>release</code>
+<ul><li><code>iteration</code>
+<ul><li><code>iteration_day</code></li></ul></li></ul></li>
+</ul>
+
+<h2>Timezone precision</h2>
+
+<p>It's very hard to do filtering and grouping of time-series data with timezone precision. </p>
+
+<p>For instance, 11pm in California on December 25 (Christmas holiday) is 2am December 26 (not a holiday)
+in New York. This also happens to be 7am December 26 GMT. If you have an event that occurs at 
+2011-12-26T07:00:00.000Z, then you need to decide what timezone to use as your context before you 
+decide if that event occured on Christmas day or not. It's not just holidays where this can burn you.
+Deciding if a piece of work finished in one iteration versus another can make a difference for
+you iteration metrics. The iteration metrics for a distributed team should look the same regardless
+of whether those metrics were generated in New York versus Los Angeles... versus Bangalore.</p>
+
+<p>The javascript Date object lets you work in either the local time or Zulu (GMT/UTC) time but it doesn't let you
+control the timezone. Do you know the correct way to apply the timezone shift to a JavaScript Date Object? 
+Do you know when Daylight Savings Time kicks in and New York is 4 hours shifted from GMT instead of 5? Will
+you remember to do it perfectly every time it's needed in your code?</p>
+
+<p>If you need this precision, ChartTime helps by clearly delineating the moment when you need to do 
+timezone manipulation... the moment you need to compare two or more dates. You can do all of your
+holiday/weekend knockout manipulation without regard to timezone and only consider the timezone
+upon comparison. </p>
+
+<h2>Month is 1-indexed as you would expect</h2>
+
+<p>Javascript's date object uses 0 for January and 11 for December. ChartTime uses 1 for January and 12 for December...
+which is what ISO-8601 uses and what humans expect. Everyone who works with the javascript Date Object at one
+point or another gets burned by this.</p>
+
+<h2>Week support</h2>
+
+<p>ChartTime follows ISO-8601 where ever it makes sense. Implications of using this ISO format (paraphrased info from wikipedia):</p>
+
+<ul>
+<li>All weeks have 7 days (i.e. there are no fractional weeks).</li>
+<li>Any given day falls into a single week which means that incrementing across the year boundary in week
+granularity is without gaps or repeats.</li>
+<li>Weeks are contained within a single year. (i.e. weeks are never spit over two years).</li>
+<li>The above two implications also mean that we have to warp the boundaries of the year to accomplish this. In week
+granularity dates may appear in a different year than you would expect and some years have 53 weeks.</li>
+<li>The date directly tells the weekday.</li>
+<li>All years start with a Monday and end with a Sunday.</li>
+<li>Dates represented as yyyyWww-d can be sorted as strings.</li>
+</ul>
+
+<p><strong>In general, it just greatly simplifies the use of week granularity in a chart situation.</strong></p>
+
+<p>The only real downside to this approach is that USA folks expect the week to start on Sunday. However, the ISO-8601 spec starts
+each week on Monday. Following ISO-8601, ChartTime uses 1 for Monday and 7 for Sunday which aligns with
+the US standard for every day except Sunday. The US standard is to use 0 for Sunday.</p>
+
+<h2>Basic usage</h2>
+
+<pre><code>{ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
+
+d1 = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 28})
+console.log(d1.toString())
+# 2011-02-28
+</code></pre>
+
+<p>You can use the string short-hand rather than spell out the segments seperately. The granularity
+is automatically inferred from how many segments you provide.</p>
+
+<pre><code>d2 = new ChartTime('2011-03-01')
+console.log(d2.toString())
+# 2011-03-01
+</code></pre>
+
+<p>Increment/decrement and compare ChartTimes without regard to timezone</p>
+
+<pre><code>console.log(d1.$gte(d2)) 
+d1.increment()
+console.log(d1.$eq(d2))
+# false
+# true
+</code></pre>
+
+<p>Do math on them.</p>
+
+<pre><code>d3 = d1.add(5)
+console.log(d3.toString())
+# 2011-03-06
+</code></pre>
+
+<p>Get the day of the week.</p>
+
+<pre><code>console.log(d3.dowString())
+# Sunday
+</code></pre>
+
+<p>Subtraction is just addition with negative numbers.</p>
+
+<pre><code>d3.addInPlace(-6)
+console.log(d3.toString())
+# 2011-02-28
+</code></pre>
+
+<p>If you start on the last day of a month, adding a month takes you to the last day of the next month, 
+even if the number of days are different.</p>
+
+<pre><code>d3.addInPlace(1, 'month')  
+console.log(d3.toString())
+# 2011-03-31
+</code></pre>
+
+<p>Deals well with year-granularity math and leap year complexity.</p>
+
+<pre><code>d4 = new ChartTime('2004-02-29')  # leap day
+d4.addInPlace(1, 'year')  # adding a year takes us to a non-leap year
+console.log(d4.toString())
+# 2005-02-28
+</code></pre>
+
+<p>Week granularity correctly wraps and deals with 53-week years.</p>
+
+<pre><code>w1 = new ChartTime('2004W53-6')
+console.log(w1.inGranularity('day').toString())
+# 2005-01-01
+</code></pre>
+
+<p>Convert between any of the standard granularities. Also converts custom granularities (not shown) to
+standard granularities if you provide a <code>rataDieNumber()</code> function with your custom granularities.</p>
+
+<pre><code>d5 = new ChartTime('2005-01-01')  # goes the other direction also
+console.log(d5.inGranularity('week_day').toString())
+# 2004W53-6
+
+q1 = new ChartTime('2011Q3')
+console.log(q1.inGranularity('millisecond').toString())
+# 2011-07-01T00:00:00.000
+</code></pre>
+
+<h2>Timezones</h2>
+
+<p>ChartTime does timezone sensitive conversions. You must set the path to the tz files before doing any timezone sensitive comparisons.</p>
+
+<pre><code>ChartTime.setTZPath('../vendor/tz')
+
+console.log(new ChartTime('2011-01-01').getJSDate('America/New_York'))
+# Sat, 01 Jan 2011 05:00:00 GMT
+</code></pre>
+
+<h2>Iterating over ranges skipping weekends, holidays, and non-workhours</h2>
+
+<pre><code>r = new ChartTimeRange({
+  start: new ChartTime('2011-01-02'),
+  pastEnd: new ChartTime('2011-01-07'),
+  workDays: 'Monday, Tuesday, Thursday, Friday',  # very strange work week
+  holidays: [
+    {month: 1, day: 1},  # Notice the lack of a year specification
+    {year: 2011, month: 1, day: 3}  # Got January 3 off also in 2011
+  ]
+})
+</code></pre>
+
+<p>Now let's get an iterator over this range.</p>
+
+<pre><code>i = r.getIterator('ChartTime')
+
+while i.hasNext()
+  console.log(i.next().toString()) 
+
+# 2011-01-04
+# 2011-01-06
+</code></pre>
+
+<p>You can also specify work hours and iterate at hour, minute, or finer granularity</p>
+
+<pre><code>r4 = new ChartTimeRange({
+  granularity: 'hour',
+  start:'2011-01-06',
+  pastEnd:'2011-01-11',
+  startWorkTime: {hour: 9, minute: 0},
+  pastEndWorkTime: {hour: 11, minute: 0}  # Very short work day for demo purposes
+})
+</code></pre>
+
+<p>Notice how we are able to simply use strings to represent the start/pastEnd dates. ChartTimeRange automatically constructs 
+ChartTime objects from those strings. We could have done that in the earlier examples. I chose not to do so to illustrate
+how ChartTimes are used under the covers.</p>
+
+<pre><code>i4 = r4.getIterator('ChartTime')
+
+while i4.hasNext()
+  console.log(i4.next().toString())
+
+# 2011-01-06T09
+# 2011-01-06T10
+# 2011-01-07T09
+# 2011-01-07T10
+# 2011-01-10T09
+# 2011-01-10T10
+</code></pre>
+      </div>
+      
+      
+      <div id="classes">
+        <h2>Classes</h2>
+        
+        <div class="class">
+          <div class="header">
+            <a id="ChartTime"><h3>ChartTime</h3></a>
+            
+          </div>
+          <div class="class_content">
+            
+            <div class="methods">
+              
+              <div class="staticmethods">
+                <h3>Static Methods</h3>
+                
+                <div class="method">
+                  <h4>ChartTime.setTZPath(tzPath)</h4>
+                  <p>Allows you to set the path (can be relative) to the tz files. Must be called prior to doing timezone sensitive comparisons. </p>
+                </div>
+                
+                <div class="method">
+                  <h4>ChartTime.addGranularity(granularitySpec)</h4>
+                  <p>addGranularity allows you to add your own hierarchical granularities to ChartTime. Once you add a granularity to ChartTime
+you can then instantiate ChartTime objects in your newly specified granularity. You specify new granularities with 
+granularitySpec object like this:</p>
+
+<pre><code>granularitySpec = {
+  release: {
+    segments: ['release'],
+    mask: 'R##',
+    lowest: 1,
+    dayPastEnd: new ChartTime('2011-07-01')
+    pastHighest: (ct) -&gt;
+      return ChartTime.granularitySpecs.iteration.timeBoxes.length + 1  # Yes, it's correct to use the length of iteration.timeBoxes
+    rataDieNumber: (ct) -&gt;
+      return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].start.rataDieNumber()
+  },
+  iteration: {
+    segments: ['release', 'iteration'],
+    mask: 'R##I##',
+    lowest: 1,
+    dayPastEnd: new ChartTime('2011-07-01')        
+    timeBoxes: [
+      [
+        {start: new ChartTime('2011-01-01'), label: 'R1 Iteration 1'},
+        {start: new ChartTime('2011-02-01'), label: 'R1 Iteration 2'},
+        {start: new ChartTime('2011-03-01'), label: 'R1 Iteration 3'},
+      ],
+      [
+        {start: new ChartTime('2011-04-01'), label: 'R2 Iteration 1'},
+        {start: new ChartTime('2011-05-01'), label: 'R2 Iteration 2'},
+        {start: new ChartTime('2011-06-01'), label: 'R2 Iteration 3'},
+      ]
+    ]
+    pastHighest: (ct) -&gt;
+      temp = ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1]?.length + 1
+      if temp? and not isNaN(temp) and ct.beforePastFlag != 'PAST_LAST'
+        return temp
+      else
+        numberOfReleases = ChartTime.granularitySpecs.iteration.timeBoxes.length
+        return ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length + 1
+
+    rataDieNumber: (ct) -&gt;
+      return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].start.rataDieNumber()
+  },
+  iteration_day: {  # By convention, it knows to use day functions on it. This is the lowest allowed custom granularity
+    segments: ['release', 'iteration', 'iteration_day'],
+    mask: 'R##I##-##',
+    lowest: 1,
+    dayPastEnd: new ChartTime('2011-07-01'),
+    pastHighest: (ct) -&gt;
+      iterationTimeBox = ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1]?[ct.iteration-1]
+      if !iterationTimeBox? or ct.beforePastFlag == 'PAST_LAST'
+        numberOfReleases = ChartTime.granularitySpecs.iteration.timeBoxes.length
+        numberOfIterationsInLastRelease = ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length
+        iterationTimeBox = ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1][numberOfIterationsInLastRelease-1]
+
+      thisIteration = iterationTimeBox.start.inGranularity('iteration')
+      nextIteration = thisIteration.add(1)
+      if nextIteration.beforePastFlag == 'PAST_LAST'
+        return ChartTime.granularitySpecs.iteration_day.dayPastEnd.rataDieNumber() - iterationTimeBox.start.rataDieNumber() + 1
+      else
+        return nextIteration.rataDieNumber() - iterationTimeBox.start.rataDieNumber() + 1 
+
+    rataDieNumber: (ct) -&gt;
+      return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].start.rataDieNumber() + ct.iteration_day - 1
+  }
+}    
+ChartTime.addGranularity(granularitySpec)
+</code></pre>
+
+<p>The <code>mask</code> must cover all of the segments to get down to the granularity being specified. The digits of the granularity segments
+are represented with <code>#</code>. Any other characters can be used as a delimeter, but it should always be one character to comply with 
+the expectations of the Lumenize hierarchy visualizations. All of the standard granularities start with a 4-digit year to
+distinguish your custom granularity, your highest level must start with some number of digits other than 4 or a prefix letter 
+(<code>R</code> in the example above).</p>
+
+<p>In order for the ChartTimeIterator to work, you must provide <code>pastHighest</code> and <code>rataDieNumber</code> callback functions. You should
+be able to mimic (or use as-is) the example above for most use cases. Notice how the <code>rataDieNumber</code> function simply leverages
+<code>rataDieNumber</code> functions for the standard granularities.</p>
+
+<p>In order to convert into this granularity from some other granularity, you must provide an <code>inGranularity</code> callback [NOT YET IMPLEMENTED].
+But ChartTime will convert to any of the standard granularities from even custom granularities as long as a <code>rataDieNumber()</code> function
+is provided.</p>
+
+<p><strong>The <code>timeBoxes</code> propoerty in the <code>granularitySpec</code> Object above has no special meaning</strong> to ChartTime or ChartTimeIterator. It's simply used
+by the <code>pastHighest</code> and <code>rataDieNumber</code> functions. The boundaries could come from where ever you want and even have been encoded as
+literals in the <code>pastHighest</code> and <code>rataDieNumber</code> callback functions.</p>
+
+<p>The convention of naming the lowest order granularity with <code>_day</code> at the end IS signficant. ChartTime knows to treat that as a day-level
+granularity. If there is a use-case for it, ChartTime could be upgraded to allow you to drill down into hours, minutes, etc. from any
+<code>_day</code> granularity but right now those lower order time granularities are only supported for the canonical ISO-6801 form.</p>
+                </div>
+                
+              </div>
+              
+              
+              <div class="instancemethods">
+                <h3>Instance Methods</h3>
+                
+                <div class="method">
+                  <h4>constructor(spec_RDN_Or_String, granularity, tz)</h4>
+                  <p>The constructor for ChartTime supports the passing in of a String, a rata die number (RDN), or a spec Object</p>
+
+<h2>String</h2>
+
+<p>When you pass in a <strong>String</strong>, ChartTime uses the masks that are defined for each granularity to figure out the granularity...
+unless you explicitly provide a granularity. This parser does not work on all valid ISO-8601 forms. Ordinal dates are not 
+supported at all but week number form (<code>"2009W52-7"</code>) is supported. The canonical form (<code>"2009-01-01T12:34:56.789"</code>) will work
+as will any shortened subset of it (<code>"2009-01-01"</code>, <code>"2009-01-01T12:34"</code>, etc.). We've added a form for Quarter
+granularity (<code>"2009Q4"</code>). Plus it will even parse strings in whatever custom granularity you provide based
+upon the mask that you provide for that granularity.</p>
+
+<p>If the granularity is specified but not all of the segments are provided, ChartTime will fill in the missing value 
+with the <code>lowest</code> value from granularitySpecs.</p>
+
+<p>The Lumenize hierarchy tools rely upon the property that a single character is used between segments so the ISO forms that 
+omit the delimeters are not supported.</p>
+
+<p>If the string has a timezone indicator on the end (<code>...+05:00</code> or <code>...Z</code>), ChartTime will ignore it. Timezone information
+is intended to only be used for comparison (see examples for timezone comparison).</p>
+
+<p>There are two special Strings that are recognized: <code>BEFORE_FIRST</code> and <code>PAST_LAST</code>. You must provide a granularity if you
+are instantiating a ChartTime with these values. They are primarily used for custom granularities where your users
+may mistakenly request charts for iterations and releases that have not yet been defined. They are particularly useful when 
+you want to iterate to the last defined iteration/release.</p>
+
+<h2>Rata Die Number</h2>
+
+<p>The <strong>rata die number (RDN)</strong> for a date is the number of days since 0001-01-01. You will probably never work
+directly with this number but it's what ChartTime uses to convert between granularities. When you are instantiating
+a ChartTime from an RDN, you must provide a granularity. Using RDN will work even for the granularities finer than day.
+ChartTime will populate the finer grained segments (hour, minute, etc.) with the approriate <code>lowest</code> value.</p>
+
+<h2>Spec</h2>
+
+<p>You can also explicitly spell out the segments in a <strong>spec</strong> Object in the form of 
+<code>{granularity: 'day', year: 2009, month: 1, day: 1}</code>. If the granularity is specified but not all of the segments are 
+provided, ChartTime will fill in the missing value with the appropriate <code>lowest</code> value from granularitySpecs.</p>
+
+<h2>granularity</h2>
+
+<p>If you provide a granularity it will take precedence over whatever fields you've provided in your spec or whatever segments
+you have provided in your string. ChartTime will leave off extra values and fill in missing ones with the appropriate <code>lowest</code>
+value.</p>
+
+<h2>tz</h2>
+
+<p>Most of the time, ChartTime assumes that any dates you pass in are timezone less. You'll specify Christmas as 12-25, then you'll
+shift the boundaries of Christmas for a specific timezone for boundary comparison.</p>
+
+<p>However, if you provide a tz parameter to this constructor, ChartTime will assume you are passing in a true GMT date/time and shift into 
+the provided timezone. So...</p>
+
+<pre><code>d = new ChartTime('2011-01-01T02:00:00:00.000Z', 'day', 'America/New_York')
+console.log(d.toString())
+# 2010-12-31
+</code></pre>
+
+<p>Rule of thumb on when you want to use timezones:</p>
+
+<ol>
+<li>If you have true GMT date/times and you want to create a ChartTime, provide the timezone to this constructor.</li>
+<li>If you have abstract days like Christmas or June 10th and you want to delay the timezone consideration, don't provide a timezone to this constructor.</li>
+<li>In either case, if the dates you want to compare to are in GMT, but you've got ChartTimes or ChartTimeRanges, you'll have to provide a timezone on
+the way back out of ChartTime/ChartTimeRange</li>
+</ol>
+                </div>
+                
+                <div class="method">
+                  <h4>granularityAboveDay()</h4>
+                  <p>Convenience function to tell if the ChartTime Object's granularity is above (courser than) "day" level.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>getJSDate(tz)</h4>
+                  <p>Returns a JavaScript Date Object properly shifted. This Date Object can be compared to other Date Objects that you know
+are already in the desired timezone. If you have data that comes from an API in GMT. You can first create a ChartTime object from
+it and then (using this getJSDate() function) you can compare it to JavaScript Date Objects created in local time.</p>
+
+<p>The full name of this function should be getJSDateInGMTasummingThisCTDateIsInTimezone(tz). It converts <strong>TO</strong> GMT 
+(actually something that can be compared to GMT). It does <strong>NOT</strong> convert <strong>FROM</strong> GMT. Use getJSDateInTZfromGMT()
+if you want to go in the other direction.</p>
+
+<p>Note, you must set the path to the tz files with <code>ChartTime.setTZPath('path/to/tz/files')</code> before you do timezone 
+sensitive comparisions.</p>
+
+<h2>Usage</h2>
+
+<pre><code>ct = new ChartTime('2011-01-01')
+d = new Date(Date.UTC(2011, 0, 1))
+
+console.log(ct.getJSDate('GMT').getTime() == d.getTime())
+# true
+
+console.log(ct.inGranularity('hour').add(-5).getJSDate('America/New_York').getTime() == d.getTime())
+# true
+</code></pre>
+                </div>
+                
+                <div class="method">
+                  <h4>getJSDateString(tz)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>getJSDateInTZfromGMT(tz)</h4>
+                  <p>This assumes that the ChartTime is an actual GMT date/time as opposed to some abstract day like Christmas and shifts
+it into the specified timezone.</p>
+
+<p>Note, this function will be off by an hour for the times near midnight on the days where there is a shift to/from daylight 
+savings time. The tz rules engine is designed to go in the other direction so we're mis-using it and will be using the wrong
+moment in rules-space for that hour. The cost of fixing this issue was deamed to high for chart applications.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>toString()</h4>
+                  <p>Uses granularity <code>mask</code> to generate the string representation.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>dowNumber()</h4>
+                  <p>Returns the day of the week as a number. Monday = 1, Sunday = 7</p>
+                </div>
+                
+                <div class="method">
+                  <h4>dowString()</h4>
+                  <p>Returns the day of the week as a String.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>rataDieNumber()</h4>
+                  <p>Returns the number of days since 0001-01-01. Works for granularities finer than day (hour, minute, second, millisecond) but ignores the 
+segments of finer granularity than day.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>inGranularity(granularity)</h4>
+                  <p>Returns a new ChartTime object for the same date-time as this object but in the specified granularity.
+Fills in missing finer granularity bits with <code>lowest</code> values.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>daysInMonth()</h4>
+                  <p>Returns the number of days in the current month for this ChartTime</p>
+                </div>
+                
+                <div class="method">
+                  <h4>isLeapYear()</h4>
+                  <p>True if this is a leap year.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>is53WeekYear()</h4>
+                  <p>True if this is a 53-week year.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>$eq(other)</h4>
+                  <p>Returns true if this equals other. Throws an error if the granularities don't match.</p>
+
+<pre><code>d3 = new ChartTime({granularity: 'day', year: 2011, month: 12, day: 31})
+d4 = new ChartTime('2012-01-01').add(-1)
+console.log(d3.$eq(d4))
+# true
+</code></pre>
+                </div>
+                
+                <div class="method">
+                  <h4>$gt(other)</h4>
+                  <p>Returns true if this is greater than other. Throws an error if the granularities don't match</p>
+
+<pre><code>d1 = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 28})
+d2 = new ChartTime({granularity: 'day', year: 2011, month: 3, day: 1})
+console.log(d1.$gt(d2))
+# false
+console.log(d2.$gt(d1))
+# true
+</code></pre>
+                </div>
+                
+                <div class="method">
+                  <h4>$gte(other)</h4>
+                  <p>True if this is greater than or equal to other.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>$lt(other)</h4>
+                  <p>True if this is less than other.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>$lte(other)</h4>
+                  <p>True if this is less than or equal to other.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>decrement(granularity)</h4>
+                  <p>Decrements by 1.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>increment(granularity)</h4>
+                  <p>Increments by 1.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>addInPlace(qty, granularity)</h4>
+                  <p>Adds qty to the ChartTime object. It uses increment and decrement so it's not going to be efficient for large values
+of qty, but it should be fine for charts where we'll increment/decrement small values of qty.</p>
+
+<p>qty can be negative for subtraction.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>add(qty, granularity)</h4>
+                  <p>Adds (or subtracts) quantity (negative quantity) and returns a new ChartTime.</p>
+                </div>
+                
+              </div>
+              
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+      
+    </div>
+  </div>
+</body>
+</html>

@@ -185,49 +185,6 @@ groupByAtArray_To_HighChartsSeries = (groupByAtArray, nameField, valueField, nam
     output.push(outputRow)
   return output
 
-groupByAtArray_To_ExtData = (xAxisValues, xAxisField, groupByAtArray, nameField, valueField) ->  # !TODO: Needs tests
-  ### 
-  Takes an array of arrays that came from charttime.groupByAt and looks like this:
-  
-      groupByAtArray = [
-        [
-          { 'CFDField': 8, KanbanState: 'Ready to pull' },
-          { 'CFDField': 5, KanbanState: 'In progress' },
-          { 'CFDField': 9, KanbanState: 'Accepted' },
-        ],
-        [
-          { 'CFDField': 2, KanbanState: 'Ready to pull' },
-          { 'CFDField': 3, KanbanState: 'In progress' },
-          { 'CFDField': 17, KanbanState: 'Accepted' },
-        ]
-      ]
-  
-  and xAxisValues
-  
-      xAxisValues = ['2011-01-01', '2011-01-02']
-      
-  and extracts the `valueField` under nameField to give us this
-  
-      console.log(groupByAtArray_To_ExtData(xAxisValues, 'Date', groupByAtArray, 'KanbanState', 'CFDField'))
-      # [ { Date: '2011-01-01', 
-      #     'Ready to pull': 8,
-      #     'In progress': 5,
-      #     Accepted: 9 },
-      #   { Date: '2011-01-02', 
-      #     'Ready to pull': 2,
-      #     'In progress': 3,
-      #     Accepted: 17 } ]
-      
-  ###
-  output = []
-  for groupByRow, idx in groupByAtArray
-    dataRow = {}
-    dataRow[xAxisField] = xAxisValues[idx].toString()
-    for perNameValueRow in groupByRow
-      dataRow[perNameValueRow[nameField]] = perNameValueRow[valueField]
-    output.push(dataRow)
-  return output
-
 
 aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, series) ->  # !TODO: Needs tests
   ### 
@@ -277,47 +234,8 @@ aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, series) ->  # !TOD
     output.push(outputRow)
   return output
 
-aggregationAtArray_To_ExtData = (xAxisValues, xAxisField, aggregationAtArray, series) ->  # !TODO: Needs tests
-  ### 
-  Takes an array of arrays that came from charttime.aggregateAt and looks like this:
-  
-      aggregationAtArray = [
-        {"Series 1": 8, "Series 2": 5, Series3: 10},
-        {"Series 1": 2, "Series 2": 3, Series3: 20}
-      ]
-  
-  and an optional list of series. If series is omitted, then all of the series in the first row of aggregationAtArray are included
-  
-      series = ["Series 1", "Series 2"]
-  
-  and xAxisValues
-  
-      xAxisValues = ['2011-01-01', '2011-01-02']
-      
-  and merges/transforms them to an appropriate format to create an Ext JSON datastore for an Ext Chart. The output looks like this:
-  
-      console.log(aggregationAtArray_To_ExtData(xAxisValues, 'Date', aggregationAtArray, series))
-      # [ { Date: '2011-01-01', 'Series 1': 8, 'Series 2': 5 },
-      #   { Date: '2011-01-02', 'Series 1': 2, 'Series 2': 3 } ]
-      
-  ###
-  unless series?
-    series = []
-    for key, value of aggregationAtArray[0]
-      series.push(key)
-  
-  output = []
-  for aggregationAtArrayRow, idx in aggregationAtArray
-    dataRow = {}
-    dataRow[xAxisField] = xAxisValues[idx].toString()
-    for s in series
-      dataRow[s] = aggregationAtArrayRow[s]
-    output.push(dataRow)
-  return output
 
 exports.csvStyleArray_To_ArrayOfMaps = csvStyleArray_To_ArrayOfMaps
 exports.snapshotArray_To_AtArray = snapshotArray_To_AtArray
 exports.groupByAtArray_To_HighChartsSeries = groupByAtArray_To_HighChartsSeries
-exports.groupByAtArray_To_ExtData = groupByAtArray_To_ExtData
 exports.aggregationAtArray_To_HighChartsSeries = aggregationAtArray_To_HighChartsSeries
-exports.aggregationAtArray_To_ExtData = aggregationAtArray_To_ExtData

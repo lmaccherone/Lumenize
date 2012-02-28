@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>ChartTimeInStateCalculator.coffee</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <link rel="stylesheet" media="all" href="resources/base.css" />
+  <link rel="stylesheet" media="all" href="resources/module.css" />
+</head>
+<body>
+  <header>
+    <h1>ChartTimeInStateCalculator.coffee</h1>
+  </header>
+  <div id="content">
+    <div id="sidebar">
+      
+      <h4>Classes</h4>
+      <ul class="classlist">
+        
+        <li><a href="#ChartTimeInStateCalculator">ChartTimeInStateCalculator</a></li>
+        
+      </ul>
+      
+      
+    </div>
+    <div id="main">
+      
+      
+      <div id="classes">
+        <h2>Classes</h2>
+        
+        <div class="class">
+          <div class="header">
+            <a id="ChartTimeInStateCalculator"><h3>ChartTimeInStateCalculator</h3></a>
+            
+          </div>
+          <div class="class_content">
+            <p>Used to calculate how much time each uniqueID spent in-state.</p>
+
+<p>Usage:</p>
+
+<pre><code>charttime = require('../')
+{ChartTimeRange, ChartTime, ChartTimeIterator, ChartTimeInStateCalculator} = charttime
+ChartTime.setTZPath('../vendor/tz')
+
+snapshots = [ 
+  { id: 1, from: '2011-01-06T15:10:00.000Z', to: '2011-01-06T15:30:00.000Z' }, # 20 minutes all within an hour
+  { id: 2, from: '2011-01-06T15:50:00.000Z', to: '2011-01-06T16:10:00.000Z' }, # 20 minutes spanning an hour
+  { id: 3, from: '2011-01-07T13:00:00.000Z', to: '2011-01-07T15:20:00.000Z' }, # start 2 hours before but overlap by 20 minutes of start
+  { id: 4, from: '2011-01-06T16:40:00.000Z', to: '2011-01-06T19:00:00.000Z' }, # 20 minutes before end of day
+  { id: 5, from: '2011-01-06T16:50:00.000Z', to: '2011-01-07T15:10:00.000Z' }, # 10 minutes before end of one day and 10 before the start of next
+  { id: 6, from: '2011-01-06T16:55:00.000Z', to: '2011-01-07T15:05:00.000Z' }, # multiple cycles over several days for a total of 20 minutes of work time
+  { id: 6, from: '2011-01-07T16:55:00.000Z', to: '2011-01-10T15:05:00.000Z' }, 
+  { id: 7, from: '2011-01-06T16:40:00.000Z', to: '2011-01-20T19:00:00.000Z' }  # false beyond scope of iterator
+]
+
+granularity = 'minute'
+timezone = 'America/Chicago'
+
+rangeSpec = 
+  granularity: granularity
+  start: new ChartTime(snapshots[0].from, granularity, timezone).decrement()
+  pastEnd: '2011-01-11T00:00:00.000'
+  startWorkTime: {hour: 9, minute: 0}  # 15:00 in Chicago
+  pastEndWorkTime: {hour: 11, minute: 0}  # 17:00 in Chicago.
+
+r1 = new ChartTimeRange(rangeSpec)
+i1 = r1.getIterator('ChartTime')
+isc1 = i1.getChartTimeInStateCalculator(timezone)
+timeInState = isc1.timeInState(snapshots, 'from', 'to', 'id')
+console.log(timeInState)
+
+# [ { ticks: 20,
+#     finalState: false,
+#     finalEventAt: '2011-01-06T15:30:00.000Z',
+#     finalTickAt: '2011-01-06T15:29:00.000Z',
+#     id: '1' },
+#   { ticks: 20,
+#     finalState: false,
+#     finalEventAt: '2011-01-06T16:10:00.000Z',
+#     finalTickAt: '2011-01-06T16:09:00.000Z',
+#     id: '2' },
+#   { ticks: 20,
+#     finalState: false,
+#     finalEventAt: '2011-01-07T15:20:00.000Z',
+#     finalTickAt: '2011-01-07T15:19:00.000Z',
+#     id: '3' },
+#   { ticks: 20,
+#     finalState: false,
+#     finalEventAt: '2011-01-06T19:00:00.000Z',
+#     finalTickAt: '2011-01-06T16:59:00.000Z',
+#     id: '4' },
+#   { ticks: 20,
+#     finalState: false,
+#     finalEventAt: '2011-01-07T15:10:00.000Z',
+#     finalTickAt: '2011-01-07T15:09:00.000Z',
+#     id: '5' },
+#   { ticks: 20,
+#     finalState: false,
+#     finalEventAt: '2011-01-10T15:05:00.000Z',
+#     finalTickAt: '2011-01-10T15:04:00.000Z',
+#     id: '6' } ]
+</code></pre>
+
+<p>The default supresses the ones that are still open at the end, but we can override that</p>
+
+<pre><code>snapshots = [snapshots[7]]
+console.log(isc1.timeInState(snapshots, 'from', 'to', 'id', false))
+
+# [ { ticks: 260,
+#     finalState: true,
+#     finalEventAt: '2011-01-06T16:40:00.000Z',
+#     finalTickAt: '2011-01-10T16:59:00.000Z',
+#     id: '7' } ]
+</code></pre>
+
+<p>We can adjust the granularity</p>
+
+<pre><code>rangeSpec.granularity = 'hour'
+isc2 = new ChartTimeRange(rangeSpec).getIterator().getChartTimeInStateCalculator(timezone)
+timeInState = isc2.timeInState(snapshots, 'from', 'to', 'id', false)
+console.log(timeInState)
+
+# [ { ticks: 4,
+#     finalState: true,
+#     finalEventAt: '2011-01-06T16:40:00.000Z',
+#     finalTickAt: '2011-01-10T16:00:00.000Z',
+#     id: '7' } ]
+</code></pre>
+            <div class="methods">
+              
+              
+              <div class="instancemethods">
+                <h3>Instance Methods</h3>
+                
+                <div class="method">
+                  <h4>constructor(@iterator, tz)</h4>
+                  
+                </div>
+                
+                <div class="method">
+                  <h4>timeInState(snapshotArray, validFromField, validToField, uniqueIDField, excludeStillInState)</h4>
+                  <p>Assumptions about the snapshotArray that's passed in:</p>
+
+<ul>
+<li>The snapshotArray includes all snapshots where the logical state you want
+to measure the "time in" is true. So, send the predicate you want to be true as part of the query to the snapshot service.</li>
+<li>The <code>validFromField</code> and <code>validToField</code> in the <code>snapshotArray</code> contain strings in ISO-6801 canonical
+Zulu format (eg <code>'2011-01-01T12:34:56.789Z'</code>).</li>
+</ul>
+                </div>
+                
+              </div>
+              
+            </div>
+          </div>
+        </div>
+        
+      </div>
+      
+      
+    </div>
+  </div>
+</body>
+</html>

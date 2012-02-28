@@ -14,9 +14,7 @@ datatransform = require('./datatransform')
 exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps
 exports.snapshotArray_To_AtArray = datatransform.snapshotArray_To_AtArray
 exports.groupByAtArray_To_HighChartsSeries = datatransform.groupByAtArray_To_HighChartsSeries
-exports.groupByAtArray_To_ExtData = datatransform.groupByAtArray_To_ExtData
 exports.aggregationAtArray_To_HighChartsSeries = datatransform.aggregationAtArray_To_HighChartsSeries
-exports.aggregationAtArray_To_ExtData = datatransform.aggregationAtArray_To_ExtData
 
 aggregate = require('./aggregate')
 exports.aggregate = aggregate.aggregate

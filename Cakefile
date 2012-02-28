@@ -23,15 +23,15 @@ compile = (watch, callback) ->
   if typeof watch is 'function'
     callback = watch
     watch = false
-  options = ['-c', '-o', 'lib', 'src']
+  options = ['-c', '-o', 'js', 'src']
   options.unshift '-w' if watch
   run('coffee', options)
 
-task('compile', 'Compile CoffeeScript source files to JavaScript and place in ./lib', () ->
+task('compile', 'Compile CoffeeScript source files to JavaScript and place in ./js', () ->
     compile()
 )
 
-task('watch', 'Recompile CoffeeScript source files when modified and place in ./lib', () ->
+task('watch', 'Recompile CoffeeScript source files when modified and place in ./js', () ->
     compile(true)
 )
 
