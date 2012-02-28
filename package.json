@@ -1,0 +1,32 @@
+{
+  "name": "lumenize",
+  "main": "./src/index",
+  "description": "Helping you illuminate the forest AND the trees in your data.",
+  "keywords": [
+    "charting",
+    "chart",
+    "infographics",
+    "date",
+    "time"
+  ],
+  "author": {
+    "name": "Larry Maccherone",
+    "url": "http://maccherone.com"
+  },
+  "version": "0.1.0",
+  "homepage": "https://github.com/lmaccherone/lumenize",
+  "engines": {
+    "node": ">=0.4.10"
+  },
+  "dependencies": {
+    "coffee-script": ">=1.1.1"
+  },
+  "repository": {
+    "type" : "git",
+    "url" : "http://github.com/lmaccherone/lumenize.git"
+  },
+  "preferGlobal": true,
+  "devDependencies": {
+    "coffeedoctest": ">=0.1.0"
+  }
+}

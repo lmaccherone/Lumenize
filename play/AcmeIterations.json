@@ -1,0 +1,123 @@
+{
+  "QueryResult": {
+    "_rallyAPIMajor": "1",
+    "_rallyAPIMinor": "29",
+    "Errors": [],
+    "Warnings": [],
+    "TotalResultCount": 10,
+    "StartIndex": 1,
+    "PageSize": 200,
+    "Results": [
+      {
+        "_rallyAPIMajor": "1",
+        "_rallyAPIMinor": "29",
+        "_ref": "https://demo.rallydev.com/slm/webservice/1.29/iteration/1094304.js",
+        "_objectVersion": "1",
+        "_refObjectName": "Iteration 1 (R1)",
+        "EndDate": "2011-11-26T23:59:59.000Z",
+        "Name": "Iteration 1 (R1)",
+        "StartDate": "2011-11-13T00:00:00.000Z",
+        "_type": "Iteration"
+      },
+      {
+        "_rallyAPIMajor": "1",
+        "_rallyAPIMinor": "29",
+        "_ref": "https://demo.rallydev.com/slm/webservice/1.29/iteration/1094308.js",
+        "_objectVersion": "1",
+        "_refObjectName": "Iteration 2 (R1)",
+        "EndDate": "2011-12-10T23:59:59.000Z",
+        "Name": "Iteration 2 (R1)",
+        "StartDate": "2011-11-27T00:00:00.000Z",
+        "_type": "Iteration"
+      },
+      {
+        "_rallyAPIMajor": "1",
+        "_rallyAPIMinor": "29",
+        "_ref": "https://demo.rallydev.com/slm/webservice/1.29/iteration/1094312.js",
+        "_objectVersion": "1",
+        "_refObjectName": "Iteration 3 (R1)",
+        "EndDate": "2011-12-24T23:59:59.000Z",
+        "Name": "Iteration 3 (R1)",
+        "StartDate": "2011-12-11T00:00:00.000Z",
+        "_type": "Iteration"
+      },
+      {
+        "_rallyAPIMajor": "1",
+        "_rallyAPIMinor": "29",
+        "_ref": "https://demo.rallydev.com/slm/webservice/1.29/iteration/1094317.js",
+        "_objectVersion": "1",
+        "_refObjectName": "Iteration 4 (R1)",
+        "EndDate": "2012-01-07T23:59:59.000Z",
+        "Name": "Iteration 4 (R1)",
+        "StartDate": "2011-12-25T00:00:00.000Z",
+        "_type": "Iteration"
+      },
+      {
+        "_rallyAPIMajor": "1",
+        "_rallyAPIMinor": "29",
+        "_ref": "https://demo.rallydev.com/slm/webservice/1.29/iteration/1094322.js",
+        "_objectVersion": "1",
+        "_refObjectName": "Iteration 5 (R2)",
+        "EndDate": "2012-01-21T23:59:59.000Z",
+        "Name": "Iteration 5 (R2)",
+        "StartDate": "2012-01-08T00:00:00.000Z",
+        "_type": "Iteration"
+      },
+      {
+        "_rallyAPIMajor": "1",
+        "_rallyAPIMinor": "29",
+        "_ref": "https://demo.rallydev.com/slm/webservice/1.29/iteration/1094327.js",
+        "_objectVersion": "1",
+        "_refObjectName": "Iteration 6 (R2)",
+        "EndDate": "2012-02-04T23:59:59.000Z",
+        "Name": "Iteration 6 (R2)",
+        "StartDate": "2012-01-22T00:00:00.000Z",
+        "_type": "Iteration"
+      },
+      {
+        "_rallyAPIMajor": "1",
+        "_rallyAPIMinor": "29",
+        "_ref": "https://demo.rallydev.com/slm/webservice/1.29/iteration/1094331.js",
+        "_objectVersion": "1",
+        "_refObjectName": "Iteration 7 (R2)",
+        "EndDate": "2012-02-18T23:59:59.000Z",
+        "Name": "Iteration 7 (R2)",
+        "StartDate": "2012-02-05T00:00:00.000Z",
+        "_type": "Iteration"
+      },
+      {
+        "_rallyAPIMajor": "1",
+        "_rallyAPIMinor": "29",
+        "_ref": "https://demo.rallydev.com/slm/webservice/1.29/iteration/1094335.js",
+        "_objectVersion": "1",
+        "_refObjectName": "Iteration 8 (R3)",
+        "EndDate": "2012-03-03T23:59:59.000Z",
+        "Name": "Iteration 8 (R3)",
+        "StartDate": "2012-02-19T00:00:00.000Z",
+        "_type": "Iteration"
+      },
+      {
+        "_rallyAPIMajor": "1",
+        "_rallyAPIMinor": "29",
+        "_ref": "https://demo.rallydev.com/slm/webservice/1.29/iteration/1094339.js",
+        "_objectVersion": "1",
+        "_refObjectName": "Iteration 9 (R3)",
+        "EndDate": "2012-03-17T23:59:59.000Z",
+        "Name": "Iteration 9 (R3)",
+        "StartDate": "2012-03-04T00:00:00.000Z",
+        "_type": "Iteration"
+      },
+      {
+        "_rallyAPIMajor": "1",
+        "_rallyAPIMinor": "29",
+        "_ref": "https://demo.rallydev.com/slm/webservice/1.29/iteration/1094343.js",
+        "_objectVersion": "1",
+        "_refObjectName": "Iteration 10 (R3)",
+        "EndDate": "2012-03-31T23:59:59.000Z",
+        "Name": "Iteration 10 (R3)",
+        "StartDate": "2012-03-18T00:00:00.000Z",
+        "_type": "Iteration"
+      }
+    ]
+  }
+}

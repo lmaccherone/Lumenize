@@ -1,0 +1,46 @@
+{
+  "QueryResult": {
+    "_rallyAPIMajor": "1",
+    "_rallyAPIMinor": "29",
+    "Errors": [],
+    "Warnings": [],
+    "TotalResultCount": 3,
+    "StartIndex": 1,
+    "PageSize": 200,
+    "Results": [
+      {
+        "_rallyAPIMajor": "1",
+        "_rallyAPIMinor": "29",
+        "_ref": "https://demo.rallydev.com/slm/webservice/1.29/release/731453.js",
+        "_objectVersion": "2",
+        "_refObjectName": "Release 1 (1,2,3,4)",
+        "Name": "Release 1 (1,2,3,4)",
+        "ReleaseDate": "2012-01-07T23:59:59.000Z",
+        "ReleaseStartDate": "2011-11-13T00:00:00.000Z",
+        "_type": "Release"
+      },
+      {
+        "_rallyAPIMajor": "1",
+        "_rallyAPIMinor": "29",
+        "_ref": "https://demo.rallydev.com/slm/webservice/1.29/release/731480.js",
+        "_objectVersion": "2",
+        "_refObjectName": "Release 2 (5,6,7)",
+        "Name": "Release 2 (5,6,7)",
+        "ReleaseDate": "2012-02-18T23:59:59.000Z",
+        "ReleaseStartDate": "2012-01-08T00:00:00.000Z",
+        "_type": "Release"
+      },
+      {
+        "_rallyAPIMajor": "1",
+        "_rallyAPIMinor": "29",
+        "_ref": "https://demo.rallydev.com/slm/webservice/1.29/release/731507.js",
+        "_objectVersion": "2",
+        "_refObjectName": "Release 3 (8,9,10)",
+        "Name": "Release 3 (8,9,10)",
+        "ReleaseDate": "2012-03-31T23:59:59.000Z",
+        "ReleaseStartDate": "2012-02-19T00:00:00.000Z",
+        "_type": "Release"
+      }
+    ]
+  }
+}
