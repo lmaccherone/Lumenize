@@ -58,7 +58,7 @@ Also, add examples in the "docstrings", then generate the docs (which will also 
 ## Documentation and source code ##
 
 * [API Documentation](http://lmaccherone.github.com/Lumenize/docs/index.html)
-* [github.com/lmaccherone/ChartTime](https://github.com/lmaccherone/Lumenize)
+* [Source Repository](https://github.com/lmaccherone/Lumenize)
 
 
 
