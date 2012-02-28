@@ -34,9 +34,6 @@ class ChartTimeIterator
       # 2009-01-06
       # 2009-01-07
   ###
-
-  StopIteration = if typeof(StopIteration) == 'undefined' then utils.StopIteration else StopIteration
-
   constructor: (ctr, @emit = 'ChartTime', @childGranularity = 'day', tz) ->
     ###
     * **ctr** is a ChartTimeRange or a raw Object with all the necessary properties to be a spec for a new ChartTimeRange.
@@ -60,6 +57,8 @@ class ChartTimeIterator
     else
       @ctr = new ChartTimeRange(ctr)
     @startOver()
+
+  StopIteration = if typeof(StopIteration) == 'undefined' then utils.StopIteration else StopIteration
 
   startOver: () ->
     ###

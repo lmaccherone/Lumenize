@@ -37,7 +37,35 @@
             
           </div>
           <div class="class_content">
-            
+            <h1>ChartTimeIterator</h1>
+
+<p>Iterate through days, months, years, etc. skipping weekends and holidays that you 
+specify. It will also iterate over hours, minutes, seconds, etc. and skip times that are not
+between the specified work hours.</p>
+
+<h2>Usage</h2>
+
+<pre><code>{ChartTimeIterator, ChartTimeRange, ChartTime} = require('../node_modules')
+
+ChartTime.setTZPath('../vendor/tz')
+
+cti = new ChartTimeIterator({
+  start:new ChartTime({granularity: 'day', year: 2009, month:1, day: 1}),
+  pastEnd:new ChartTime({granularity: 'day', year: 2009, month:1, day: 8}),
+  workDays: 'Monday, Tuesday, Wednesday, Thursday, Friday',
+  holidays: [
+    {month: 1, day: 1},  # New Years day was a Thursday in 2009
+    {year: 2009, month: 1, day: 2}  # Also got Friday off in 2009
+  ]
+})
+
+while (cti.hasNext())
+  console.log(cti.next().toString())
+
+# 2009-01-05
+# 2009-01-06
+# 2009-01-07
+</code></pre>
             <div class="methods">
               
               

@@ -174,6 +174,112 @@ class ChartTime
       console.log(new ChartTime('2011-01-01').getJSDate('America/New_York'))
       # Sat, 01 Jan 2011 05:00:00 GMT
   ###
+  constructor: (spec_RDN_Or_String, granularity, tz) ->
+    ###
+    The constructor for ChartTime supports the passing in of a String, a rata die number (RDN), or a spec Object
+    
+    ## String ##
+    
+    When you pass in a **String**, ChartTime uses the masks that are defined for each granularity to figure out the granularity...
+    unless you explicitly provide a granularity. This parser does not work on all valid ISO-8601 forms. Ordinal dates are not 
+    supported at all but week number form (`"2009W52-7"`) is supported. The canonical form (`"2009-01-01T12:34:56.789"`) will work
+    as will any shortened subset of it (`"2009-01-01"`, `"2009-01-01T12:34"`, etc.). We've added a form for Quarter
+    granularity (`"2009Q4"`). Plus it will even parse strings in whatever custom granularity you provide based
+    upon the mask that you provide for that granularity.
+    
+    If the granularity is specified but not all of the segments are provided, ChartTime will fill in the missing value 
+    with the `lowest` value from granularitySpecs.
+    
+    The Lumenize hierarchy tools rely upon the property that a single character is used between segments so the ISO forms that 
+    omit the delimeters are not supported.
+    
+    If the string has a timezone indicator on the end (`...+05:00` or `...Z`), ChartTime will ignore it. Timezone information
+    is intended to only be used for comparison (see examples for timezone comparison).
+    
+    There are two special Strings that are recognized: `BEFORE_FIRST` and `PAST_LAST`. You must provide a granularity if you
+    are instantiating a ChartTime with these values. They are primarily used for custom granularities where your users
+    may mistakenly request charts for iterations and releases that have not yet been defined. They are particularly useful when 
+    you want to iterate to the last defined iteration/release.
+
+    ## Rata Die Number ##
+    
+    The **rata die number (RDN)** for a date is the number of days since 0001-01-01. You will probably never work
+    directly with this number but it's what ChartTime uses to convert between granularities. When you are instantiating
+    a ChartTime from an RDN, you must provide a granularity. Using RDN will work even for the granularities finer than day.
+    ChartTime will populate the finer grained segments (hour, minute, etc.) with the approriate `lowest` value.
+
+    ## Spec ##
+    
+    You can also explicitly spell out the segments in a **spec** Object in the form of 
+    `{granularity: 'day', year: 2009, month: 1, day: 1}`. If the granularity is specified but not all of the segments are 
+    provided, ChartTime will fill in the missing value with the appropriate `lowest` value from granularitySpecs.
+    
+    ## granularity ##
+    
+    If you provide a granularity it will take precedence over whatever fields you've provided in your spec or whatever segments
+    you have provided in your string. ChartTime will leave off extra values and fill in missing ones with the appropriate `lowest`
+    value.
+    
+    ## tz ##
+    
+    Most of the time, ChartTime assumes that any dates you pass in are timezone less. You'll specify Christmas as 12-25, then you'll
+    shift the boundaries of Christmas for a specific timezone for boundary comparison.
+    
+    However, if you provide a tz parameter to this constructor, ChartTime will assume you are passing in a true GMT date/time and shift into 
+    the provided timezone. So...
+    
+        d = new ChartTime('2011-01-01T02:00:00:00.000Z', 'day', 'America/New_York')
+        console.log(d.toString())
+        # 2010-12-31
+        
+    Rule of thumb on when you want to use timezones:
+    
+    1. If you have true GMT date/times and you want to create a ChartTime, provide the timezone to this constructor.
+    2. If you have abstract days like Christmas or June 10th and you want to delay the timezone consideration, don't provide a timezone to this constructor.
+    3. In either case, if the dates you want to compare to are in GMT, but you've got ChartTimes or ChartTimeRanges, you'll have to provide a timezone on
+       the way back out of ChartTime/ChartTimeRange
+    ###
+    @beforePastFlag = ''
+    switch utils.type(spec_RDN_Or_String)
+      when 'string'
+        s = spec_RDN_Or_String
+        if tz?
+          newCT = new ChartTime(s, 'millisecond')
+        else
+          @_setFromString(s, granularity)
+      when 'number'
+        rdn = spec_RDN_Or_String
+        if tz?
+          newCT = new ChartTime(rdn, 'millisecond')
+        else
+          @_setFromRDN(rdn, granularity)
+      else
+        spec = spec_RDN_Or_String
+        if tz?
+          spec.granularity = 'millisecond'
+          newCT = new ChartTime(spec)
+        else
+          @_setFromSpec(spec)
+
+    if tz?
+      if @beforePastFlag in ['BEFORE_FIRST', 'PAST_LAST']
+        throw new Error("Cannot do timezone manipulation on #{@beforePastFlag}")
+      jsDate = newCT.getJSDateInTZfromGMT(tz)
+      if granularity?
+        @granularity = granularity
+      newSpec =
+        year: jsDate.getUTCFullYear()
+        month: jsDate.getUTCMonth() + 1
+        day: jsDate.getUTCDate()
+        hour: jsDate.getUTCHours()
+        minute: jsDate.getUTCMinutes()
+        second: jsDate.getUTCSeconds()
+        millisecond: jsDate.getUTCMilliseconds()
+        granularity: @granularity
+      @_setFromSpec(newSpec)
+
+    @_inBoundsCheck()
+    @_overUnderFlow()
   
   # `granularitySpecs` is a static object that is used to tell ChartTime what to do with particular granularties. You can think of
   # each entry in it as a sort of sub-class of ChartTime. In that sense ChartTime is really a factory generating ChartTime objects
@@ -265,116 +371,7 @@ class ChartTime
   # the mask into segmentStart, segmentLength, and regex
   for g, spec of @granularitySpecs  # !TODO: Do consistency checks on granularitySpecs in the loop below
     ChartTime._expandMask(spec)
-  
-  constructor: (spec_RDN_Or_String, granularity, tz) ->
-    ###
-    The constructor for ChartTime supports the passing in of a String, a rata die number (RDN), or a spec Object
-    
-    ## String ##
-    
-    When you pass in a **String**, ChartTime uses the masks that are defined for each granularity to figure out the granularity...
-    unless you explicitly provide a granularity. This parser does not work on all valid ISO-8601 forms. Ordinal dates are not 
-    supported at all but week number form (`"2009W52-7"`) is supported. The canonical form (`"2009-01-01T12:34:56.789"`) will work
-    as will any shortened subset of it (`"2009-01-01"`, `"2009-01-01T12:34"`, etc.). We've added a form for Quarter
-    granularity (`"2009Q4"`). Plus it will even parse strings in whatever custom granularity you provide based
-    upon the mask that you provide for that granularity.
-    
-    If the granularity is specified but not all of the segments are provided, ChartTime will fill in the missing value 
-    with the `lowest` value from granularitySpecs.
-    
-    The Lumenize hierarchy tools rely upon the property that a single character is used between segments so the ISO forms that 
-    omit the delimeters are not supported.
-    
-    If the string has a timezone indicator on the end (`...+05:00` or `...Z`), ChartTime will ignore it. Timezone information
-    is intended to only be used for comparison (see examples for timezone comparison).
-    
-    There are two special Strings that are recognized: `BEFORE_FIRST` and `PAST_LAST`. You must provide a granularity if you
-    are instantiating a ChartTime with these values. They are primarily used for custom granularities where your users
-    may mistakenly request charts for iterations and releases that have not yet been defined. They are particularly useful when 
-    you want to iterate to the last defined iteration/release.
-
-    ## Rata Die Number ##
-    
-    The **rata die number (RDN)** for a date is the number of days since 0001-01-01. You will probably never work
-    directly with this number but it's what ChartTime uses to convert between granularities. When you are instantiating
-    a ChartTime from an RDN, you must provide a granularity. Using RDN will work even for the granularities finer than day.
-    ChartTime will populate the finer grained segments (hour, minute, etc.) with the approriate `lowest` value.
-
-    ## Spec ##
-    
-    You can also explicitly spell out the segments in a **spec** Object in the form of 
-    `{granularity: 'day', year: 2009, month: 1, day: 1}`. If the granularity is specified but not all of the segments are 
-    provided, ChartTime will fill in the missing value with the appropriate `lowest` value from granularitySpecs.
-    
-    ## granularity ##
-    
-    If you provide a granularity it will take precedence over whatever fields you've provided in your spec or whatever segments
-    you have provided in your string. ChartTime will leave off extra values and fill in missing ones with the appropriate `lowest`
-    value.
-    
-    ## tz ##
-    
-    Most of the time, ChartTime assumes that any dates you pass in are timezone less. You'll specify Christmas as 12-25, then you'll
-    shift the boundaries of Christmas for a specific timezone for boundary comparison.
-    
-    However, if you provide a tz parameter to this constructor, ChartTime will assume you are passing in a true GMT date/time and shift into 
-    the provided timezone. So...
-    
-        {ChartTime} = require('../')
-    
-        d = new ChartTime('2011-01-01T02:00:00:00.000Z', 'day', 'America/New_York')
-        console.log(d.toString())
-        # 2010-12-31
-        
-    Rule of thumb on when you want to use timezones:
-    
-    1. If you have true GMT date/times and you want to create a ChartTime, provide the timezone to this constructor.
-    2. If you have abstract days like Christmas or June 10th and you want to delay the timezone consideration, don't provide a timezone to this constructor.
-    3. In either case, if the dates you want to compare to are in GMT, but you've got ChartTimes or ChartTimeRanges, you'll have to provide a timezone on
-       the way back out of ChartTime/ChartTimeRange
-    ###
-    @beforePastFlag = ''
-    switch utils.type(spec_RDN_Or_String)
-      when 'string'
-        s = spec_RDN_Or_String
-        if tz?
-          newCT = new ChartTime(s, 'millisecond')
-        else
-          @_setFromString(s, granularity)
-      when 'number'
-        rdn = spec_RDN_Or_String
-        if tz?
-          newCT = new ChartTime(rdn, 'millisecond')
-        else
-          @_setFromRDN(rdn, granularity)
-      else
-        spec = spec_RDN_Or_String
-        if tz?
-          spec.granularity = 'millisecond'
-          newCT = new ChartTime(spec)
-        else
-          @_setFromSpec(spec)
-
-    if tz?
-      if @beforePastFlag in ['BEFORE_FIRST', 'PAST_LAST']
-        throw new Error("Cannot do timezone manipulation on #{@beforePastFlag}")
-      jsDate = newCT.getJSDateInTZfromGMT(tz)
-      if granularity?
-        @granularity = granularity
-      newSpec =
-        year: jsDate.getUTCFullYear()
-        month: jsDate.getUTCMonth() + 1
-        day: jsDate.getUTCDate()
-        hour: jsDate.getUTCHours()
-        minute: jsDate.getUTCMinutes()
-        second: jsDate.getUTCSeconds()
-        millisecond: jsDate.getUTCMilliseconds()
-        granularity: @granularity
-      @_setFromSpec(newSpec)
-
-    @_inBoundsCheck()
-    @_overUnderFlow()
-    
+      
   _inBoundsCheck: () ->
     if @beforePastFlag == '' or !@beforePastFlag?
       segments = ChartTime.granularitySpecs[@granularity].segments
@@ -977,9 +974,6 @@ class ChartTime
     you can then instantiate ChartTime objects in your newly specified granularity. You specify new granularities with 
     granularitySpec object like this:
         
-        {ChartTime} = require('../')
-        ChartTime.setTZPath('../vendor/tz')
-
         granularitySpec = {
           release: {
             segments: ['release'],
