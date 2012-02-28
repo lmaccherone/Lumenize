@@ -28,8 +28,6 @@
       <div id="module_docstring">
         <h1>ChartTime</h1>
 
-<p>Copyright (c) 2012, Lawrence S. Maccherone, Jr.</p>
-
 <p><em>Time axis creation/manipulation for charts</em></p>
 
 <h2>Features</h2>
@@ -37,68 +35,14 @@
 <ul>
 <li>Generate the values for time series chart axis</li>
 <li>Allows for custom granularities like release/iteration/iteration_day</li>
-<li>Knockout weekends and holidays</li>
-<li>Knockout non-work hours</li>
-<li>Drill up and down granularity (coneceptually supported by ChartTime, consumed by Lumenize)</li>
+<li>Knockout weekends and holidays (ChartTimeIterator)</li>
+<li>Knockout non-work hours (ChartTimeIterator)</li>
+<li>Drill up and down granularity</li>
 <li>Work with precision around timezone differences</li>
 <li>Month is 1-indexed instead of 0-indexed like Javascript's Date object</li>
 <li>Date/Time math (add 3 months, subtract 2 weeks, etc.)</li>
 <li>Tested</li>
 <li>Documented</li>
-</ul>
-
-<h2>Credits</h2>
-
-<p>Authors:</p>
-
-<ul>
-<li><a href="http://maccherone.com">Larry Maccherone</a> (Larry @at@ Maccherone .dot. com)</li>
-<li>Jennifer Maccherone</li>
-</ul>
-
-<p>Running:</p>
-
-<ul>
-<li><a href="https://github.com/mde/timezone-js">timezoneJS</a> - library for <a href="http://www.twinsun.com/tz/tz-link.htm">tz</a> parsing</li>
-<li><a href="http://nodejs.org/">Node.js</a></li>
-<li><a href="http://coffeescript.org/">CoffeeScript</a></li>
-</ul>
-
-<p>Developing/Documenting:</p>
-
-<ul>
-<li><a href="https://github.com/lmaccherone/coffeedoc">coffeedoc</a> (Larry Maccherone's fork) forked from <a href="https://github.com/omarkhan/coffeedoc">coffeedoc</a></li>
-<li><a href="https://github.com/lmaccherone/coffeedoctest">coffeedoctest</a> (by Larry Maccherone)</li>
-<li><a href="https://github.com/caolan/nodeunit">nodeunit</a></li>
-</ul>
-
-<h2>Installation and developing</h2>
-
-<p>To install in the node_modules directory of your project, run the following from the root folder of your project:</p>
-
-<p><code>npm install ChartTime</code></p>
-
-<p>To install globally:</p>
-
-<p><code>sudo npm install -g ChartTime</code></p>
-
-<p>Or if you want the latest from source, download/clone from GitHub and run:</p>
-
-<p><code>cake install</code></p>
-
-<p>If you want to add functionality to ChartTime and submit a pull request, add tests for your upgrades and make sure all test pass with:</p>
-
-<p><code>cake test</code></p>
-
-<p>Also, add examples in the "docstrings", then generate the docs (which will also confirm that the examples give the expected output when run):</p>
-
-<p><code>cake docs</code></p>
-
-<h2>Documentation and source code</h2>
-
-<ul>
-<li><a href="http://lmaccherone.github.com/ChartTime/docs/index.html">API Documentation</a></li>
-<li><a href="https://github.com/lmaccherone/ChartTime">github.com/lmaccherone/ChartTime</a></li>
 </ul>
 
 <h2>Granularity</h2>
@@ -270,58 +214,6 @@ console.log(q1.inGranularity('millisecond').toString())
 
 console.log(new ChartTime('2011-01-01').getJSDate('America/New_York'))
 # Sat, 01 Jan 2011 05:00:00 GMT
-</code></pre>
-
-<h2>Iterating over ranges skipping weekends, holidays, and non-workhours</h2>
-
-<pre><code>r = new ChartTimeRange({
-  start: new ChartTime('2011-01-02'),
-  pastEnd: new ChartTime('2011-01-07'),
-  workDays: 'Monday, Tuesday, Thursday, Friday',  # very strange work week
-  holidays: [
-    {month: 1, day: 1},  # Notice the lack of a year specification
-    {year: 2011, month: 1, day: 3}  # Got January 3 off also in 2011
-  ]
-})
-</code></pre>
-
-<p>Now let's get an iterator over this range.</p>
-
-<pre><code>i = r.getIterator('ChartTime')
-
-while i.hasNext()
-  console.log(i.next().toString()) 
-
-# 2011-01-04
-# 2011-01-06
-</code></pre>
-
-<p>You can also specify work hours and iterate at hour, minute, or finer granularity</p>
-
-<pre><code>r4 = new ChartTimeRange({
-  granularity: 'hour',
-  start:'2011-01-06',
-  pastEnd:'2011-01-11',
-  startWorkTime: {hour: 9, minute: 0},
-  pastEndWorkTime: {hour: 11, minute: 0}  # Very short work day for demo purposes
-})
-</code></pre>
-
-<p>Notice how we are able to simply use strings to represent the start/pastEnd dates. ChartTimeRange automatically constructs 
-ChartTime objects from those strings. We could have done that in the earlier examples. I chose not to do so to illustrate
-how ChartTimes are used under the covers.</p>
-
-<pre><code>i4 = r4.getIterator('ChartTime')
-
-while i4.hasNext()
-  console.log(i4.next().toString())
-
-# 2011-01-06T09
-# 2011-01-06T10
-# 2011-01-07T09
-# 2011-01-07T10
-# 2011-01-10T09
-# 2011-01-10T10
 </code></pre>
       </div>
       

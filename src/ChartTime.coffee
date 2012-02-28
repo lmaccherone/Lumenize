@@ -1,68 +1,20 @@
 ###
 # ChartTime #
 
-Copyright (c) 2012, Lawrence S. Maccherone, Jr.
-
 _Time axis creation/manipulation for charts_
 
 ## Features ##
 
 * Generate the values for time series chart axis
 * Allows for custom granularities like release/iteration/iteration_day
-* Knockout weekends and holidays
-* Knockout non-work hours
-* Drill up and down granularity (coneceptually supported by ChartTime, consumed by Lumenize)
+* Knockout weekends and holidays (ChartTimeIterator)
+* Knockout non-work hours (ChartTimeIterator)
+* Drill up and down granularity
 * Work with precision around timezone differences
 * Month is 1-indexed instead of 0-indexed like Javascript's Date object
 * Date/Time math (add 3 months, subtract 2 weeks, etc.)
 * Tested
 * Documented
-
-## Credits ##
-
-Authors:
-
-* [Larry Maccherone](http://maccherone.com) (Larry @at@ Maccherone .dot. com)
-* Jennifer Maccherone
-
-Running:
-
-* [timezoneJS](https://github.com/mde/timezone-js) - library for [tz](http://www.twinsun.com/tz/tz-link.htm) parsing
-* [Node.js](http://nodejs.org/)
-* [CoffeeScript](http://coffeescript.org/)
-
-Developing/Documenting:
-
-* [coffeedoc](https://github.com/lmaccherone/coffeedoc) (Larry Maccherone's fork) forked from [coffeedoc](https://github.com/omarkhan/coffeedoc)
-* [coffeedoctest](https://github.com/lmaccherone/coffeedoctest) (by Larry Maccherone)
-* [nodeunit](https://github.com/caolan/nodeunit)
-
-## Installation and developing ##
-
-To install in the node_modules directory of your project, run the following from the root folder of your project:
-
-`npm install ChartTime`
-    
-To install globally:
-
-`sudo npm install -g ChartTime`
-    
-Or if you want the latest from source, download/clone from GitHub and run:
-
-`cake install`
-    
-If you want to add functionality to ChartTime and submit a pull request, add tests for your upgrades and make sure all test pass with:
-
-`cake test`
-    
-Also, add examples in the "docstrings", then generate the docs (which will also confirm that the examples give the expected output when run):
-
-`cake docs`
-    
-## Documentation and source code ##
-
-* [API Documentation](http://lmaccherone.github.com/ChartTime/docs/index.html)
-* [github.com/lmaccherone/ChartTime](https://github.com/lmaccherone/ChartTime)
 
 ## Granularity ##
 
@@ -217,54 +169,6 @@ ChartTime does timezone sensitive conversions. You must set the path to the tz f
     
     console.log(new ChartTime('2011-01-01').getJSDate('America/New_York'))
     # Sat, 01 Jan 2011 05:00:00 GMT
-    
-## Iterating over ranges skipping weekends, holidays, and non-workhours ##
-
-    r = new ChartTimeRange({
-      start: new ChartTime('2011-01-02'),
-      pastEnd: new ChartTime('2011-01-07'),
-      workDays: 'Monday, Tuesday, Thursday, Friday',  # very strange work week
-      holidays: [
-        {month: 1, day: 1},  # Notice the lack of a year specification
-        {year: 2011, month: 1, day: 3}  # Got January 3 off also in 2011
-      ]
-    })
-    
-Now let's get an iterator over this range.
-    
-    i = r.getIterator('ChartTime')
-    
-    while i.hasNext()
-      console.log(i.next().toString()) 
-           
-    # 2011-01-04
-    # 2011-01-06
-    
-You can also specify work hours and iterate at hour, minute, or finer granularity
-
-    r4 = new ChartTimeRange({
-      granularity: 'hour',
-      start:'2011-01-06',
-      pastEnd:'2011-01-11',
-      startWorkTime: {hour: 9, minute: 0},
-      pastEndWorkTime: {hour: 11, minute: 0}  # Very short work day for demo purposes
-    })
-        
-Notice how we are able to simply use strings to represent the start/pastEnd dates. ChartTimeRange automatically constructs 
-ChartTime objects from those strings. We could have done that in the earlier examples. I chose not to do so to illustrate
-how ChartTimes are used under the covers.
-
-    i4 = r4.getIterator('ChartTime')
-    
-    while i4.hasNext()
-      console.log(i4.next().toString())
-      
-    # 2011-01-06T09
-    # 2011-01-06T10
-    # 2011-01-07T09
-    # 2011-01-07T10
-    # 2011-01-10T09
-    # 2011-01-10T10
 ###
 
 utils = require('./utils')
