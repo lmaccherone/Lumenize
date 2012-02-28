@@ -7,11 +7,10 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
   
       charttime = require('../')
       {csvStyleArray_To_ArrayOfMaps, snapshotArray_To_AtArray, ChartTime} = charttime
-      {groupByAtArray_To_HighChartsSeries, groupByAtArray_To_ExtData} = charttime
-      {aggregationAtArray_To_ExtData, aggregationAtArray_To_HighChartsSeries} = charttime
+      {groupByAtArray_To_HighChartsSeries, aggregationAtArray_To_HighChartsSeries} = charttime
       ChartTime.setTZPath("../vendor/tz")
   
-  Will convert a csvStyleArray like:
+  `csvStyleArry_To_ArryOfMaps` will convert a csvStyleArray like:
   
       csvStyleArray = [
         ['column1', 'column2'],

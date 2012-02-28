@@ -25,198 +25,6 @@
     </div>
     <div id="main">
       
-      <div id="module_docstring">
-        <h1>ChartTime</h1>
-
-<p><em>Time axis creation/manipulation for charts</em></p>
-
-<h2>Features</h2>
-
-<ul>
-<li>Generate the values for time series chart axis</li>
-<li>Allows for custom granularities like release/iteration/iteration_day</li>
-<li>Knockout weekends and holidays (ChartTimeIterator)</li>
-<li>Knockout non-work hours (ChartTimeIterator)</li>
-<li>Drill up and down granularity</li>
-<li>Work with precision around timezone differences</li>
-<li>Month is 1-indexed instead of 0-indexed like Javascript's Date object</li>
-<li>Date/Time math (add 3 months, subtract 2 weeks, etc.)</li>
-<li>Tested</li>
-<li>Documented</li>
-</ul>
-
-<h2>Granularity</h2>
-
-<p>Each ChartTime object has a granularity. This means that you never have to
-worry about any bits lower than your specified granularity. A day has only
-year, month, and day segments. You are never tempted to specify 11:59pm
-to specify the end of a day-long timebox.</p>
-
-<p>ChartTime supports the following granularities:</p>
-
-<ul>
-<li><code>year</code>
-<ul><li><code>month</code>
-<ul><li><code>day</code>
-<ul><li><code>hour</code>
-<ul><li><code>minute</code>
-<ul><li><code>second</code>
-<ul><li><code>millisecond</code></li></ul></li></ul></li></ul></li></ul></li></ul></li>
-<li><code>quarter</code> (but not quarter_month, day, etc.)</li>
-<li><code>week</code> (ISO-8601 style week numbering)
-<ul><li><code>week_day</code> (Monday = 1, Sunday = 7)</li></ul></li></ul></li>
-</ul>
-
-<p>Also, you can define your own custom hierarchical granularities, for example...</p>
-
-<ul>
-<li><code>release</code>
-<ul><li><code>iteration</code>
-<ul><li><code>iteration_day</code></li></ul></li></ul></li>
-</ul>
-
-<h2>Timezone precision</h2>
-
-<p>It's very hard to do filtering and grouping of time-series data with timezone precision. </p>
-
-<p>For instance, 11pm in California on December 25 (Christmas holiday) is 2am December 26 (not a holiday)
-in New York. This also happens to be 7am December 26 GMT. If you have an event that occurs at 
-2011-12-26T07:00:00.000Z, then you need to decide what timezone to use as your context before you 
-decide if that event occured on Christmas day or not. It's not just holidays where this can burn you.
-Deciding if a piece of work finished in one iteration versus another can make a difference for
-you iteration metrics. The iteration metrics for a distributed team should look the same regardless
-of whether those metrics were generated in New York versus Los Angeles... versus Bangalore.</p>
-
-<p>The javascript Date object lets you work in either the local time or Zulu (GMT/UTC) time but it doesn't let you
-control the timezone. Do you know the correct way to apply the timezone shift to a JavaScript Date Object? 
-Do you know when Daylight Savings Time kicks in and New York is 4 hours shifted from GMT instead of 5? Will
-you remember to do it perfectly every time it's needed in your code?</p>
-
-<p>If you need this precision, ChartTime helps by clearly delineating the moment when you need to do 
-timezone manipulation... the moment you need to compare two or more dates. You can do all of your
-holiday/weekend knockout manipulation without regard to timezone and only consider the timezone
-upon comparison. </p>
-
-<h2>Month is 1-indexed as you would expect</h2>
-
-<p>Javascript's date object uses 0 for January and 11 for December. ChartTime uses 1 for January and 12 for December...
-which is what ISO-8601 uses and what humans expect. Everyone who works with the javascript Date Object at one
-point or another gets burned by this.</p>
-
-<h2>Week support</h2>
-
-<p>ChartTime follows ISO-8601 where ever it makes sense. Implications of using this ISO format (paraphrased info from wikipedia):</p>
-
-<ul>
-<li>All weeks have 7 days (i.e. there are no fractional weeks).</li>
-<li>Any given day falls into a single week which means that incrementing across the year boundary in week
-granularity is without gaps or repeats.</li>
-<li>Weeks are contained within a single year. (i.e. weeks are never spit over two years).</li>
-<li>The above two implications also mean that we have to warp the boundaries of the year to accomplish this. In week
-granularity dates may appear in a different year than you would expect and some years have 53 weeks.</li>
-<li>The date directly tells the weekday.</li>
-<li>All years start with a Monday and end with a Sunday.</li>
-<li>Dates represented as yyyyWww-d can be sorted as strings.</li>
-</ul>
-
-<p><strong>In general, it just greatly simplifies the use of week granularity in a chart situation.</strong></p>
-
-<p>The only real downside to this approach is that USA folks expect the week to start on Sunday. However, the ISO-8601 spec starts
-each week on Monday. Following ISO-8601, ChartTime uses 1 for Monday and 7 for Sunday which aligns with
-the US standard for every day except Sunday. The US standard is to use 0 for Sunday.</p>
-
-<h2>Basic usage</h2>
-
-<pre><code>{ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
-
-d1 = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 28})
-console.log(d1.toString())
-# 2011-02-28
-</code></pre>
-
-<p>You can use the string short-hand rather than spell out the segments seperately. The granularity
-is automatically inferred from how many segments you provide.</p>
-
-<pre><code>d2 = new ChartTime('2011-03-01')
-console.log(d2.toString())
-# 2011-03-01
-</code></pre>
-
-<p>Increment/decrement and compare ChartTimes without regard to timezone</p>
-
-<pre><code>console.log(d1.$gte(d2)) 
-d1.increment()
-console.log(d1.$eq(d2))
-# false
-# true
-</code></pre>
-
-<p>Do math on them.</p>
-
-<pre><code>d3 = d1.add(5)
-console.log(d3.toString())
-# 2011-03-06
-</code></pre>
-
-<p>Get the day of the week.</p>
-
-<pre><code>console.log(d3.dowString())
-# Sunday
-</code></pre>
-
-<p>Subtraction is just addition with negative numbers.</p>
-
-<pre><code>d3.addInPlace(-6)
-console.log(d3.toString())
-# 2011-02-28
-</code></pre>
-
-<p>If you start on the last day of a month, adding a month takes you to the last day of the next month, 
-even if the number of days are different.</p>
-
-<pre><code>d3.addInPlace(1, 'month')  
-console.log(d3.toString())
-# 2011-03-31
-</code></pre>
-
-<p>Deals well with year-granularity math and leap year complexity.</p>
-
-<pre><code>d4 = new ChartTime('2004-02-29')  # leap day
-d4.addInPlace(1, 'year')  # adding a year takes us to a non-leap year
-console.log(d4.toString())
-# 2005-02-28
-</code></pre>
-
-<p>Week granularity correctly wraps and deals with 53-week years.</p>
-
-<pre><code>w1 = new ChartTime('2004W53-6')
-console.log(w1.inGranularity('day').toString())
-# 2005-01-01
-</code></pre>
-
-<p>Convert between any of the standard granularities. Also converts custom granularities (not shown) to
-standard granularities if you provide a <code>rataDieNumber()</code> function with your custom granularities.</p>
-
-<pre><code>d5 = new ChartTime('2005-01-01')  # goes the other direction also
-console.log(d5.inGranularity('week_day').toString())
-# 2004W53-6
-
-q1 = new ChartTime('2011Q3')
-console.log(q1.inGranularity('millisecond').toString())
-# 2011-07-01T00:00:00.000
-</code></pre>
-
-<h2>Timezones</h2>
-
-<p>ChartTime does timezone sensitive conversions. You must set the path to the tz files before doing any timezone sensitive comparisons.</p>
-
-<pre><code>ChartTime.setTZPath('../vendor/tz')
-
-console.log(new ChartTime('2011-01-01').getJSDate('America/New_York'))
-# Sat, 01 Jan 2011 05:00:00 GMT
-</code></pre>
-      </div>
-      
       
       <div id="classes">
         <h2>Classes</h2>
@@ -244,7 +52,10 @@ console.log(new ChartTime('2011-01-01').getJSDate('America/New_York'))
 you can then instantiate ChartTime objects in your newly specified granularity. You specify new granularities with 
 granularitySpec object like this:</p>
 
-<pre><code>granularitySpec = {
+<pre><code>{ChartTime} = require('../')
+ChartTime.setTZPath('../vendor/tz')
+
+granularitySpec = {
   release: {
     segments: ['release'],
     mask: 'R##',
@@ -392,7 +203,9 @@ shift the boundaries of Christmas for a specific timezone for boundary compariso
 <p>However, if you provide a tz parameter to this constructor, ChartTime will assume you are passing in a true GMT date/time and shift into 
 the provided timezone. So...</p>
 
-<pre><code>d = new ChartTime('2011-01-01T02:00:00:00.000Z', 'day', 'America/New_York')
+<pre><code>{ChartTime} = require('../')
+
+d = new ChartTime('2011-01-01T02:00:00:00.000Z', 'day', 'America/New_York')
 console.log(d.toString())
 # 2010-12-31
 </code></pre>

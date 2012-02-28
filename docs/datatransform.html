@@ -46,12 +46,11 @@
 
 <pre><code>charttime = require('../')
 {csvStyleArray_To_ArrayOfMaps, snapshotArray_To_AtArray, ChartTime} = charttime
-{groupByAtArray_To_HighChartsSeries, groupByAtArray_To_ExtData} = charttime
-{aggregationAtArray_To_ExtData, aggregationAtArray_To_HighChartsSeries} = charttime
+{groupByAtArray_To_HighChartsSeries, aggregationAtArray_To_HighChartsSeries} = charttime
 ChartTime.setTZPath("../vendor/tz")
 </code></pre>
 
-<p>Will convert a csvStyleArray like:</p>
+<p><code>csvStyleArry_To_ArryOfMaps</code> will convert a csvStyleArray like:</p>
 
 <pre><code>csvStyleArray = [
   ['column1', 'column2'],
