@@ -1,0 +1,53 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <title>Rally Cycle Time Scatter/Histogram Chart</title>
+        
+        
+        <!-- 1. Add these JavaScript inclusions in the head of your page -->
+        <script type="text/javascript" src="../lib/jquery.min.js"></script>
+        <script type="text/javascript" src="../lib/highcharts/js/highcharts.js"></script>
+        <script type="text/javascript" src="../deploy/lumenize.js"></script>
+        
+        <!-- 1a) Optional: add a theme file -->
+        <!--
+            <script type="text/javascript" src="../js/themes/gray.js"></script>
+        -->
+        
+        <!-- 1b) Optional: the exporting module -->
+        <script type="text/javascript" src="../lib/highcharts/js/modules/exporting.js"></script>
+        
+        
+        <!-- 2. Add the JavaScript to initialize the chart on document ready -->
+        <script type="text/javascript">
+            
+            var ChartTime = require('./ChartTime').ChartTime;
+            ChartTime.setTZPath("../node_modules/charttime/vendor/tz");
+            // var ChartTimeRange = charttime.ChartTimeRange;
+            // var ChartTimeIterator = charttime.ChartTimeIterator;
+            // var ChartTimeInStateCalculator = charttime.ChartTimeInStateCalculator;
+            // var histogram = charttime.histogram;
+            
+            $(document).ready(function() {
+
+
+            });
+                
+        </script>
+        
+    </head>
+    <body>
+        
+        <!-- 3. Add the containers -->
+        <table cellpading="0px" cellspacing="0px" width="98%" height="98%">
+          <tr>
+            <td width="35%"><div id="histogram-container" style="width: 100%; height: 100%; margin: 0 auto"></div></td>
+            <td width="65%"><div id="scatter-container" style="width: 100%; height: 100%; margin: 0 auto"></div></td>
+          </tr>
+        </table>
+                
+    </body>
+</html>
+
+

@@ -4,6 +4,8 @@ path          = require('path')
 {spawn, exec} = require('child_process')
 async         = require('async')
 
+# lzw           = require('lzw-async')
+
 run = (command, options, next) ->
   if options? and options.length > 0
     command += ' ' + options.join(' ')
@@ -47,18 +49,7 @@ task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
       files = [srcPlus].concat(files[0..position-1], files[position+1..files.length-1])
 
     process.chdir(__dirname + '/src')
-    run('coffeedoc', ['-o', '../docs', '--readme', '-r', '../README.md'].concat(files), () ->
-      # async.concat(files, fs.readFile, (err, fileArray) ->
-      #   process.chdir(__dirname)
-      #   pathName = './docs/annotated_source.coffee'
-      #   fs.writeFile(pathName, fileArray.join('\n\n'), () ->
-      #     options = [pathName]
-      #     run('docco', options, () ->
-      #       fs.unlink(pathName)
-      #     )
-      #   )
-      # )
-    )
+    run('coffeedoc', ['-o', '../docs', '--readme', '-r', '../README.md'].concat(files))
     
     process.chdir(__dirname)
     run('coffeedoctest', ['--readme', '--requirepath', 'src', 'src'])
@@ -83,11 +74,41 @@ task('publish', 'Publish to npm', () ->
 task('build', 'Build with browserify and place in ./deploy', () ->
   fs.readdir('src', (err, contents) ->
     browserify = require('browserify')
+    fileify = require('fileify')
     files = ("./src/#{file}" for file in contents when (file.indexOf('.coffee') > 0))
-    b = browserify({require : files})
-    fs.writeFile("deploy/#{path.basename(__dirname)}.js", b.bundle())
+    b = browserify()
+    b.use(fileify('files', __dirname + '/files'))
+    b.ignore(['files'])
+    b.require(files)
+    fs.writeFileSync("deploy/#{path.basename(__dirname)}.js", b.bundle())
+    run("uglifyjs deploy/#{path.basename(__dirname)}.js > deploy/#{path.basename(__dirname)}-min.js")
   ) # !TODO: Need to run tests on the built version
 )
+
+# task('prep-tz', 'NOT WORKING - Prepare the tz files found in vendor/tz for browserify/fileify and place in files/tz.', () ->
+#   files = [
+#     'africa',
+#     'antarctica',
+#     'asia',
+#     'australasia',
+#     'backward',
+#     'etcetera',
+#     'europe',
+#     'northamerica',
+#     'pacificnew',
+#     'southamerica',
+#   ]
+#   for f in files
+#     inputFile = 'vendor/tz/' + f
+#     outputFile = 'files2/tz/' + f + '.lzw'
+#     fs.readFile(inputFile, (err, contents) ->
+#       lzw.compress({
+#         input: contents,
+#         output: (output) ->
+#           fs.writeFile(outputFile, output)
+#       })
+#     ) 
+# )
 
 task('test', 'Run the CoffeeScript test suite with nodeunit', () ->
   {reporters} = require 'nodeunit'
