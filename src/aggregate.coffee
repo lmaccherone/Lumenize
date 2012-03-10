@@ -334,6 +334,7 @@ timeSeriesCalculator = (snapshotArray, config) ->
   
   # 1. Figuring out the points for the x-axis (listOfAtCTs)
   range = new ChartTimeRange(config.rangeSpec)  
+  
   subRanges = range.getIterator('ChartTimeRange').getAll()
   # The end of the day/week/month/etc. is where we want the stuff calculated so let's get those.
   # These are the points we want on our x-axis. 

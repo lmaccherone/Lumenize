@@ -1664,6 +1664,9 @@ require.define("/ChartTime.coffee", function (require, module, exports, __dirnam
     };
 
     ChartTime.prototype.getJSDateString = function(tz) {
+      /*
+          Returns the canonical ISO-8601 date in zulu representation but shifted to the specified tz
+      */
       var day, hour, jsDate, millisecond, minute, month, s, second, year;
       jsDate = this.getJSDate(tz);
       year = jsDate.getUTCFullYear();
@@ -2920,7 +2923,7 @@ require.define("/ChartTimeIteratorAndRange.coffee", function (require, module, e
     var StopIteration;
 
     function ChartTimeIterator(ctr, emit, childGranularity, tz) {
-      var _ref, _ref2;
+      var _ref, _ref2, _ref3;
       this.emit = emit != null ? emit : 'ChartTime';
       this.childGranularity = childGranularity != null ? childGranularity : 'day';
       /*
@@ -2939,7 +2942,10 @@ require.define("/ChartTimeIteratorAndRange.coffee", function (require, module, e
       */
       utils.assert((_ref = this.emit) === 'ChartTime' || _ref === 'ChartTimeRange' || _ref === 'Date', "emit must be 'ChartTime', 'ChartTimeRange', or 'Date'. You provided " + this.emit + ".");
       utils.assert(this.emit !== 'Date' || (tz != null), 'Must provide a tz (timezone) parameter when emitting Dates.');
-      if ((_ref2 = this.tz) == null) this.tz = tz;
+      if ((_ref2 = ctr.granularity) === 'Minute' || _ref2 === 'Second' || _ref2 === 'Millisecond') {
+        console.error("Warning: iterating at granularity " + ctr.granularity + " can be very slow.");
+      }
+      if ((_ref3 = this.tz) == null) this.tz = tz;
       if (ctr instanceof ChartTimeRange) {
         this.ctr = ctr;
       } else {
@@ -3985,36 +3991,36 @@ require.define("/datatransform.coffee", function (require, module, exports, __di
     return output;
   };
 
-  aggregationAtArray_To_HighChartsSeries = function(aggregationAtArray, series) {
+  aggregationAtArray_To_HighChartsSeries = function(aggregationAtArray, aggregations) {
     /* 
     Takes an array of arrays that came from charttime.aggregateAt and looks like this:
     
         aggregationAtArray = [
-          {"Series 1": 8, "Series 2": 5, Series3: 10},
-          {"Series 1": 2, "Series 2": 3, Series3: 20}
+          {"Series 1": 8, "Series 2": 5, "Series3": 10},
+          {"Series 1": 2, "Series 2": 3, "Series3": 20}
         ]
     
     and a list of series configurations
     
-        series = [
+        aggregations = [
           {name: "Series 1", yAxis: 1},
           {name: "Series 2"}
         ]
         
     and extracts the data into seperate series
     
-        console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, series))
+        console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregations))
         # [ { name: 'Series 1', data: [ 8, 2 ], yAxis: 1 },
         #   { name: 'Series 2', data: [ 5, 3 ] } ]
         
     Notice how the extra fields from the series array are included in the output.
     */
-    var aggregationRow, idx, key, output, outputRow, preOutput, s, seriesNames, seriesRow, value, _i, _j, _k, _len, _len2, _len3, _len4;
+    var a, aggregationRow, idx, key, output, outputRow, preOutput, s, seriesNames, seriesRow, value, _i, _j, _k, _len, _len2, _len3, _len4;
     preOutput = {};
     seriesNames = [];
-    for (_i = 0, _len = series.length; _i < _len; _i++) {
-      s = series[_i];
-      seriesNames.push(s.name);
+    for (_i = 0, _len = aggregations.length; _i < _len; _i++) {
+      a = aggregations[_i];
+      seriesNames.push(a.name);
     }
     for (_j = 0, _len2 = aggregationAtArray.length; _j < _len2; _j++) {
       aggregationRow = aggregationAtArray[_j];
@@ -4031,7 +4037,7 @@ require.define("/datatransform.coffee", function (require, module, exports, __di
         name: s,
         data: preOutput[s]
       };
-      seriesRow = series[idx];
+      seriesRow = aggregations[idx];
       for (key in seriesRow) {
         value = seriesRow[key];
         if (key !== 'name' && key !== 'data') outputRow[key] = value;
@@ -4267,6 +4273,7 @@ require.define("/index.coffee", function (require, module, exports, __dirname, _
 });
 
 require.define("/lumenize.coffee", function (require, module, exports, __dirname, __filename) {
+(function() {
 
   /*
   # Lumenize #
@@ -4304,7 +4311,16 @@ require.define("/lumenize.coffee", function (require, module, exports, __dirname
   * [coffeedoctest](https://github.com/lmaccherone/coffeedoctest) (by Larry Maccherone)
   * [nodeunit](https://github.com/caolan/nodeunit)
   
-  ## Installation and developing ##
+  ## Using directly from a browser ##
+  
+  To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
+  
+  `<script type="text/javascript" src="http://lmaccherone.github.com/Lumenize/deploy/lumenize-min.js"></script>`
+  
+  The package is fairly large ~252KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip 
+  the package so it's only ~59KB over the wire.
+      
+  ## Installation for node.js usage ##
   
   To install in the node_modules directory of your project, run the following from the root folder of your project:
   
@@ -4314,9 +4330,11 @@ require.define("/lumenize.coffee", function (require, module, exports, __dirname
   
   `sudo npm install -g Lumenize`
       
-  Or if you want the latest from source, download/clone from GitHub and run:
+  If you want the latest from source, download/clone from GitHub and run:
   
   `cake install`
+  
+  ## Contributing to Lumenize ##
       
   If you want to add functionality to Lumenize and submit a pull request, add tests for your upgrades and make sure all test pass with:
   
@@ -4325,13 +4343,65 @@ require.define("/lumenize.coffee", function (require, module, exports, __dirname
   Also, add examples in the "docstrings", then generate the docs (which will also confirm that the examples give the expected output when run):
   
   `cake docs`
-      
+  
   ## Documentation and source code ##
   
   * [API Documentation](http://lmaccherone.github.com/Lumenize/docs/index.html)
   * [Source Repository](https://github.com/lmaccherone/Lumenize)
   */
 
+  var aggregate, chartTimeIteratorAndRange, datatransform, derive;
 
+  exports.timezoneJS = require('timezone-js').timezoneJS;
+
+  exports.utils = require('./utils');
+
+  exports.ChartTime = require('./ChartTime').ChartTime;
+
+  chartTimeIteratorAndRange = require('./ChartTimeIteratorAndRange');
+
+  exports.ChartTimeIterator = chartTimeIteratorAndRange.ChartTimeIterator;
+
+  exports.ChartTimeRange = chartTimeIteratorAndRange.ChartTimeRange;
+
+  exports.ChartTimeInStateCalculator = require('./ChartTimeInStateCalculator').ChartTimeInStateCalculator;
+
+  datatransform = require('./datatransform');
+
+  exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps;
+
+  exports.snapshotArray_To_AtArray = datatransform.snapshotArray_To_AtArray;
+
+  exports.groupByAtArray_To_HighChartsSeries = datatransform.groupByAtArray_To_HighChartsSeries;
+
+  exports.aggregationAtArray_To_HighChartsSeries = datatransform.aggregationAtArray_To_HighChartsSeries;
+
+  aggregate = require('./aggregate');
+
+  exports.aggregate = aggregate.aggregate;
+
+  exports.aggregateAt = aggregate.aggregateAt;
+
+  exports.groupBy = aggregate.groupBy;
+
+  exports.groupByAt = aggregate.groupByAt;
+
+  exports.functions = aggregate.functions;
+
+  exports.percentileCreator = aggregate.percentileCreator;
+
+  exports.timeSeriesCalculator = aggregate.timeSeriesCalculator;
+
+  exports.timeSeriesGroupByCalculator = aggregate.timeSeriesGroupByCalculator;
+
+  derive = require('./derive');
+
+  exports.deriveFields = derive.deriveFields;
+
+  exports.deriveFieldsAt = derive.deriveFieldsAt;
+
+  exports.histogram = require('./histogram').histogram;
+
+}).call(this);
 
 });

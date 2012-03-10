@@ -578,6 +578,9 @@ class ChartTime
     return newDate
     
   getJSDateString: (tz) ->
+    ###
+    Returns the canonical ISO-8601 date in zulu representation but shifted to the specified tz
+    ###
     jsDate = @getJSDate(tz)
     year = jsDate.getUTCFullYear()
     month = jsDate.getUTCMonth() + 1

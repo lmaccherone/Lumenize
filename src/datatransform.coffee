@@ -185,25 +185,25 @@ groupByAtArray_To_HighChartsSeries = (groupByAtArray, nameField, valueField, nam
   return output
 
 
-aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, series) ->  # !TODO: Needs tests
+aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, aggregations) ->  # !TODO: Needs tests
   ### 
   Takes an array of arrays that came from charttime.aggregateAt and looks like this:
   
       aggregationAtArray = [
-        {"Series 1": 8, "Series 2": 5, Series3: 10},
-        {"Series 1": 2, "Series 2": 3, Series3: 20}
+        {"Series 1": 8, "Series 2": 5, "Series3": 10},
+        {"Series 1": 2, "Series 2": 3, "Series3": 20}
       ]
   
   and a list of series configurations
   
-      series = [
+      aggregations = [
         {name: "Series 1", yAxis: 1},
         {name: "Series 2"}
       ]
       
   and extracts the data into seperate series
   
-      console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, series))
+      console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregations))
       # [ { name: 'Series 1', data: [ 8, 2 ], yAxis: 1 },
       #   { name: 'Series 2', data: [ 5, 3 ] } ]
       
@@ -213,8 +213,8 @@ aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, series) ->  # !TOD
   preOutput = {}
   
   seriesNames = []
-  for s in series
-    seriesNames.push(s.name)
+  for a in aggregations
+    seriesNames.push(a.name)
 
   for aggregationRow in aggregationAtArray
     for s in seriesNames
@@ -226,7 +226,7 @@ aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, series) ->  # !TOD
   output = []
   for s, idx in seriesNames
     outputRow = {name: s, data: preOutput[s]}
-    seriesRow = series[idx]
+    seriesRow = aggregations[idx]
     for key, value of seriesRow
       unless key in ['name', 'data']
         outputRow[key] = value

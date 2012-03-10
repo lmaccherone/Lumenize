@@ -174,21 +174,21 @@ out the other side as Strings. I could fix this if it ever became a problem.</li
         
         <div class="function">
           <div class="header">
-            <a id="aggregationAtArray_To_HighChartsSeries"><h3>aggregationAtArray_To_HighChartsSeries(aggregationAtArray, series)</h3></a>
+            <a id="aggregationAtArray_To_HighChartsSeries"><h3>aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregations)</h3></a>
           </div>
           
           <div>
             <p>Takes an array of arrays that came from charttime.aggregateAt and looks like this:</p>
 
 <pre><code>aggregationAtArray = [
-  {"Series 1": 8, "Series 2": 5, Series3: 10},
-  {"Series 1": 2, "Series 2": 3, Series3: 20}
+  {"Series 1": 8, "Series 2": 5, "Series3": 10},
+  {"Series 1": 2, "Series 2": 3, "Series3": 20}
 ]
 </code></pre>
 
 <p>and a list of series configurations</p>
 
-<pre><code>series = [
+<pre><code>aggregations = [
   {name: "Series 1", yAxis: 1},
   {name: "Series 2"}
 ]
@@ -196,7 +196,7 @@ out the other side as Strings. I could fix this if it ever became a problem.</li
 
 <p>and extracts the data into seperate series</p>
 
-<pre><code>console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, series))
+<pre><code>console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregations))
 # [ { name: 'Series 1', data: [ 8, 2 ], yAxis: 1 },
 #   { name: 'Series 2', data: [ 5, 3 ] } ]
 </code></pre>

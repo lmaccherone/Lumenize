@@ -34,7 +34,16 @@ Developing/Documenting:
 * [coffeedoctest](https://github.com/lmaccherone/coffeedoctest) (by Larry Maccherone)
 * [nodeunit](https://github.com/caolan/nodeunit)
 
-## Installation and developing ##
+## Using directly from a browser ##
+
+To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
+
+`<script type="text/javascript" src="http://lmaccherone.github.com/Lumenize/deploy/lumenize-min.js"></script>`
+
+The package is fairly large ~252KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip 
+the package so it's only ~59KB over the wire.
+    
+## Installation for node.js usage ##
 
 To install in the node_modules directory of your project, run the following from the root folder of your project:
 
@@ -44,9 +53,11 @@ To install globally:
 
 `sudo npm install -g Lumenize`
     
-Or if you want the latest from source, download/clone from GitHub and run:
+If you want the latest from source, download/clone from GitHub and run:
 
 `cake install`
+
+## Contributing to Lumenize ##
     
 If you want to add functionality to Lumenize and submit a pull request, add tests for your upgrades and make sure all test pass with:
 
@@ -55,10 +66,44 @@ If you want to add functionality to Lumenize and submit a pull request, add test
 Also, add examples in the "docstrings", then generate the docs (which will also confirm that the examples give the expected output when run):
 
 `cake docs`
-    
+
 ## Documentation and source code ##
 
 * [API Documentation](http://lmaccherone.github.com/Lumenize/docs/index.html)
 * [Source Repository](https://github.com/lmaccherone/Lumenize)
 
 ###
+
+exports.timezoneJS = require('timezone-js').timezoneJS
+
+exports.utils = require('./utils')
+
+exports.ChartTime = require('./ChartTime').ChartTime
+
+chartTimeIteratorAndRange = require('./ChartTimeIteratorAndRange')
+exports.ChartTimeIterator = chartTimeIteratorAndRange.ChartTimeIterator
+exports.ChartTimeRange = chartTimeIteratorAndRange.ChartTimeRange
+
+exports.ChartTimeInStateCalculator = require('./ChartTimeInStateCalculator').ChartTimeInStateCalculator
+
+datatransform = require('./datatransform')
+exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps
+exports.snapshotArray_To_AtArray = datatransform.snapshotArray_To_AtArray
+exports.groupByAtArray_To_HighChartsSeries = datatransform.groupByAtArray_To_HighChartsSeries
+exports.aggregationAtArray_To_HighChartsSeries = datatransform.aggregationAtArray_To_HighChartsSeries
+
+aggregate = require('./aggregate')
+exports.aggregate = aggregate.aggregate
+exports.aggregateAt = aggregate.aggregateAt
+exports.groupBy = aggregate.groupBy
+exports.groupByAt = aggregate.groupByAt
+exports.functions = aggregate.functions
+exports.percentileCreator = aggregate.percentileCreator
+exports.timeSeriesCalculator = aggregate.timeSeriesCalculator
+exports.timeSeriesGroupByCalculator = aggregate.timeSeriesGroupByCalculator
+
+derive = require('./derive')
+exports.deriveFields = derive.deriveFields
+exports.deriveFieldsAt = derive.deriveFieldsAt
+
+exports.histogram = require('./histogram').histogram

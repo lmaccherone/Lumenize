@@ -51,6 +51,8 @@ class ChartTimeIterator
     ###
     utils.assert(@emit in ['ChartTime', 'ChartTimeRange', 'Date'], "emit must be 'ChartTime', 'ChartTimeRange', or 'Date'. You provided #{@emit}.")
     utils.assert(@emit != 'Date' or tz?, 'Must provide a tz (timezone) parameter when emitting Dates.')
+    if ctr.granularity in ['Minute','Second', 'Millisecond']
+      console.error("Warning: iterating at granularity #{ctr.granularity} can be very slow.")
     @tz ?= tz  # !TODO: Need to test tz and emitting Dates
     if ctr instanceof ChartTimeRange
       @ctr = ctr
@@ -367,7 +369,7 @@ class ChartTimeRange
       @start = @start.inGranularity(@granularity)
       @pastEnd = @pastEnd.inGranularity(@granularity)
     unless @granularity
-      throw new Error('Cannot determine granularity for ChartTimeRange.')    
+      throw new Error('Cannot determine granularity for ChartTimeRange.')  
     if @start == 'BEFORE_FIRST'
       @start = new ChartTime(@start, @granularity)
     if @pastEnd == 'PAST_LAST'

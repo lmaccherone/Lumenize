@@ -62,7 +62,16 @@ non-workhours, work in any granularity (year, quarter, week, day, hour, etc.), e
 <li><a href="https://github.com/caolan/nodeunit">nodeunit</a></li>
 </ul>
 
-<h2>Installation and developing</h2>
+<h2>Using directly from a browser</h2>
+
+<p>To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:</p>
+
+<p><code>&lt;script type="text/javascript" src="http://lmaccherone.github.com/Lumenize/deploy/lumenize-min.js"&gt;&lt;/script&gt;</code></p>
+
+<p>The package is fairly large ~252KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip 
+the package so it's only ~59KB over the wire.</p>
+
+<h2>Installation for node.js usage</h2>
 
 <p>To install in the node_modules directory of your project, run the following from the root folder of your project:</p>
 
@@ -72,9 +81,11 @@ non-workhours, work in any granularity (year, quarter, week, day, hour, etc.), e
 
 <p><code>sudo npm install -g Lumenize</code></p>
 
-<p>Or if you want the latest from source, download/clone from GitHub and run:</p>
+<p>If you want the latest from source, download/clone from GitHub and run:</p>
 
 <p><code>cake install</code></p>
+
+<h2>Contributing to Lumenize</h2>
 
 <p>If you want to add functionality to Lumenize and submit a pull request, add tests for your upgrades and make sure all test pass with:</p>
 
