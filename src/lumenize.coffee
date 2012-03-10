@@ -42,6 +42,18 @@ To use in a browser, either host it on your own site, or if your volume is low e
 
 The package is fairly large ~252KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip 
 the package so it's only ~59KB over the wire.
+
+Then at the top of the javascript where you want to call it, put the following:
+
+`var lumenize = require('./lumenize');`
+
+Then to use it, you can either create local aliases like:
+
+`var ChartTime = lumenize.ChartTime;`
+
+or you can just use the lumenize namespace:
+
+`var stdDev = lumenize.functions.$standardDeviation([20, 30, 50]);
     
 ## Installation for node.js usage ##
 

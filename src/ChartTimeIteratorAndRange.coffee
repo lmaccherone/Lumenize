@@ -13,7 +13,7 @@ class ChartTimeIterator
   
   ## Usage ##
   
-      {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../node_modules')
+      {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
       
       ChartTime.setTZPath('../vendor/tz')
       
@@ -170,7 +170,7 @@ class ChartTimeRange
  
   Let's create the `spec` for our ChartTimeRange
   
-      {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../node_modules')
+      {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
       
       ChartTime.setTZPath('../vendor/tz')
       

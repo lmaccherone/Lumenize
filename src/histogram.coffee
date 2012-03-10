@@ -1,5 +1,5 @@
-charttime = require('../')
-{functions} = charttime
+lumenize = require('../')
+{functions} = lumenize
 
 histogram = (rows, valueField) ->
   ###

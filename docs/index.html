@@ -31,8 +31,6 @@
         
         <li><a href="histogram.html">histogram.coffee</a></li>
         
-        <li><a href="index.html">index.coffee</a></li>
-        
         <li><a href="utils.html">utils.coffee</a></li>
         
       </ul>
@@ -96,6 +94,18 @@ non-workhours, work in any granularity (year, quarter, week, day, hour, etc.), e
 
 <p>The package is fairly large ~252KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip 
 the package so it's only ~59KB over the wire.</p>
+
+<p>Then at the top of the javascript where you want to call it, put the following:</p>
+
+<p><code>var lumenize = require('./lumenize');</code></p>
+
+<p>Then to use it, you can either create local aliases like:</p>
+
+<p><code>var ChartTime = lumenize.ChartTime;</code></p>
+
+<p>or you can just use the lumenize namespace:</p>
+
+<p>`var stdDev = lumenize.functions.$standardDeviation([20, 30, 50]);</p>
 
 <h2>Installation for node.js usage</h2>
 
@@ -296,17 +306,6 @@ the package so it's only ~59KB over the wire.</p>
             <li><a href="histogram.html#histogram">histogram(rows, valueField)</a></li>
             
           </ul>
-          
-        </div>
-      </div>
-      
-      <div class="module">
-        <div class="header">
-          <a href="index.html"><h3>index.coffee</h3></a>
-        </div>
-        <div class="module_content">
-          
-          
           
         </div>
       </div>

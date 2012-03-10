@@ -52,7 +52,7 @@ task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
     run('coffeedoc', ['-o', '../docs', '--readme', '-r', '../README.md'].concat(files))
     
     process.chdir(__dirname)
-    run('coffeedoctest', ['--readme', '--requirepath', 'src', 'src'])
+    run('coffeedoctest', ['--readme', 'src'])
   )
 )
 

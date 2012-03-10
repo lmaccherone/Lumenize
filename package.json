@@ -1,6 +1,6 @@
 {
   "name": "Lumenize",
-  "main": "./src/index",
+  "main": "./src/lumenize",
   "description": "Illuminating the forest AND the trees in your data.",
   "keywords": [
     "charting",

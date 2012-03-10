@@ -2898,7 +2898,7 @@ require.define("/ChartTimeIteratorAndRange.coffee", function (require, module, e
       
       ## Usage ##
       
-          {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../node_modules')
+          {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
           
           ChartTime.setTZPath('../vendor/tz')
           
@@ -3089,7 +3089,7 @@ require.define("/ChartTimeIteratorAndRange.coffee", function (require, module, e
      
       Let's create the `spec` for our ChartTimeRange
       
-          {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../node_modules')
+          {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
           
           ChartTime.setTZPath('../vendor/tz')
           
@@ -4061,11 +4061,11 @@ require.define("/datatransform.coffee", function (require, module, exports, __di
 
 require.define("/histogram.coffee", function (require, module, exports, __dirname, __filename) {
 (function() {
-  var charttime, functions, histogram;
+  var functions, histogram, lumenize;
 
-  charttime = require('../');
+  lumenize = require('../');
 
-  functions = charttime.functions;
+  functions = lumenize.functions;
 
   histogram = function(rows, valueField) {
     /*
@@ -4209,64 +4209,6 @@ require.define("/histogram.coffee", function (require, module, exports, __dirnam
   };
 
   exports.histogram = histogram;
-
-}).call(this);
-
-});
-
-require.define("/index.coffee", function (require, module, exports, __dirname, __filename) {
-(function() {
-  var aggregate, chartTimeIteratorAndRange, datatransform, derive;
-
-  exports.timezoneJS = require('timezone-js').timezoneJS;
-
-  exports.utils = require('./utils');
-
-  exports.ChartTime = require('./ChartTime').ChartTime;
-
-  chartTimeIteratorAndRange = require('./ChartTimeIteratorAndRange');
-
-  exports.ChartTimeIterator = chartTimeIteratorAndRange.ChartTimeIterator;
-
-  exports.ChartTimeRange = chartTimeIteratorAndRange.ChartTimeRange;
-
-  exports.ChartTimeInStateCalculator = require('./ChartTimeInStateCalculator').ChartTimeInStateCalculator;
-
-  datatransform = require('./datatransform');
-
-  exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps;
-
-  exports.snapshotArray_To_AtArray = datatransform.snapshotArray_To_AtArray;
-
-  exports.groupByAtArray_To_HighChartsSeries = datatransform.groupByAtArray_To_HighChartsSeries;
-
-  exports.aggregationAtArray_To_HighChartsSeries = datatransform.aggregationAtArray_To_HighChartsSeries;
-
-  aggregate = require('./aggregate');
-
-  exports.aggregate = aggregate.aggregate;
-
-  exports.aggregateAt = aggregate.aggregateAt;
-
-  exports.groupBy = aggregate.groupBy;
-
-  exports.groupByAt = aggregate.groupByAt;
-
-  exports.functions = aggregate.functions;
-
-  exports.percentileCreator = aggregate.percentileCreator;
-
-  exports.timeSeriesCalculator = aggregate.timeSeriesCalculator;
-
-  exports.timeSeriesGroupByCalculator = aggregate.timeSeriesGroupByCalculator;
-
-  derive = require('./derive');
-
-  exports.deriveFields = derive.deriveFields;
-
-  exports.deriveFieldsAt = derive.deriveFieldsAt;
-
-  exports.histogram = require('./histogram').histogram;
 
 }).call(this);
 
