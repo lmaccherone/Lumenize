@@ -28,6 +28,10 @@
   },
   "preferGlobal": true,
   "devDependencies": {
-    "coffeedoctest": ">=0.1.0"
+    "coffeedoctest": ">=0.3.0",
+    "coffeedoc": ">=0.1.12",
+    "uglify-js": ">=1.2.5",
+    "nodeunit": ">=0.6.4",
+    "browserify": ">=1.9.3"
   }
 }

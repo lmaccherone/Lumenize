@@ -4061,11 +4061,9 @@ require.define("/datatransform.coffee", function (require, module, exports, __di
 
 require.define("/histogram.coffee", function (require, module, exports, __dirname, __filename) {
 (function() {
-  var functions, histogram, lumenize;
+  var functions, histogram;
 
-  lumenize = require('../');
-
-  functions = lumenize.functions;
+  functions = require('./aggregate').functions;
 
   histogram = function(rows, valueField) {
     /*
@@ -4253,7 +4251,7 @@ require.define("/lumenize.coffee", function (require, module, exports, __dirname
   * [coffeedoctest](https://github.com/lmaccherone/coffeedoctest) (by Larry Maccherone)
   * [nodeunit](https://github.com/caolan/nodeunit)
   
-  ## Using directly from a browser ##
+  ## Using from a browser ##
   
   To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
   
@@ -4290,13 +4288,15 @@ require.define("/lumenize.coffee", function (require, module, exports, __dirname
   
   ## Contributing to Lumenize ##
       
-  If you want to add functionality to Lumenize and submit a pull request, add tests for your upgrades and make sure all test pass with:
+  If you want to add functionality to Lumenize, add tests for your upgrades and make sure all test pass with:
   
   `cake test`
       
   Also, add examples in the "docstrings", then generate the docs (which will also confirm that the examples give the expected output when run):
   
   `cake docs`
+  
+  Once you have that all working, submit a pull request on GitHub.
   
   ## Documentation and source code ##
   

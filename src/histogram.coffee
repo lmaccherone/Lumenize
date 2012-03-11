@@ -1,5 +1,4 @@
-lumenize = require('../')
-{functions} = lumenize
+functions = require('./aggregate').functions
 
 histogram = (rows, valueField) ->
   ###

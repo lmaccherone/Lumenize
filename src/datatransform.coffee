@@ -49,7 +49,7 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
     i++
   return arrayOfMaps
   
-snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, dateField, keyField, tz) -> 
+snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, dateField, keyField, tz) ->  
   ###
   If you have a list of snapshots representing the changes in a set of work items over time (MVCC-style), this function will return the state of
   each item at each moment of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
@@ -136,6 +136,9 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, dateField, keyField, tz)
       outputRow.push(value)
     output.push(outputRow)
   return output
+  
+
+  
   
 groupByAtArray_To_HighChartsSeries = (groupByAtArray, nameField, valueField, nameFieldValues, returnPreOutput) ->  # !TODO: Needs tests
   ### 
