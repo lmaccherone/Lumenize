@@ -25,14 +25,18 @@ Authors:
 Running:
 
 * [timezoneJS](https://github.com/mde/timezone-js) - library for [tz](http://www.twinsun.com/tz/tz-link.htm) parsing
-* [Node.js](http://nodejs.org/)
-* [CoffeeScript](http://coffeescript.org/)
+  I have modified timezoneJS fairly significantly. The original included a drop-in replacement for JavaScript's Date object.
+  I also modified it to work on node.js and in the browser once "browserified" by bundling the tz files.
 
 Developing/Documenting:
 
+* [Node.js](http://nodejs.org/)
+* [CoffeeScript](http://coffeescript.org/)
 * [coffeedoc](https://github.com/lmaccherone/coffeedoc) (Larry Maccherone's fork) forked from [coffeedoc](https://github.com/omarkhan/coffeedoc)
 * [coffeedoctest](https://github.com/lmaccherone/coffeedoctest) (by Larry Maccherone)
 * [nodeunit](https://github.com/caolan/nodeunit)
+* [browserify with fileify plugin](https://github.com/substack/node-browserify)
+* [uglify-js](https://github.com/mishoo/UglifyJS)
 
 ## Using from a browser ##
 
@@ -53,7 +57,7 @@ Then to use it, you can either create local aliases like:
 
 or you can just use the lumenize namespace:
 
-`var stdDev = lumenize.functions.$standardDeviation([20, 30, 50]);
+`var stdDev = lumenize.functions.$standardDeviation([20, 30, 50]);`
     
 ## Installation for node.js usage ##
 

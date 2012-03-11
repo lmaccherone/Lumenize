@@ -1,5 +1,6 @@
 {
   "name": "Lumenize",
+  "version": "0.2.1",
   "main": "./src/lumenize",
   "description": "Illuminating the forest AND the trees in your data.",
   "keywords": [
@@ -14,7 +15,6 @@
     "name": "Larry Maccherone",
     "url": "http://maccherone.com"
   },
-  "version": "0.2.0",
   "homepage": "https://github.com/lmaccherone/Lumenize",
   "engines": {
     "node": ">=0.4.10"

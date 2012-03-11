@@ -73,17 +73,21 @@ non-workhours, work in any granularity (year, quarter, week, day, hour, etc.), e
 <p>Running:</p>
 
 <ul>
-<li><a href="https://github.com/mde/timezone-js">timezoneJS</a> - library for <a href="http://www.twinsun.com/tz/tz-link.htm">tz</a> parsing</li>
-<li><a href="http://nodejs.org/">Node.js</a></li>
-<li><a href="http://coffeescript.org/">CoffeeScript</a></li>
+<li><a href="https://github.com/mde/timezone-js">timezoneJS</a> - library for <a href="http://www.twinsun.com/tz/tz-link.htm">tz</a> parsing
+I have modified timezoneJS fairly significantly. The original included a drop-in replacement for JavaScript's Date object.
+I also modified it to work on node.js and in the browser once "browserified" by bundling the tz files.</li>
 </ul>
 
 <p>Developing/Documenting:</p>
 
 <ul>
+<li><a href="http://nodejs.org/">Node.js</a></li>
+<li><a href="http://coffeescript.org/">CoffeeScript</a></li>
 <li><a href="https://github.com/lmaccherone/coffeedoc">coffeedoc</a> (Larry Maccherone's fork) forked from <a href="https://github.com/omarkhan/coffeedoc">coffeedoc</a></li>
 <li><a href="https://github.com/lmaccherone/coffeedoctest">coffeedoctest</a> (by Larry Maccherone)</li>
 <li><a href="https://github.com/caolan/nodeunit">nodeunit</a></li>
+<li><a href="https://github.com/substack/node-browserify">browserify with fileify plugin</a></li>
+<li><a href="https://github.com/mishoo/UglifyJS">uglify-js</a></li>
 </ul>
 
 <h2>Using from a browser</h2>
@@ -105,7 +109,7 @@ the package so it's only ~59KB over the wire.</p>
 
 <p>or you can just use the lumenize namespace:</p>
 
-<p>`var stdDev = lumenize.functions.$standardDeviation([20, 30, 50]);</p>
+<p><code>var stdDev = lumenize.functions.$standardDeviation([20, 30, 50]);</code></p>
 
 <h2>Installation for node.js usage</h2>
 

@@ -137,8 +137,6 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, dateField, keyField, tz)
     output.push(outputRow)
   return output
   
-
-  
   
 groupByAtArray_To_HighChartsSeries = (groupByAtArray, nameField, valueField, nameFieldValues, returnPreOutput) ->  # !TODO: Needs tests
   ### 
