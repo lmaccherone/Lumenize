@@ -24,8 +24,9 @@ Authors:
 
 Running:
 
-* [timezoneJS](https://github.com/mde/timezone-js) - library for [tz](http://www.twinsun.com/tz/tz-link.htm) parsing
-  I have modified timezoneJS fairly significantly. The original included a drop-in replacement for JavaScript's Date object.
+* [timezoneJS](https://github.com/mde/timezone-js) - library for [tz](http://www.twinsun.com/tz/tz-link.htm) parsing.
+  Although I haven't touched the actual tz file parsing code, I have modified timezoneJS fairly significantly. 
+  The original included a drop-in replacement for JavaScript's Date object.
   I also modified it to work on node.js and in the browser once "browserified" by bundling the tz files.
 
 Developing/Documenting:

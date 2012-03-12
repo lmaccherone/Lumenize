@@ -30,11 +30,11 @@ pre code {
 }
 
 a, a:visited {
-    color: #444;
+    color: #5b86c3;
     text-decoration: none;
 }
 a:hover {
-    color: #666;
+    color: #315677;
 }
 header {
     width: 100%;
@@ -42,8 +42,19 @@ header {
     border-bottom: 1px solid #ccd;
 }
 header h1 {
+    padding-left: 20px;
+    padding-bottom: 5px;
+    padding-right: 20px;
+    padding-top: 20px;
     margin: 0;
-    padding: 20px;
+    color: #667;
+}
+header h2 {
+    padding-left: 20px;
+    padding-bottom: 10px;
+    padding-right: 20px;
+    padding-top: 5px;
+    margin: 0;
     color: #667;
 }
 #content {
