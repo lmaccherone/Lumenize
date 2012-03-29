@@ -2,9 +2,7 @@ fs            = require('fs')
 path          = require('path')
 {print}       = require('sys')
 {spawn, exec} = require('child_process')
-async         = require('async')
 
-# lzw           = require('lzw-async')
 
 run = (command, options, next) ->
   if options? and options.length > 0
