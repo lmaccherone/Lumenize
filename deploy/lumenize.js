@@ -1272,6 +1272,7 @@ require.define("/ChartTime.coffee", function (require, module, exports, __dirnam
           throw new Error("Cannot do timezone manipulation on " + this.beforePastFlag);
         }
         if (granularity != null) this.granularity = granularity;
+        if (this.granularity == null) this.granularity = 'millisecond';
         newSpec = {
           year: jsDate.getUTCFullYear(),
           month: jsDate.getUTCMonth() + 1,

@@ -279,6 +279,8 @@ class ChartTime
         throw new Error("Cannot do timezone manipulation on #{@beforePastFlag}")
       if granularity?
         @granularity = granularity
+      unless @granularity?
+        @granularity = 'millisecond'
       newSpec =
         year: jsDate.getUTCFullYear()
         month: jsDate.getUTCMonth() + 1
