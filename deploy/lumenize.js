@@ -1161,7 +1161,7 @@ require.define("/ChartTime.coffee", function (require, module, exports, __dirnam
 
     var g, spec, _ref;
 
-    function ChartTime(spec_RDN_Or_String, granularity, tz) {
+    function ChartTime(spec_RDN_Date_Or_String, granularity, tz) {
       /*
           The constructor for ChartTime supports the passing in of a String, a rata die number (RDN), or a spec Object
           
@@ -1195,6 +1195,12 @@ require.define("/ChartTime.coffee", function (require, module, exports, __dirnam
           a ChartTime from an RDN, you must provide a granularity. Using RDN will work even for the granularities finer than day.
           ChartTime will populate the finer grained segments (hour, minute, etc.) with the approriate `lowest` value.
       
+          ## Date ##
+          
+          You can also pass in a JavaScript Date() Object. The passing in of a tz with this option doesn't make sense. You'll end
+          up with the same ChartTime value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
+          option is even really useful. In most cases, you are probably better off using ChartTime.getZuluString()
+          
           ## Spec ##
           
           You can also explicitly spell out the segments in a **spec** Object in the form of 
@@ -1228,28 +1234,35 @@ require.define("/ChartTime.coffee", function (require, module, exports, __dirnam
       */
       var jsDate, newCT, newSpec, rdn, s, spec, _ref;
       this.beforePastFlag = '';
-      switch (utils.type(spec_RDN_Or_String)) {
+      switch (utils.type(spec_RDN_Date_Or_String)) {
         case 'string':
-          s = spec_RDN_Or_String;
+          s = spec_RDN_Date_Or_String;
           if (tz != null) {
             newCT = new ChartTime(s, 'millisecond');
+            jsDate = newCT.getJSDateInTZfromGMT(tz);
           } else {
             this._setFromString(s, granularity);
           }
           break;
         case 'number':
-          rdn = spec_RDN_Or_String;
+          rdn = spec_RDN_Date_Or_String;
           if (tz != null) {
             newCT = new ChartTime(rdn, 'millisecond');
+            jsDate = newCT.getJSDateInTZfromGMT(tz);
           } else {
             this._setFromRDN(rdn, granularity);
           }
           break;
-        default:
-          spec = spec_RDN_Or_String;
+        case 'date':
+          jsDate = spec_RDN_Date_Or_String;
+          if (tz == null) tz = 'GMT';
+          break;
+        case 'object':
+          spec = spec_RDN_Date_Or_String;
           if (tz != null) {
             spec.granularity = 'millisecond';
             newCT = new ChartTime(spec);
+            jsDate = newCT.getJSDateInTZfromGMT(tz);
           } else {
             this._setFromSpec(spec);
           }
@@ -1258,7 +1271,6 @@ require.define("/ChartTime.coffee", function (require, module, exports, __dirnam
         if ((_ref = this.beforePastFlag) === 'BEFORE_FIRST' || _ref === 'PAST_LAST') {
           throw new Error("Cannot do timezone manipulation on " + this.beforePastFlag);
         }
-        jsDate = newCT.getJSDateInTZfromGMT(tz);
         if (granularity != null) this.granularity = granularity;
         newSpec = {
           year: jsDate.getUTCFullYear(),
@@ -1668,8 +1680,19 @@ require.define("/ChartTime.coffee", function (require, module, exports, __dirnam
       /*
           Returns the canonical ISO-8601 date in zulu representation but shifted to the specified tz
       */
-      var day, hour, jsDate, millisecond, minute, month, s, second, year;
+      var jsDate;
       jsDate = this.getJSDate(tz);
+      return ChartTime.getZuluString(jsDate);
+    };
+
+    ChartTime.getZuluString = function(jsDate) {
+      /*
+          Given a JavaScript Date() Object, this will return the canonical ISO-8601 form.
+          
+          If you don't provide any parameters, it will return now, like `new Date()` except this is a zulu string.
+      */
+      var day, hour, millisecond, minute, month, s, second, year;
+      if (jsDate == null) jsDate = new Date();
       year = jsDate.getUTCFullYear();
       month = jsDate.getUTCMonth() + 1;
       day = jsDate.getUTCDate();
@@ -4230,7 +4253,7 @@ require.define("/lumenize.coffee", function (require, module, exports, __dirname
   * Date-time precision optimized for charting: timezone manipulation (eg America/New_York), knockout weekends/holidays,
     non-workhours, work in any granularity (year, quarter, week, day, hour, etc.), etc.
   * Tested
-  * Documented
+  * [Documented](http://lmaccherone.github.com/Lumenize/docs/index.html)
   * [DocTested](https://github.com/lmaccherone/coffeedoctest)
   
   ## Credits ##

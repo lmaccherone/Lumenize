@@ -18,6 +18,12 @@ exports.ChartTimeTest =
     test.equal(temp.day, 27, 'day should be 27')
     test.equal(temp.toString(), '2011-10-27')
     test.done()
+    
+  testConstructionDate: (test) ->
+    jsDate = new Date('2011-01-01T12:34:56.789Z')
+    temp = new ChartTime(jsDate, 'millisecond', 'America/Los_Angels')
+    test.equal(temp.toString(), '2011-01-01T12:34:56.789')
+    test.done()
  
   testHour: (test) ->
     d = new ChartTime(granularity: 'hour', year: 2011, month:11, day:20, hour:9).hour
@@ -385,3 +391,4 @@ exports.ChartTimeTest =
     test.equal(d, '2009-11-30')
     
     test.done()
+    

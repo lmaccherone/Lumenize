@@ -11,7 +11,7 @@ _Illuminating the forest AND the trees in your data._
 * Date-time precision optimized for charting: timezone manipulation (eg America/New_York), knockout weekends/holidays,
   non-workhours, work in any granularity (year, quarter, week, day, hour, etc.), etc.
 * Tested
-* Documented
+* [Documented](http://lmaccherone.github.com/Lumenize/docs/index.html)
 * [DocTested](https://github.com/lmaccherone/coffeedoctest)
 
 ## Credits ##

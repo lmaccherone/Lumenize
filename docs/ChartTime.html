@@ -235,6 +235,13 @@ console.log(new ChartTime('2011-01-01').getJSDate('America/New_York'))
                 </div>
                 
                 <div class="method">
+                  <h4>ChartTime.getZuluString(jsDate)</h4>
+                  <p>Given a JavaScript Date() Object, this will return the canonical ISO-8601 form.</p>
+
+<p>If you don't provide any parameters, it will return now, like <code>new Date()</code> except this is a zulu string.</p>
+                </div>
+                
+                <div class="method">
                   <h4>ChartTime.addGranularity(granularitySpec)</h4>
                   <p>addGranularity allows you to add your own hierarchical granularities to ChartTime. Once you add a granularity to ChartTime
 you can then instantiate ChartTime objects in your newly specified granularity. You specify new granularities with 
@@ -335,7 +342,7 @@ granularity. If there is a use-case for it, ChartTime could be upgraded to allow
                 <h3>Instance Methods</h3>
                 
                 <div class="method">
-                  <h4>constructor(spec_RDN_Or_String, granularity, tz)</h4>
+                  <h4>constructor(spec_RDN_Date_Or_String, granularity, tz)</h4>
                   <p>The constructor for ChartTime supports the passing in of a String, a rata die number (RDN), or a spec Object</p>
 
 <h2>String</h2>
@@ -367,6 +374,12 @@ you want to iterate to the last defined iteration/release.</p>
 directly with this number but it's what ChartTime uses to convert between granularities. When you are instantiating
 a ChartTime from an RDN, you must provide a granularity. Using RDN will work even for the granularities finer than day.
 ChartTime will populate the finer grained segments (hour, minute, etc.) with the approriate <code>lowest</code> value.</p>
+
+<h2>Date</h2>
+
+<p>You can also pass in a JavaScript Date() Object. The passing in of a tz with this option doesn't make sense. You'll end
+up with the same ChartTime value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
+option is even really useful. In most cases, you are probably better off using ChartTime.getZuluString()</p>
 
 <h2>Spec</h2>
 

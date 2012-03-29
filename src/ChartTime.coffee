@@ -174,7 +174,7 @@ class ChartTime
       console.log(new ChartTime('2011-01-01').getJSDate('America/New_York'))
       # Sat, 01 Jan 2011 05:00:00 GMT
   ###
-  constructor: (spec_RDN_Or_String, granularity, tz) ->
+  constructor: (spec_RDN_Date_Or_String, granularity, tz) ->
     ###
     The constructor for ChartTime supports the passing in of a String, a rata die number (RDN), or a spec Object
     
@@ -208,6 +208,12 @@ class ChartTime
     a ChartTime from an RDN, you must provide a granularity. Using RDN will work even for the granularities finer than day.
     ChartTime will populate the finer grained segments (hour, minute, etc.) with the approriate `lowest` value.
 
+    ## Date ##
+    
+    You can also pass in a JavaScript Date() Object. The passing in of a tz with this option doesn't make sense. You'll end
+    up with the same ChartTime value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
+    option is even really useful. In most cases, you are probably better off using ChartTime.getZuluString()
+    
     ## Spec ##
     
     You can also explicitly spell out the segments in a **spec** Object in the form of 
@@ -240,31 +246,37 @@ class ChartTime
        the way back out of ChartTime/ChartTimeRange
     ###
     @beforePastFlag = ''
-    switch utils.type(spec_RDN_Or_String)
+    switch utils.type(spec_RDN_Date_Or_String)
       when 'string'
-        s = spec_RDN_Or_String
+        s = spec_RDN_Date_Or_String
         if tz?
           newCT = new ChartTime(s, 'millisecond')
+          jsDate = newCT.getJSDateInTZfromGMT(tz)
         else
           @_setFromString(s, granularity)
       when 'number'
-        rdn = spec_RDN_Or_String
+        rdn = spec_RDN_Date_Or_String
         if tz?
           newCT = new ChartTime(rdn, 'millisecond')
+          jsDate = newCT.getJSDateInTZfromGMT(tz)
         else
           @_setFromRDN(rdn, granularity)
-      else
-        spec = spec_RDN_Or_String
+      when 'date' 
+        jsDate = spec_RDN_Date_Or_String
+        unless tz?
+          tz = 'GMT'
+      when 'object'
+        spec = spec_RDN_Date_Or_String
         if tz?
           spec.granularity = 'millisecond'
           newCT = new ChartTime(spec)
+          jsDate = newCT.getJSDateInTZfromGMT(tz)
         else
           @_setFromSpec(spec)
 
     if tz?
       if @beforePastFlag in ['BEFORE_FIRST', 'PAST_LAST']
         throw new Error("Cannot do timezone manipulation on #{@beforePastFlag}")
-      jsDate = newCT.getJSDateInTZfromGMT(tz)
       if granularity?
         @granularity = granularity
       newSpec =
@@ -582,6 +594,16 @@ class ChartTime
     Returns the canonical ISO-8601 date in zulu representation but shifted to the specified tz
     ###
     jsDate = @getJSDate(tz)
+    return ChartTime.getZuluString(jsDate)
+  
+  @getZuluString: (jsDate) ->
+    ###
+    Given a JavaScript Date() Object, this will return the canonical ISO-8601 form.
+    
+    If you don't provide any parameters, it will return now, like `new Date()` except this is a zulu string.
+    ###
+    unless jsDate?
+      jsDate = new Date()
     year = jsDate.getUTCFullYear()
     month = jsDate.getUTCMonth() + 1
     day = jsDate.getUTCDate()
