@@ -31,10 +31,10 @@ histogram = (rows, valueField) ->
       {buckets, chartMax} = histogram(rows, 'age')
       for b in buckets
         console.log(b.label, b.count)
-      # 0-12 2
-      # 13-25 7
-      # 26-38 6
-      # 39-51 1
+      # 0-13 2
+      # 13-26 7
+      # 26-39 6
+      # 39-52 1
       # 52-65 1
       
       console.log(chartMax)
@@ -96,7 +96,7 @@ histogram = (rows, valueField) ->
   buckets = []
   for i in [0..bucketCount]
     bucket = {
-      label: "#{Math.floor(i * bucketSize)}-#{Math.floor((i + 1) * bucketSize) - 1}", 
+      label: "#{Math.floor(i * bucketSize)}-#{Math.floor((i + 1) * bucketSize)}", 
       rows: []
       count: 0
     }

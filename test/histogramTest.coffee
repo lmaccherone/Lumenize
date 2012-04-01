@@ -27,10 +27,10 @@ exports.histogramTest =
     {buckets, chartMax} = histogram(rows, 'age')
     
     expected = [ 
-      { label: '0-12',  count: 2 },
-      { label: '13-25', count: 7 },
-      { label: '26-38', count: 6 },
-      { label: '39-51', count: 1 },
+      { label: '0-13',  count: 2 },
+      { label: '13-26', count: 7 },
+      { label: '26-39', count: 6 },
+      { label: '39-52', count: 1 },
       { label: '52-65', count: 1 } 
     ]
 
@@ -47,10 +47,10 @@ exports.histogramTest =
     {buckets, chartMax} = histogram(rows, 'age')
 
     expected = [ 
-      { label: '0-16',  count: 4 },
-      { label: '17-33', count: 10 },
-      { label: '34-50', count: 2 },
-      { label: '51-67', count: 1 },
+      { label: '0-17',  count: 4 },
+      { label: '17-34', count: 10 },
+      { label: '34-51', count: 2 },
+      { label: '51-68', count: 1 },
       { label: '68-86*', count: 1 } 
     ]
     
