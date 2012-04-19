@@ -78,7 +78,7 @@ functions.$variance = (values) ->
   
 functions.$standardDeviation = (values) ->
   return Math.sqrt(functions.$variance(values))
-    
+      
 percentileCreator = (p) ->  
   ###
   When the user passes in `$p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate percentile function. 
@@ -90,8 +90,10 @@ percentileCreator = (p) ->
   which is close to the NIST recommendation and makes the most sense to me.
   ###
   return (values) ->
-    vLength = values.length 
-    values.sort()
+    sortfunc = (a, b) ->
+      return a - b
+    vLength = values.length
+    values.sort(sortfunc)
     n = (p * (vLength - 1) / 100) + 1
     k = Math.floor(n)
     d = n - k

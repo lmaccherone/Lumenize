@@ -1,6 +1,6 @@
 {
   "name": "Lumenize",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "main": "./src/lumenize",
   "description": "Illuminating the forest AND the trees in your data.",
   "keywords": [
@@ -32,5 +32,11 @@
     "uglify-js": ">=1.2.5",
     "nodeunit": ">=0.6.4",
     "browserify": ">=1.9.3"
-  }
+  },
+  "licenses": [
+     {
+         "type": "MIT",
+         "url": "http://www.opensource.org/licenses/MIT"
+     }
+   ]
 }

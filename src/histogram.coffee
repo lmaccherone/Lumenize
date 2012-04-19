@@ -65,7 +65,6 @@ histogram = (rows, valueField) ->
   
   average = functions.$average(chartValues)
   standardDeviation = functions.$standardDeviation(chartValues)
-  
   upperBound = average + 2 * standardDeviation
   
   chartValuesMinusOutliers = (c for c in chartValues when c < upperBound)
