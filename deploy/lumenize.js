@@ -1449,11 +1449,11 @@ require.define("/ChartTime.coffee", function(require, module, exports, __dirname
                 if (mask != null) {
                     if (mask.indexOf('#') >= 0) {
                         i = mask.length - 1;
-                        while (mask[i] !== '#') {
+                        while (mask.charAt(i) !== '#') {
                             i--;
                         }
                         segmentEnd = i;
-                        while (mask[i] === '#') {
+                        while (mask.charAt(i) === '#') {
                             i--;
                         }
                         granularitySpec.segmentStart = i + 1;
