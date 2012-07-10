@@ -856,12 +856,12 @@ require.define("/aggregate.coffee", function(require, module, exports, __dirname
             };
             groupByAtArray = groupByAt(atArray, aggregationSpec);
             if ((config.groupByFieldValues != null) && config.groupByFieldValues.length < aggregationSpec.uniqueValues.length) {
-                console.error('WARNING: Data found for values that are not in config.groupByFieldValues. Data found for values:');
+//                    console.error('WARNING: Data found for values that are not in config.groupByFieldValues. Data found for values:');
                 _ref2 = aggregationSpec.uniqueValues;
                 for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
                     v = _ref2[_i];
                     if (__indexOf.call(config.groupByFieldValues, v) < 0) {
-                        console.error('    ' + v);
+//                            console.error('    ' + v);
                     }
                 }
             }
@@ -1530,7 +1530,7 @@ require.define("/ChartTime.coffee", function(require, module, exports, __dirname
             ChartTime.prototype._setFromString = function(s, granularity) {
                 var g, gs, l, segment, segments, spec, stillParsing, sub, _i, _len, _ref2, _ref3, _results;
                 if (s.slice(-3, -2) === ':' && (_ref2 = s.slice(-6, -5), __indexOf.call('+-', _ref2) >= 0)) {
-                    console.log("WARNING: Ignoring the timeshift information at the end of " + s + ".");
+                    //console.log("WARNING: Ignoring the timeshift information at the end of " + s + ".");
                     s = s.slice(0, -6);
                 }
                 if (s.slice(-1) === 'Z') s = s.slice(0, -1);
@@ -3055,7 +3055,7 @@ require.define("/ChartTimeIteratorAndRange.coffee", function(require, module, ex
                 utils.assert((_ref = this.emit) === 'ChartTime' || _ref === 'ChartTimeRange' || _ref === 'Date', "emit must be 'ChartTime', 'ChartTimeRange', or 'Date'. You provided " + this.emit + ".");
                 utils.assert(this.emit !== 'Date' || (tz != null), 'Must provide a tz (timezone) parameter when emitting Dates.');
                 if ((_ref2 = ctr.granularity) === 'Minute' || _ref2 === 'Second' || _ref2 === 'Millisecond') {
-                    console.error("Warning: iterating at granularity " + ctr.granularity + " can be very slow.");
+//                        console.error("Warning: iterating at granularity " + ctr.granularity + " can be very slow.");
                 }
                 if ((_ref3 = this.tz) == null) this.tz = tz;
                 if (ctr instanceof ChartTimeRange) {
@@ -3633,7 +3633,7 @@ require.define("/ChartTimeInStateCalculator.coffee", function(require, module, e
                 this.iterator = iterator;
                 this.granularity = this.iterator.ctr.granularity;
                 if ((_ref = this.granularity) === 'minute' || _ref === 'second' || _ref === 'millisecond') {
-                    console.error('Warning: time-in-state calculations at granularities finer than hour can take a long time.');
+//                        console.error('Warning: time-in-state calculations at granularities finer than hour can take a long time.');
                 }
                 if (tz != null) {
                     this.tz = tz;
