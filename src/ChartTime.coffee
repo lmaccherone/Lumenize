@@ -370,14 +370,14 @@ class ChartTime
     if mask?
       if mask.indexOf('#') >= 0  
         i = mask.length - 1
-        while mask[i] != '#'
+        while mask.charAt(i) != '#'
           i--
         segmentEnd = i
-        while mask[i] == '#'
+        while mask.charAt(i) == '#'
           i--
         granularitySpec.segmentStart = i + 1
         granularitySpec.segmentLength = segmentEnd - i
-        granularitySpec.regex = new RegExp(((if char == '#' then '\\d' else char) for char in mask.split('')).join(''))
+        granularitySpec.regex = new RegExp(((if character == '#' then '\\d' else character) for character in mask.split('')).join(''))
       else  # 'PAST_LAST' and other specials will have no mask
         granularitySpec.regex = new RegExp(mask)
     
