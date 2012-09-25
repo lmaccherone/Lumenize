@@ -28,24 +28,56 @@ exports.dataTransformTest =
     
   testSnapshotToAtArray: (test) ->
     snapshotArray = [
-      {_ValidFrom: '2011-01-01T12:00:00.000Z', ObjectID: 1, someColumn: 'some value', someOtherColumn: 'some other value'},
-      {_ValidFrom: '2011-01-02T12:00:00.000Z', ObjectID: 2, someColumn: 'some value 2', someOtherColumn: 'some other value 2'},      
+      {_ValidFrom: '1999-01-01T12:00:00.000Z', _ValidTo:'2010-01-02T12:00:00.000Z', ObjectID: 0, someColumn: 'some value'},
+      {_ValidFrom: '2011-01-01T12:00:00.000Z', _ValidTo:'2011-01-02T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
+      {_ValidFrom: '2011-01-02T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 2, someColumn: 'some value 2'},      
+      {_ValidFrom: '2011-01-02T12:00:00.000Z', _ValidTo:'2011-01-03T12:00:00.000Z', ObjectID: 3, someColumn: 'some value'},
+      {_ValidFrom: '2011-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
+      {_ValidFrom: '2222-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 99, someColumn: 'some value'},
     ]
+
+    listOfAtCTs = [new ChartTime('2011-01-02'), new ChartTime('2011-01-03'), new ChartTime('2011-01-07')]
     
-    atArray1 = [new ChartTime('2011-01-02').inGranularity('millisecond'), new ChartTime('2011-01-03').inGranularity('millisecond')]
-    atArray2 = [new ChartTime('2011-01-02'), new ChartTime('2011-01-03')]
-    
-    output = [
-      [{ObjectID: 1, someColumn: 'some value', someOtherColumn: 'some other value'}],
-      [{ObjectID: 1, someColumn: 'some value', someOtherColumn: 'some other value'}, 
-       {ObjectID: 2, someColumn: 'some value 2', someOtherColumn: 'some other value 2'}]
+    output = [ 
+      [ # 2011-01-02
+        {
+          _ValidFrom: '2011-01-01T12:00:00.000Z',
+          _ValidTo: '2011-01-02T12:00:00.000Z',
+          ObjectID: '1',
+          someColumn: 'some value' 
+        } 
+      ],
+      [ # 2011-01-03
+        { 
+          _ValidFrom: '2011-01-02T12:00:00.000Z',
+          _ValidTo: '9999-01-01T12:00:00.000Z',
+          ObjectID: '2',
+          someColumn: 'some value 2' 
+        },
+        { 
+          _ValidFrom: '2011-01-02T12:00:00.000Z',
+          _ValidTo: '2011-01-03T12:00:00.000Z',
+          ObjectID: '3',
+          someColumn: 'some value' 
+        } 
+      ],
+      [ # 2011-01-07
+        { 
+          _ValidFrom: '2011-01-05T12:00:00.000Z',
+          _ValidTo: '9999-01-01T12:00:00.000Z',
+          ObjectID: '1',
+          someColumn: 'some value' 
+        },
+        { 
+          _ValidFrom: '2011-01-02T12:00:00.000Z',
+          _ValidTo: '9999-01-01T12:00:00.000Z',
+          ObjectID: '2',
+          someColumn: 'some value 2' 
+        } 
+      ] 
     ]
-    
-    a1 = snapshotArray_To_AtArray(snapshotArray, atArray1, '_ValidFrom', 'ObjectID')
-    
-    test.deepEqual(a1, output)
-    
-    a2 = snapshotArray_To_AtArray(snapshotArray, atArray2, '_ValidFrom', 'ObjectID', 'America/New_York')
+        
+    a2 = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, '_ValidFrom', 'ObjectID', 'America/New_York', '_ValidTo')
     
     test.deepEqual(a2, output)
     

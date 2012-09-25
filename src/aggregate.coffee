@@ -127,7 +127,7 @@ _extractFandAs = (a) ->
     throw new Error("#{a.f} is not a recognized built-in function")
   return {f, as}
                      
-aggregate = (list, aggregations) ->
+aggregate = (list, aggregations) ->  # !TODO: change aggregations to aggregationSpec
   ###
   Takes a list like this:
       
@@ -183,10 +183,11 @@ aggregate = (list, aggregations) ->
     
   return output
   
-aggregateAt = (atArray, aggregations) ->
+aggregateAt = (atArray, aggregations) ->  # !TODO: Change all of these "At" functions. Mark suggests aggregateEach
   ###
-  Each row in atArray is passed to the `aggregate` function and the results are collected into a single output.
-  This is essentially a wrapper around the aggregate function so the spec parameter is the same.
+  Each row in atArray is passed to the `aggregate` function and the results are collected into a single array output.
+  This is essentially a wrapper around the aggregate function so the spec parameter is the same. You can think of
+  it as using a `map`.
   ###
   output = []
   for row, idx in atArray
@@ -343,7 +344,7 @@ timeSeriesCalculator = (snapshotArray, config) ->
   listOfAtCTs = (r.pastEnd for r in subRanges)
   
   # 2. Finding the state of each object **AT** each point in the listOfAtCTs array.
-  atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone)
+  atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField)
     
   # 3. Deriving fields from other fields
   deriveFieldsAt(atArray, config.derivedFields)
@@ -356,7 +357,7 @@ timeSeriesCalculator = (snapshotArray, config) ->
 
 timeSeriesGroupByCalculator = (snapshotArray, config) ->
   ###
-  Takes an MVCC syle `snapshotArray` array and returns the data groupedBy a particular field `At` each moment specified by
+  Takes an MVCC style `snapshotArray` array and returns the data groupedBy a particular field `At` each moment specified by
   the ChartTimeRange spec (`rangeSpec`) within the config object. 
   
   This is really just a thin wrapper around various ChartTime calculations, so look at the documentation for each of
@@ -379,7 +380,7 @@ timeSeriesGroupByCalculator = (snapshotArray, config) ->
   listOfAtCTs = (r.pastEnd for r in subRanges)
   
   # 2. Finding the state of each object **AT** each point in the listOfAtCTs array.
-  atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone)
+  atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField)
   
   # 3. Creating chartable grouped aggregations
   aggregationSpec =
