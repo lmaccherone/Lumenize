@@ -419,7 +419,7 @@ class ChartTime
     
     # Remove the timezone stuff from the end
     if s.slice(-3, -2) == ':' and s.slice(-6, -5) in '+-'
-      console.log("WARNING: Ignoring the timeshift information at the end of #{s}.")
+      # console.log("WARNING: Ignoring the timeshift information at the end of #{s}.")
       s = s.slice(0, -6)
     if s.slice(-1) == 'Z'
       s = s.slice(0, -1)

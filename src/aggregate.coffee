@@ -394,11 +394,11 @@ timeSeriesGroupByCalculator = (snapshotArray, config) ->
   
   # Note: groupByAt has the side-effect that spec.uniqueValues are upgraded with the missing values.
   # Let's warn about any additional values
-  if config.groupByFieldValues? and config.groupByFieldValues.length < aggregationSpec.uniqueValues.length
-    console.error('WARNING: Data found for values that are not in config.groupByFieldValues. Data found for values:')
-    for v in aggregationSpec.uniqueValues
-      unless v in config.groupByFieldValues
-        console.error('    ' + v)
+  # if config.groupByFieldValues? and config.groupByFieldValues.length < aggregationSpec.uniqueValues.length
+    # console.error('WARNING: Data found for values that are not in config.groupByFieldValues. Data found for values:')
+    # for v in aggregationSpec.uniqueValues
+      # unless v in config.groupByFieldValues
+        # console.error('    ' + v)
         
   return {listOfAtCTs, groupByAtArray, uniqueValues: utils.clone(aggregationSpec.uniqueValues)}
   

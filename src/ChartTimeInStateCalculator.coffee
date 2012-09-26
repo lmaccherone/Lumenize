@@ -97,8 +97,8 @@ class ChartTimeInStateCalculator
   constructor: (@iterator, tz) ->
     @granularity = @iterator.ctr.granularity
     # !TODO: If this approach of walking through each tick turns out to be slow, then refactor algorithm
-    if @granularity in ['minute', 'second', 'millisecond']
-      console.error('Warning: time-in-state calculations at granularities finer than hour can take a long time.')
+    # if @granularity in ['minute', 'second', 'millisecond']
+      # console.error('Warning: time-in-state calculations at granularities finer than hour can take a long time.')
     if tz?
       @tz = tz
     else

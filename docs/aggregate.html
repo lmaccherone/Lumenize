@@ -216,8 +216,9 @@ Array of values to aggregate) like the <code>mySum</code> example in our <code>a
           </div>
           
           <div>
-            <p>Each row in atArray is passed to the <code>aggregate</code> function and the results are collected into a single output.
-This is essentially a wrapper around the aggregate function so the spec parameter is the same.</p>
+            <p>Each row in atArray is passed to the <code>aggregate</code> function and the results are collected into a single array output.
+This is essentially a wrapper around the aggregate function so the spec parameter is the same. You can think of
+it as using a <code>map</code>.</p>
           </div>
           
         </div>
@@ -336,7 +337,7 @@ The output of this operation is called an <code>atArray</code></li>
           </div>
           
           <div>
-            <p>Takes an MVCC syle <code>snapshotArray</code> array and returns the data groupedBy a particular field <code>At</code> each moment specified by
+            <p>Takes an MVCC style <code>snapshotArray</code> array and returns the data groupedBy a particular field <code>At</code> each moment specified by
 the ChartTimeRange spec (<code>rangeSpec</code>) within the config object. </p>
 
 <p>This is really just a thin wrapper around various ChartTime calculations, so look at the documentation for each of

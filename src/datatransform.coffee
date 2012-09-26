@@ -198,7 +198,6 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
   * **tz** String indicating the timezone, like 'America/New_York'
   ###
   unless validToField?
-    console.log('WARNING: No validToField parameter provided to function call snapshotArray_To_AtArray. Defaulting to "_ValidTo".')
     validToField = '_ValidTo'
   atLength = listOfAtCTs.length
   snapshotLength = snapshotArray.length

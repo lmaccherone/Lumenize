@@ -584,8 +584,9 @@ require.define("/aggregate.coffee", function (require, module, exports, __dirnam
 
   aggregateAt = function(atArray, aggregations) {
     /*
-      Each row in atArray is passed to the `aggregate` function and the results are collected into a single output.
-      This is essentially a wrapper around the aggregate function so the spec parameter is the same.
+      Each row in atArray is passed to the `aggregate` function and the results are collected into a single array output.
+      This is essentially a wrapper around the aggregate function so the spec parameter is the same. You can think of
+      it as using a `map`.
     */
     var a, idx, output, row, _len;
     output = [];
@@ -763,7 +764,7 @@ require.define("/aggregate.coffee", function (require, module, exports, __dirnam
       }
       return _results;
     })();
-    atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone);
+    atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField);
     deriveFieldsAt(atArray, config.derivedFields);
     aggregationAtArray = aggregateAt(atArray, config.aggregations);
     return {
@@ -774,7 +775,7 @@ require.define("/aggregate.coffee", function (require, module, exports, __dirnam
 
   timeSeriesGroupByCalculator = function(snapshotArray, config) {
     /*
-      Takes an MVCC syle `snapshotArray` array and returns the data groupedBy a particular field `At` each moment specified by
+      Takes an MVCC style `snapshotArray` array and returns the data groupedBy a particular field `At` each moment specified by
       the ChartTimeRange spec (`rangeSpec`) within the config object. 
       
       This is really just a thin wrapper around various ChartTime calculations, so look at the documentation for each of
@@ -788,7 +789,7 @@ require.define("/aggregate.coffee", function (require, module, exports, __dirnam
     
       Note: We assume the snapshotArray is sorted by the config.snapshotValidFromField
     */
-    var aggregationSpec, atArray, groupByAtArray, listOfAtCTs, r, range, subRanges, v, _i, _len, _ref2;
+    var aggregationSpec, atArray, groupByAtArray, listOfAtCTs, r, range, subRanges;
     range = new ChartTimeRange(config.rangeSpec);
     subRanges = range.getIterator('ChartTimeRange').getAll();
     listOfAtCTs = (function() {
@@ -800,7 +801,7 @@ require.define("/aggregate.coffee", function (require, module, exports, __dirnam
       }
       return _results;
     })();
-    atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone);
+    atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField);
     aggregationSpec = {
       groupBy: config.groupByField,
       uniqueValues: utils.clone(config.groupByFieldValues),
@@ -817,16 +818,6 @@ require.define("/aggregate.coffee", function (require, module, exports, __dirnam
       ]
     };
     groupByAtArray = groupByAt(atArray, aggregationSpec);
-    if ((config.groupByFieldValues != null) && config.groupByFieldValues.length < aggregationSpec.uniqueValues.length) {
-      console.error('WARNING: Data found for values that are not in config.groupByFieldValues. Data found for values:');
-      _ref2 = aggregationSpec.uniqueValues;
-      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-        v = _ref2[_i];
-        if (__indexOf.call(config.groupByFieldValues, v) < 0) {
-          console.error('    ' + v);
-        }
-      }
-    }
     return {
       listOfAtCTs: listOfAtCTs,
       groupByAtArray: groupByAtArray,
@@ -1389,16 +1380,16 @@ require.define("/ChartTime.coffee", function (require, module, exports, __dirnam
     };
 
     ChartTime._expandMask = function(granularitySpec) {
-      var char, i, mask, segmentEnd;
+      var character, i, mask, segmentEnd;
       mask = granularitySpec.mask;
       if (mask != null) {
         if (mask.indexOf('#') >= 0) {
           i = mask.length - 1;
-          while (mask[i] !== '#') {
+          while (mask.charAt(i) !== '#') {
             i--;
           }
           segmentEnd = i;
-          while (mask[i] === '#') {
+          while (mask.charAt(i) === '#') {
             i--;
           }
           granularitySpec.segmentStart = i + 1;
@@ -1408,8 +1399,8 @@ require.define("/ChartTime.coffee", function (require, module, exports, __dirnam
             _ref = mask.split('');
             _results = [];
             for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              char = _ref[_i];
-              _results.push(char === '#' ? '\\d' : char);
+              character = _ref[_i];
+              _results.push(character === '#' ? '\\d' : character);
             }
             return _results;
           })()).join(''));
@@ -1475,7 +1466,6 @@ require.define("/ChartTime.coffee", function (require, module, exports, __dirnam
     ChartTime.prototype._setFromString = function(s, granularity) {
       var g, gs, l, segment, segments, spec, stillParsing, sub, _i, _len, _ref2, _ref3, _results;
       if (s.slice(-3, -2) === ':' && (_ref2 = s.slice(-6, -5), __indexOf.call('+-', _ref2) >= 0)) {
-        console.log("WARNING: Ignoring the timeshift information at the end of " + s + ".");
         s = s.slice(0, -6);
       }
       if (s.slice(-1) === 'Z') s = s.slice(0, -1);
@@ -2951,7 +2941,7 @@ require.define("/ChartTimeIteratorAndRange.coffee", function (require, module, e
     var StopIteration;
 
     function ChartTimeIterator(ctr, emit, childGranularity, tz) {
-      var _ref, _ref2, _ref3;
+      var _ref, _ref2;
       this.emit = emit != null ? emit : 'ChartTime';
       this.childGranularity = childGranularity != null ? childGranularity : 'day';
       /*
@@ -2970,10 +2960,7 @@ require.define("/ChartTimeIteratorAndRange.coffee", function (require, module, e
       */
       utils.assert((_ref = this.emit) === 'ChartTime' || _ref === 'ChartTimeRange' || _ref === 'Date', "emit must be 'ChartTime', 'ChartTimeRange', or 'Date'. You provided " + this.emit + ".");
       utils.assert(this.emit !== 'Date' || (tz != null), 'Must provide a tz (timezone) parameter when emitting Dates.');
-      if ((_ref2 = ctr.granularity) === 'Minute' || _ref2 === 'Second' || _ref2 === 'Millisecond') {
-        console.error("Warning: iterating at granularity " + ctr.granularity + " can be very slow.");
-      }
-      if ((_ref3 = this.tz) == null) this.tz = tz;
+      if ((_ref2 = this.tz) == null) this.tz = tz;
       if (ctr instanceof ChartTimeRange) {
         this.ctr = ctr;
       } else {
@@ -3543,12 +3530,9 @@ require.define("/ChartTimeInStateCalculator.coffee", function (require, module, 
     */
 
     function ChartTimeInStateCalculator(iterator, tz) {
-      var allCTs, allCTsLength, ct, ctPlus1, idx, previousState, _len, _ref;
+      var allCTs, allCTsLength, ct, ctPlus1, idx, previousState, _len;
       this.iterator = iterator;
       this.granularity = this.iterator.ctr.granularity;
-      if ((_ref = this.granularity) === 'minute' || _ref === 'second' || _ref === 'millisecond') {
-        console.error('Warning: time-in-state calculations at granularities finer than hour can take a long time.');
-      }
       if (tz != null) {
         this.tz = tz;
       } else {
@@ -3858,50 +3842,68 @@ require.define("/datatransform.coffee", function (require, module, exports, __di
     return arrayOfMaps;
   };
 
-  snapshotArray_To_AtArray = function(snapshotArray, listOfAtCTs, dateField, keyField, tz) {
+  snapshotArray_To_AtArray = function(snapshotArray, listOfAtCTs, validFromField, uniqueIDField, tz, validToField) {
     /*
       If you have a list of snapshots representing the changes in a set of work items over time (MVCC-style), this function will return the state of
-      each item at each moment of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
+      each item at each moments of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
       the values at particular moments in time (the times in listOfAtCTs).
       
       It will convert an snapshotArray like:
       
           snapshotArray = [
-            {_ValidFrom: '2011-01-01T12:00:00.000Z', ObjectID: 1, someColumn: 'some value', someOtherColumn: 'some other value'},
-            {_ValidFrom: '2011-01-02T12:00:00.000Z', ObjectID: 2, someColumn: 'some value 2', someOtherColumn: 'some other value 2'},      
+            {_ValidFrom: '1999-01-01T12:00:00.000Z', _ValidTo:'2010-01-02T12:00:00.000Z', ObjectID: 0, someColumn: 'some value'},
+            {_ValidFrom: '2011-01-01T12:00:00.000Z', _ValidTo:'2011-01-02T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
+            {_ValidFrom: '2011-01-02T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 2, someColumn: 'some value 2'},      
+            {_ValidFrom: '2011-01-02T12:00:00.000Z', _ValidTo:'2011-01-03T12:00:00.000Z', ObjectID: 3, someColumn: 'some value'},
+            {_ValidFrom: '2011-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
+            {_ValidFrom: '2222-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 99, someColumn: 'some value'},
           ]
           
       And a listOfAtCTs like:
       
-          listOfAtCTs = [new ChartTime('2011-01-02'), new ChartTime('2011-01-03')]
+          listOfAtCTs = [new ChartTime('2011-01-02'), new ChartTime('2011-01-03'), new ChartTime('2011-01-07')]
           
       To an atArray with the value of each ObjectID at each of the points in the listOfAtCTs like:
       
-          a = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, '_ValidFrom', 'ObjectID', 'America/New_York')
+          a = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, '_ValidFrom', 'ObjectID', 'America/New_York', '_ValidTo')
           
           console.log(a)
       
-          # [ [ { ObjectID: '1', 
-          #         someColumn: 'some value', 
-          #         someOtherColumn: 'some other value' } ],
-          #   [ { ObjectID: '1', 
-          #         someColumn: 'some value', 
-          #         someOtherColumn: 'some other value' }, 
-          #     { ObjectID: '2', 
-          #         someColumn: 'some value 2', 
-          #         someOtherColumn: 'some other value 2' } ] ]
+          # [ [ { _ValidFrom: '2011-01-01T12:00:00.000Z',
+          #       _ValidTo: '2011-01-02T12:00:00.000Z',
+          #       ObjectID: '1',
+          #       someColumn: 'some value' } ],
+          #   [ { _ValidFrom: '2011-01-02T12:00:00.000Z',
+          #       _ValidTo: '9999-01-01T12:00:00.000Z',
+          #       ObjectID: '2',
+          #       someColumn: 'some value 2' },
+          #     { _ValidFrom: '2011-01-02T12:00:00.000Z',
+          #       _ValidTo: '2011-01-03T12:00:00.000Z',
+          #       ObjectID: '3',
+          #       someColumn: 'some value' } ],
+          #   [ { _ValidFrom: '2011-01-05T12:00:00.000Z',
+          #       _ValidTo: '9999-01-01T12:00:00.000Z',
+          #       ObjectID: '1',
+          #       someColumn: 'some value' },
+          #     { _ValidFrom: '2011-01-02T12:00:00.000Z',
+          #       _ValidTo: '9999-01-01T12:00:00.000Z',
+          #       ObjectID: '2',
+          #       someColumn: 'some value 2' } ] ]
+    
           
       Parameters
       
-      * **snapshotArray** Array of snapshots or change events. Sorted by dateField.
+      * **snapshotArray** Array of snapshots or change events. Sorted by validFromField. # !TODO: Add the sort. Borrow from TimeInState.
       * **atArray** Array of ChartTime objects representing the moments we want the snapshots at
-      * **dateField** String containing the name of the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
-         Note, it should also work if there are ChartTime's in this position.
-      * **keyField** String containing the name of the field that holds the unique ID. Note, no matter the input type, they will come
+      * **validFromField** String containing the name of the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
+         Note, it should also work if there are ChartTime's in this position.  # !TODO: Need to test this
+      * **validToField** Same except for the end of the snapshot's active time. Defaults to '_ValidTo' for backward compatibility reasons.
+      * **uniqueIDField** String containing the name of the field that holds the unique ID. Note, no matter the input type, they will come
          out the other side as Strings. I could fix this if it ever became a problem.
       * **tz** String indicating the timezone, like 'America/New_York'
     */
-    var atLength, atPointer, atRow, currentAtCT, currentRow, currentSnapshot, currentSnapshotCT, granularity, key, output, outputRow, preOutput, snapshotLength, snapshotPointer, value, _i, _len;
+    var atCT, atLength, atPointer, atRow, atValue, currentAtCT, currentRow, currentSnapshot, currentSnapshotCT, d, granularity, index, key, output, outputRow, preOutput, snapshotLength, snapshotPointer, toDelete, uniqueID, validToCT, value, _i, _j, _len, _len2, _len3;
+    if (validToField == null) validToField = '_ValidTo';
     atLength = listOfAtCTs.length;
     snapshotLength = snapshotArray.length;
     preOutput = [];
@@ -3911,7 +3913,7 @@ require.define("/datatransform.coffee", function (require, module, exports, __di
     granularity = currentAtCT.granularity;
     snapshotPointer = 0;
     currentSnapshot = snapshotArray[snapshotPointer];
-    currentSnapshotCT = new ChartTime(currentSnapshot[dateField], granularity, tz);
+    currentSnapshotCT = new ChartTime(currentSnapshot[validFromField], granularity, tz);
     currentRow = {};
     while (snapshotPointer < snapshotLength) {
       if (currentSnapshotCT.$gte(currentAtCT)) {
@@ -3924,19 +3926,17 @@ require.define("/datatransform.coffee", function (require, module, exports, __di
           break;
         }
       } else {
-        if (currentRow[keyField] == null) {
-          currentRow[currentSnapshot[keyField]] = {};
+        if (currentRow[uniqueIDField] == null) {
+          currentRow[currentSnapshot[uniqueIDField]] = {};
         }
         for (key in currentSnapshot) {
           value = currentSnapshot[key];
-          if (key !== dateField) {
-            currentRow[currentSnapshot[keyField]][key] = value;
-          }
+          currentRow[currentSnapshot[uniqueIDField]][key] = value;
         }
         snapshotPointer++;
         if (snapshotPointer < snapshotLength) {
           currentSnapshot = snapshotArray[snapshotPointer];
-          currentSnapshotCT = new ChartTime(currentSnapshot[dateField], granularity, tz);
+          currentSnapshotCT = new ChartTime(currentSnapshot[validFromField], granularity, tz);
         } else {
           while (atPointer < atLength) {
             preOutput.push(currentRow);
@@ -3945,13 +3945,348 @@ require.define("/datatransform.coffee", function (require, module, exports, __di
         }
       }
     }
+    for (index = 0, _len = preOutput.length; index < _len; index++) {
+      atRow = preOutput[index];
+      toDelete = [];
+      atCT = listOfAtCTs[index];
+      for (uniqueID in atRow) {
+        atValue = atRow[uniqueID];
+        validToCT = new ChartTime(atValue[validToField], granularity, tz);
+        if (validToCT.$lt(atCT)) toDelete.push(uniqueID);
+      }
+      for (_i = 0, _len2 = toDelete.length; _i < _len2; _i++) {
+        d = toDelete[_i];
+        delete atRow[d];
+      }
+    }
     output = [];
-    for (_i = 0, _len = preOutput.length; _i < _len; _i++) {
-      atRow = preOutput[_i];
+    for (_j = 0, _len3 = preOutput.length; _j < _len3; _j++) {
+      atRow = preOutput[_j];
       outputRow = [];
       for (key in atRow) {
         value = atRow[key];
-        value[keyField] = key;
+        value[uniqueIDField] = key;
+        outputRow.push(value);
+      }
+      output.push(outputRow);
+    }
+    return output;
+  };
+
+  groupByAtArray_To_HighChartsSeries = function(groupByAtArray, nameField, valueField, nameFieldValues, returnPreOutput) {
+    /* 
+    Takes an array of arrays that came from charttime.groupByAt and looks like this:
+    
+        groupByAtArray = [
+          [
+            { 'CFDField': 8, KanbanState: 'Ready to pull' },
+            { 'CFDField': 5, KanbanState: 'In progress' },
+            { 'CFDField': 9, KanbanState: 'Accepted' },
+          ],
+          [
+            { 'CFDField': 2, KanbanState: 'Ready to pull' },
+            { 'CFDField': 3, KanbanState: 'In progress' },
+            { 'CFDField': 17, KanbanState: 'Accepted' },
+          ]
+        ]
+    
+    and optionally a list of nameFieldValues
+    
+        nameFieldValues = ['Ready to pull', 'In progress']  # Note, Accepted is missing
+        
+    and extracts the `valueField` under nameField to give us this
+    
+        console.log(groupByAtArray_To_HighChartsSeries(groupByAtArray, 'KanbanState', 'CFDField', nameFieldValues))
+        # [ { name: 'Ready to pull', data: [ 8, 2 ] },
+        #   { name: 'In progress', data: [ 5, 3 ] } ]
+    */
+    var f, groupByRow, name, output, outputRow, perNameValueRow, preOutput, _i, _j, _k, _l, _len, _len2, _len3, _len4, _ref;
+    preOutput = {};
+    if (nameFieldValues == null) {
+      nameFieldValues = [];
+      _ref = groupByAtArray[0];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        f = _ref[_i];
+        nameFieldValues.push(f[nameField]);
+      }
+    }
+    for (_j = 0, _len2 = groupByAtArray.length; _j < _len2; _j++) {
+      groupByRow = groupByAtArray[_j];
+      for (_k = 0, _len3 = groupByRow.length; _k < _len3; _k++) {
+        perNameValueRow = groupByRow[_k];
+        if (preOutput[perNameValueRow[nameField]] == null) {
+          preOutput[perNameValueRow[nameField]] = [];
+        }
+        preOutput[perNameValueRow[nameField]].push(perNameValueRow[valueField]);
+      }
+    }
+    if ((returnPreOutput != null) && returnPreOutput) return preOutput;
+    output = [];
+    for (_l = 0, _len4 = nameFieldValues.length; _l < _len4; _l++) {
+      name = nameFieldValues[_l];
+      outputRow = {
+        name: name,
+        data: preOutput[name]
+      };
+      output.push(outputRow);
+    }
+    return output;
+  };
+
+  aggregationAtArray_To_HighChartsSeries = function(aggregationAtArray, aggregations) {
+    /* 
+    Takes an array of arrays that came from charttime.aggregateAt and looks like this:
+    
+        aggregationAtArray = [
+          {"Series 1": 8, "Series 2": 5, "Series3": 10},
+          {"Series 1": 2, "Series 2": 3, "Series3": 20}
+        ]
+    
+    and a list of series configurations
+    
+        aggregations = [
+          {name: "Series 1", yAxis: 1},
+          {name: "Series 2"}
+        ]
+        
+    and extracts the data into seperate series
+    
+        console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregations))
+        # [ { name: 'Series 1', data: [ 8, 2 ], yAxis: 1 },
+        #   { name: 'Series 2', data: [ 5, 3 ] } ]
+        
+    Notice how the extra fields from the series array are included in the output.
+    */
+    var a, aggregationRow, idx, key, output, outputRow, preOutput, s, seriesNames, seriesRow, value, _i, _j, _k, _len, _len2, _len3, _len4;
+    preOutput = {};
+    seriesNames = [];
+    for (_i = 0, _len = aggregations.length; _i < _len; _i++) {
+      a = aggregations[_i];
+      seriesNames.push(a.name);
+    }
+    for (_j = 0, _len2 = aggregationAtArray.length; _j < _len2; _j++) {
+      aggregationRow = aggregationAtArray[_j];
+      for (_k = 0, _len3 = seriesNames.length; _k < _len3; _k++) {
+        s = seriesNames[_k];
+        if (preOutput[s] == null) preOutput[s] = [];
+        preOutput[s].push(aggregationRow[s]);
+      }
+    }
+    output = [];
+    for (idx = 0, _len4 = seriesNames.length; idx < _len4; idx++) {
+      s = seriesNames[idx];
+      outputRow = {
+        name: s,
+        data: preOutput[s]
+      };
+      seriesRow = aggregations[idx];
+      for (key in seriesRow) {
+        value = seriesRow[key];
+        if (key !== 'name' && key !== 'data') outputRow[key] = value;
+      }
+      output.push(outputRow);
+    }
+    return output;
+  };
+
+  exports.csvStyleArray_To_ArrayOfMaps = csvStyleArray_To_ArrayOfMaps;
+
+  exports.snapshotArray_To_AtArray = snapshotArray_To_AtArray;
+
+  exports.groupByAtArray_To_HighChartsSeries = groupByAtArray_To_HighChartsSeries;
+
+  exports.aggregationAtArray_To_HighChartsSeries = aggregationAtArray_To_HighChartsSeries;
+
+}).call(this);
+
+});
+
+require.define("/dataTransform.coffee", function (require, module, exports, __dirname, __filename) {
+(function() {
+  var ChartTime, aggregationAtArray_To_HighChartsSeries, csvStyleArray_To_ArrayOfMaps, groupByAtArray_To_HighChartsSeries, snapshotArray_To_AtArray, utils;
+
+  ChartTime = require('./ChartTime').ChartTime;
+
+  utils = require('./utils');
+
+  csvStyleArray_To_ArrayOfMaps = function(csvStyleArray, rowKeys) {
+    /*
+      To use this module, you must `require` it:
+      
+          charttime = require('../')
+          {csvStyleArray_To_ArrayOfMaps, snapshotArray_To_AtArray, ChartTime} = charttime
+          {groupByAtArray_To_HighChartsSeries, aggregationAtArray_To_HighChartsSeries} = charttime
+          ChartTime.setTZPath("../vendor/tz")
+      
+      `csvStyleArry_To_ArryOfMaps` will convert a csvStyleArray like:
+      
+          csvStyleArray = [
+            ['column1', 'column2'],
+            [1         , 2         ],
+            [3         , 4         ],
+            [5         , 6         ]
+          ]
+      
+      to an Array of Maps like this:
+      
+          console.log(csvStyleArray_To_ArrayOfMaps(csvStyleArray))
+      
+          # [ { column1: 1, column2: 2 },
+          #   { column1: 3, column2: 4 },
+          #   { column1: 5, column2: 6 } ]
+      
+      Parameters
+      
+      * **CSVStyleArray** An Array of Arrays. The first row is usually the list of column headers but if not, you can
+          provide your own such list in the second parameter.
+      * **rowKeys** Optional second parameter specifying the column headers like `['column1', 'column2']`
+    */
+    var arrayOfMaps, i, index, inputRow, key, outputRow, tableLength, _len;
+    arrayOfMaps = [];
+    if (rowKeys != null) {
+      i = 0;
+    } else {
+      rowKeys = csvStyleArray[0];
+      i = 1;
+    }
+    tableLength = csvStyleArray.length;
+    while (i < tableLength) {
+      inputRow = csvStyleArray[i];
+      outputRow = {};
+      for (index = 0, _len = rowKeys.length; index < _len; index++) {
+        key = rowKeys[index];
+        outputRow[key] = inputRow[index];
+      }
+      arrayOfMaps.push(outputRow);
+      i++;
+    }
+    return arrayOfMaps;
+  };
+
+  snapshotArray_To_AtArray = function(snapshotArray, listOfAtCTs, validFromField, uniqueIDField, tz, validToField) {
+    /*
+      If you have a list of snapshots representing the changes in a set of work items over time (MVCC-style), this function will return the state of
+      each item at each moments of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
+      the values at particular moments in time (the times in listOfAtCTs).
+      
+      It will convert an snapshotArray like:
+      
+          snapshotArray = [
+            {_ValidFrom: '1999-01-01T12:00:00.000Z', _ValidTo:'2010-01-02T12:00:00.000Z', ObjectID: 0, someColumn: 'some value'},
+            {_ValidFrom: '2011-01-01T12:00:00.000Z', _ValidTo:'2011-01-02T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
+            {_ValidFrom: '2011-01-02T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 2, someColumn: 'some value 2'},      
+            {_ValidFrom: '2011-01-02T12:00:00.000Z', _ValidTo:'2011-01-03T12:00:00.000Z', ObjectID: 3, someColumn: 'some value'},
+            {_ValidFrom: '2011-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
+            {_ValidFrom: '2222-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 99, someColumn: 'some value'},
+          ]
+          
+      And a listOfAtCTs like:
+      
+          listOfAtCTs = [new ChartTime('2011-01-02'), new ChartTime('2011-01-03'), new ChartTime('2011-01-07')]
+          
+      To an atArray with the value of each ObjectID at each of the points in the listOfAtCTs like:
+      
+          a = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, '_ValidFrom', 'ObjectID', 'America/New_York', '_ValidTo')
+          
+          console.log(a)
+      
+          # [ [ { _ValidFrom: '2011-01-01T12:00:00.000Z',
+          #       _ValidTo: '2011-01-02T12:00:00.000Z',
+          #       ObjectID: '1',
+          #       someColumn: 'some value' } ],
+          #   [ { _ValidFrom: '2011-01-02T12:00:00.000Z',
+          #       _ValidTo: '9999-01-01T12:00:00.000Z',
+          #       ObjectID: '2',
+          #       someColumn: 'some value 2' },
+          #     { _ValidFrom: '2011-01-02T12:00:00.000Z',
+          #       _ValidTo: '2011-01-03T12:00:00.000Z',
+          #       ObjectID: '3',
+          #       someColumn: 'some value' } ],
+          #   [ { _ValidFrom: '2011-01-05T12:00:00.000Z',
+          #       _ValidTo: '9999-01-01T12:00:00.000Z',
+          #       ObjectID: '1',
+          #       someColumn: 'some value' },
+          #     { _ValidFrom: '2011-01-02T12:00:00.000Z',
+          #       _ValidTo: '9999-01-01T12:00:00.000Z',
+          #       ObjectID: '2',
+          #       someColumn: 'some value 2' } ] ]
+    
+          
+      Parameters
+      
+      * **snapshotArray** Array of snapshots or change events. Sorted by validFromField. # !TODO: Add the sort. Borrow from TimeInState.
+      * **atArray** Array of ChartTime objects representing the moments we want the snapshots at
+      * **validFromField** String containing the name of the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
+         Note, it should also work if there are ChartTime's in this position.  # !TODO: Need to test this
+      * **validToField** Same except for the end of the snapshot's active time. Defaults to '_ValidTo' for backward compatibility reasons.
+      * **uniqueIDField** String containing the name of the field that holds the unique ID. Note, no matter the input type, they will come
+         out the other side as Strings. I could fix this if it ever became a problem.
+      * **tz** String indicating the timezone, like 'America/New_York'
+    */
+    var atCT, atLength, atPointer, atRow, atValue, currentAtCT, currentRow, currentSnapshot, currentSnapshotCT, d, granularity, index, key, output, outputRow, preOutput, snapshotLength, snapshotPointer, toDelete, uniqueID, validToCT, value, _i, _j, _len, _len2, _len3;
+    if (validToField == null) validToField = '_ValidTo';
+    atLength = listOfAtCTs.length;
+    snapshotLength = snapshotArray.length;
+    preOutput = [];
+    if (atLength <= 0 || snapshotLength <= 0) return preOutput;
+    atPointer = 0;
+    currentAtCT = listOfAtCTs[atPointer];
+    granularity = currentAtCT.granularity;
+    snapshotPointer = 0;
+    currentSnapshot = snapshotArray[snapshotPointer];
+    currentSnapshotCT = new ChartTime(currentSnapshot[validFromField], granularity, tz);
+    currentRow = {};
+    while (snapshotPointer < snapshotLength) {
+      if (currentSnapshotCT.$gte(currentAtCT)) {
+        preOutput.push(currentRow);
+        currentRow = utils.clone(currentRow);
+        atPointer++;
+        if (atPointer < atLength) {
+          currentAtCT = listOfAtCTs[atPointer];
+        } else {
+          break;
+        }
+      } else {
+        if (currentRow[uniqueIDField] == null) {
+          currentRow[currentSnapshot[uniqueIDField]] = {};
+        }
+        for (key in currentSnapshot) {
+          value = currentSnapshot[key];
+          currentRow[currentSnapshot[uniqueIDField]][key] = value;
+        }
+        snapshotPointer++;
+        if (snapshotPointer < snapshotLength) {
+          currentSnapshot = snapshotArray[snapshotPointer];
+          currentSnapshotCT = new ChartTime(currentSnapshot[validFromField], granularity, tz);
+        } else {
+          while (atPointer < atLength) {
+            preOutput.push(currentRow);
+            atPointer++;
+          }
+        }
+      }
+    }
+    for (index = 0, _len = preOutput.length; index < _len; index++) {
+      atRow = preOutput[index];
+      toDelete = [];
+      atCT = listOfAtCTs[index];
+      for (uniqueID in atRow) {
+        atValue = atRow[uniqueID];
+        validToCT = new ChartTime(atValue[validToField], granularity, tz);
+        if (validToCT.$lt(atCT)) toDelete.push(uniqueID);
+      }
+      for (_i = 0, _len2 = toDelete.length; _i < _len2; _i++) {
+        d = toDelete[_i];
+        delete atRow[d];
+      }
+    }
+    output = [];
+    for (_j = 0, _len3 = preOutput.length; _j < _len3; _j++) {
+      atRow = preOutput[_j];
+      outputRow = [];
+      for (key in atRow) {
+        value = atRow[key];
+        value[uniqueIDField] = key;
         outputRow.push(value);
       }
       output.push(outputRow);

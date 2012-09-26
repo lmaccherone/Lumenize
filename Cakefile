@@ -31,7 +31,8 @@ task('compile', 'Compile CoffeeScript source files to JavaScript and place in ./
     compile()
 )
 
-task('watch', 'Recompile CoffeeScript source files when modified and place in ./js', () ->
+task('watch', 'Recompile CoffeeScript source files when modified and place in ./js *\n' +
+              '                          * Actually, it is best to just run `jitter src js` from the command line', () ->
     compile(true)
 )
 
