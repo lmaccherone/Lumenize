@@ -4031,6 +4031,32 @@ require.define("/datatransform.coffee", function(require, module, exports, __dir
                     }
                 }
             }
+
+            // Larry's fix for the bug Alan B found
+            //TODO this should be properly added (with vars at top etc) when we regenerate from .coffee files
+
+            // If the validToField is less than the corresponding atCT, then remove it because that means
+            // it was either deleted or fell out of the selection filter prior to this atCT
+            var atCT, atRow, atValue, d, index, toDelete, uniqueID, validToCT, _j, _len1;
+
+            for (index = _i = 0, _len = preOutput.length; _i < _len; index = ++_i) {
+              atRow = preOutput[index];
+              toDelete = [];
+              atCT = listOfAtCTs[index];
+              for (uniqueID in atRow) {
+                atValue = atRow[uniqueID];
+                validToCT = new ChartTime(atValue[validToField], granularity, tz);
+                if (validToCT.$lt(atCT)) {
+                  toDelete.push(uniqueID);
+                }
+              }
+              for (_j = 0, _len1 = toDelete.length; _j < _len1; _j++) {
+                d = toDelete[_j];
+                delete atRow[d];
+              }
+            }
+            // end fix
+
             output = [];
             for (_i = 0, _len = preOutput.length; _i < _len; _i++) {
                 atRow = preOutput[_i];
