@@ -9,12 +9,14 @@
 </head>
 <body>
   <header>
-    <h1>Lumenize (0.2.6)</h1>
+    <h1>Lumenize (0.2.5)</h1>
     <h2>Illuminating the forest AND the trees in your data.</h2>
   </header>
   <div id="content">
     <div id="sidebar">
       <ul id="modulelist">
+        
+        <li><a href="lumenize.html">lumenize.coffee</a></li>
         
         <li><a href="aggregate.html">aggregate.coffee</a></li>
         
@@ -24,13 +26,11 @@
         
         <li><a href="ChartTimeIteratorAndRange.html">ChartTimeIteratorAndRange.coffee</a></li>
         
-        <li><a href="dataTransform.html">dataTransform.coffee</a></li>
+        <li><a href="datatransform.html">datatransform.coffee</a></li>
         
         <li><a href="derive.html">derive.coffee</a></li>
         
         <li><a href="histogram.html">histogram.coffee</a></li>
-        
-        <li><a href="lumenize.html">lumenize.coffee</a></li>
         
         <li><a href="utils.html">utils.coffee</a></li>
         
@@ -38,174 +38,6 @@
     </div>
     <div id="main">
       <h1>Module index</h1>
-      
-      <div class="module">
-        <div class="header">
-          <a href="aggregate.html"><h3>aggregate.coffee</h3></a>
-        </div>
-        <div class="module_content">
-          
-          
-          
-          <h4>Functions</h4>
-          <ul class="functionlist">
-            
-            <li><a href="aggregate.html#functions.$sum">functions.$sum(values)</a></li>
-            
-            <li><a href="aggregate.html#functions.$sumSquares">functions.$sumSquares(values)</a></li>
-            
-            <li><a href="aggregate.html#functions.$count">functions.$count(values)</a></li>
-            
-            <li><a href="aggregate.html#functions.$min">functions.$min(values)</a></li>
-            
-            <li><a href="aggregate.html#functions.$max">functions.$max(values)</a></li>
-            
-            <li><a href="aggregate.html#functions.$push">functions.$push(values)</a></li>
-            
-            <li><a href="aggregate.html#functions.$addToSet">functions.$addToSet(values)</a></li>
-            
-            <li><a href="aggregate.html#functions.$average">functions.$average(values)</a></li>
-            
-            <li><a href="aggregate.html#functions.$variance">functions.$variance(values)</a></li>
-            
-            <li><a href="aggregate.html#functions.$standardDeviation">functions.$standardDeviation(values)</a></li>
-            
-            <li><a href="aggregate.html#percentileCreator">percentileCreator(p)</a></li>
-            
-            <li><a href="aggregate.html#aggregate">aggregate(list, aggregations)</a></li>
-            
-            <li><a href="aggregate.html#aggregateAt">aggregateAt(atArray, aggregations)</a></li>
-            
-            <li><a href="aggregate.html#groupBy">groupBy(list, spec)</a></li>
-            
-            <li><a href="aggregate.html#groupByAt">groupByAt(atArray, spec)</a></li>
-            
-            <li><a href="aggregate.html#timeSeriesCalculator">timeSeriesCalculator(snapshotArray, config)</a></li>
-            
-            <li><a href="aggregate.html#timeSeriesGroupByCalculator">timeSeriesGroupByCalculator(snapshotArray, config)</a></li>
-            
-          </ul>
-          
-        </div>
-      </div>
-      
-      <div class="module">
-        <div class="header">
-          <a href="ChartTime.html"><h3>ChartTime.coffee</h3></a>
-        </div>
-        <div class="module_content">
-          
-          
-          <h4>Classes</h4>
-          <ul class="classlist">
-            
-            <li><a href="ChartTime.html#ChartTime">ChartTime</a></li>
-            
-          </ul>
-          
-          
-        </div>
-      </div>
-      
-      <div class="module">
-        <div class="header">
-          <a href="ChartTimeInStateCalculator.html"><h3>ChartTimeInStateCalculator.coffee</h3></a>
-        </div>
-        <div class="module_content">
-          
-          
-          <h4>Classes</h4>
-          <ul class="classlist">
-            
-            <li><a href="ChartTimeInStateCalculator.html#ChartTimeInStateCalculator">ChartTimeInStateCalculator</a></li>
-            
-          </ul>
-          
-          
-        </div>
-      </div>
-      
-      <div class="module">
-        <div class="header">
-          <a href="ChartTimeIteratorAndRange.html"><h3>ChartTimeIteratorAndRange.coffee</h3></a>
-        </div>
-        <div class="module_content">
-          
-          
-          <h4>Classes</h4>
-          <ul class="classlist">
-            
-            <li><a href="ChartTimeIteratorAndRange.html#ChartTimeIterator">ChartTimeIterator</a></li>
-            
-            <li><a href="ChartTimeIteratorAndRange.html#ChartTimeRange">ChartTimeRange</a></li>
-            
-          </ul>
-          
-          
-        </div>
-      </div>
-      
-      <div class="module">
-        <div class="header">
-          <a href="dataTransform.html"><h3>dataTransform.coffee</h3></a>
-        </div>
-        <div class="module_content">
-          
-          
-          
-          <h4>Functions</h4>
-          <ul class="functionlist">
-            
-            <li><a href="dataTransform.html#csvStyleArray_To_ArrayOfMaps">csvStyleArray_To_ArrayOfMaps(csvStyleArray, rowKeys)</a></li>
-            
-            <li><a href="dataTransform.html#snapshotArray_To_AtArray">snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, validFromField, uniqueIDField, tz, validToField)</a></li>
-            
-            <li><a href="dataTransform.html#groupByAtArray_To_HighChartsSeries">groupByAtArray_To_HighChartsSeries(groupByAtArray, nameField, valueField, nameFieldValues, returnPreOutput)</a></li>
-            
-            <li><a href="dataTransform.html#aggregationAtArray_To_HighChartsSeries">aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregations)</a></li>
-            
-          </ul>
-          
-        </div>
-      </div>
-      
-      <div class="module">
-        <div class="header">
-          <a href="derive.html"><h3>derive.coffee</h3></a>
-        </div>
-        <div class="module_content">
-          
-          
-          
-          <h4>Functions</h4>
-          <ul class="functionlist">
-            
-            <li><a href="derive.html#deriveFields">deriveFields(list, derivedFields)</a></li>
-            
-            <li><a href="derive.html#deriveFieldsAt">deriveFieldsAt(atArray, derivedFields)</a></li>
-            
-          </ul>
-          
-        </div>
-      </div>
-      
-      <div class="module">
-        <div class="header">
-          <a href="histogram.html"><h3>histogram.coffee</h3></a>
-        </div>
-        <div class="module_content">
-          
-          
-          
-          <h4>Functions</h4>
-          <ul class="functionlist">
-            
-            <li><a href="histogram.html#histogram">histogram(rows, valueField)</a></li>
-            
-          </ul>
-          
-        </div>
-      </div>
       
       <div class="module">
         <div class="header">
@@ -331,6 +163,174 @@ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABI
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
 IN THE SOFTWARE.</p>
           
+          
+        </div>
+      </div>
+      
+      <div class="module">
+        <div class="header">
+          <a href="aggregate.html"><h3>aggregate.coffee</h3></a>
+        </div>
+        <div class="module_content">
+          
+          
+          
+          <h4>Functions</h4>
+          <ul class="functionlist">
+            
+            <li><a href="aggregate.html#functions.$sum">functions.$sum(values)</a></li>
+            
+            <li><a href="aggregate.html#functions.$sumSquares">functions.$sumSquares(values)</a></li>
+            
+            <li><a href="aggregate.html#functions.$count">functions.$count(values)</a></li>
+            
+            <li><a href="aggregate.html#functions.$min">functions.$min(values)</a></li>
+            
+            <li><a href="aggregate.html#functions.$max">functions.$max(values)</a></li>
+            
+            <li><a href="aggregate.html#functions.$push">functions.$push(values)</a></li>
+            
+            <li><a href="aggregate.html#functions.$addToSet">functions.$addToSet(values)</a></li>
+            
+            <li><a href="aggregate.html#functions.$average">functions.$average(values)</a></li>
+            
+            <li><a href="aggregate.html#functions.$variance">functions.$variance(values)</a></li>
+            
+            <li><a href="aggregate.html#functions.$standardDeviation">functions.$standardDeviation(values)</a></li>
+            
+            <li><a href="aggregate.html#percentileCreator">percentileCreator(p)</a></li>
+            
+            <li><a href="aggregate.html#aggregate">aggregate(list, aggregations)</a></li>
+            
+            <li><a href="aggregate.html#aggregateAt">aggregateAt(atArray, aggregations)</a></li>
+            
+            <li><a href="aggregate.html#groupBy">groupBy(list, spec)</a></li>
+            
+            <li><a href="aggregate.html#groupByAt">groupByAt(atArray, spec)</a></li>
+            
+            <li><a href="aggregate.html#timeSeriesCalculator">timeSeriesCalculator(snapshotArray, config)</a></li>
+            
+            <li><a href="aggregate.html#timeSeriesGroupByCalculator">timeSeriesGroupByCalculator(snapshotArray, config)</a></li>
+            
+          </ul>
+          
+        </div>
+      </div>
+      
+      <div class="module">
+        <div class="header">
+          <a href="ChartTime.html"><h3>ChartTime.coffee</h3></a>
+        </div>
+        <div class="module_content">
+          
+          
+          <h4>Classes</h4>
+          <ul class="classlist">
+            
+            <li><a href="ChartTime.html#ChartTime">ChartTime</a></li>
+            
+          </ul>
+          
+          
+        </div>
+      </div>
+      
+      <div class="module">
+        <div class="header">
+          <a href="ChartTimeInStateCalculator.html"><h3>ChartTimeInStateCalculator.coffee</h3></a>
+        </div>
+        <div class="module_content">
+          
+          
+          <h4>Classes</h4>
+          <ul class="classlist">
+            
+            <li><a href="ChartTimeInStateCalculator.html#ChartTimeInStateCalculator">ChartTimeInStateCalculator</a></li>
+            
+          </ul>
+          
+          
+        </div>
+      </div>
+      
+      <div class="module">
+        <div class="header">
+          <a href="ChartTimeIteratorAndRange.html"><h3>ChartTimeIteratorAndRange.coffee</h3></a>
+        </div>
+        <div class="module_content">
+          
+          
+          <h4>Classes</h4>
+          <ul class="classlist">
+            
+            <li><a href="ChartTimeIteratorAndRange.html#ChartTimeIterator">ChartTimeIterator</a></li>
+            
+            <li><a href="ChartTimeIteratorAndRange.html#ChartTimeRange">ChartTimeRange</a></li>
+            
+          </ul>
+          
+          
+        </div>
+      </div>
+      
+      <div class="module">
+        <div class="header">
+          <a href="datatransform.html"><h3>datatransform.coffee</h3></a>
+        </div>
+        <div class="module_content">
+          
+          
+          
+          <h4>Functions</h4>
+          <ul class="functionlist">
+            
+            <li><a href="datatransform.html#csvStyleArray_To_ArrayOfMaps">csvStyleArray_To_ArrayOfMaps(csvStyleArray, rowKeys)</a></li>
+            
+            <li><a href="datatransform.html#snapshotArray_To_AtArray">snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, dateField, keyField, tz)</a></li>
+            
+            <li><a href="datatransform.html#groupByAtArray_To_HighChartsSeries">groupByAtArray_To_HighChartsSeries(groupByAtArray, nameField, valueField, nameFieldValues, returnPreOutput)</a></li>
+            
+            <li><a href="datatransform.html#aggregationAtArray_To_HighChartsSeries">aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregations)</a></li>
+            
+          </ul>
+          
+        </div>
+      </div>
+      
+      <div class="module">
+        <div class="header">
+          <a href="derive.html"><h3>derive.coffee</h3></a>
+        </div>
+        <div class="module_content">
+          
+          
+          
+          <h4>Functions</h4>
+          <ul class="functionlist">
+            
+            <li><a href="derive.html#deriveFields">deriveFields(list, derivedFields)</a></li>
+            
+            <li><a href="derive.html#deriveFieldsAt">deriveFieldsAt(atArray, derivedFields)</a></li>
+            
+          </ul>
+          
+        </div>
+      </div>
+      
+      <div class="module">
+        <div class="header">
+          <a href="histogram.html"><h3>histogram.coffee</h3></a>
+        </div>
+        <div class="module_content">
+          
+          
+          
+          <h4>Functions</h4>
+          <ul class="functionlist">
+            
+            <li><a href="histogram.html#histogram">histogram(rows, valueField)</a></li>
+            
+          </ul>
           
         </div>
       </div>
