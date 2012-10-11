@@ -25,7 +25,7 @@ _Illuminating the forest AND the trees in your data._
 
 Authors:
 
-* [Larry Maccherone](http://maccherone.com) (Larry @at@ Maccherone .dot. com)
+* [Larry Maccherone](http://maccherone.com) (<Larry@Maccherone.com>)
 * Jennifer Maccherone
 
 Running:
@@ -49,10 +49,10 @@ Developing/Documenting:
 
 To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
 
-`<script type="text/javascript" src="http://lmaccherone.github.com/Lumenize/deploy/lumenize-min.js"></script>`
+`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/master/deploy/lumenize-min.js"></script>`
 
-The package is fairly large ~252KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip 
-the package so it's only ~59KB over the wire.
+The package is fairly large ~240KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip 
+the package so it's only ~49KB over the wire.
 
 Then at the top of the javascript where you want to call it, put the following:
 
@@ -82,7 +82,23 @@ If you want the latest from source, download/clone from GitHub and run:
 
 ## Contributing to Lumenize ##
     
-If you want to add functionality to Lumenize, add tests for your upgrades and make sure all test pass with:
+If you want to add functionality to Lumenize, you'll need a working dev environment. The following seems to accomplish that:
+
+Once Node.js is installed, you should be able to run a few node package manager (npm) commands. Install the following:
+
+* `sudo npm -g install coffee-script`
+* `sudo npm -g install coffeedoc-lm`
+* `sudo npm -g install coffeedoctest`
+* `sudo npm -g install jitter`
+* `sudo npm -g install nodeunit`
+ 
+Add the following to your ~/.profile file
+  
+`NODE_PATH=/usr/local/lib/node_modules; export NODE_PATH`
+
+After edit, restart your session or use command `source ~/.profile` to activate the changes immediately.
+
+Once you have the above installed, add tests for your upgrades and make sure all test pass with:
 
 `cake test`
     

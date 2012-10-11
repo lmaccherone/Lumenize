@@ -1,7 +1,7 @@
 utils = require('./utils')
 timezoneJS = require('timezone-js').timezoneJS
 
-class ChartTime
+class ChartTime  # !TODO: Change "start" to "startingAt" and "pastEnd" to "endingBefore"
   ###
   # ChartTime #
   
@@ -168,11 +168,14 @@ class ChartTime
   ## Timezones ##
   
   ChartTime does timezone sensitive conversions. You must set the path to the tz files before doing any timezone sensitive comparisons.
+  Note, if you are using one of the pre-packaged Lumenize.js or Lumenize-min.js, then you can supply any string in this call. It will
+  ignore what you provide and load the time zone data from the files included in the package. We would like to remove the requirement
+  for this initialization when running one of these packages, but for now, you still need the dummy call.
   
       ChartTime.setTZPath('../vendor/tz')
       
-      console.log(new ChartTime('2011-01-01').getJSDate('America/New_York'))
-      # Sat, 01 Jan 2011 05:00:00 GMT
+      console.log(new ChartTime('2011-01-01').getJSDate('America/Denver').toUTCString())
+      # Sat, 01 Jan 2011 07:00:00 GMT
   ###
   constructor: (spec_RDN_Date_Or_String, granularity, tz) ->
     ###

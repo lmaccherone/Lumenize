@@ -2,7 +2,7 @@ utils = require('./utils')
 {ChartTime} = require('./ChartTime')
 {ChartTimeRange, ChartTimeIterator} = require('./ChartTimeIteratorAndRange')
 {deriveFieldsAt} = require('./derive')
-{snapshotArray_To_AtArray} = require('./datatransform')
+{snapshotArray_To_AtArray} = require('./dataTransform')
 
 functions = {}  
 
@@ -388,6 +388,7 @@ timeSeriesGroupByCalculator = (snapshotArray, config) ->
     uniqueValues: utils.clone(config.groupByFieldValues)
     aggregations: [
       {as: 'GroupBy', field: config.aggregationField, f: config.aggregationFunction}
+      {as: 'Count', field:'ObjectID', f:'$count'}
       {as: 'DrillDown', field:'ObjectID', f:'$push'}
     ]
   groupByAtArray = groupByAt(atArray, aggregationSpec)  

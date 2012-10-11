@@ -28,11 +28,11 @@ exports.ChartTimeTest =
   testHour: (test) ->
     d = new ChartTime(granularity: 'hour', year: 2011, month:11, day:20, hour:9).hour
     test.equal(d, '9')
-    d = new ChartTime(granularity: 'hour', year: 2012, month: 06, day: 15, hour: 23).hour
+    d = new ChartTime(granularity: 'hour', year: 2012, month: 6, day: 15, hour: 23).hour
     test.equal(d, '23')
     
     f = () ->
-      d = new ChartTime(granularity: 'hour', year: 2013, month: 05, day: 1, hour: 27) #this hour is greater than 24, but no error is thrown
+      d = new ChartTime(granularity: 'hour', year: 2013, month: 5, day: 1, hour: 27) #this hour is greater than 24, but no error is thrown
       console.log('inside testHour')
       console.log(d)
     test.throws(f, Error)

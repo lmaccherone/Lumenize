@@ -70,6 +70,7 @@ task('publish', 'Publish to npm', () ->
   run('npm publish .')
 )
 
+# Old version of build
 task('build', 'Build with browserify and place in ./deploy', () ->
   fs.readdir('src', (err, contents) ->
     browserify = require('browserify')
@@ -83,6 +84,18 @@ task('build', 'Build with browserify and place in ./deploy', () ->
     run("uglifyjs deploy/#{path.basename(__dirname)}.js > deploy/#{path.basename(__dirname)}-min.js")
   ) # !TODO: Need to run tests on the built version
 )
+
+# task('build', 'Build with browserify and place in ./deploy', () -> 
+#   browserify = require('browserify')
+#   fileify = require('fileify')
+#   b = browserify()
+#   b.use(fileify('files', __dirname + '/files'))
+#   b.ignore(['files'])
+#   b.require("./src/lumenize.coffee")
+#   fs.writeFileSync("deploy/#{path.basename(__dirname)}.js", b.bundle())
+#   run("uglifyjs deploy/#{path.basename(__dirname)}.js > deploy/#{path.basename(__dirname)}-min.js")
+#   # !TODO: Need to run tests on the built version
+# )
 
 # task('prep-tz', 'NOT WORKING - Prepare the tz files found in vendor/tz for browserify/fileify and place in files/tz.', () ->
 #   files = [
@@ -131,7 +144,8 @@ task('create', 'Creates a new directory with the recommended structure', (option
       run('system_profiler SPSoftwareDataType', [], (stdout) ->
         matcher = /User Name: ([\w\s]+) \(/
         groups = matcher.exec(stdout)
-        packageJSON = """{
+        packageJSON = """
+        {
           "name": "#{name}",
           "description": "",
           "version": "0.1.0",
