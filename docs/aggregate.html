@@ -263,16 +263,16 @@ list = [
 <pre><code>a = groupBy(list, spec)
 console.log(a)
 
-# { 'In progress': 
-#     { 'ObjectID_$count': 1,
+#   [ { KanbanState: 'In progress',
+#       'ObjectID_$count': 1,
 #       'Drill-down': [ '1' ], 
 #       'PlanEstimate_$sum': 5, 
 #       mySum: 5 },
-#   'Ready to pull': 
-#     { 'ObjectID_$count': 2, 
+#     { KanbanState: 'Ready to pull',
+#       'ObjectID_$count': 2, 
 #       'Drill-down': [ '2', '3' ], 
 #       'PlanEstimate_$sum': 8, 
-#       mySum: 8 } }
+#       mySum: 8 } ]
 </code></pre>
 
 <p>The first element of this specification is the <code>groupBy</code> field. This is analagous to

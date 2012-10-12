@@ -229,16 +229,16 @@ groupBy = (list, spec) ->
       a = groupBy(list, spec)
       console.log(a)
 
-      # { 'In progress': 
-      #     { 'ObjectID_$count': 1,
+      #   [ { KanbanState: 'In progress',
+      #       'ObjectID_$count': 1,
       #       'Drill-down': [ '1' ], 
       #       'PlanEstimate_$sum': 5, 
       #       mySum: 5 },
-      #   'Ready to pull': 
-      #     { 'ObjectID_$count': 2, 
+      #     { KanbanState: 'Ready to pull',
+      #       'ObjectID_$count': 2, 
       #       'Drill-down': [ '2', '3' ], 
       #       'PlanEstimate_$sum': 8, 
-      #       mySum: 8 } }
+      #       mySum: 8 } ]
       
   The first element of this specification is the `groupBy` field. This is analagous to
   the `GROUP BY` column in an SQL express.
