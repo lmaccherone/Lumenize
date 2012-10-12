@@ -253,9 +253,10 @@ groupBy = (list, spec) ->
     grouped[row[spec.groupBy]].push(row)
     
   # Start to calculate output
-  output = {}
+  output = []
   for groupByValue, valuesForThisGroup of grouped
     outputRow = {}
+    outputRow[spec.groupBy] = groupByValue
     for a in spec.aggregations
       # Pull out the correct field from valuesForThisGroup
       valuesArray = []
@@ -266,7 +267,7 @@ groupBy = (list, spec) ->
 
       outputRow[as] = f(valuesArray)
     
-    output[groupByValue] = outputRow
+    output.push(outputRow)
   return output
   
 groupByAt = (atArray, spec) ->
@@ -286,7 +287,13 @@ groupByAt = (atArray, spec) ->
   ###
   temp = []
   for row, idx in atArray
-    temp.push(groupBy(row, spec))
+    tempGroupBy = groupBy(row, spec)
+    tempRow = {}
+    for tgb in tempGroupBy
+      tempKey = tgb[spec.groupBy]
+      delete tgb[spec.groupBy]
+      tempRow[tempKey] = tgb    
+    temp.push(tempRow)
     
   if spec.uniqueValues?
     uniqueValues = spec.uniqueValues

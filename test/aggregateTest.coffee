@@ -41,10 +41,10 @@ exports.aggregateTest =
       ]
     }
       
-    expected = {
-      'In progress': { 'ObjectID_$count': 1, 'Drill-down': [ '1' ], 'PlanEstimate_$sum': 5, mySum: 5,  },
-      'Ready to pull': { 'ObjectID_$count': 2, 'Drill-down': [ '2', '3' ], 'PlanEstimate_$sum': 8, mySum: 8 } 
-    }
+    expected = [
+      { 'ObjectID_$count': 1, 'Drill-down': [ '1' ], 'PlanEstimate_$sum': 5, mySum: 5, 'KanbanState': 'In progress'},
+      { 'ObjectID_$count': 2, 'Drill-down': [ '2', '3' ], 'PlanEstimate_$sum': 8, mySum: 8, 'KanbanState': 'Ready to pull' } 
+    ]
     
     a = groupBy(list, spec)
     
