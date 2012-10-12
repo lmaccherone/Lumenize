@@ -417,7 +417,7 @@ _Illuminating the forest AND the trees in your data._
 
 Authors:
 
-* [Larry Maccherone](http://maccherone.com) (Larry @at@ Maccherone .dot. com)
+* [Larry Maccherone](http://maccherone.com) (<Larry@Maccherone.com>)
 * Jennifer Maccherone
 
 Running:
@@ -441,10 +441,10 @@ Developing/Documenting:
 
 To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
 
-`<script type="text/javascript" src="http://lmaccherone.github.com/Lumenize/deploy/lumenize-min.js"></script>`
+`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/master/deploy/lumenize-min.js"></script>`
 
-The package is fairly large ~252KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip 
-the package so it's only ~59KB over the wire.
+The package is fairly large ~240KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip 
+the package so it's only ~49KB over the wire.
 
 Then at the top of the javascript where you want to call it, put the following:
 
@@ -478,12 +478,12 @@ If you want to add functionality to Lumenize, you'll need a working dev environm
 
 Once Node.js is installed, you should be able to run a few node package manager (npm) commands. Install the following:
 
-`sudo npm -g install coffee-script`
-`sudo npm -g install coffeedoc-lm`
-`sudo npm -g install coffeedoctest`
-`sudo npm -g install jitter`
-`sudo npm -g install nodeunit`
-     
+* `sudo npm -g install coffee-script`
+* `sudo npm -g install coffeedoc-lm`
+* `sudo npm -g install coffeedoctest`
+* `sudo npm -g install jitter`
+* `sudo npm -g install nodeunit`
+ 
 Add the following to your ~/.profile file
   
 `NODE_PATH=/usr/local/lib/node_modules; export NODE_PATH`
@@ -1507,11 +1507,14 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       ## Timezones ##
       
       ChartTime does timezone sensitive conversions. You must set the path to the tz files before doing any timezone sensitive comparisons.
+      Note, if you are using one of the pre-packaged Lumenize.js or Lumenize-min.js, then you can supply any string in this call. It will
+      ignore what you provide and load the time zone data from the files included in the package. We would like to remove the requirement
+      for this initialization when running one of these packages, but for now, you still need the dummy call.
       
           ChartTime.setTZPath('../vendor/tz')
           
-          console.log(new ChartTime('2011-01-01').getJSDate('America/New_York'))
-          # Sat, 01 Jan 2011 05:00:00 GMT
+          console.log(new ChartTime('2011-01-01').getJSDate('America/Denver').toUTCString())
+          # Sat, 01 Jan 2011 07:00:00 GMT
     */
 
     var g, spec, _ref;
@@ -4185,16 +4188,16 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
           a = groupBy(list, spec)
           console.log(a)
     
-          # { 'In progress': 
-          #     { 'ObjectID_$count': 1,
+          #   [ { KanbanState: 'In progress',
+          #       'ObjectID_$count': 1,
           #       'Drill-down': [ '1' ], 
           #       'PlanEstimate_$sum': 5, 
           #       mySum: 5 },
-          #   'Ready to pull': 
-          #     { 'ObjectID_$count': 2, 
+          #     { KanbanState: 'Ready to pull',
+          #       'ObjectID_$count': 2, 
           #       'Drill-down': [ '2', '3' ], 
           #       'PlanEstimate_$sum': 8, 
-          #       mySum: 8 } }
+          #       mySum: 8 } ]
           
       The first element of this specification is the `groupBy` field. This is analagous to
       the `GROUP BY` column in an SQL express.
@@ -4211,10 +4214,11 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       }
       grouped[row[spec.groupBy]].push(row);
     }
-    output = {};
+    output = [];
     for (groupByValue in grouped) {
       valuesForThisGroup = grouped[groupByValue];
       outputRow = {};
+      outputRow[spec.groupBy] = groupByValue;
       _ref1 = spec.aggregations;
       for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
         a = _ref1[_j];
@@ -4226,7 +4230,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
         _ref2 = _extractFandAs(a), f = _ref2.f, as = _ref2.as;
         outputRow[as] = f(valuesArray);
       }
-      output[groupByValue] = outputRow;
+      output.push(outputRow);
     }
     return output;
   };
@@ -4247,19 +4251,27 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       You can use this if you want to do more calculations at the calling site.
     */
 
-    var a, as, blank, f, idx, key, newRow, output, row, t, temp, u, uniqueValues, value, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref1, _ref2;
+    var a, as, blank, f, idx, key, newRow, output, row, t, temp, tempGroupBy, tempKey, tempRow, tgb, u, uniqueValues, value, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref1, _ref2;
     temp = [];
     for (idx = _i = 0, _len = atArray.length; _i < _len; idx = ++_i) {
       row = atArray[idx];
-      temp.push(groupBy(row, spec));
+      tempGroupBy = groupBy(row, spec);
+      tempRow = {};
+      for (_j = 0, _len1 = tempGroupBy.length; _j < _len1; _j++) {
+        tgb = tempGroupBy[_j];
+        tempKey = tgb[spec.groupBy];
+        delete tgb[spec.groupBy];
+        tempRow[tempKey] = tgb;
+      }
+      temp.push(tempRow);
     }
     if (spec.uniqueValues != null) {
       uniqueValues = spec.uniqueValues;
     } else {
       uniqueValues = [];
     }
-    for (_j = 0, _len1 = temp.length; _j < _len1; _j++) {
-      t = temp[_j];
+    for (_k = 0, _len2 = temp.length; _k < _len2; _k++) {
+      t = temp[_k];
       for (key in t) {
         value = t[key];
         if (__indexOf.call(uniqueValues, key) < 0) {
@@ -4269,17 +4281,17 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     }
     blank = {};
     _ref1 = spec.aggregations;
-    for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-      a = _ref1[_k];
+    for (_l = 0, _len3 = _ref1.length; _l < _len3; _l++) {
+      a = _ref1[_l];
       _ref2 = _extractFandAs(a), f = _ref2.f, as = _ref2.as;
       blank[as] = f([]);
     }
     output = [];
-    for (_l = 0, _len3 = temp.length; _l < _len3; _l++) {
-      t = temp[_l];
+    for (_m = 0, _len4 = temp.length; _m < _len4; _m++) {
+      t = temp[_m];
       row = [];
-      for (_m = 0, _len4 = uniqueValues.length; _m < _len4; _m++) {
-        u = uniqueValues[_m];
+      for (_n = 0, _len5 = uniqueValues.length; _n < _len5; _n++) {
+        u = uniqueValues[_n];
         if (t[u] != null) {
           t[u][spec.groupBy] = u;
           row.push(t[u]);

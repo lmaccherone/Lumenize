@@ -71,31 +71,31 @@ task('publish', 'Publish to npm', () ->
 )
 
 # Old version of build
-task('build', 'Build with browserify and place in ./deploy', () ->
-  fs.readdir('src', (err, contents) ->
-    browserify = require('browserify')
-    fileify = require('fileify')
-    files = ("./src/#{file}" for file in contents when (file.indexOf('.coffee') > 0))
-    b = browserify()
-    b.use(fileify('files', __dirname + '/files'))
-    b.ignore(['files'])
-    b.require(files)
-    fs.writeFileSync("deploy/#{path.basename(__dirname)}.js", b.bundle())
-    run("uglifyjs deploy/#{path.basename(__dirname)}.js > deploy/#{path.basename(__dirname)}-min.js")
-  ) # !TODO: Need to run tests on the built version
-)
-
-# task('build', 'Build with browserify and place in ./deploy', () -> 
-#   browserify = require('browserify')
-#   fileify = require('fileify')
-#   b = browserify()
-#   b.use(fileify('files', __dirname + '/files'))
-#   b.ignore(['files'])
-#   b.require("./src/lumenize.coffee")
-#   fs.writeFileSync("deploy/#{path.basename(__dirname)}.js", b.bundle())
-#   run("uglifyjs deploy/#{path.basename(__dirname)}.js > deploy/#{path.basename(__dirname)}-min.js")
-#   # !TODO: Need to run tests on the built version
+# task('build', 'Build with browserify and place in ./deploy', () ->
+#   fs.readdir('src', (err, contents) ->
+#     browserify = require('browserify')
+#     fileify = require('fileify')
+#     files = ("./src/#{file}" for file in contents when (file.indexOf('.coffee') > 0))
+#     b = browserify()
+#     b.use(fileify('files', __dirname + '/files'))
+#     b.ignore(['files'])
+#     b.require(files)
+#     fs.writeFileSync("deploy/#{path.basename(__dirname)}.js", b.bundle())
+#     run("uglifyjs deploy/#{path.basename(__dirname)}.js > deploy/#{path.basename(__dirname)}-min.js")
+#   ) # !TODO: Need to run tests on the built version
 # )
+
+task('build', 'Build with browserify and place in ./deploy', () -> 
+  browserify = require('browserify')
+  fileify = require('fileify')
+  b = browserify()
+  b.use(fileify('files', __dirname + '/files'))
+  b.ignore(['files'])
+  b.require("./src/lumenize.coffee")
+  fs.writeFileSync("deploy/#{path.basename(__dirname)}.js", b.bundle())
+  run("uglifyjs deploy/#{path.basename(__dirname)}.js > deploy/#{path.basename(__dirname)}-min.js")
+  # !TODO: Need to run tests on the built version
+)
 
 # task('prep-tz', 'NOT WORKING - Prepare the tz files found in vendor/tz for browserify/fileify and place in files/tz.', () ->
 #   files = [
