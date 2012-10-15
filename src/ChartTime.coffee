@@ -264,8 +264,11 @@ class ChartTime  # !TODO: Change "start" to "startingAt" and "pastEnd" to "endin
           jsDate = newCT.getJSDateInTZfromGMT(tz)
         else
           @_setFromRDN(rdn, granularity)
-      when 'date' 
+      when 'date'
         jsDate = spec_RDN_Date_Or_String
+        if tz?
+          newCT = new ChartTime(jsDate)
+          jsDate = newCT.getJSDateInTZfromGMT(tz)
         unless tz?
           tz = 'GMT'
       when 'object'
@@ -284,6 +287,7 @@ class ChartTime  # !TODO: Change "start" to "startingAt" and "pastEnd" to "endin
         @granularity = granularity
       unless @granularity?
         @granularity = 'millisecond'
+      
       newSpec =
         year: jsDate.getUTCFullYear()
         month: jsDate.getUTCMonth() + 1
@@ -434,6 +438,21 @@ class ChartTime  # !TODO: Change "start" to "startingAt" and "pastEnd" to "endin
         return
       else
         throw new Error('PAST_LAST/BEFORE_FIRST must have a granularity')
+    
+    # "this month", "next day", "prior quarter", etc.
+    sSplit = s.split(' ')
+    if sSplit[0] in ['this', 'next', 'prior']
+      if sSplit[2] == 'in' and sSplit[3]?
+        tz = sSplit[3]
+      else
+        tz = undefined
+      zuluCT = new ChartTime(new Date(), sSplit[1], tz)
+      @_setFromSpec(zuluCT)
+      if sSplit[0] == 'next'
+        @increment()
+      else if sSplit[0] == 'prior'
+        @decrement()
+      return
       
     for g, spec of ChartTime.granularitySpecs
       if spec.segmentStart + spec.segmentLength == s.length or spec.mask.indexOf('#') < 0  # for special granularities like 'PAST_LAST'
@@ -442,8 +461,7 @@ class ChartTime  # !TODO: Change "start" to "startingAt" and "pastEnd" to "endin
           break
     if not granularity?
       throw new Error("Error parsing string '#{s}'. Couldn't identify granularity.")
-
-          
+         
     @granularity = granularity
     segments = ChartTime.granularitySpecs[@granularity].segments
     stillParsing = true
@@ -628,7 +646,7 @@ class ChartTime  # !TODO: Change "start" to "startingAt" and "pastEnd" to "endin
     
     Note, this function will be off by an hour for the times near midnight on the days where there is a shift to/from daylight 
     savings time. The tz rules engine is designed to go in the other direction so we're mis-using it and will be using the wrong
-    moment in rules-space for that hour. The cost of fixing this issue was deamed to high for chart applications.
+    moment in rules-space for that hour. The cost of fixing this issue was deemed to high for chart applications.
     ###
     if @beforePastFlag == 'PAST_LAST'
       return new Date(9999, 0, 1)
@@ -642,6 +660,16 @@ class ChartTime  # !TODO: Change "start" to "startingAt" and "pastEnd" to "endin
     utcMilliseconds -= offset * 1000 * 60
     newDate = new Date(utcMilliseconds)
     return newDate  
+    
+  getSegmentsAsObject: () ->
+    ###
+    Returns a simple JavaScript Object containing the segments. This is useful when using utils.match for holiday comparison
+    ###
+    segments = ChartTime.granularitySpecs[@granularity].segments
+    rawObject = {}
+    for segment in segments
+      rawObject[segment] = this[segment]
+    return rawObject
   
   toString: () ->
     ###

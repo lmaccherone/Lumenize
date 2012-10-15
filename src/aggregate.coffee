@@ -241,9 +241,9 @@ groupBy = (list, spec) ->
       #       mySum: 8 } ]
       
   The first element of this specification is the `groupBy` field. This is analagous to
-  the `GROUP BY` column in an SQL express.
+  the `GROUP BY` column in an SQL expression.
   
-  Uses the same aggregation functions at the `aggregate` function.
+  Uses the same aggregation functions as the `aggregate` function.
   ###
   # Group by spec.groupBy
   grouped = {}
@@ -324,7 +324,7 @@ groupByAt = (atArray, spec) ->
   return output
 
 
-timeSeriesCalculator = (snapshotArray, config) ->
+timeSeriesCalculator = (snapshotArray, config) ->  # !TODO: Upgrade to use ChartTimeRange.getTimeline()
   ###
   Takes an MVCC style `snapshotArray` array and returns the time series calculations `At` each moment specified by
   the ChartTimeRange spec (`rangeSpec`) within the config object.
@@ -362,7 +362,7 @@ timeSeriesCalculator = (snapshotArray, config) ->
   return {listOfAtCTs, aggregationAtArray}
   
 
-timeSeriesGroupByCalculator = (snapshotArray, config) ->
+timeSeriesGroupByCalculator = (snapshotArray, config) ->  # !TODO: Upgrade to use ChartTimeRange.getTimeline()
   ###
   Takes an MVCC style `snapshotArray` array and returns the data groupedBy a particular field `At` each moment specified by
   the ChartTimeRange spec (`rangeSpec`) within the config object. 

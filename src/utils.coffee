@@ -28,6 +28,9 @@ match = (obj1, obj2) ->
 
 trim = (val) ->
   return if String::trim? then val.trim() else val.replace(/^\s+|\s+$/g, "")
+  
+startsWith = (bigString, potentialStartString) ->
+  return bigString.substring(0, potentialStartString.length) == potentialStartString
 
 isArray = (a) ->
   return Object.prototype.toString.apply(a) == '[object Array]'
@@ -57,6 +60,7 @@ exports.StopIteration = StopIteration
 exports.assert = assert
 exports.match = match
 exports.trim = trim
+exports.startsWith = startsWith
 exports.isArray = isArray
 exports.type = type
 exports.clone = clone

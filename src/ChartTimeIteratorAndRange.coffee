@@ -37,7 +37,7 @@ class ChartTimeIterator
   constructor: (ctr, @emit = 'ChartTime', @childGranularity = 'day', tz) ->
     ###
     * **ctr** is a ChartTimeRange or a raw Object with all the necessary properties to be a spec for a new ChartTimeRange.
-       Using a ChartTimeRange is now the prefered method. The raw Object is supported for backward compatibility.
+       Using a ChartTimeRange is now the preferred method. The raw Object is supported for backward compatibility.
     * **emit** is an optional String that specifies what should be emitted. Possible values are 'ChartTime' (default),
        'ChartTimeRange', and 'Date' (javascript Date Object). Note, to maintain backward compatibility with the time
        before ChartTimeRange existed, the default for emit when instantiating a new ChartTimeIterator directly is 
@@ -390,6 +390,9 @@ class ChartTimeRange
     if utils.type(@workDays) == 'string'
       @workDays = (utils.trim(s) for s in @workDays.split(','))
     @holidays = if spec.holidays? then spec.holidays else []
+    for holiday, idx in @holidays
+      if utils.type(holiday) == 'string'
+        @holidays[idx] = new ChartTime(holiday).getSegmentsAsObject()
     
     @startWorkTime = if spec.startWorkTime? then spec.startWorkTime
     @startWorkMinutes = if @startWorkTime? then @startWorkTime.hour * 60 + @startWorkTime.minute else 0
@@ -421,6 +424,28 @@ class ChartTimeRange
     ###
     return new ChartTimeIterator(this, emit, childGranularity, tz)
     
+  # !TODO: getAll() should be smart enough to get the childGranularity from @granularity
+  getAll: (emit = 'ChartTimeRange', childGranularity = 'day', tz) ->
+    ###
+    Returns all of the points in the timeline specified by this ChartTimeRange.
+    
+    Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
+    instantiating a new ChartTimeIterator directly is 'ChartTime'. However, if you request a new ChartTimeIterator 
+    from a ChartTimeRange object using getIterator(), the default is 'ChartTimeRange'.
+    ###
+    return new ChartTimeIterator(this, emit, childGranularity, tz).getAll()
+    
+  getTimeline: () ->
+    ###
+    Returns all of the points in the timeline specified by this ChartTimeRange.
+    
+    Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
+    instantiating a new ChartTimeIterator directly is 'ChartTime'. However, if you request a new ChartTimeIterator 
+    from a ChartTimeRange object using getIterator(), the default is 'ChartTimeRange'.
+    ###
+    timeline = new ChartTimeIterator(this, 'ChartTime', @granularity).getAll()
+    return timeline
+
   contains: (date, tz) ->
     ###
     True if the date provided is within this ChartTimeRange.

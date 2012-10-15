@@ -505,6 +505,12 @@ Once you have that all working, submit a pull request on GitHub.
 * [API Documentation](http://lmaccherone.github.com/Lumenize/docs/index.html)
 * [Source Repository](https://github.com/lmaccherone/Lumenize)
 
+## Changelog ##
+
+* 0.3.0 - 2012-10-13 - Added tests and fixed some bugs for rangeSpecs. Major refactor of aggregate module/file so the bigger
+  calculators are all in their own module/file
+* 0.2.7 - 2012-10-10 - **Backward breaking change** to the structure of the data returned by groupBy() to match groupByAt()
+
 ## License ##
 
 Copyright (c) 2011, 2012, Lawrence S. Maccherone, Jr.
@@ -2760,7 +2766,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
       this.childGranularity = childGranularity != null ? childGranularity : 'day';
       /*
           * **ctr** is a ChartTimeRange or a raw Object with all the necessary properties to be a spec for a new ChartTimeRange.
-             Using a ChartTimeRange is now the prefered method. The raw Object is supported for backward compatibility.
+             Using a ChartTimeRange is now the preferred method. The raw Object is supported for backward compatibility.
           * **emit** is an optional String that specifies what should be emitted. Possible values are 'ChartTime' (default),
              'ChartTimeRange', and 'Date' (javascript Date Object). Note, to maintain backward compatibility with the time
              before ChartTimeRange existed, the default for emit when instantiating a new ChartTimeIterator directly is 
@@ -4200,9 +4206,9 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
           #       mySum: 8 } ]
           
       The first element of this specification is the `groupBy` field. This is analagous to
-      the `GROUP BY` column in an SQL express.
+      the `GROUP BY` column in an SQL expression.
       
-      Uses the same aggregation functions at the `aggregate` function.
+      Uses the same aggregation functions as the `aggregate` function.
     */
 
     var a, as, f, groupByValue, grouped, output, outputRow, row, valuesArray, valuesForThisGroup, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2;

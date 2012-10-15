@@ -21,8 +21,10 @@ exports.ChartTimeTest =
     
   testConstructionDate: (test) ->
     jsDate = new Date('2011-01-01T12:34:56.789Z')
-    temp = new ChartTime(jsDate, 'millisecond', 'America/Los_Angels')
-    test.equal(temp.toString(), '2011-01-01T12:34:56.789')
+    temp = new ChartTime(jsDate, 'millisecond', 'America/Denver')
+    temp2 = new ChartTime(jsDate, 'millisecond', 'America/New_York')
+    temp.addInPlace(2, 'hour')
+    test.equal(temp.toString(), temp2.toString())
     test.done()
  
   testHour: (test) ->
@@ -390,5 +392,41 @@ exports.ChartTimeTest =
     d.addInPlace(-32)
     test.equal(d, '2009-11-30')
     
+    test.done()
+    
+  testGetSegmentsAsObject: (test) ->
+    ct = new ChartTime('2011-01-10')
+    test.deepEqual(ct.getSegmentsAsObject(), {year: 2011, month:1, day: 10})
+
+    ct = new ChartTime('2011-01-10T03:06:45.789')
+    expected =
+      year: 2011
+      month: 1
+      day: 10
+      hour: 3
+      minute: 6
+      second: 45
+      millisecond: 789
+    test.deepEqual(ct.getSegmentsAsObject(), expected)
+    
+    test.done()
+    
+  testSetThisNextPrior: (test) ->
+    ct = new ChartTime('this day')
+    test.equal(ct.granularity, 'day')
+    ctNext = new ChartTime('next day')
+    test.deepEqual(ct.increment(), ctNext)
+    ctPrior = new ChartTime('prior day')
+    test.deepEqual(ct.decrement().decrement(), ctPrior)
+
+    ct = new ChartTime('this minute')
+    test.equal(ct.granularity, 'minute')
+    ct = new ChartTime('this quarter')
+    test.equal(ct.granularity, 'quarter')
+    
+    ct = new ChartTime('this day in America/Denver')
+    test.equal(ct.granularity, 'day')
+    
+    # I really don't know how to test this other than to assure that the above don't fail
     test.done()
     

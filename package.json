@@ -29,7 +29,7 @@
   "preferGlobal": true,
   "devDependencies": {
     "coffeedoctest": "0.4.x",
-    "coffeedoc-lm": "0.1.x"
+    "coffeedoc-lm": "0.1.x",
     "uglify-js": "1.3.x",
     "nodeunit": "0.7.x",
     "browserify": "1.16.x",
