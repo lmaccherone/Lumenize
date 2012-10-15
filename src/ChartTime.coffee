@@ -97,12 +97,21 @@ class ChartTime  # !TODO: Change "start" to "startingAt" and "pastEnd" to "endin
   ## Basic usage ##
   
       {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
+      ChartTime.setTZPath('../vendor/tz')
       
+  Get ChartTime objects relative to now.
+  
+      d = new ChartTime('this millisecond in Pacific/Fiji')
+      d = new ChartTime('prior week')
+      d = new ChartTime('next month')
+      
+  Spell it all out with a JavaScript object
+
       d1 = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 28})
       console.log(d1.toString())
       # 2011-02-28
       
-  You can use the string short-hand rather than spell out the segments seperately. The granularity
+  You can use the string short-hand rather than spell out the segments separately. The granularity
   is automatically inferred from how many segments you provide.
   
       d2 = new ChartTime('2011-03-01')
@@ -183,10 +192,30 @@ class ChartTime  # !TODO: Change "start" to "startingAt" and "pastEnd" to "endin
     
     ## String ##
     
-    When you pass in a **String**, ChartTime uses the masks that are defined for each granularity to figure out the granularity...
-    unless you explicitly provide a granularity. This parser does not work on all valid ISO-8601 forms. Ordinal dates are not 
-    supported at all but week number form (`"2009W52-7"`) is supported. The canonical form (`"2009-01-01T12:34:56.789"`) will work
-    as will any shortened subset of it (`"2009-01-01"`, `"2009-01-01T12:34"`, etc.). We've added a form for Quarter
+    There are two kinds of strings that can be passed into the constructor:
+    
+    1. Human strings relative to now (e.g. "this day", "prior month", "next quarter", "this millisecond in Pacific/Fiji", etc.)
+    2. ISO-8601 or custom masked (e.g. "I03D10" - 10th day of 3rd iteration)
+    
+    ##\# Human strings relative to now ##\#
+    
+    The string must be in the form `(this, prior, next) <granularity> [in <timezone>]`
+    
+    Examples
+    
+    * `this day` today
+    * `next month` next month
+    * `this day in Pacific/Fiji` the day that it currently is in Fiji
+    * `prior hour in America/New_York` the hour before the current hour in New York
+    * `next quarter` next quarter
+    * `prior week` last week
+    
+    ##\# ISO-8601 or custom masked ##\#
+    
+    When you pass in an ISO-8601 or custom mask string, ChartTime uses the masks that are defined for each granularity to figure out the granularity...
+    unless you explicitly provide a granularity. This parser does not work on all valid ISO-8601 forms. Ordinal dates (`"2012-288"`)
+    are not supported but week number form (`"2009W52-7"`) is supported. The canonical form (`"2009-01-01T12:34:56.789"`) will 
+    work as will any shortened subset of it (`"2009-01-01"`, `"2009-01-01T12:34"`, etc.). We've added a form for Quarter
     granularity (`"2009Q4"`). Plus it will even parse strings in whatever custom granularity you provide based
     upon the mask that you provide for that granularity.
     
@@ -194,7 +223,7 @@ class ChartTime  # !TODO: Change "start" to "startingAt" and "pastEnd" to "endin
     with the `lowest` value from granularitySpecs.
     
     The Lumenize hierarchy tools rely upon the property that a single character is used between segments so the ISO forms that 
-    omit the delimeters are not supported.
+    omit the delimiters are not supported.
     
     If the string has a timezone indicator on the end (`...+05:00` or `...Z`), ChartTime will ignore it. Timezone information
     is intended to only be used for comparison (see examples for timezone comparison).
@@ -267,7 +296,7 @@ class ChartTime  # !TODO: Change "start" to "startingAt" and "pastEnd" to "endin
       when 'date'
         jsDate = spec_RDN_Date_Or_String
         if tz?
-          newCT = new ChartTime(jsDate)
+          newCT = new ChartTime(jsDate, 'millisecond')
           jsDate = newCT.getJSDateInTZfromGMT(tz)
         unless tz?
           tz = 'GMT'
@@ -296,8 +325,10 @@ class ChartTime  # !TODO: Change "start" to "startingAt" and "pastEnd" to "endin
         minute: jsDate.getUTCMinutes()
         second: jsDate.getUTCSeconds()
         millisecond: jsDate.getUTCMilliseconds()
-        granularity: @granularity
-      @_setFromSpec(newSpec)
+        granularity: 'millisecond'
+        
+      newCT = new ChartTime(newSpec).inGranularity(@granularity)
+      @_setFromSpec(newCT)
 
     @_inBoundsCheck()
     @_overUnderFlow()

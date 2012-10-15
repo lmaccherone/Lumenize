@@ -76,7 +76,7 @@ while (cti.hasNext())
                   <h4>constructor(ctr, @emit, @childGranularity, tz)</h4>
                   <ul>
 <li><strong>ctr</strong> is a ChartTimeRange or a raw Object with all the necessary properties to be a spec for a new ChartTimeRange.
-Using a ChartTimeRange is now the prefered method. The raw Object is supported for backward compatibility.</li>
+Using a ChartTimeRange is now the preferred method. The raw Object is supported for backward compatibility.</li>
 <li><strong>emit</strong> is an optional String that specifies what should be emitted. Possible values are 'ChartTime' (default),
 'ChartTimeRange', and 'Date' (javascript Date Object). Note, to maintain backward compatibility with the time
 before ChartTimeRange existed, the default for emit when instantiating a new ChartTimeIterator directly is 
@@ -324,6 +324,9 @@ while i4.hasNext()
 <li><strong>pastEnd</strong> is a ChartTime object or string. Must match granularity. hasNext() returns false when current is here or later.</li>
 <li><strong>skip</strong> is an optional num. Defaults to 1 or -1. Use -1 to march backwards from pastEnd - 1. Currently any
 values other than 1 and -1 give unexpected behavior.</li>
+<li><strong>granularity</strong> is used to determine the granularity that you will iterate over. Note, you can have granularity of say month 
+for the start and/or pastEnd but have a finer granularity for the range. Let's say you want to iterate over all the days
+of the current month. In this case, pastEnd would be 'next month', and start would be 'prior month'.</li>
 <li><strong>limit</strong> you can specify limit plus one of start/pastEnd and only get back this many.</li>
 <li><strong>workDays</strong> list of days of the week that you work on. Either ['Monday', 'Tuesday', ...] or "Monday,Tuesday,..."
 Defaults to ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].</li>
@@ -343,6 +346,24 @@ the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.</li>
                 <div class="method">
                   <h4>getIterator(emit, childGranularity, tz)</h4>
                   <p>Returns a new ChartTimeIterator using this ChartTimeRange as the boundaries.</p>
+
+<p>Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
+instantiating a new ChartTimeIterator directly is 'ChartTime'. However, if you request a new ChartTimeIterator 
+from a ChartTimeRange object using getIterator(), the default is 'ChartTimeRange'.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>getAll(emit, childGranularity, tz)</h4>
+                  <p>Returns all of the points in the timeline specified by this ChartTimeRange.</p>
+
+<p>Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
+instantiating a new ChartTimeIterator directly is 'ChartTime'. However, if you request a new ChartTimeIterator 
+from a ChartTimeRange object using getIterator(), the default is 'ChartTimeRange'.</p>
+                </div>
+                
+                <div class="method">
+                  <h4>getTimeline()</h4>
+                  <p>Returns all of the points in the timeline specified by this ChartTimeRange.</p>
 
 <p>Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
 instantiating a new ChartTimeIterator directly is 'ChartTime'. However, if you request a new ChartTimeIterator 

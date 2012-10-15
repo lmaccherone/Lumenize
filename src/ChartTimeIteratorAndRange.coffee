@@ -338,6 +338,9 @@ class ChartTimeRange
     * **pastEnd** is a ChartTime object or string. Must match granularity. hasNext() returns false when current is here or later.
     * **skip** is an optional num. Defaults to 1 or -1. Use -1 to march backwards from pastEnd - 1. Currently any
        values other than 1 and -1 give unexpected behavior.
+    * **granularity** is used to determine the granularity that you will iterate over. Note, you can have granularity of say month 
+       for the start and/or pastEnd but have a finer granularity for the range. Let's say you want to iterate over all the days
+       of the current month. In this case, pastEnd would be 'next month', and start would be 'prior month'.
     * **limit** you can specify limit plus one of start/pastEnd and only get back this many.
     * **workDays** list of days of the week that you work on. Either ['Monday', 'Tuesday', ...] or "Monday,Tuesday,..."
        Defaults to ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].
@@ -366,8 +369,10 @@ class ChartTimeRange
         @granularity = @start.granularity
     if spec.granularity?
       @granularity = spec.granularity
-      @start = @start.inGranularity(@granularity)
-      @pastEnd = @pastEnd.inGranularity(@granularity)
+      if @start?
+        @start = @start.inGranularity(@granularity)
+      if @pastEnd?
+        @pastEnd = @pastEnd.inGranularity(@granularity)
     unless @granularity
       throw new Error('Cannot determine granularity for ChartTimeRange.')  
     if @start == 'BEFORE_FIRST'

@@ -6,14 +6,18 @@
 exports.RangeLimitAndSkipTest =
 
   testLimitWithDays: (test) ->
-    fiji = new ChartTime('this day in Pacific/Fiji')
-    console.log(JSON.stringify(fiji, undefined, 2))
-  
+    
+    ct = new ChartTime('this week in America/New_York')
+    console.log('ct: ' + ct.toString())
+    
+    ct = new ChartTime(new Date()).inGranularity('week')
+    console.log('ct: ' + JSON.stringify(ct, undefined, 2))
   
     spec = {
       pastEnd:'next day in America/New_York',
-      limit: 7,
-      workDays: 'Monday ,   Wednesday, Thursday ,Saturday',
+      start: 'this month'
+      granularity: 'day',
+      workDays: 'Monday, Tuesday, Wednesday, Thursday, Friday',
       holidays: [
         {month: 12, day: 25},
         {month: 1, day: 1},
@@ -21,7 +25,7 @@ exports.RangeLimitAndSkipTest =
       ]
     }
     timeline = new ChartTimeRange(spec).getTimeline()
-#     console.log(JSON.stringify(timeline, undefined, 2))
+    console.log(JSON.stringify(timeline, undefined, 2))
     
 
 #     i2 = new ChartTimeIterator(spec)

@@ -9,7 +9,7 @@
 </head>
 <body>
   <header>
-    <h1>Lumenize (0.2.7)</h1>
+    <h1>Lumenize (0.3.0)</h1>
     <h2>Illuminating the forest AND the trees in your data.</h2>
   </header>
   <div id="content">
@@ -235,7 +235,7 @@ non-workhours, work in any granularity (year, quarter, week, day, hour, etc.), e
 <p>Authors:</p>
 
 <ul>
-<li><a href="http://maccherone.com">Larry Maccherone</a> (<a href="&#x6D;&#97;&#105;&#x6C;&#x74;&#111;:&#x4C;&#97;r&#114;&#121;&#x40;&#77;&#x61;c&#99;&#104;&#101;&#x72;&#111;&#110;&#101;.&#99;&#x6F;&#109;">&#x4C;&#97;r&#114;&#121;&#x40;&#77;&#x61;c&#99;&#104;&#101;&#x72;&#111;&#110;&#101;.&#99;&#x6F;&#109;</a>)</li>
+<li><a href="http://maccherone.com">Larry Maccherone</a> (<a href="m&#97;&#x69;&#108;t&#x6F;:&#x4C;&#x61;&#x72;&#114;&#121;&#64;&#x4D;&#x61;&#x63;&#x63;&#104;&#x65;&#114;o&#110;e&#x2E;&#99;&#111;&#109;">&#x4C;&#x61;&#x72;&#114;&#121;&#64;&#x4D;&#x61;&#x63;&#x63;&#104;&#x65;&#114;o&#110;e&#x2E;&#99;&#111;&#109;</a>)</li>
 <li>Jennifer Maccherone</li>
 </ul>
 
@@ -335,8 +335,10 @@ the package so it's only ~49KB over the wire.</p>
 <h2>Changelog</h2>
 
 <ul>
-<li>0.3.0 - 2012-10-13 - Added tests and fixed some bugs for rangeSpecs. Major refactor of aggregate module/file so the bigger
-calculators are all in their own module/file</li>
+<li>0.3.0 - 2012-10-13
+<ul><li>Support for instantiating ChartTime objects relative to now using strings (e.g. 'this day in Pacific/Fiji')</li>
+<li>Added tests and fixed some bugs for rangeSpecs</li>
+<li>Major refactor of aggregate module/file so the bigger calculators are all in their own module/file</li></ul></li>
 <li>0.2.7 - 2012-10-10 - <strong>Backward breaking change</strong> to the structure of the data returned by groupBy() to match groupByAt()</li>
 </ul>
 
@@ -388,6 +390,8 @@ IN THE SOFTWARE.</p>
             <li><a href="utils.html#match">match(obj1, obj2)</a></li>
             
             <li><a href="utils.html#trim">trim(val)</a></li>
+            
+            <li><a href="utils.html#startsWith">startsWith(bigString, potentialStartString)</a></li>
             
             <li><a href="utils.html#isArray">isArray(a)</a></li>
             

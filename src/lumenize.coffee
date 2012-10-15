@@ -110,8 +110,10 @@ Once you have that all working, submit a pull request on GitHub.
 
 ## Changelog ##
 
-* 0.3.0 - 2012-10-13 - Added tests and fixed some bugs for rangeSpecs. Major refactor of aggregate module/file so the bigger
-  calculators are all in their own module/file
+* 0.3.0 - 2012-10-13
+  * Support for instantiating ChartTime objects relative to now using strings (e.g. 'this day in Pacific/Fiji')
+  * Added tests and fixed some bugs for rangeSpecs
+  * Major refactor of aggregate module/file so the bigger calculators are all in their own module/file
 * 0.2.7 - 2012-10-10 - **Backward breaking change** to the structure of the data returned by groupBy() to match groupByAt()
 
 ## License ##
