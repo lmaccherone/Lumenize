@@ -442,18 +442,18 @@ class ChartTimeRange
     
   getTimeline: () ->
     ###
-    Returns all of the points in the timeline specified by this ChartTimeRange.
-    
-    Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
-    instantiating a new ChartTimeIterator directly is 'ChartTime'. However, if you request a new ChartTimeIterator 
-    from a ChartTimeRange object using getIterator(), the default is 'ChartTimeRange'.
+    Returns all of the points in the timeline specified by this ChartTimeRange as ChartTime objects.
     ###
     timeline = new ChartTimeIterator(this, 'ChartTime', @granularity).getAll()
+    if timeline[0].$gt(timeline[1])
+      timeline.reverse()
     return timeline
 
   contains: (date, tz) ->
     ###
     True if the date provided is within this ChartTimeRange.
+
+    **date** can be either a JavaScript date object or an ISO-8601 formatted string.
     
     ## Usage: ##
     

@@ -7503,21 +7503,22 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
 
     ChartTimeRange.prototype.getTimeline = function() {
       /*
-          Returns all of the points in the timeline specified by this ChartTimeRange.
-          
-          Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
-          instantiating a new ChartTimeIterator directly is 'ChartTime'. However, if you request a new ChartTimeIterator 
-          from a ChartTimeRange object using getIterator(), the default is 'ChartTimeRange'.
+          Returns all of the points in the timeline specified by this ChartTimeRange as ChartTime objects.
       */
 
       var timeline;
       timeline = new ChartTimeIterator(this, 'ChartTime', this.granularity).getAll();
+      if (timeline[0].$gt(timeline[1])) {
+        timeline.reverse();
+      }
       return timeline;
     };
 
     ChartTimeRange.prototype.contains = function(date, tz) {
       /*
           True if the date provided is within this ChartTimeRange.
+      
+          **date** can be either a JavaScript date object or an ISO-8601 formatted string.
           
           ## Usage: ##
           
@@ -8119,7 +8120,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     return output;
   };
 
-  aggregationAtArray_To_HighChartsSeries = function(aggregationAtArray, aggregations) {
+  aggregationAtArray_To_HighChartsSeries = function(aggregationAtArray, aggregationSpec) {
     /* 
     Takes an array of arrays that came from charttime.aggregateAt and looks like this:
     
@@ -8130,14 +8131,14 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     
     and a list of series configurations
     
-        aggregations = [
+        aggregationSpec = [
           {name: "Series 1", yAxis: 1},
           {name: "Series 2"}
         ]
         
     and extracts the data into seperate series
     
-        console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregations))
+        console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregationSpec))
         # [ { name: 'Series 1', data: [ 8, 2 ], yAxis: 1 },
         #   { name: 'Series 2', data: [ 5, 3 ] } ]
         
@@ -8147,8 +8148,8 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     var a, aggregationRow, idx, key, output, outputRow, preOutput, s, seriesNames, seriesRow, value, _i, _j, _k, _l, _len, _len1, _len2, _len3;
     preOutput = {};
     seriesNames = [];
-    for (_i = 0, _len = aggregations.length; _i < _len; _i++) {
-      a = aggregations[_i];
+    for (_i = 0, _len = aggregationSpec.length; _i < _len; _i++) {
+      a = aggregationSpec[_i];
       seriesNames.push(a.name);
     }
     for (_j = 0, _len1 = aggregationAtArray.length; _j < _len1; _j++) {
@@ -8168,7 +8169,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
         name: s,
         data: preOutput[s]
       };
-      seriesRow = aggregations[idx];
+      seriesRow = aggregationSpec[idx];
       for (key in seriesRow) {
         value = seriesRow[key];
         if (key !== 'name' && key !== 'data') {
@@ -8385,7 +8386,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     };
   };
 
-  aggregate = function(list, aggregations) {
+  aggregate = function(list, aggregationSpec) {
     /*
       Takes a list like this:
           
@@ -8397,9 +8398,9 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
             { ObjectID: '3', KanbanState: 'Ready to pull', PlanEstimate: 5, TaskRemainingTotal: 12 }
           ]
           
-      and a list of aggregations like this:
+      and a list of aggregationSpec like this:
     
-          aggregations = [
+          aggregationSpec = [
             {field: 'ObjectID', f: '$count'}
             {as: 'Drill-down', field:'ObjectID', f:'$push'}
             {field: 'PlanEstimate', f: '$sum'}
@@ -8413,7 +8414,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
           
       and returns the aggregations like this:
         
-          a = aggregate(list, aggregations)
+          a = aggregate(list, aggregationSpec)
           console.log(a)
      
           #   { 'ObjectID_$count': 3, 
@@ -8426,13 +8427,13 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       documented above.
       
       Alternatively, you can provide your own function (it takes one parameter, which is an
-      Array of values to aggregate) like the `mySum` example in our `aggregations` list above.
+      Array of values to aggregate) like the `mySum` example in our `aggregationSpec` list above.
     */
 
     var a, as, f, output, row, valuesArray, _i, _j, _len, _len1, _ref1;
     output = {};
-    for (_i = 0, _len = aggregations.length; _i < _len; _i++) {
-      a = aggregations[_i];
+    for (_i = 0, _len = aggregationSpec.length; _i < _len; _i++) {
+      a = aggregationSpec[_i];
       valuesArray = [];
       for (_j = 0, _len1 = list.length; _j < _len1; _j++) {
         row = list[_j];
@@ -8444,7 +8445,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     return output;
   };
 
-  aggregateAt = function(atArray, aggregations) {
+  aggregateAt = function(atArray, aggregationSpec) {
     /*
       Each row in atArray is passed to the `aggregate` function and the results are collected into a single array output.
       This is essentially a wrapper around the aggregate function so the spec parameter is the same. You can think of
@@ -8455,7 +8456,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     output = [];
     for (idx = _i = 0, _len = atArray.length; _i < _len; idx = ++_i) {
       row = atArray[idx];
-      a = aggregate(row, aggregations);
+      a = aggregate(row, aggregationSpec);
       output.push(a);
     }
     return output;
@@ -8477,7 +8478,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     
           spec = {
             groupBy: 'KanbanState',
-            aggregations: [
+            aggregationSpec: [
               {field: 'ObjectID', f: '$count'}
               {as: 'Drill-down', field:'ObjectID', f:'$push'}
               {field: 'PlanEstimate', f: '$sum'}
@@ -8526,7 +8527,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       valuesForThisGroup = grouped[groupByValue];
       outputRow = {};
       outputRow[spec.groupBy] = groupByValue;
-      _ref1 = spec.aggregations;
+      _ref1 = spec.aggregationSpec;
       for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
         a = _ref1[_j];
         valuesArray = [];
@@ -8587,7 +8588,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       }
     }
     blank = {};
-    _ref1 = spec.aggregations;
+    _ref1 = spec.aggregationSpec;
     for (_l = 0, _len3 = _ref1.length; _l < _len3; _l++) {
       a = _ref1[_l];
       _ref2 = _extractFandAs(a), f = _ref2.f, as = _ref2.as;
@@ -8621,8 +8622,8 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       This is really just a thin wrapper around various ChartTime calculations, so look at the documentation for each of
       those to get the detail picture of what this timeSeriesCalculator does. The general flow is:
       
-      1. Use `ChartTimeRange` and `ChartTimeIterator` against the `rangeSpec` to find the points for the x-axis.
-         We're interested in the ends of those time ranges so the output of this work is a `listOfAtCTs` array.
+      1. Use `ChartTimeRange.getTimeline()` against the `rangeSpec` to find the points for the x-axis.
+         The output of this work is a `listOfAtCTs` array.
       2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
          The output of this operation is called an `atArray`
       3. Use `deriveFieldsAt` to add fields in each object in the `atArray` whose values are derived from the other fields in the object.
@@ -8631,21 +8632,11 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       Note: We assume the snapshotArray is sorted by the config.snapshotValidFromField
     */
 
-    var aggregationAtArray, atArray, listOfAtCTs, r, range, subRanges;
-    range = new ChartTimeRange(config.rangeSpec);
-    subRanges = range.getIterator('ChartTimeRange').getAll();
-    listOfAtCTs = (function() {
-      var _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = subRanges.length; _i < _len; _i++) {
-        r = subRanges[_i];
-        _results.push(r.pastEnd);
-      }
-      return _results;
-    })();
+    var aggregationAtArray, atArray, listOfAtCTs;
+    listOfAtCTs = new ChartTimeRange(config.rangeSpec).getTimeline();
     atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField);
     deriveFieldsAt(atArray, config.derivedFields);
-    aggregationAtArray = aggregateAt(atArray, config.aggregations);
+    aggregationAtArray = aggregateAt(atArray, config.aggregationSpec);
     return {
       listOfAtCTs: listOfAtCTs,
       aggregationAtArray: aggregationAtArray
@@ -8661,7 +8652,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       those to get the detail picture of what this timeSeriesGroupByCalculator does. The general flow is:
       
       1. Use `ChartTimeRange` and `ChartTimeIterator` against the `rangeSpec` to find the points for the x-axis.
-         We're interested in the ends of those time ranges so the output of this work is a `listOfAtCTs` array.
+         The output of this work is a `listOfAtCTs` array.
       2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
          The output of this operation is called an `atArray`
       3. Use `groupByAt` to create a `groupByAtArray` of grouped aggregations to chart
@@ -8669,23 +8660,13 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       Note: We assume the snapshotArray is sorted by the config.snapshotValidFromField
     */
 
-    var aggregationSpec, atArray, groupByAtArray, listOfAtCTs, r, range, subRanges;
-    range = new ChartTimeRange(config.rangeSpec);
-    subRanges = range.getIterator('ChartTimeRange').getAll();
-    listOfAtCTs = (function() {
-      var _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = subRanges.length; _i < _len; _i++) {
-        r = subRanges[_i];
-        _results.push(r.pastEnd);
-      }
-      return _results;
-    })();
+    var aggregationSpec, atArray, groupByAtArray, listOfAtCTs;
+    listOfAtCTs = new ChartTimeRange(config.rangeSpec).getTimeline();
     atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField);
     aggregationSpec = {
       groupBy: config.groupByField,
       uniqueValues: utils.clone(config.groupByFieldValues),
-      aggregations: [
+      aggregationSpec: [
         {
           as: 'GroupBy',
           field: config.aggregationField,

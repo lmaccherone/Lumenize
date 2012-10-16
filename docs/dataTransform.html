@@ -190,7 +190,7 @@ out the other side as Strings. I could fix this if it ever became a problem.</li
         
         <div class="function">
           <div class="header">
-            <a id="aggregationAtArray_To_HighChartsSeries"><h3>aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregations)</h3></a>
+            <a id="aggregationAtArray_To_HighChartsSeries"><h3>aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregationSpec)</h3></a>
           </div>
           
           <div>
@@ -204,7 +204,7 @@ out the other side as Strings. I could fix this if it ever became a problem.</li
 
 <p>and a list of series configurations</p>
 
-<pre><code>aggregations = [
+<pre><code>aggregationSpec = [
   {name: "Series 1", yAxis: 1},
   {name: "Series 2"}
 ]
@@ -212,7 +212,7 @@ out the other side as Strings. I could fix this if it ever became a problem.</li
 
 <p>and extracts the data into seperate series</p>
 
-<pre><code>console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregations))
+<pre><code>console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregationSpec))
 # [ { name: 'Series 1', data: [ 8, 2 ], yAxis: 1 },
 #   { name: 'Series 2', data: [ 5, 3 ] } ]
 </code></pre>

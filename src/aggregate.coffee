@@ -127,7 +127,7 @@ _extractFandAs = (a) ->
     throw new Error("#{a.f} is not a recognized built-in function")
   return {f, as}
                      
-aggregate = (list, aggregations) ->  # !TODO: change aggregations to aggregationSpec
+aggregate = (list, aggregationSpec) ->  
   ###
   Takes a list like this:
       
@@ -139,9 +139,9 @@ aggregate = (list, aggregations) ->  # !TODO: change aggregations to aggregation
         { ObjectID: '3', KanbanState: 'Ready to pull', PlanEstimate: 5, TaskRemainingTotal: 12 }
       ]
       
-  and a list of aggregations like this:
+  and a list of aggregationSpec like this:
 
-      aggregations = [
+      aggregationSpec = [
         {field: 'ObjectID', f: '$count'}
         {as: 'Drill-down', field:'ObjectID', f:'$push'}
         {field: 'PlanEstimate', f: '$sum'}
@@ -155,7 +155,7 @@ aggregate = (list, aggregations) ->  # !TODO: change aggregations to aggregation
       
   and returns the aggregations like this:
     
-      a = aggregate(list, aggregations)
+      a = aggregate(list, aggregationSpec)
       console.log(a)
  
       #   { 'ObjectID_$count': 3, 
@@ -168,11 +168,11 @@ aggregate = (list, aggregations) ->  # !TODO: change aggregations to aggregation
   documented above.
   
   Alternatively, you can provide your own function (it takes one parameter, which is an
-  Array of values to aggregate) like the `mySum` example in our `aggregations` list above.
+  Array of values to aggregate) like the `mySum` example in our `aggregationSpec` list above.
   ###
     
   output = {}
-  for a in aggregations
+  for a in aggregationSpec
     valuesArray = []
     for row in list
       valuesArray.push(row[a.field])
@@ -183,7 +183,7 @@ aggregate = (list, aggregations) ->  # !TODO: change aggregations to aggregation
     
   return output
   
-aggregateAt = (atArray, aggregations) ->  # !TODO: Change all of these "At" functions. Mark suggests aggregateEach
+aggregateAt = (atArray, aggregationSpec) ->  # !TODO: Change the name of all of these "At" functions. Mark suggests aggregateEach
   ###
   Each row in atArray is passed to the `aggregate` function and the results are collected into a single array output.
   This is essentially a wrapper around the aggregate function so the spec parameter is the same. You can think of
@@ -191,7 +191,7 @@ aggregateAt = (atArray, aggregations) ->  # !TODO: Change all of these "At" func
   ###
   output = []
   for row, idx in atArray
-    a = aggregate(row, aggregations)
+    a = aggregate(row, aggregationSpec)
     output.push(a)
   return output
 
@@ -211,7 +211,7 @@ groupBy = (list, spec) ->
 
       spec = {
         groupBy: 'KanbanState',
-        aggregations: [
+        aggregationSpec: [
           {field: 'ObjectID', f: '$count'}
           {as: 'Drill-down', field:'ObjectID', f:'$push'}
           {field: 'PlanEstimate', f: '$sum'}
@@ -257,7 +257,7 @@ groupBy = (list, spec) ->
   for groupByValue, valuesForThisGroup of grouped
     outputRow = {}
     outputRow[spec.groupBy] = groupByValue
-    for a in spec.aggregations
+    for a in spec.aggregationSpec
       # Pull out the correct field from valuesForThisGroup
       valuesArray = []
       for row in valuesForThisGroup
@@ -305,7 +305,7 @@ groupByAt = (atArray, spec) ->
         uniqueValues.push(key)
 
   blank = {}
-  for a in spec.aggregations
+  for a in spec.aggregationSpec
     {f, as} = _extractFandAs(a)
     blank[as] = f([])
         
@@ -324,7 +324,7 @@ groupByAt = (atArray, spec) ->
   return output
 
 
-timeSeriesCalculator = (snapshotArray, config) ->  # !TODO: Upgrade to use ChartTimeRange.getTimeline()
+timeSeriesCalculator = (snapshotArray, config) ->  
   ###
   Takes an MVCC style `snapshotArray` array and returns the time series calculations `At` each moment specified by
   the ChartTimeRange spec (`rangeSpec`) within the config object.
@@ -332,8 +332,8 @@ timeSeriesCalculator = (snapshotArray, config) ->  # !TODO: Upgrade to use Chart
   This is really just a thin wrapper around various ChartTime calculations, so look at the documentation for each of
   those to get the detail picture of what this timeSeriesCalculator does. The general flow is:
   
-  1. Use `ChartTimeRange` and `ChartTimeIterator` against the `rangeSpec` to find the points for the x-axis.
-     We're interested in the ends of those time ranges so the output of this work is a `listOfAtCTs` array.
+  1. Use `ChartTimeRange.getTimeline()` against the `rangeSpec` to find the points for the x-axis.
+     The output of this work is a `listOfAtCTs` array.
   2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
      The output of this operation is called an `atArray`
   3. Use `deriveFieldsAt` to add fields in each object in the `atArray` whose values are derived from the other fields in the object.
@@ -342,13 +342,8 @@ timeSeriesCalculator = (snapshotArray, config) ->  # !TODO: Upgrade to use Chart
   Note: We assume the snapshotArray is sorted by the config.snapshotValidFromField
   ###
   
-  # 1. Figuring out the points for the x-axis (listOfAtCTs)
-  range = new ChartTimeRange(config.rangeSpec)  
-  
-  subRanges = range.getIterator('ChartTimeRange').getAll()
-  # The end of the day/week/month/etc. is where we want the stuff calculated so let's get those.
-  # These are the points we want on our x-axis. 
-  listOfAtCTs = (r.pastEnd for r in subRanges)
+  # 1. Figuring out the points for the x-axis (listOfAtCTs) 
+  listOfAtCTs = new ChartTimeRange(config.rangeSpec).getTimeline()
   
   # 2. Finding the state of each object **AT** each point in the listOfAtCTs array.
   atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField)
@@ -357,12 +352,12 @@ timeSeriesCalculator = (snapshotArray, config) ->  # !TODO: Upgrade to use Chart
   deriveFieldsAt(atArray, config.derivedFields)
   
   # 4. Calculating aggregations
-  aggregationAtArray = aggregateAt(atArray, config.aggregations)
+  aggregationAtArray = aggregateAt(atArray, config.aggregationSpec)
   
   return {listOfAtCTs, aggregationAtArray}
   
 
-timeSeriesGroupByCalculator = (snapshotArray, config) ->  # !TODO: Upgrade to use ChartTimeRange.getTimeline()
+timeSeriesGroupByCalculator = (snapshotArray, config) -> 
   ###
   Takes an MVCC style `snapshotArray` array and returns the data groupedBy a particular field `At` each moment specified by
   the ChartTimeRange spec (`rangeSpec`) within the config object. 
@@ -371,7 +366,7 @@ timeSeriesGroupByCalculator = (snapshotArray, config) ->  # !TODO: Upgrade to us
   those to get the detail picture of what this timeSeriesGroupByCalculator does. The general flow is:
   
   1. Use `ChartTimeRange` and `ChartTimeIterator` against the `rangeSpec` to find the points for the x-axis.
-     We're interested in the ends of those time ranges so the output of this work is a `listOfAtCTs` array.
+     The output of this work is a `listOfAtCTs` array.
   2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
      The output of this operation is called an `atArray`
   3. Use `groupByAt` to create a `groupByAtArray` of grouped aggregations to chart
@@ -380,11 +375,7 @@ timeSeriesGroupByCalculator = (snapshotArray, config) ->  # !TODO: Upgrade to us
   ###
 
   # 1. Figuring out the points for the x-axis (listOfAtCTs)
-  range = new ChartTimeRange(config.rangeSpec)  
-  subRanges = range.getIterator('ChartTimeRange').getAll()
-  # The pastEnd values are the ones we are interested in so let's get those.
-  # These are the points we want on our x-axis. 
-  listOfAtCTs = (r.pastEnd for r in subRanges)
+  listOfAtCTs = new ChartTimeRange(config.rangeSpec).getTimeline()
   
   # 2. Finding the state of each object **AT** each point in the listOfAtCTs array.
   atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField)
@@ -393,7 +384,7 @@ timeSeriesGroupByCalculator = (snapshotArray, config) ->  # !TODO: Upgrade to us
   aggregationSpec =
     groupBy: config.groupByField
     uniqueValues: utils.clone(config.groupByFieldValues)
-    aggregations: [
+    aggregationSpec: [
       {as: 'GroupBy', field: config.aggregationField, f: config.aggregationFunction}
       {as: 'Count', field:'ObjectID', f:'$count'}
       {as: 'DrillDown', field:'ObjectID', f:'$push'}

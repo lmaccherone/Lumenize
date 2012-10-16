@@ -159,7 +159,7 @@ which is close to the NIST recommendation and makes the most sense to me.</p>
         
         <div class="function">
           <div class="header">
-            <a id="aggregate"><h3>aggregate(list, aggregations)</h3></a>
+            <a id="aggregate"><h3>aggregate(list, aggregationSpec)</h3></a>
           </div>
           
           <div>
@@ -174,9 +174,9 @@ list = [
 ]
 </code></pre>
 
-<p>and a list of aggregations like this:</p>
+<p>and a list of aggregationSpec like this:</p>
 
-<pre><code>aggregations = [
+<pre><code>aggregationSpec = [
   {field: 'ObjectID', f: '$count'}
   {as: 'Drill-down', field:'ObjectID', f:'$push'}
   {field: 'PlanEstimate', f: '$sum'}
@@ -191,7 +191,7 @@ list = [
 
 <p>and returns the aggregations like this:</p>
 
-<pre><code>a = aggregate(list, aggregations)
+<pre><code>a = aggregate(list, aggregationSpec)
 console.log(a)
 
 #   { 'ObjectID_$count': 3, 
@@ -205,14 +205,14 @@ provide an alias for the aggregation with the 'as` field. There are a number of 
 documented above.</p>
 
 <p>Alternatively, you can provide your own function (it takes one parameter, which is an
-Array of values to aggregate) like the <code>mySum</code> example in our <code>aggregations</code> list above.</p>
+Array of values to aggregate) like the <code>mySum</code> example in our <code>aggregationSpec</code> list above.</p>
           </div>
           
         </div>
         
         <div class="function">
           <div class="header">
-            <a id="aggregateAt"><h3>aggregateAt(atArray, aggregations)</h3></a>
+            <a id="aggregateAt"><h3>aggregateAt(atArray, aggregationSpec)</h3></a>
           </div>
           
           <div>
@@ -244,7 +244,7 @@ list = [
 
 <pre><code>spec = {
   groupBy: 'KanbanState',
-  aggregations: [
+  aggregationSpec: [
     {field: 'ObjectID', f: '$count'}
     {as: 'Drill-down', field:'ObjectID', f:'$push'}
     {field: 'PlanEstimate', f: '$sum'}
@@ -318,8 +318,8 @@ the ChartTimeRange spec (<code>rangeSpec</code>) within the config object.</p>
 those to get the detail picture of what this timeSeriesCalculator does. The general flow is:</p>
 
 <ol>
-<li>Use <code>ChartTimeRange</code> and <code>ChartTimeIterator</code> against the <code>rangeSpec</code> to find the points for the x-axis.
-We're interested in the ends of those time ranges so the output of this work is a <code>listOfAtCTs</code> array.</li>
+<li>Use <code>ChartTimeRange.getTimeline()</code> against the <code>rangeSpec</code> to find the points for the x-axis.
+The output of this work is a <code>listOfAtCTs</code> array.</li>
 <li>Use <code>snapshotArray_To_AtArray</code> to figure out what state those objects were in at each point in the <code>listOfAtCTs</code> array.
 The output of this operation is called an <code>atArray</code></li>
 <li>Use <code>deriveFieldsAt</code> to add fields in each object in the <code>atArray</code> whose values are derived from the other fields in the object.</li>
@@ -345,7 +345,7 @@ those to get the detail picture of what this timeSeriesGroupByCalculator does. T
 
 <ol>
 <li>Use <code>ChartTimeRange</code> and <code>ChartTimeIterator</code> against the <code>rangeSpec</code> to find the points for the x-axis.
-We're interested in the ends of those time ranges so the output of this work is a <code>listOfAtCTs</code> array.</li>
+The output of this work is a <code>listOfAtCTs</code> array.</li>
 <li>Use <code>snapshotArray_To_AtArray</code> to figure out what state those objects were in at each point in the <code>listOfAtCTs</code> array.
 The output of this operation is called an <code>atArray</code></li>
 <li>Use <code>groupByAt</code> to create a <code>groupByAtArray</code> of grouped aggregations to chart</li>

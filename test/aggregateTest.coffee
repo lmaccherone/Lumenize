@@ -28,7 +28,7 @@ exports.aggregateTest =
     
     spec = {
       groupBy: 'KanbanState',
-      aggregations: [
+      aggregationSpec: [
         {field: 'ObjectID', f: '$count'}
         {as: 'Drill-down', field:'ObjectID', f:'$push'}
         {field: 'PlanEstimate', f: '$sum'}
@@ -70,7 +70,7 @@ exports.aggregateTest =
     spec = {
       groupBy: 'KanbanState',
       uniqueValues: ['Ready to pull', 'In progress'] # 'In test' intentionally missing
-      aggregations: [
+      aggregationSpec: [
         {field: 'ObjectID', f: '$count'}
       ]
     }
@@ -101,7 +101,7 @@ exports.aggregateTest =
       { ObjectID: '3', KanbanState: 'Ready to pull', PlanEstimate: 5, TaskRemainingTotal: 13 }
     ]
     
-    aggregations = [
+    aggregationSpec = [
       {field: 'KanbanState', f: '$min'}
       {field: 'PlanEstimate', f:'$min'}
       {field: 'PlanEstimate', f:'$max'}
@@ -117,7 +117,7 @@ exports.aggregateTest =
       'TaskRemainingTotal_$standardDeviation': 9 
     }
     
-    a = aggregate(list, aggregations)
+    a = aggregate(list, aggregationSpec)
     
     test.deepEqual(a, expected)
     
@@ -138,7 +138,7 @@ exports.aggregateTest =
     
     atArray = [list1, list2]
     
-    aggregations = [
+    aggregationSpec = [
       {field: 'TaskRemainingTotal', f: '$average'}
       {as: 'UniqueValues', field:'KanbanState', f:'$addToSet'}
       {field: 'PlanEstimate', f: '$sumSquares'}
@@ -157,7 +157,7 @@ exports.aggregateTest =
       } 
     ]
     
-    a = aggregateAt(atArray, aggregations)
+    a = aggregateAt(atArray, aggregationSpec)
     
     test.deepEqual(a, expected)
     

@@ -305,7 +305,7 @@ groupByAtArray_To_HighChartsSeries = (groupByAtArray, nameField, valueField, nam
   return output
 
 
-aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, aggregations) ->  # !TODO: Move to RallyAnalytics
+aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, aggregationSpec) ->  # !TODO: Move to RallyAnalytics
   ### 
   Takes an array of arrays that came from charttime.aggregateAt and looks like this:
   
@@ -316,14 +316,14 @@ aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, aggregations) ->  
   
   and a list of series configurations
   
-      aggregations = [
+      aggregationSpec = [
         {name: "Series 1", yAxis: 1},
         {name: "Series 2"}
       ]
       
   and extracts the data into seperate series
   
-      console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregations))
+      console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregationSpec))
       # [ { name: 'Series 1', data: [ 8, 2 ], yAxis: 1 },
       #   { name: 'Series 2', data: [ 5, 3 ] } ]
       
@@ -333,7 +333,7 @@ aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, aggregations) ->  
   preOutput = {}
   
   seriesNames = []
-  for a in aggregations
+  for a in aggregationSpec
     seriesNames.push(a.name)
 
   for aggregationRow in aggregationAtArray
@@ -346,7 +346,7 @@ aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, aggregations) ->  
   output = []
   for s, idx in seriesNames
     outputRow = {name: s, data: preOutput[s]}
-    seriesRow = aggregations[idx]
+    seriesRow = aggregationSpec[idx]
     for key, value of seriesRow
       unless key in ['name', 'data']
         outputRow[key] = value
