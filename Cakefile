@@ -91,7 +91,8 @@ task('build', 'Build with browserify and place in ./deploy', () ->
   b = browserify()
   b.use(fileify('files', __dirname + '/files'))
   b.ignore(['files'])
-  b.require("./src/lumenize.coffee")
+#   b.alias("./lumenize", "./src/lumenize")
+  b.require("./lumenize")
   fs.writeFileSync("deploy/#{path.basename(__dirname)}.js", b.bundle())
   run("uglifyjs deploy/#{path.basename(__dirname)}.js > deploy/#{path.basename(__dirname)}-min.js")
   # !TODO: Need to run tests on the built version

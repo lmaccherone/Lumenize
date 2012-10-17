@@ -137,23 +137,23 @@ IN THE SOFTWARE.
 
 exports.timezoneJS = require('timezone-js').timezoneJS
 
-exports.utils = require('./utils')
+exports.utils = require('./src/utils')
 
-exports.ChartTime = require('./ChartTime').ChartTime
+exports.ChartTime = require('./src/ChartTime').ChartTime
 
-chartTimeIteratorAndRange = require('./ChartTimeIteratorAndRange')
+chartTimeIteratorAndRange = require('./src/ChartTimeIteratorAndRange')
 exports.ChartTimeIterator = chartTimeIteratorAndRange.ChartTimeIterator
 exports.ChartTimeRange = chartTimeIteratorAndRange.ChartTimeRange
 
-exports.ChartTimeInStateCalculator = require('./ChartTimeInStateCalculator').ChartTimeInStateCalculator
+exports.ChartTimeInStateCalculator = require('./src/ChartTimeInStateCalculator').ChartTimeInStateCalculator
 
-datatransform = require('./dataTransform')
+datatransform = require('./src/dataTransform')
 exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps
 exports.snapshotArray_To_AtArray = datatransform.snapshotArray_To_AtArray
 exports.groupByAtArray_To_HighChartsSeries = datatransform.groupByAtArray_To_HighChartsSeries
 exports.aggregationAtArray_To_HighChartsSeries = datatransform.aggregationAtArray_To_HighChartsSeries
 
-aggregate = require('./aggregate')
+aggregate = require('./src/aggregate')
 exports.aggregate = aggregate.aggregate
 exports.aggregateAt = aggregate.aggregateAt
 exports.groupBy = aggregate.groupBy
@@ -163,8 +163,8 @@ exports.percentileCreator = aggregate.percentileCreator
 exports.timeSeriesCalculator = aggregate.timeSeriesCalculator
 exports.timeSeriesGroupByCalculator = aggregate.timeSeriesGroupByCalculator
 
-derive = require('./derive')
+derive = require('./src/derive')
 exports.deriveFields = derive.deriveFields
 exports.deriveFieldsAt = derive.deriveFieldsAt
 
-exports.histogram = require('./histogram').histogram
+exports.histogram = require('./src/histogram').histogram

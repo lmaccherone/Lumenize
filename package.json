@@ -1,7 +1,7 @@
 {
   "name": "Lumenize",
   "version": "0.3.0",
-  "main": "./src/lumenize",
+  "main": "./lumenize",
   "description": "Illuminating the forest AND the trees in your data.",
   "keywords": [
     "charting",
