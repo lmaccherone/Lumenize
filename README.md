@@ -33,7 +33,7 @@ Developing/Documenting:
 
 * [Node.js](http://nodejs.org/)
 * [CoffeeScript](http://coffeescript.org/)
-* [coffeedoc](https://github.com/lmaccherone/coffeedoc) (Larry Maccherone's fork) forked from [coffeedoc](https://github.com/omarkhan/coffeedoc)
+* [coffeedoc-lm](https://github.com/lmaccherone/coffeedoc) (Larry Maccherone's fork) forked from [coffeedoc](https://github.com/omarkhan/coffeedoc)
 * [coffeedoctest](https://github.com/lmaccherone/coffeedoctest) (by Larry Maccherone)
 * [nodeunit](https://github.com/caolan/nodeunit)
 * [browserify with fileify plugin](https://github.com/substack/node-browserify)

@@ -1,6 +1,3 @@
-# !TODO: Clean up dependencies in package.json to only allow for patch updates so say, 0.3.x rather than >=0.3.0
-
-
 exports.timezoneJS = require('timezone-js').timezoneJS
 
 exports.utils = require('./src/utils')

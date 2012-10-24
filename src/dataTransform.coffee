@@ -49,94 +49,6 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
     i++
   return arrayOfMaps
   
-# snapshotArray_To_AtArray_Original = (snapshotArray, listOfAtCTs, dateField, keyField, tz) ->  
-#   ###
-#   If you have a list of snapshots representing the changes in a set of work items over time (MVCC-style), this function will return the state of
-#   each item at each moment of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
-#   the values at particular moments in time (the times in listOfAtCTs).
-#   
-#   It will convert an snapshotArray like:
-#   
-#       snapshotArray = [
-#         {_ValidFrom: '2011-01-01T12:00:00.000Z', ObjectID: 1, someColumn: 'some value', someOtherColumn: 'some other value'},
-#         {_ValidFrom: '2011-01-02T12:00:00.000Z', ObjectID: 2, someColumn: 'some value 2', someOtherColumn: 'some other value 2'},      
-#       ]
-#       
-#   And a listOfAtCTs like:
-#   
-#       listOfAtCTs = [new ChartTime('2011-01-02'), new ChartTime('2011-01-03')]
-#       
-#   To an atArray with the value of each ObjectID at each of the points in the listOfAtCTs like:
-#   
-#       a = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, '_ValidFrom', 'ObjectID', 'America/New_York')
-#       
-#       console.log(a)
-#   
-#       # [ [ { ObjectID: '1', 
-#       #         someColumn: 'some value', 
-#       #         someOtherColumn: 'some other value' } ],
-#       #   [ { ObjectID: '1', 
-#       #         someColumn: 'some value', 
-#       #         someOtherColumn: 'some other value' }, 
-#       #     { ObjectID: '2', 
-#       #         someColumn: 'some value 2', 
-#       #         someOtherColumn: 'some other value 2' } ] ]
-#       
-#   Parameters
-#   
-#   * **snapshotArray** Array of snapshots or change events. Sorted by dateField.
-#   * **atArray** Array of ChartTime objects representing the moments we want the snapshots at
-#   * **dateField** String containing the name of the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
-#      Note, it should also work if there are ChartTime's in this position.
-#   * **keyField** String containing the name of the field that holds the unique ID. Note, no matter the input type, they will come
-#      out the other side as Strings. I could fix this if it ever became a problem.
-#   * **tz** String indicating the timezone, like 'America/New_York'
-#   ###
-#   atLength = listOfAtCTs.length
-#   snapshotLength = snapshotArray.length
-#   preOutput = []
-#   if (atLength <= 0 or snapshotLength <= 0)
-#     return preOutput
-#   atPointer = 0
-#   currentAtCT = listOfAtCTs[atPointer]
-#   granularity = currentAtCT.granularity
-#   snapshotPointer = 0
-#   currentSnapshot = snapshotArray[snapshotPointer]
-#   currentSnapshotCT = new ChartTime(currentSnapshot[dateField], granularity, tz)
-#   currentRow = {}
-#   while snapshotPointer < snapshotLength
-#     if currentSnapshotCT.$gte(currentAtCT)
-#       preOutput.push(currentRow)
-#       currentRow = utils.clone(currentRow)
-#       atPointer++
-#       if atPointer < atLength 
-#         currentAtCT = listOfAtCTs[atPointer]
-#       else
-#         break
-#     else
-#       unless currentRow[keyField]?
-#         currentRow[currentSnapshot[keyField]] = {}
-#       for key, value of currentSnapshot
-#         unless key == dateField
-#           currentRow[currentSnapshot[keyField]][key] = value
-#       snapshotPointer++
-#       if snapshotPointer < snapshotLength
-#         currentSnapshot = snapshotArray[snapshotPointer]
-#         currentSnapshotCT = new ChartTime(currentSnapshot[dateField], granularity, tz)
-#       else
-#         while atPointer < atLength
-#           preOutput.push(currentRow)
-#           atPointer++
-#   # Squash the keyField into each sub row       
-#   output = []
-#   for atRow in preOutput
-#     outputRow = []
-#     for key, value of atRow
-#       value[keyField] = key
-#       outputRow.push(value)
-#     output.push(outputRow)
-#   return output
-
 snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueIDField, tz, validToField) ->  
   ###
   If you have a list of snapshots representing the changes in a set of work items over time (MVCC-style), this function will return the state of
@@ -205,19 +117,26 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
   if (atLength <= 0 or snapshotLength <= 0)
     return preOutput
   atPointer = 0
-  currentAtCT = listOfAtCTs[atPointer]
-  granularity = currentAtCT.granularity
+  granularity = listOfAtCTs[0].granularity
   snapshotPointer = 0
   currentSnapshot = snapshotArray[snapshotPointer]
-  currentSnapshotCT = new ChartTime(currentSnapshot[validFromField], granularity, tz)
   currentRow = {}
+  
+  # Convert listOfAtCTs to Strings
+  listOfAtStrings = []
+  for atCT in listOfAtCTs
+    listOfAtStrings.push(atCT.getJSDateString(tz))
+
+  currentAtString = listOfAtStrings[atPointer]
+  currentSnapshotValidFrom = currentSnapshot[validFromField]
+  
   while snapshotPointer < snapshotLength
-    if currentSnapshotCT.$gte(currentAtCT)
+    if currentSnapshotValidFrom >= currentAtString
       preOutput.push(currentRow)
       currentRow = utils.clone(currentRow)
       atPointer++
       if atPointer < atLength 
-        currentAtCT = listOfAtCTs[atPointer]
+        currentAtString = listOfAtStrings[atPointer]
       else
         break
     else
@@ -228,7 +147,7 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
       snapshotPointer++
       if snapshotPointer < snapshotLength
         currentSnapshot = snapshotArray[snapshotPointer]
-        currentSnapshotCT = new ChartTime(currentSnapshot[validFromField], granularity, tz)
+        currentSnapshotValidFrom = currentSnapshot[validFromField]
       else
         while atPointer < atLength
           preOutput.push(currentRow)
@@ -236,12 +155,13 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
           
   # If the validToField is less than the corresponding atCT, then remove it because that means
   # it was either deleted or fell out of the selection filter prior to this atCT
+
   for atRow, index in preOutput
     toDelete = []
-    atCT = listOfAtCTs[index]
+    atString = listOfAtStrings[index]
     for uniqueID, atValue of atRow
-      validToCT = new ChartTime(atValue[validToField], granularity, tz)
-      if validToCT.$lt(atCT)
+      validToString = atValue[validToField]
+      if validToString < atString
         toDelete.push(uniqueID)
     for d in toDelete
       delete atRow[d]        
@@ -255,6 +175,132 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
       outputRow.push(value)
     output.push(outputRow)
   return output
+
+# old_snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueIDField, tz, validToField) ->  
+#   ###
+#   If you have a list of snapshots representing the changes in a set of work items over time (MVCC-style), this function will return the state of
+#   each item at each moments of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
+#   the values at particular moments in time (the times in listOfAtCTs).
+#   
+#   It will convert an snapshotArray like:
+#   
+#       snapshotArray = [
+#         {_ValidFrom: '1999-01-01T12:00:00.000Z', _ValidTo:'2010-01-02T12:00:00.000Z', ObjectID: 0, someColumn: 'some value'},
+#         {_ValidFrom: '2011-01-01T12:00:00.000Z', _ValidTo:'2011-01-02T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
+#         {_ValidFrom: '2011-01-02T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 2, someColumn: 'some value 2'},      
+#         {_ValidFrom: '2011-01-02T12:00:00.000Z', _ValidTo:'2011-01-03T12:00:00.000Z', ObjectID: 3, someColumn: 'some value'},
+#         {_ValidFrom: '2011-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
+#         {_ValidFrom: '2222-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 99, someColumn: 'some value'},
+#       ]
+#       
+#   And a listOfAtCTs like:
+#   
+#       listOfAtCTs = [new ChartTime('2011-01-02'), new ChartTime('2011-01-03'), new ChartTime('2011-01-07')]
+#       
+#   To an atArray with the value of each ObjectID at each of the points in the listOfAtCTs like:
+#   
+#       a = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, '_ValidFrom', 'ObjectID', 'America/New_York', '_ValidTo')
+#       
+#       console.log(a)
+#   
+#       # [ [ { _ValidFrom: '2011-01-01T12:00:00.000Z',
+#       #       _ValidTo: '2011-01-02T12:00:00.000Z',
+#       #       ObjectID: '1',
+#       #       someColumn: 'some value' } ],
+#       #   [ { _ValidFrom: '2011-01-02T12:00:00.000Z',
+#       #       _ValidTo: '9999-01-01T12:00:00.000Z',
+#       #       ObjectID: '2',
+#       #       someColumn: 'some value 2' },
+#       #     { _ValidFrom: '2011-01-02T12:00:00.000Z',
+#       #       _ValidTo: '2011-01-03T12:00:00.000Z',
+#       #       ObjectID: '3',
+#       #       someColumn: 'some value' } ],
+#       #   [ { _ValidFrom: '2011-01-05T12:00:00.000Z',
+#       #       _ValidTo: '9999-01-01T12:00:00.000Z',
+#       #       ObjectID: '1',
+#       #       someColumn: 'some value' },
+#       #     { _ValidFrom: '2011-01-02T12:00:00.000Z',
+#       #       _ValidTo: '9999-01-01T12:00:00.000Z',
+#       #       ObjectID: '2',
+#       #       someColumn: 'some value 2' } ] ]
+# 
+#       
+#   Parameters
+#   
+#   * **snapshotArray** Array of snapshots or change events. Sorted by validFromField. # !TODO: Add the sort. Borrow from TimeInState.
+#   * **atArray** Array of ChartTime objects representing the moments we want the snapshots at
+#   * **validFromField** String containing the name of the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
+#      Note, it should also work if there are ChartTime's in this position.  # !TODO: Need to test this
+#   * **validToField** Same except for the end of the snapshot's active time. Defaults to '_ValidTo' for backward compatibility reasons.
+#   * **uniqueIDField** String containing the name of the field that holds the unique ID. Note, no matter the input type, they will come
+#      out the other side as Strings. I could fix this if it ever became a problem.
+#   * **tz** String indicating the timezone, like 'America/New_York'
+#   ###
+#   unless validToField?
+#     validToField = '_ValidTo'
+#   atLength = listOfAtCTs.length
+#   snapshotLength = snapshotArray.length
+#   preOutput = []
+#   if (atLength <= 0 or snapshotLength <= 0)
+#     return preOutput
+#   atPointer = 0
+#   currentAtCT = listOfAtCTs[atPointer]
+#   granularity = currentAtCT.granularity
+#   snapshotPointer = 0
+#   currentSnapshot = snapshotArray[snapshotPointer]
+#   currentSnapshotCT = new ChartTime(currentSnapshot[validFromField], granularity, tz)
+#   currentRow = {}
+#   
+#   console.log('*** snapshotArray.length ***' + snapshotArray.length)
+#   
+#   # Convert listOfAtCTs
+#   
+#   
+#   while snapshotPointer < snapshotLength
+#     if currentSnapshotCT.$gte(currentAtCT)
+#       preOutput.push(currentRow)
+#       currentRow = utils.clone(currentRow)
+#       atPointer++
+#       if atPointer < atLength 
+#         currentAtCT = listOfAtCTs[atPointer]
+#       else
+#         break
+#     else
+#       unless currentRow[uniqueIDField]?
+#         currentRow[currentSnapshot[uniqueIDField]] = {}
+#       for key, value of currentSnapshot
+#         currentRow[currentSnapshot[uniqueIDField]][key] = value
+#       snapshotPointer++
+#       if snapshotPointer < snapshotLength
+#         currentSnapshot = snapshotArray[snapshotPointer]
+#         currentSnapshotCT = new ChartTime(currentSnapshot[validFromField], granularity, tz)
+#       else
+#         while atPointer < atLength
+#           preOutput.push(currentRow)
+#           atPointer++
+#           
+#   # If the validToField is less than the corresponding atCT, then remove it because that means
+#   # it was either deleted or fell out of the selection filter prior to this atCT
+# 
+#   for atRow, index in preOutput
+#     toDelete = []
+#     atCT = listOfAtCTs[index]
+#     for uniqueID, atValue of atRow
+#       validToCT = new ChartTime(atValue[validToField], granularity, tz)
+#       if validToCT.$lt(atCT)
+#         toDelete.push(uniqueID)
+#     for d in toDelete
+#       delete atRow[d]        
+#           
+#   # Squash the uniqueIDField into each sub row       
+#   output = []
+#   for atRow in preOutput
+#     outputRow = []
+#     for key, value of atRow
+#       value[uniqueIDField] = key
+#       outputRow.push(value)
+#     output.push(outputRow)
+#   return output
   
   
 groupByAtArray_To_HighChartsSeries = (groupByAtArray, nameField, valueField, nameFieldValues, returnPreOutput) ->  # !TODO: Move to RallyAnalytics
