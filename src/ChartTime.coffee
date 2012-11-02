@@ -1,7 +1,7 @@
 utils = require('./utils')
 timezoneJS = require('timezone-js').timezoneJS
 
-class ChartTime  # !TODO: Change "start" to "startingAt" and "pastEnd" to "endingBefore"
+class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefore"
   ###
   # ChartTime #
   
@@ -515,7 +515,7 @@ class ChartTime  # !TODO: Change "start" to "startingAt" and "pastEnd" to "endin
     st = spec.segmentStart
     sub = s.substr(st, l)
     return sub
-      
+
   _setFromRDN: (rdn, granularity) ->
     spec = {granularity: granularity}
     switch granularity

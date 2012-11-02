@@ -147,10 +147,12 @@ class ChartTimeInStateCalculator
     for s in snapshotArray
       eventRow = {at: s[validFromField], state: true}
       eventRow[uniqueIDField] = s[uniqueIDField]
+      eventRow.type = 1
       snapshotEvents.push(eventRow)
       if s[validToField] < lastTickAt
         eventRow = {at: s[validToField], state: false}
         eventRow[uniqueIDField] = s[uniqueIDField]
+        eventRow.type = 0
         snapshotEvents.push(eventRow)
         
     # sort the snapshotEvents array by the at field
@@ -158,10 +160,17 @@ class ChartTimeInStateCalculator
       if a.at > b.at
         return 1
       else if a.at == b.at
-        return 0
+        if a.type > b.type
+          return 1
+        else if a.type == b.type
+          return 0
+        else
+          return -1
       else
         return -1
     )
+    
+    console.log(JSON.stringify(snapshotEvents, undefined, 2));
     
     # initialize output
     output = {}

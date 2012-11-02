@@ -7613,6 +7613,7 @@ require.define("/src/ChartTimeInStateCalculator.coffee",function(require,module,
           state: true
         };
         eventRow[uniqueIDField] = s[uniqueIDField];
+        eventRow.type = 1;
         snapshotEvents.push(eventRow);
         if (s[validToField] < lastTickAt) {
           eventRow = {
@@ -7620,6 +7621,7 @@ require.define("/src/ChartTimeInStateCalculator.coffee",function(require,module,
             state: false
           };
           eventRow[uniqueIDField] = s[uniqueIDField];
+          eventRow.type = 0;
           snapshotEvents.push(eventRow);
         }
       }
@@ -7627,11 +7629,18 @@ require.define("/src/ChartTimeInStateCalculator.coffee",function(require,module,
         if (a.at > b.at) {
           return 1;
         } else if (a.at === b.at) {
-          return 0;
+          if (a.type > b.type) {
+            return 1;
+          } else if (a.type === b.type) {
+            return 0;
+          } else {
+            return -1;
+          }
         } else {
           return -1;
         }
       });
+      console.log(JSON.stringify(snapshotEvents, void 0, 2));
       output = {};
       tickLength = this.ticks.length;
       tickIndex = 0;
