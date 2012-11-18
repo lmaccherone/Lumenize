@@ -35,7 +35,9 @@
             
           </div>
           <div class="class_content">
-            <h1>ChartTime</h1>
+            <p>@class ChartTime</p>
+
+<h1>ChartTime</h1>
 
 <p><em>Time axis creation/manipulation for charts</em></p>
 
@@ -357,7 +359,10 @@ granularity. If there is a use-case for it, ChartTime could be upgraded to allow
                 
                 <div class="method">
                   <h4>constructor(spec_RDN_Date_Or_String, granularity, tz)</h4>
-                  <p>The constructor for ChartTime supports the passing in of a String, a rata die number (RDN), or a spec Object</p>
+                  <p>@constructor
+@param {Object} spec<em>RDN</em>Date<em>Or</em>String</p>
+
+<p>The constructor for ChartTime supports the passing in of a String, a rata die number (RDN), or a spec Object</p>
 
 <h2>String</h2>
 
@@ -486,7 +491,7 @@ console.log(ct.inGranularity('hour').add(-5).getJSDate('America/New_York').getTi
                 </div>
                 
                 <div class="method">
-                  <h4>getJSDateString(tz)</h4>
+                  <h4>getShiftedISOString(tz)</h4>
                   <p>Returns the canonical ISO-8601 date in zulu representation but shifted to the specified tz</p>
                 </div>
                 

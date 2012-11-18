@@ -116,16 +116,16 @@ class ChartTimeInStateCalculator
       ctPlus1 = ct.add(1)
       if previousState
         previousState = true
-        @ticks.push({at: ct.getJSDateString(@tz), state: true})
+        @ticks.push({at: ct.getShiftedISOString(@tz), state: true})
         if idx + 1 == allCTsLength
           previousState = false
-          @ticks.push({at: ctPlus1.getJSDateString(@tz), state: false})
+          @ticks.push({at: ctPlus1.getShiftedISOString(@tz), state: false})
         else
           unless ctPlus1.$eq(allCTs[idx + 1])
             previousState = false
-            @ticks.push({at: ctPlus1.getJSDateString(@tz), state: false})
+            @ticks.push({at: ctPlus1.getShiftedISOString(@tz), state: false})
       else
-        @ticks.push({at: ct.getJSDateString(@tz), state: true})
+        @ticks.push({at: ct.getShiftedISOString(@tz), state: true})
         previousState = true
 
   timeInState: (snapshotArray, validFromField, validToField, uniqueIDField, excludeStillInState = true) ->
@@ -139,7 +139,13 @@ class ChartTimeInStateCalculator
     ###
     
     # it's an error if the first snapshot array entry is before the first entry in the ticks stream.
-    utils.assert(snapshotArray[0][validFromField] >= @ticks[0].at, 'The iterator used must go back at least as far as the first entry in the snapshotArray.')
+    utils.assert(snapshotArray[0][validFromField] >= @ticks[0].at, """
+      The iterator used must go back at least as far as the first entry in the snapshotArray.
+      First entry:
+        #{snapshotArray[0][validFromField]}
+      Iterator start:
+        #{@ticks[0].at}
+    """)
     
     # expand the snapshotArray to `state: true` and `state: false` entries
     lastTickAt = @ticks[@ticks.length - 1].at
@@ -169,8 +175,6 @@ class ChartTimeInStateCalculator
       else
         return -1
     )
-    
-    console.log(JSON.stringify(snapshotEvents, undefined, 2));
     
     # initialize output
     output = {}

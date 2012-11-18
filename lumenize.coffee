@@ -1,4 +1,4 @@
-exports.timezoneJS = require('timezone-js').timezoneJS
+exports.timezoneJS = require('timezone-js').timezoneJS  # I no longer see the need to expose this
 
 exports.utils = require('./src/utils')
 

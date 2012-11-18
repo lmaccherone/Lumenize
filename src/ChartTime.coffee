@@ -3,6 +3,7 @@ timezoneJS = require('timezone-js').timezoneJS
 
 class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefore"
   ###
+  @class ChartTime
   # ChartTime #
   
   _Time axis creation/manipulation for charts_
@@ -188,6 +189,9 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
   ###
   constructor: (spec_RDN_Date_Or_String, granularity, tz) ->
     ###
+    @constructor
+    @param {Object} spec_RDN_Date_Or_String
+
     The constructor for ChartTime supports the passing in of a String, a rata die number (RDN), or a spec Object
     
     ## String ##
@@ -642,8 +646,8 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
     utcMilliseconds += offset * 1000 * 60
     newDate = new Date(utcMilliseconds)
     return newDate
-    
-  getJSDateString: (tz) ->
+  
+  getShiftedISOString: (tz) ->
     ###
     Returns the canonical ISO-8601 date in zulu representation but shifted to the specified tz
     ###

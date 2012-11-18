@@ -125,7 +125,7 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
   # Convert listOfAtCTs to Strings
   listOfAtStrings = []
   for atCT in listOfAtCTs
-    listOfAtStrings.push(atCT.getJSDateString(tz))
+    listOfAtStrings.push(atCT.getShiftedISOString(tz))
 
   currentAtString = listOfAtStrings[atPointer]
   currentSnapshotValidFrom = currentSnapshot[validFromField]

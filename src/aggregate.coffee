@@ -4,91 +4,23 @@ utils = require('./utils')
 {deriveFieldsAt} = require('./derive')
 {snapshotArray_To_AtArray} = require('./dataTransform')
 
-functions = {}  
+###
+@method percentileCreator
+@static
+@param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
+@return {Function} A funtion to calculate the percentile
 
-functions.$sum = (values) ->
-  temp = 0
-  for v in values
-    temp += v
-  return temp
-  
-functions.$sumSquares = (values) ->
-  temp = 0
-  for v in values
-    temp += v * v
-  return temp
-  
-functions.$count = (values) ->
-  return values.length
-  
-functions.$min = (values) ->
-  if values.length == 0
-    return null
-  temp = values[0]
-  for v in values
-    if v < temp
-      temp = v
-  return temp
-  
-functions.$max = (values) ->
-  if values.length == 0
-    return null
-  temp = values[0]
-  for v in values
-    if v > temp
-      temp = v
-  return temp
+When the user passes in `$p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate
+percentile function. The returned function will find the `<n>`th percentile where `<n>` is some number in the form of
+`##[.##]`. (e.g. `$p40`, `$p99`, `$p99.9`).
 
-functions.$push = (values) ->
-  ###
-  An Array of all values (allows duplicates). Can be used for drill down when you know they will be unique.
-  ###
-  temp = []
-  for v in values
-    temp.push(v)
-  return temp
-  
-functions.$addToSet = (values) ->
-  ###
-  An Array of unique values. This is good for generating an OLAP dimension or drill down.
-  ###
-  temp = {}
-  temp2 = []
-  for v in values
-    temp[v] = null
-  for key, value of temp
-    temp2.push(key)
-  return temp2
-  
-functions.$average = (values) ->
-  count = values.length
-  sum = 0
-  for v in values
-    sum += v
-  return sum / count  
+Note: `$median` is an alias for `$p50`.
 
-functions.$variance = (values) ->
-  n = values.length
-  sum = 0
-  sumSquares = 0
-  for v in values
-    sum += v
-    sumSquares += v * v
-  return (n * sumSquares - sum * sum) / (n * (n - 1))
-  
-functions.$standardDeviation = (values) ->
-  return Math.sqrt(functions.$variance(values))
-      
-percentileCreator = (p) ->  
-  ###
-  When the user passes in `$p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate percentile function. 
-  The returned function will find the `<n>`th percentile where `<n>` is some number in the form of `##[.##]`. (e.g. `$p40`, `$p99`, `$p99.9`).
-  
-  Note: `$median` is an alias for `$p50`.
-  
-  There is no official definition of percentile. The function returned by this `percentileCreator` uses the Excel interpolation algorithm 
-  which is close to the NIST recommendation and makes the most sense to me.
-  ###
+There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
+use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
+recommendation and makes the most sense to me.
+###
+percentileCreator = (p) ->
   return (values) ->
     sortfunc = (a, b) ->
       return a - b
@@ -101,14 +33,16 @@ percentileCreator = (p) ->
       return values[1 - 1]
     if n == vLength
       return values[vLength - 1]
-    return values[k - 1] + d * (values[k] - values[k - 1])    
+    return values[k - 1] + d * (values[k] - values[k - 1])
 
+###
+@method _extractFandAs
+@param {Object} a Aggregation spec
+@return {Object} Returns an object with `f` and `as` references from an aggregation spec `a`.
+This is needed because `as` is optional and must be generated if missing. Also, the percentile
+and median calculators have to call `percentileCreator` to find those `f`s.
+###
 _extractFandAs = (a) ->
-  ###
-  Returns an object with `f` and `as` references from an aggregation spec `a`.
-  This is needed because `as` is optional and must be generated if missing. Also, the percentile
-  and median calculators have to call `percentileCreator` to find those `f`s.
-  ###
   if a.as?
     as = a.as
   else
@@ -400,7 +334,139 @@ timeSeriesGroupByCalculator = (snapshotArray, config) ->
         # console.error('    ' + v)
         
   return {listOfAtCTs, groupByAtArray, uniqueValues: utils.clone(aggregationSpec.uniqueValues)}
-  
+
+###
+@class functions
+###
+functions = {}
+
+###
+@method $sum
+@static
+@param {Array} values
+@return {Number} The sum of the values
+###
+functions.$sum = (values) ->
+  temp = 0
+  for v in values
+    temp += v
+  return temp
+
+###
+@method $sumSquares
+@static
+@param {Array} values
+@return {Number} The sum of the squares of the values
+###
+functions.$sumSquares = (values) ->
+  temp = 0
+  for v in values
+    temp += v * v
+  return temp
+
+###
+@method $count
+@static
+@param {Array} values
+@return {Number} The length of the values Array
+###
+functions.$count = (values) ->
+  return values.length
+
+###
+@method $min
+@static
+@param {Array} values
+@return {Number} The minimum value or null if no values
+###
+functions.$min = (values) ->
+  if values.length == 0
+    return null
+  temp = values[0]
+  for v in values
+    if v < temp
+      temp = v
+  return temp
+
+###
+@method $max
+@static
+@param {Array} values
+@return {Number} The maximum value or null if no values
+###
+functions.$max = (values) ->
+  if values.length == 0
+    return null
+  temp = values[0]
+  for v in values
+    if v > temp
+      temp = v
+  return temp
+
+###
+@method $push
+@static
+@param {Array} values
+@return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
+###
+functions.$push = (values) ->
+  temp = []
+  for v in values
+    temp.push(v)
+  return temp
+
+###
+@method $addToSet
+@static
+@param {Array} values
+@return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
+###
+functions.$addToSet = (values) ->
+  temp = {}
+  temp2 = []
+  for v in values
+    temp[v] = null
+  for key, value of temp
+    temp2.push(key)
+  return temp2
+
+###
+@method $average
+@static
+@param {Array} values
+@return {Number} The arithmetic mean
+###
+functions.$average = (values) ->
+  count = values.length
+  sum = 0
+  for v in values
+    sum += v
+  return sum / count
+
+###
+@method $variance
+@static
+@param {Array} values
+@return {Number} The variance
+###
+functions.$variance = (values) ->
+  n = values.length
+  sum = 0
+  sumSquares = 0
+  for v in values
+    sum += v
+    sumSquares += v * v
+  return (n * sumSquares - sum * sum) / (n * (n - 1))
+
+###
+@method $standardDeviation
+@static
+@param {Array} values
+@return {Number} The standard deviation
+###
+functions.$standardDeviation = (values) ->
+  return Math.sqrt(functions.$variance(values))
+
 exports.functions = functions
 exports.percentileCreator = percentileCreator
 exports.aggregate = aggregate

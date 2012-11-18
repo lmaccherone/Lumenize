@@ -18,6 +18,20 @@
       <h4>Functions</h4>
       <ul class="functionlist">
         
+        <li><a href="#percentileCreator">percentileCreator</a></li>
+        
+        <li><a href="#aggregate">aggregate</a></li>
+        
+        <li><a href="#aggregateAt">aggregateAt</a></li>
+        
+        <li><a href="#groupBy">groupBy</a></li>
+        
+        <li><a href="#groupByAt">groupByAt</a></li>
+        
+        <li><a href="#timeSeriesCalculator">timeSeriesCalculator</a></li>
+        
+        <li><a href="#timeSeriesGroupByCalculator">timeSeriesGroupByCalculator</a></li>
+        
         <li><a href="#functions.$sum">functions.$sum</a></li>
         
         <li><a href="#functions.$sumSquares">functions.$sumSquares</a></li>
@@ -38,20 +52,6 @@
         
         <li><a href="#functions.$standardDeviation">functions.$standardDeviation</a></li>
         
-        <li><a href="#percentileCreator">percentileCreator</a></li>
-        
-        <li><a href="#aggregate">aggregate</a></li>
-        
-        <li><a href="#aggregateAt">aggregateAt</a></li>
-        
-        <li><a href="#groupBy">groupBy</a></li>
-        
-        <li><a href="#groupByAt">groupByAt</a></li>
-        
-        <li><a href="#timeSeriesCalculator">timeSeriesCalculator</a></li>
-        
-        <li><a href="#timeSeriesGroupByCalculator">timeSeriesGroupByCalculator</a></li>
-        
       </ul>
       
     </div>
@@ -64,95 +64,7 @@
         
         <div class="function">
           <div class="header">
-            <a id="functions.$sum"><h3>functions.$sum(values)</h3></a>
-          </div>
-          
-        </div>
-        
-        <div class="function">
-          <div class="header">
-            <a id="functions.$sumSquares"><h3>functions.$sumSquares(values)</h3></a>
-          </div>
-          
-        </div>
-        
-        <div class="function">
-          <div class="header">
-            <a id="functions.$count"><h3>functions.$count(values)</h3></a>
-          </div>
-          
-        </div>
-        
-        <div class="function">
-          <div class="header">
-            <a id="functions.$min"><h3>functions.$min(values)</h3></a>
-          </div>
-          
-        </div>
-        
-        <div class="function">
-          <div class="header">
-            <a id="functions.$max"><h3>functions.$max(values)</h3></a>
-          </div>
-          
-        </div>
-        
-        <div class="function">
-          <div class="header">
-            <a id="functions.$push"><h3>functions.$push(values)</h3></a>
-          </div>
-          
-          <div>
-            <p>An Array of all values (allows duplicates). Can be used for drill down when you know they will be unique.</p>
-          </div>
-          
-        </div>
-        
-        <div class="function">
-          <div class="header">
-            <a id="functions.$addToSet"><h3>functions.$addToSet(values)</h3></a>
-          </div>
-          
-          <div>
-            <p>An Array of unique values. This is good for generating an OLAP dimension or drill down.</p>
-          </div>
-          
-        </div>
-        
-        <div class="function">
-          <div class="header">
-            <a id="functions.$average"><h3>functions.$average(values)</h3></a>
-          </div>
-          
-        </div>
-        
-        <div class="function">
-          <div class="header">
-            <a id="functions.$variance"><h3>functions.$variance(values)</h3></a>
-          </div>
-          
-        </div>
-        
-        <div class="function">
-          <div class="header">
-            <a id="functions.$standardDeviation"><h3>functions.$standardDeviation(values)</h3></a>
-          </div>
-          
-        </div>
-        
-        <div class="function">
-          <div class="header">
             <a id="percentileCreator"><h3>percentileCreator(p)</h3></a>
-          </div>
-          
-          <div>
-            <p>When the user passes in <code>$p&lt;n&gt;</code> as an aggregation function, this <code>percentileCreator</code> is called to return the appropriate percentile function. 
-The returned function will find the <code>&lt;n&gt;</code>th percentile where <code>&lt;n&gt;</code> is some number in the form of <code>##[.##]</code>. (e.g. <code>$p40</code>, <code>$p99</code>, <code>$p99.9</code>).</p>
-
-<p>Note: <code>$median</code> is an alias for <code>$p50</code>.</p>
-
-<p>There is no official definition of percentile. The function returned by this <code>percentileCreator</code> uses the Excel interpolation algorithm 
-which is close to the NIST recommendation and makes the most sense to me.</p>
           </div>
           
         </div>
@@ -352,6 +264,76 @@ The output of this operation is called an <code>atArray</code></li>
 </ol>
 
 <p>Note: We assume the snapshotArray is sorted by the config.snapshotValidFromField</p>
+          </div>
+          
+        </div>
+        
+        <div class="function">
+          <div class="header">
+            <a id="functions.$sum"><h3>functions.$sum(values)</h3></a>
+          </div>
+          
+        </div>
+        
+        <div class="function">
+          <div class="header">
+            <a id="functions.$sumSquares"><h3>functions.$sumSquares(values)</h3></a>
+          </div>
+          
+        </div>
+        
+        <div class="function">
+          <div class="header">
+            <a id="functions.$count"><h3>functions.$count(values)</h3></a>
+          </div>
+          
+        </div>
+        
+        <div class="function">
+          <div class="header">
+            <a id="functions.$min"><h3>functions.$min(values)</h3></a>
+          </div>
+          
+        </div>
+        
+        <div class="function">
+          <div class="header">
+            <a id="functions.$max"><h3>functions.$max(values)</h3></a>
+          </div>
+          
+        </div>
+        
+        <div class="function">
+          <div class="header">
+            <a id="functions.$push"><h3>functions.$push(values)</h3></a>
+          </div>
+          
+        </div>
+        
+        <div class="function">
+          <div class="header">
+            <a id="functions.$addToSet"><h3>functions.$addToSet(values)</h3></a>
+          </div>
+          
+        </div>
+        
+        <div class="function">
+          <div class="header">
+            <a id="functions.$average"><h3>functions.$average(values)</h3></a>
+          </div>
+          
+        </div>
+        
+        <div class="function">
+          <div class="header">
+            <a id="functions.$variance"><h3>functions.$variance(values)</h3></a>
+          </div>
+          
+        </div>
+        
+        <div class="function">
+          <div class="header">
+            <a id="functions.$standardDeviation"><h3>functions.$standardDeviation(values)</h3></a>
           </div>
           
         </div>

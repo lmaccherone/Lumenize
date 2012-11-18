@@ -1,19 +1,29 @@
-###
+
 # Lumenize #
 
 Copyright (c) 2009-2012, Lawrence S. Maccherone, Jr.
 
 _Illuminating the forest AND the trees in your data._
 
+Lumenize is a collection of tools for making awesome visualizations out of your data.
+
 ## Features ##
 
-* Implementation of DSL and visualization patterns from Larry Maccherone's PhD
-* Hierarchical OLAP cubes
-* Date-time precision optimized for charting: timezone manipulation (eg America/New_York), knockout weekends/holidays,
-  non-workhours, work in any granularity (year, quarter, week, day, hour, etc.), etc.
-* Tested
-* [Documented](http://lmaccherone.github.com/Lumenize/docs/index.html)
-* [DocTested](https://github.com/lmaccherone/coffeedoctest)
+* Create time-series axis for charts
+  * Knockout weekends, holidays, non-workhours
+  * Work with timezone precision
+  * Work in any granularity
+    * Year, quarter, week, day, hour, etc.
+    * No more recording `2012-03-05T00:00:00.000Z` when you really just mean `2012-03-05`
+    * Create and use custom granularities: `R02I04-07` = Seventh day of fourth iteration in second release
+   
+* Create aggregations from temporal data models like Rally's Lookback API
+
+* Tested - Over 300 tests
+
+* [Documented](http://lmaccherone.github.com/Lumenize/docs/index.html) - Robust documentation for an open source library
+
+* [DocTested](https://github.com/lmaccherone/coffeedoctest) - The examples will always match the code because it fails automated testing when they don't
 
 ## Credits ##
 
@@ -24,10 +34,7 @@ Authors:
 
 Running:
 
-* [timezoneJS](https://github.com/mde/timezone-js) - library for [tz](http://www.twinsun.com/tz/tz-link.htm) parsing.
-  Although I haven't touched the actual tz file parsing code, I have modified timezoneJS fairly significantly. 
-  The original included a drop-in replacement for JavaScript's Date object.
-  I also modified it to work on node.js and in the browser once "browserified" by bundling the tz files.
+* [timezoneJS](https://github.com/mde/timezone-js) - library for [tz file](http://www.twinsun.com/tz/tz-link.htm) parsing. Although I haven't touched the actual tz file parsing code, I have modified timezoneJS fairly significantly. The original included a drop-in replacement for JavaScript's Date object which I have removed. I also modified it to work on node.js and in the browser once "browserified" by bundling the tz files.
 
 Developing/Documenting:
 
@@ -65,19 +72,14 @@ or you can just use the lumenize namespace:
 To install in the node_modules directory of your project, run the following from the root folder of your project:
 
 `npm install Lumenize`
-    
-To install globally:
 
-`sudo npm install -g Lumenize`
-    
-If you want the latest from source, download/clone from GitHub and run:
+or better yet, add it to the dependencies section of your package.json file and run
 
-`cake install`
+`npm install`
 
 ## Contributing to Lumenize ##
     
-If you want to add functionality to Lumenize, you'll need a working dev environment. The following seems to accomplish that:
-
+If you want to add functionality to Lumenize, you'll need a working dev environment which is based upon node.js, so the first step is to install that on your system.
 Once Node.js is installed, you should be able to run a few node package manager (npm) commands. Install the following:
 
 * `sudo npm -g install coffee-script`
@@ -86,11 +88,11 @@ Once Node.js is installed, you should be able to run a few node package manager 
 * `sudo npm -g install jitter`
 * `sudo npm -g install nodeunit`
  
-Add the following to your ~/.profile file
+Add the following to your ~/.profile or your ~/.bash_profile file
   
 `NODE_PATH=/usr/local/lib/node_modules; export NODE_PATH`
 
-After edit, restart your session or use command `source ~/.profile` to activate the changes immediately.
+After edit, restart your session or use command `source ~/.[bash_]profile` to activate the changes immediately.
 
 Once you have the above installed, add tests for your upgrades and make sure all test pass with:
 
@@ -131,9 +133,6 @@ TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONIN
 THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
 IN THE SOFTWARE.
-
-###
-
 
 
 

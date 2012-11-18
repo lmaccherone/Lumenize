@@ -5404,6 +5404,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
 
   ChartTime = (function() {
     /*
+      @class ChartTime
       # ChartTime #
       
       _Time axis creation/manipulation for charts_
@@ -5592,6 +5593,9 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
 
     function ChartTime(spec_RDN_Date_Or_String, granularity, tz) {
       /*
+          @constructor
+          @param {Object} spec_RDN_Date_Or_String
+      
           The constructor for ChartTime supports the passing in of a String, a rata die number (RDN), or a spec Object
           
           ## String ##
@@ -6167,6 +6171,13 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
     };
 
     ChartTime.prototype.getJSDateString = function(tz) {
+      /*
+          @deprecated Use getShiftedISOString
+      */
+
+    };
+
+    ChartTime.prototype.getShiftedISOString = function(tz) {
       /*
           Returns the canonical ISO-8601 date in zulu representation but shifted to the specified tz
       */
@@ -8087,133 +8098,25 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
 
   snapshotArray_To_AtArray = require('./dataTransform').snapshotArray_To_AtArray;
 
-  functions = {};
+  /*
+  @method percentileCreator
+  @static
+  @param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
+  @return {Function} A funtion to calculate the percentile
+  
+  When the user passes in `$p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate
+  percentile function. The returned function will find the `<n>`th percentile where `<n>` is some number in the form of
+  `##[.##]`. (e.g. `$p40`, `$p99`, `$p99.9`).
+  
+  Note: `$median` is an alias for `$p50`.
+  
+  There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
+  use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
+  recommendation and makes the most sense to me.
+  */
 
-  functions.$sum = function(values) {
-    var temp, v, _i, _len;
-    temp = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      temp += v;
-    }
-    return temp;
-  };
-
-  functions.$sumSquares = function(values) {
-    var temp, v, _i, _len;
-    temp = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      temp += v * v;
-    }
-    return temp;
-  };
-
-  functions.$count = function(values) {
-    return values.length;
-  };
-
-  functions.$min = function(values) {
-    var temp, v, _i, _len;
-    if (values.length === 0) {
-      return null;
-    }
-    temp = values[0];
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      if (v < temp) {
-        temp = v;
-      }
-    }
-    return temp;
-  };
-
-  functions.$max = function(values) {
-    var temp, v, _i, _len;
-    if (values.length === 0) {
-      return null;
-    }
-    temp = values[0];
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      if (v > temp) {
-        temp = v;
-      }
-    }
-    return temp;
-  };
-
-  functions.$push = function(values) {
-    /*
-      An Array of all values (allows duplicates). Can be used for drill down when you know they will be unique.
-    */
-
-    var temp, v, _i, _len;
-    temp = [];
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      temp.push(v);
-    }
-    return temp;
-  };
-
-  functions.$addToSet = function(values) {
-    /*
-      An Array of unique values. This is good for generating an OLAP dimension or drill down.
-    */
-
-    var key, temp, temp2, v, value, _i, _len;
-    temp = {};
-    temp2 = [];
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      temp[v] = null;
-    }
-    for (key in temp) {
-      value = temp[key];
-      temp2.push(key);
-    }
-    return temp2;
-  };
-
-  functions.$average = function(values) {
-    var count, sum, v, _i, _len;
-    count = values.length;
-    sum = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      sum += v;
-    }
-    return sum / count;
-  };
-
-  functions.$variance = function(values) {
-    var n, sum, sumSquares, v, _i, _len;
-    n = values.length;
-    sum = 0;
-    sumSquares = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      sum += v;
-      sumSquares += v * v;
-    }
-    return (n * sumSquares - sum * sum) / (n * (n - 1));
-  };
-
-  functions.$standardDeviation = function(values) {
-    return Math.sqrt(functions.$variance(values));
-  };
 
   percentileCreator = function(p) {
-    /*
-      When the user passes in `$p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate percentile function. 
-      The returned function will find the `<n>`th percentile where `<n>` is some number in the form of `##[.##]`. (e.g. `$p40`, `$p99`, `$p99.9`).
-      
-      Note: `$median` is an alias for `$p50`.
-      
-      There is no official definition of percentile. The function returned by this `percentileCreator` uses the Excel interpolation algorithm 
-      which is close to the NIST recommendation and makes the most sense to me.
-    */
     return function(values) {
       var d, k, n, sortfunc, vLength;
       sortfunc = function(a, b) {
@@ -8234,13 +8137,16 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     };
   };
 
-  _extractFandAs = function(a) {
-    /*
-      Returns an object with `f` and `as` references from an aggregation spec `a`.
-      This is needed because `as` is optional and must be generated if missing. Also, the percentile
-      and median calculators have to call `percentileCreator` to find those `f`s.
-    */
+  /*
+  @method _extractFandAs
+  @param {Object} a Aggregation spec
+  @return {Object} Returns an object with `f` and `as` references from an aggregation spec `a`.
+  This is needed because `as` is optional and must be generated if missing. Also, the percentile
+  and median calculators have to call `percentileCreator` to find those `f`s.
+  */
 
+
+  _extractFandAs = function(a) {
     var as, f, p;
     if (a.as != null) {
       as = a.as;
@@ -8568,6 +8474,200 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       groupByAtArray: groupByAtArray,
       uniqueValues: utils.clone(aggregationSpec.uniqueValues)
     };
+  };
+
+  /*
+  @class functions
+  */
+
+
+  functions = {};
+
+  /*
+  @method $sum
+  @static
+  @param {Array} values
+  @return {Number} The sum of the values
+  */
+
+
+  functions.$sum = function(values) {
+    var temp, v, _i, _len;
+    temp = 0;
+    for (_i = 0, _len = values.length; _i < _len; _i++) {
+      v = values[_i];
+      temp += v;
+    }
+    return temp;
+  };
+
+  /*
+  @method $sumSquares
+  @static
+  @param {Array} values
+  @return {Number} The sum of the squares of the values
+  */
+
+
+  functions.$sumSquares = function(values) {
+    var temp, v, _i, _len;
+    temp = 0;
+    for (_i = 0, _len = values.length; _i < _len; _i++) {
+      v = values[_i];
+      temp += v * v;
+    }
+    return temp;
+  };
+
+  /*
+  @method $count
+  @static
+  @param {Array} values
+  @return {Number} The length of the values Array
+  */
+
+
+  functions.$count = function(values) {
+    return values.length;
+  };
+
+  /*
+  @method $min
+  @static
+  @param {Array} values
+  @return {Number} The minimum value or null if no values
+  */
+
+
+  functions.$min = function(values) {
+    var temp, v, _i, _len;
+    if (values.length === 0) {
+      return null;
+    }
+    temp = values[0];
+    for (_i = 0, _len = values.length; _i < _len; _i++) {
+      v = values[_i];
+      if (v < temp) {
+        temp = v;
+      }
+    }
+    return temp;
+  };
+
+  /*
+  @method $max
+  @static
+  @param {Array} values
+  @return {Number} The maximum value or null if no values
+  */
+
+
+  functions.$max = function(values) {
+    var temp, v, _i, _len;
+    if (values.length === 0) {
+      return null;
+    }
+    temp = values[0];
+    for (_i = 0, _len = values.length; _i < _len; _i++) {
+      v = values[_i];
+      if (v > temp) {
+        temp = v;
+      }
+    }
+    return temp;
+  };
+
+  /*
+  @method $push
+  @static
+  @param {Array} values
+  @return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
+  */
+
+
+  functions.$push = function(values) {
+    var temp, v, _i, _len;
+    temp = [];
+    for (_i = 0, _len = values.length; _i < _len; _i++) {
+      v = values[_i];
+      temp.push(v);
+    }
+    return temp;
+  };
+
+  /*
+  @method $addToSet
+  @static
+  @param {Array} values
+  @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
+  */
+
+
+  functions.$addToSet = function(values) {
+    var key, temp, temp2, v, value, _i, _len;
+    temp = {};
+    temp2 = [];
+    for (_i = 0, _len = values.length; _i < _len; _i++) {
+      v = values[_i];
+      temp[v] = null;
+    }
+    for (key in temp) {
+      value = temp[key];
+      temp2.push(key);
+    }
+    return temp2;
+  };
+
+  /*
+  @method $average
+  @static
+  @param {Array} values
+  @return {Number} The arithmetic mean
+  */
+
+
+  functions.$average = function(values) {
+    var count, sum, v, _i, _len;
+    count = values.length;
+    sum = 0;
+    for (_i = 0, _len = values.length; _i < _len; _i++) {
+      v = values[_i];
+      sum += v;
+    }
+    return sum / count;
+  };
+
+  /*
+  @method $variance
+  @static
+  @param {Array} values
+  @return {Number} The variance
+  */
+
+
+  functions.$variance = function(values) {
+    var n, sum, sumSquares, v, _i, _len;
+    n = values.length;
+    sum = 0;
+    sumSquares = 0;
+    for (_i = 0, _len = values.length; _i < _len; _i++) {
+      v = values[_i];
+      sum += v;
+      sumSquares += v * v;
+    }
+    return (n * sumSquares - sum * sum) / (n * (n - 1));
+  };
+
+  /*
+  @method $standardDeviation
+  @static
+  @param {Array} values
+  @return {Number} The standard deviation
+  */
+
+
+  functions.$standardDeviation = function(values) {
+    return Math.sqrt(functions.$variance(values));
   };
 
   exports.functions = functions;
