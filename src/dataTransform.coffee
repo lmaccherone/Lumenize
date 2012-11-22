@@ -3,20 +3,21 @@ utils = require('./utils')
     
 csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
   ###
-  To use this module, you must `require` it:
+  @method csvStyleArray_To_ArrayOfMaps
+  @param {Array of Arrays} csvStyleArray The first row is usually the list of column headers but if not, you can
+    provide your own such list in the second parameter
+  @param {Array} [rowKeys] specify the column headers like `['column1', 'column2']`. If not provided, it will use
+    the first row of the csvStyleArray
+
+  `csvStyleArry_To_ArryOfMaps` is a convenience function that will convert a csvStyleArray like:
   
-      charttime = require('../')
-      {csvStyleArray_To_ArrayOfMaps, snapshotArray_To_AtArray, ChartTime} = charttime
-      {groupByAtArray_To_HighChartsSeries, aggregationAtArray_To_HighChartsSeries} = charttime
-      ChartTime.setTZPath("../vendor/tz")
-  
-  `csvStyleArry_To_ArryOfMaps` will convert a csvStyleArray like:
-  
+      {csvStyleArray_To_ArrayOfMaps} = require('../')
+
       csvStyleArray = [
         ['column1', 'column2'],
-        [1         , 2         ],
-        [3         , 4         ],
-        [5         , 6         ]
+        [1         , 2       ],
+        [3         , 4       ],
+        [5         , 6       ]
       ]
   
   to an Array of Maps like this:
@@ -26,12 +27,7 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
       # [ { column1: 1, column2: 2 },
       #   { column1: 3, column2: 4 },
       #   { column1: 5, column2: 6 } ]
-  
-  Parameters
-  
-  * **CSVStyleArray** An Array of Arrays. The first row is usually the list of column headers but if not, you can
-      provide your own such list in the second parameter.
-  * **rowKeys** Optional second parameter specifying the column headers like `['column1', 'column2']`
+  `
   ###
   arrayOfMaps = []
   if rowKeys?
@@ -51,12 +47,28 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
   
 snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueIDField, tz, validToField) ->  
   ###
-  If you have a list of snapshots representing the changes in a set of work items over time (MVCC-style), this function will return the state of
+  @method snapshotArray_To_AtArray
+  @param {Array} snapshotArray Array of snapshots sorted by validFromField # !TODO: Add the sort. Borrow from TimeInState.
+  @param {Array} atArray Array of ChartTime objects representing the moments we want the snapshots at
+  @param {String} validFromField Specifies the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
+  @param {String} validToField Same except for the end of the snapshot's active time.
+    Defaults to '_ValidTo' for backward compatibility reasons.
+  @param {String} uniqueIDField Specifies the field that holds the unique ID. Note, no matter the input type, they will come
+     out the other side as Strings. I could fix this if it ever became a problem.
+  @param {String} tz
+
+  If you have a list of snapshots representing the changes in a set of work items over time, this function will return the state of
   each item at each moments of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
   the values at particular moments in time (the times in listOfAtCTs).
   
+  Since this transformation is timezone dependent, you'll need to initialize ChartTime with the path to the tz files.
+  Note, that if you use the browserified version of Lumenize, you still need to call setTZPath with some dummy path.
+  I'm hoping to fix this at some point.
+
+      {snapshotArray_To_AtArray, ChartTime} = require('../')
+
   It will convert an snapshotArray like:
-  
+
       snapshotArray = [
         {_ValidFrom: '1999-01-01T12:00:00.000Z', _ValidTo:'2010-01-02T12:00:00.000Z', ObjectID: 0, someColumn: 'some value'},
         {_ValidFrom: '2011-01-01T12:00:00.000Z', _ValidTo:'2011-01-02T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
@@ -96,18 +108,6 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
       #       _ValidTo: '9999-01-01T12:00:00.000Z',
       #       ObjectID: '2',
       #       someColumn: 'some value 2' } ] ]
-
-      
-  Parameters
-  
-  * **snapshotArray** Array of snapshots or change events. Sorted by validFromField. # !TODO: Add the sort. Borrow from TimeInState.
-  * **atArray** Array of ChartTime objects representing the moments we want the snapshots at
-  * **validFromField** String containing the name of the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
-     Note, it should also work if there are ChartTime's in this position.  # !TODO: Need to test this
-  * **validToField** Same except for the end of the snapshot's active time. Defaults to '_ValidTo' for backward compatibility reasons.
-  * **uniqueIDField** String containing the name of the field that holds the unique ID. Note, no matter the input type, they will come
-     out the other side as Strings. I could fix this if it ever became a problem.
-  * **tz** String indicating the timezone, like 'America/New_York'
   ###
   unless validToField?
     validToField = '_ValidTo'
@@ -176,137 +176,20 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
     output.push(outputRow)
   return output
 
-# old_snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueIDField, tz, validToField) ->  
-#   ###
-#   If you have a list of snapshots representing the changes in a set of work items over time (MVCC-style), this function will return the state of
-#   each item at each moments of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
-#   the values at particular moments in time (the times in listOfAtCTs).
-#   
-#   It will convert an snapshotArray like:
-#   
-#       snapshotArray = [
-#         {_ValidFrom: '1999-01-01T12:00:00.000Z', _ValidTo:'2010-01-02T12:00:00.000Z', ObjectID: 0, someColumn: 'some value'},
-#         {_ValidFrom: '2011-01-01T12:00:00.000Z', _ValidTo:'2011-01-02T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
-#         {_ValidFrom: '2011-01-02T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 2, someColumn: 'some value 2'},      
-#         {_ValidFrom: '2011-01-02T12:00:00.000Z', _ValidTo:'2011-01-03T12:00:00.000Z', ObjectID: 3, someColumn: 'some value'},
-#         {_ValidFrom: '2011-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
-#         {_ValidFrom: '2222-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 99, someColumn: 'some value'},
-#       ]
-#       
-#   And a listOfAtCTs like:
-#   
-#       listOfAtCTs = [new ChartTime('2011-01-02'), new ChartTime('2011-01-03'), new ChartTime('2011-01-07')]
-#       
-#   To an atArray with the value of each ObjectID at each of the points in the listOfAtCTs like:
-#   
-#       a = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, '_ValidFrom', 'ObjectID', 'America/New_York', '_ValidTo')
-#       
-#       console.log(a)
-#   
-#       # [ [ { _ValidFrom: '2011-01-01T12:00:00.000Z',
-#       #       _ValidTo: '2011-01-02T12:00:00.000Z',
-#       #       ObjectID: '1',
-#       #       someColumn: 'some value' } ],
-#       #   [ { _ValidFrom: '2011-01-02T12:00:00.000Z',
-#       #       _ValidTo: '9999-01-01T12:00:00.000Z',
-#       #       ObjectID: '2',
-#       #       someColumn: 'some value 2' },
-#       #     { _ValidFrom: '2011-01-02T12:00:00.000Z',
-#       #       _ValidTo: '2011-01-03T12:00:00.000Z',
-#       #       ObjectID: '3',
-#       #       someColumn: 'some value' } ],
-#       #   [ { _ValidFrom: '2011-01-05T12:00:00.000Z',
-#       #       _ValidTo: '9999-01-01T12:00:00.000Z',
-#       #       ObjectID: '1',
-#       #       someColumn: 'some value' },
-#       #     { _ValidFrom: '2011-01-02T12:00:00.000Z',
-#       #       _ValidTo: '9999-01-01T12:00:00.000Z',
-#       #       ObjectID: '2',
-#       #       someColumn: 'some value 2' } ] ]
-# 
-#       
-#   Parameters
-#   
-#   * **snapshotArray** Array of snapshots or change events. Sorted by validFromField. # !TODO: Add the sort. Borrow from TimeInState.
-#   * **atArray** Array of ChartTime objects representing the moments we want the snapshots at
-#   * **validFromField** String containing the name of the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
-#      Note, it should also work if there are ChartTime's in this position.  # !TODO: Need to test this
-#   * **validToField** Same except for the end of the snapshot's active time. Defaults to '_ValidTo' for backward compatibility reasons.
-#   * **uniqueIDField** String containing the name of the field that holds the unique ID. Note, no matter the input type, they will come
-#      out the other side as Strings. I could fix this if it ever became a problem.
-#   * **tz** String indicating the timezone, like 'America/New_York'
-#   ###
-#   unless validToField?
-#     validToField = '_ValidTo'
-#   atLength = listOfAtCTs.length
-#   snapshotLength = snapshotArray.length
-#   preOutput = []
-#   if (atLength <= 0 or snapshotLength <= 0)
-#     return preOutput
-#   atPointer = 0
-#   currentAtCT = listOfAtCTs[atPointer]
-#   granularity = currentAtCT.granularity
-#   snapshotPointer = 0
-#   currentSnapshot = snapshotArray[snapshotPointer]
-#   currentSnapshotCT = new ChartTime(currentSnapshot[validFromField], granularity, tz)
-#   currentRow = {}
-#   
-#   console.log('*** snapshotArray.length ***' + snapshotArray.length)
-#   
-#   # Convert listOfAtCTs
-#   
-#   
-#   while snapshotPointer < snapshotLength
-#     if currentSnapshotCT.$gte(currentAtCT)
-#       preOutput.push(currentRow)
-#       currentRow = utils.clone(currentRow)
-#       atPointer++
-#       if atPointer < atLength 
-#         currentAtCT = listOfAtCTs[atPointer]
-#       else
-#         break
-#     else
-#       unless currentRow[uniqueIDField]?
-#         currentRow[currentSnapshot[uniqueIDField]] = {}
-#       for key, value of currentSnapshot
-#         currentRow[currentSnapshot[uniqueIDField]][key] = value
-#       snapshotPointer++
-#       if snapshotPointer < snapshotLength
-#         currentSnapshot = snapshotArray[snapshotPointer]
-#         currentSnapshotCT = new ChartTime(currentSnapshot[validFromField], granularity, tz)
-#       else
-#         while atPointer < atLength
-#           preOutput.push(currentRow)
-#           atPointer++
-#           
-#   # If the validToField is less than the corresponding atCT, then remove it because that means
-#   # it was either deleted or fell out of the selection filter prior to this atCT
-# 
-#   for atRow, index in preOutput
-#     toDelete = []
-#     atCT = listOfAtCTs[index]
-#     for uniqueID, atValue of atRow
-#       validToCT = new ChartTime(atValue[validToField], granularity, tz)
-#       if validToCT.$lt(atCT)
-#         toDelete.push(uniqueID)
-#     for d in toDelete
-#       delete atRow[d]        
-#           
-#   # Squash the uniqueIDField into each sub row       
-#   output = []
-#   for atRow in preOutput
-#     outputRow = []
-#     for key, value of atRow
-#       value[uniqueIDField] = key
-#       outputRow.push(value)
-#     output.push(outputRow)
-#   return output
-  
-  
-groupByAtArray_To_HighChartsSeries = (groupByAtArray, nameField, valueField, nameFieldValues, returnPreOutput) ->  # !TODO: Move to RallyAnalytics
-  ### 
-  Takes an array of arrays that came from charttime.groupByAt and looks like this:
-  
+groupByAtArray_To_HighChartsSeries = (groupByAtArray, nameField, valueField, nameFieldValues, returnPreOutput = false) ->  # !TODO: Move to RallyAnalytics
+  ###
+  @method groupByAtArray_To_HighChartsSeries
+  @param {Array} groupByAtArray result of calling groupByAt()
+  @param {String} nameField
+  @param {String} valueField
+  @pararm {Array} nameFieldValues
+  @param {Boolean} [returnPreOutput] if true, this function returns the map prior to squishing the name into the rows
+  @return {Array or Object}
+
+  Takes an array of arrays that came from groupByAt and looks like this:
+
+      {groupByAtArray_To_HighChartsSeries} = require('../')
+
       groupByAtArray = [
         [
           { 'CFDField': 8, KanbanState: 'Ready to pull' },
@@ -341,7 +224,7 @@ groupByAtArray_To_HighChartsSeries = (groupByAtArray, nameField, valueField, nam
       unless preOutput[perNameValueRow[nameField]]?
         preOutput[perNameValueRow[nameField]] = []
       preOutput[perNameValueRow[nameField]].push(perNameValueRow[valueField])
-  if returnPreOutput? and returnPreOutput
+  if returnPreOutput
     return preOutput
   # Squash the nameField into each sub row       
   output = []
@@ -352,9 +235,17 @@ groupByAtArray_To_HighChartsSeries = (groupByAtArray, nameField, valueField, nam
 
 
 aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, aggregationSpec) ->  # !TODO: Move to RallyAnalytics
-  ### 
-  Takes an array of arrays that came from charttime.aggregateAt and looks like this:
-  
+  ###
+  @method aggregationAtArray_To_HighChartsSeries
+  @param {Array} aggregationAtArray
+  @param {Object} aggregationSpec You can use the same spec you useed to call aggregateAt() as long as it includes
+    any yAxis specifications
+  @return {Array} in HighCharts form
+
+  Takes an array of arrays that came from a call to aggregateAt() and looks like this:
+
+      {aggregationAtArray_To_HighChartsSeries} = require('../')
+
       aggregationAtArray = [
         {"Series 1": 8, "Series 2": 5, "Series3": 10},
         {"Series 1": 2, "Series 2": 3, "Series3": 20}

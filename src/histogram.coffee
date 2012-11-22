@@ -1,7 +1,20 @@
-functions = require('./aggregate').functions
+functions = require('./functions').functions
 
 histogram = (rows, valueField) ->
   ###
+  @method histogram
+  @param {Array} rows
+  @param {String} valueField Specifies the field containing the data to calculate the histogram
+  @return {Object}
+
+  Returns an object containing the following:
+
+  * buckets - An Array containing {label, count, rows, clippedChartValue}
+  * bucketSize - The size of each bucket (except the top one)
+  * chartMax - The maximum to use for charting using clipped values
+  * clipped - A Boolean indicating if the result is clipped
+  * valueMax - The actual maximum value found. Will always be >= chartMax
+
   Given an array of rows like:
   
       {histogram} = require('../')

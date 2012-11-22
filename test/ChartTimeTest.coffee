@@ -1,4 +1,5 @@
-{ChartTime, utils} = require("../")
+{ChartTime} = require("../")
+utils = require('../src/utils')
 
 exports.ChartTimeTest =
   testConstruction: (test) ->

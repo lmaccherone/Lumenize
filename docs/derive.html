@@ -34,11 +34,17 @@
         
         <div class="function">
           <div class="header">
-            <a id="deriveFields"><h3>deriveFields(list, derivedFields)</h3></a>
+            <a id="deriveFields"><h3>deriveFields(list, derivedFieldsSpec)</h3></a>
           </div>
           
           <div>
-            <p>To use this, you must <code>require</code> it</p>
+            <p>@method deriveFields
+@param {Array} list
+@param {Array} derivedFieldsSpec</p>
+
+<p>This function works on the list in place meaning that it's all side effect.</p>
+
+<p>To use this, you must <code>require</code> it</p>
 
 <pre><code>{deriveFields, deriveFieldsAt} = require('../')
 </code></pre>
@@ -67,18 +73,21 @@ console.log(list)
 </code></pre>
 
 <p>Note: the derivations are calculated in order so you can use the output of one derivation as the input to one
-that appears later in the derivations list.</p>
+that appears later in the derivedFieldsSpec list.</p>
           </div>
           
         </div>
         
         <div class="function">
           <div class="header">
-            <a id="deriveFieldsAt"><h3>deriveFieldsAt(atArray, derivedFields)</h3></a>
+            <a id="deriveFieldsAt"><h3>deriveFieldsAt(atArray, derivedFieldsSpec)</h3></a>
           </div>
           
           <div>
-            <p>Sends every sub-array in atArray to deriveFields upgrading the atArray in place.</p>
+            <p>@method deriveFieldsAt
+@param {Array of Arrays} atArray
+@param {Array} derivedFieldsSpec
+Sends every sub-array in atArray to deriveFields upgrading the atArray in place.</p>
           </div>
           
         </div>

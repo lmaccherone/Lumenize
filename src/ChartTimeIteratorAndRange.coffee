@@ -5,6 +5,8 @@ utils = require('./utils')
 
 class ChartTimeIterator
   ###
+  @class ChartTimeIterator
+
   # ChartTimeIterator #
   
   Iterate through days, months, years, etc. skipping weekends and holidays that you 
@@ -14,8 +16,6 @@ class ChartTimeIterator
   ## Usage ##
   
       {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
-      
-      ChartTime.setTZPath('../vendor/tz')
       
       cti = new ChartTimeIterator({
         start:new ChartTime({granularity: 'day', year: 2009, month:1, day: 1}),
@@ -36,18 +36,17 @@ class ChartTimeIterator
   ###
   constructor: (ctr, @emit = 'ChartTime', @childGranularity = 'day', tz) ->
     ###
-    * **ctr** is a ChartTimeRange or a raw Object with all the necessary properties to be a spec for a new ChartTimeRange.
+    @constructor
+    @param {ChartTimeRange} ctr A ChartTimeRange or a raw Object with all the necessary properties to be a spec for a new ChartTimeRange.
        Using a ChartTimeRange is now the preferred method. The raw Object is supported for backward compatibility.
-    * **emit** is an optional String that specifies what should be emitted. Possible values are 'ChartTime' (default),
+    @param {String} [emit] An optional String that specifies what should be emitted. Possible values are 'ChartTime' (default),
        'ChartTimeRange', and 'Date' (javascript Date Object). Note, to maintain backward compatibility with the time
        before ChartTimeRange existed, the default for emit when instantiating a new ChartTimeIterator directly is 
        'ChartTime'. However, if you request a new ChartTimeIterator from a ChartTimeRange object using getIterator(),
        the default is 'ChartTimeRange'.
-    * **childGranularity** When emit is 'ChartTimeRange', this is the granularity for the start and pastEnd of the
+    @param {String} [childGranularity] When emit is 'ChartTimeRange', this is the granularity for the start and pastEnd of the
        ChartTimeRange that is emitted.
-    * **tz** is a Sting specifying the timezone in the standard form,`America/New_York` for example.
-      
-    Note, skip is assumed to be 1 or -1 for emitted ChartTimeRanges
+    @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example.
     ###
     utils.assert(@emit in ['ChartTime', 'ChartTimeRange', 'Date'], "emit must be 'ChartTime', 'ChartTimeRange', or 'Date'. You provided #{@emit}.")
     utils.assert(@emit != 'Date' or tz?, 'Must provide a tz (timezone) parameter when emitting Dates.')
@@ -64,6 +63,8 @@ class ChartTimeIterator
 
   startOver: () ->
     ###
+    @method startOver
+
     Will go back to the where the iterator started.
     ###
     if @ctr.skip > 0
@@ -76,9 +77,10 @@ class ChartTimeIterator
 
   hasNext: () ->
     ###
-    Returns true if there are still things left to iterator over. Note that if there are holidays, weekends or non-workhours to skip,
-    then hasNext() will take that into account. For example if the pastEnd is a Sunday, hasNext() will return true the next
-    time it is called after the Friday is emitted.
+    @method hasNext
+    @return {Boolean} Returns true if there are still things left to iterator over. Note that if there are holidays,
+       weekends or non-workhours to skip, then hasNext() will take that into account. For example if the pastEnd is a
+       Sunday, hasNext() will return true the next time it is called after the Friday is emitted.
     ###
     return @ctr.contains(@current) and (@count < @ctr.limit)
 
@@ -114,8 +116,9 @@ class ChartTimeIterator
 
   next: () ->
     ###
-    Emits the next value of the iterator. The start will be the first value emitted unless it should be skipped due
-    to holiday, weekend, or workhour knockouts.
+    @method next
+    @return {varies} Emits the next value of the iterator. The start will be the first value emitted unless it should
+       be skipped due to holiday, weekend, or workhour knockouts.
     ###
     if !@hasNext()
       throw new StopIteration('Cannot call next() past end.')
@@ -161,6 +164,8 @@ class ChartTimeIterator
     
 class ChartTimeRange
   ###
+  @class ChartTimeRange
+
   # ChartTimeRange #
   
   Allows you to specify a range for iterating over or identifying if it `contains()` some other date.
@@ -171,8 +176,6 @@ class ChartTimeRange
   Let's create the `spec` for our ChartTimeRange
   
       {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
-      
-      ChartTime.setTZPath('../vendor/tz')
       
       r = new ChartTimeRange({
         start:new ChartTime('2011-01-02'),
@@ -234,9 +237,6 @@ class ChartTimeRange
   ## Timezone sensitive comparisions ##
   
   Now, let's look at how you do timezone sensitive comparisions.
-      
-  Note, you must set the path to the tz files with `ChartTime.setTZPath('path/to/tz/files')` before you do timezone 
-  sensitive comparisions.
   
   If you pass in a timezone, then it will shift the CharTimeRange boundaries to that timezone to compare to the 
   date/timestamp that you pass in. This system is optimized to the pattern where you first define your boundaries without regard 
@@ -332,6 +332,9 @@ class ChartTimeRange
   
   constructor: (spec) ->
     ###
+    @constructor
+    @param {Object} spec
+
     spec can have the following properties:
 
     * **start** is a ChartTime object or a string. The first value that next() returns.
@@ -421,6 +424,12 @@ class ChartTimeRange
     
   getIterator: (emit = 'ChartTimeRange', childGranularity = 'day', tz) ->
     ###
+    @method getIterator
+    @param {String} [emit]
+    @param {String} [childGranularity]
+    @param {String} [tz]
+    @return {ChartTimeIterator}
+
     Returns a new ChartTimeIterator using this ChartTimeRange as the boundaries.
     
     Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
@@ -432,6 +441,12 @@ class ChartTimeRange
   # !TODO: getAll() should be smart enough to get the childGranularity from @granularity
   getAll: (emit = 'ChartTimeRange', childGranularity = 'day', tz) ->
     ###
+    @method getAll
+    @param {String} [emit]
+    @param {String} [childGranularity]
+    @param {String} [tz]
+    @return {Array}
+
     Returns all of the points in the timeline specified by this ChartTimeRange.
     
     Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
@@ -442,6 +457,9 @@ class ChartTimeRange
     
   getTimeline: () ->
     ###
+    @method getTimeline
+    @return {Array}
+
     Returns all of the points in the timeline specified by this ChartTimeRange as ChartTime objects.
     ###
     timeline = new ChartTimeIterator(this, 'ChartTime', @granularity).getAll()
@@ -451,10 +469,11 @@ class ChartTimeRange
 
   contains: (date, tz) ->
     ###
-    True if the date provided is within this ChartTimeRange.
+    @method contains
+    @param {Date or String} date can be either a JavaScript date object or an ISO-8601 formatted string
+    @param {String} tz
+    @return {Boolean} true if the date provided is within this ChartTimeRange.
 
-    **date** can be either a JavaScript date object or an ISO-8601 formatted string.
-    
     ## Usage: ##
     
     We can create a range from May to July.

@@ -1,6 +1,5 @@
 charttime = require('../')
 {ChartTimeRange, ChartTime, ChartTimeIterator, ChartTimeInStateCalculator} = charttime
-ChartTime.setTZPath('../vendor/tz')
 
 exports.ChartTimeInStateCalculatorTest =
 

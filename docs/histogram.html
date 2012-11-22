@@ -36,7 +36,22 @@
           </div>
           
           <div>
-            <p>Given an array of rows like:</p>
+            <p>@method histogram
+@param {Array} rows
+@param {String} valueField Specifies the field containing the data to calculate the histogram
+@return {Object}</p>
+
+<p>Returns an object containing the following:</p>
+
+<ul>
+<li>buckets - An Array containing {label, count, rows, clippedChartValue}</li>
+<li>bucketSize - The size of each bucket (except the top one)</li>
+<li>chartMax - The maximum to use for charting using clipped values</li>
+<li>clipped - A Boolean indicating if the result is clipped</li>
+<li>valueMax - The actual maximum value found. Will always be >= chartMax</li>
+</ul>
+
+<p>Given an array of rows like:</p>
 
 <pre><code>{histogram} = require('../')
 

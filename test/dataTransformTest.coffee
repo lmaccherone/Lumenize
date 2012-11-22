@@ -1,7 +1,5 @@
 {ChartTime, csvStyleArray_To_ArrayOfMaps, snapshotArray_To_AtArray} = require('../')
 
-ChartTime.setTZPath("../vendor/tz")
-
 exports.dataTransformTest =
 
   testCSVtoMap: (test) ->

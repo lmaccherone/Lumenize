@@ -42,21 +42,21 @@
           </div>
           
           <div>
-            <p>To use this module, you must <code>require</code> it:</p>
+            <p>@method csvStyleArray<em>To</em>ArrayOfMaps
+@param {Array of Arrays} csvStyleArray The first row is usually the list of column headers but if not, you can
+  provide your own such list in the second parameter
+@param {Array} [rowKeys] specify the column headers like <code>['column1', 'column2']</code>. If not provided, it will use
+  the first row of the csvStyleArray</p>
 
-<pre><code>charttime = require('../')
-{csvStyleArray_To_ArrayOfMaps, snapshotArray_To_AtArray, ChartTime} = charttime
-{groupByAtArray_To_HighChartsSeries, aggregationAtArray_To_HighChartsSeries} = charttime
-ChartTime.setTZPath("../vendor/tz")
-</code></pre>
+<p><code>csvStyleArry_To_ArryOfMaps</code> is a convenience function that will convert a csvStyleArray like:</p>
 
-<p><code>csvStyleArry_To_ArryOfMaps</code> will convert a csvStyleArray like:</p>
+<pre><code>{csvStyleArray_To_ArrayOfMaps} = require('../')
 
-<pre><code>csvStyleArray = [
+csvStyleArray = [
   ['column1', 'column2'],
-  [1         , 2         ],
-  [3         , 4         ],
-  [5         , 6         ]
+  [1         , 2       ],
+  [3         , 4       ],
+  [5         , 6       ]
 ]
 </code></pre>
 
@@ -69,13 +69,7 @@ ChartTime.setTZPath("../vendor/tz")
 #   { column1: 5, column2: 6 } ]
 </code></pre>
 
-<p>Parameters</p>
-
-<ul>
-<li><strong>CSVStyleArray</strong> An Array of Arrays. The first row is usually the list of column headers but if not, you can
-provide your own such list in the second parameter.</li>
-<li><strong>rowKeys</strong> Optional second parameter specifying the column headers like <code>['column1', 'column2']</code></li>
-</ul>
+<p>`</p>
           </div>
           
         </div>
@@ -86,9 +80,26 @@ provide your own such list in the second parameter.</li>
           </div>
           
           <div>
-            <p>If you have a list of snapshots representing the changes in a set of work items over time (MVCC-style), this function will return the state of
+            <p>@method snapshotArray<em>To</em>AtArray
+@param {Array} snapshotArray Array of snapshots sorted by validFromField # !TODO: Add the sort. Borrow from TimeInState.
+@param {Array} atArray Array of ChartTime objects representing the moments we want the snapshots at
+@param {String} validFromField Specifies the field that holds a date string in ISO-8601 canonical format (eg <code>2011-01-01T12:34:56.789Z</code>)
+@param {String} validToField Same except for the end of the snapshot's active time.
+  Defaults to '_ValidTo' for backward compatibility reasons.
+@param {String} uniqueIDField Specifies the field that holds the unique ID. Note, no matter the input type, they will come
+   out the other side as Strings. I could fix this if it ever became a problem.
+@param {String} tz</p>
+
+<p>If you have a list of snapshots representing the changes in a set of work items over time, this function will return the state of
 each item at each moments of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
 the values at particular moments in time (the times in listOfAtCTs).</p>
+
+<p>Since this transformation is timezone dependent, you'll need to initialize ChartTime with the path to the tz files.
+Note, that if you use the browserified version of Lumenize, you still need to call setTZPath with some dummy path.
+I'm hoping to fix this at some point.</p>
+
+<pre><code>{snapshotArray_To_AtArray, ChartTime} = require('../')
+</code></pre>
 
 <p>It will convert an snapshotArray like:</p>
 
@@ -134,19 +145,6 @@ console.log(a)
 #       ObjectID: '2',
 #       someColumn: 'some value 2' } ] ]
 </code></pre>
-
-<p>Parameters</p>
-
-<ul>
-<li><strong>snapshotArray</strong> Array of snapshots or change events. Sorted by validFromField. # !TODO: Add the sort. Borrow from TimeInState.</li>
-<li><strong>atArray</strong> Array of ChartTime objects representing the moments we want the snapshots at</li>
-<li><strong>validFromField</strong> String containing the name of the field that holds a date string in ISO-8601 canonical format (eg <code>2011-01-01T12:34:56.789Z</code>)
-Note, it should also work if there are ChartTime's in this position.  # !TODO: Need to test this</li>
-<li><strong>validToField</strong> Same except for the end of the snapshot's active time. Defaults to '_ValidTo' for backward compatibility reasons.</li>
-<li><strong>uniqueIDField</strong> String containing the name of the field that holds the unique ID. Note, no matter the input type, they will come
-out the other side as Strings. I could fix this if it ever became a problem.</li>
-<li><strong>tz</strong> String indicating the timezone, like 'America/New_York'</li>
-</ul>
           </div>
           
         </div>
@@ -157,9 +155,19 @@ out the other side as Strings. I could fix this if it ever became a problem.</li
           </div>
           
           <div>
-            <p>Takes an array of arrays that came from charttime.groupByAt and looks like this:</p>
+            <p>@method groupByAtArray<em>To</em>HighChartsSeries
+@param {Array} groupByAtArray result of calling groupByAt()
+@param {String} nameField
+@param {String} valueField
+@pararm {Array} nameFieldValues
+@param {Boolean} [returnPreOutput] if true, this function returns the map prior to squishing the name into the rows
+@return {Array or Object}</p>
 
-<pre><code>groupByAtArray = [
+<p>Takes an array of arrays that came from groupByAt and looks like this:</p>
+
+<pre><code>{groupByAtArray_To_HighChartsSeries} = require('../')
+
+groupByAtArray = [
   [
     { 'CFDField': 8, KanbanState: 'Ready to pull' },
     { 'CFDField': 5, KanbanState: 'In progress' },
@@ -194,9 +202,17 @@ out the other side as Strings. I could fix this if it ever became a problem.</li
           </div>
           
           <div>
-            <p>Takes an array of arrays that came from charttime.aggregateAt and looks like this:</p>
+            <p>@method aggregationAtArray<em>To</em>HighChartsSeries
+@param {Array} aggregationAtArray
+@param {Object} aggregationSpec You can use the same spec you useed to call aggregateAt() as long as it includes
+  any yAxis specifications
+@return {Array} in HighCharts form</p>
 
-<pre><code>aggregationAtArray = [
+<p>Takes an array of arrays that came from a call to aggregateAt() and looks like this:</p>
+
+<pre><code>{aggregationAtArray_To_HighChartsSeries} = require('../')
+
+aggregationAtArray = [
   {"Series 1": 8, "Series 2": 5, "Series3": 10},
   {"Series 1": 2, "Series 2": 3, "Series3": 20}
 ]

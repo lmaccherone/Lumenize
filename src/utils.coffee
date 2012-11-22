@@ -12,8 +12,6 @@ class ErrorBase extends Error
 
 class AssertException extends ErrorBase
 
-class StopIteration extends ErrorBase
-
 assert = (exp, message) ->
   if (!exp)
     throw new exports.AssertException(message)
@@ -56,7 +54,6 @@ clone = (obj) ->
   return newInstance
 
 exports.AssertException = AssertException
-exports.StopIteration = StopIteration
 exports.assert = assert
 exports.match = match
 exports.trim = trim

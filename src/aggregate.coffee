@@ -3,6 +3,7 @@ utils = require('./utils')
 {ChartTimeRange, ChartTimeIterator} = require('./ChartTimeIteratorAndRange')
 {deriveFieldsAt} = require('./derive')
 {snapshotArray_To_AtArray} = require('./dataTransform')
+{functions} = require('./functions')
 
 ###
 @method percentileCreator
@@ -35,13 +36,6 @@ percentileCreator = (p) ->
       return values[vLength - 1]
     return values[k - 1] + d * (values[k] - values[k - 1])
 
-###
-@method _extractFandAs
-@param {Object} a Aggregation spec
-@return {Object} Returns an object with `f` and `as` references from an aggregation spec `a`.
-This is needed because `as` is optional and must be generated if missing. Also, the percentile
-and median calculators have to call `percentileCreator` to find those `f`s.
-###
 _extractFandAs = (a) ->
   if a.as?
     as = a.as
@@ -63,6 +57,11 @@ _extractFandAs = (a) ->
                      
 aggregate = (list, aggregationSpec) ->  
   ###
+  @method aggregate
+  @param {Array} list An Array or arbitrary rows
+  @param {Object} aggregationSpec
+  @return {Object}
+
   Takes a list like this:
       
       {aggregate} = require('../')
@@ -119,7 +118,11 @@ aggregate = (list, aggregationSpec) ->
   
 aggregateAt = (atArray, aggregationSpec) ->  # !TODO: Change the name of all of these "At" functions. Mark suggests aggregateEach
   ###
-  Each row in atArray is passed to the `aggregate` function and the results are collected into a single array output.
+  @method aggregateAt
+  @param {Array of Arrays} atArray
+  @param {Array of Objects} aggregationSpec
+
+  Each sub-Array in atArray is passed to the `aggregate` function and the results are collected into a single array output.
   This is essentially a wrapper around the aggregate function so the spec parameter is the same. You can think of
   it as using a `map`.
   ###
@@ -131,6 +134,11 @@ aggregateAt = (atArray, aggregationSpec) ->  # !TODO: Change the name of all of 
 
 groupBy = (list, spec) ->
   ###
+  @method groupBy
+  @param {Array} list An Array of rows
+  @param {Object} spec
+  @return {Array}
+
   Takes a list like this:
       
       {groupBy} = require('../')
@@ -206,6 +214,11 @@ groupBy = (list, spec) ->
   
 groupByAt = (atArray, spec) ->
   ###
+  @method groupByAt
+  @param {Array of Arrays} atArray
+  @param {Object} spec
+  @return {Array of Arrays}
+
   Each row in atArray is passed to the `groupBy` function and the results are collected into a single output.
   
   This function also finds all the unique groupBy values in all rows of the output and pads the output with blank/zero rows to cover
@@ -260,6 +273,11 @@ groupByAt = (atArray, spec) ->
 
 timeSeriesCalculator = (snapshotArray, config) ->  
   ###
+  @method timeSeriesCalculator
+  @param {Array} snapshotArray
+  @param {Object} config
+  @return {Object} Returns an Object {listOfAtCTs, aggregationAtArray}
+
   Takes an MVCC style `snapshotArray` array and returns the time series calculations `At` each moment specified by
   the ChartTimeRange spec (`rangeSpec`) within the config object.
   
@@ -293,6 +311,11 @@ timeSeriesCalculator = (snapshotArray, config) ->
 
 timeSeriesGroupByCalculator = (snapshotArray, config) -> 
   ###
+  @method timeSeriesGroupByCalculator
+  @param {Array} snapshotArray
+  @param {Object} config
+  @return {Object} Returns an Object {listOfAtCTs, groupByAtArray, uniqueValues}
+
   Takes an MVCC style `snapshotArray` array and returns the data groupedBy a particular field `At` each moment specified by
   the ChartTimeRange spec (`rangeSpec`) within the config object. 
   
@@ -335,139 +358,6 @@ timeSeriesGroupByCalculator = (snapshotArray, config) ->
         
   return {listOfAtCTs, groupByAtArray, uniqueValues: utils.clone(aggregationSpec.uniqueValues)}
 
-###
-@class functions
-###
-functions = {}
-
-###
-@method $sum
-@static
-@param {Array} values
-@return {Number} The sum of the values
-###
-functions.$sum = (values) ->
-  temp = 0
-  for v in values
-    temp += v
-  return temp
-
-###
-@method $sumSquares
-@static
-@param {Array} values
-@return {Number} The sum of the squares of the values
-###
-functions.$sumSquares = (values) ->
-  temp = 0
-  for v in values
-    temp += v * v
-  return temp
-
-###
-@method $count
-@static
-@param {Array} values
-@return {Number} The length of the values Array
-###
-functions.$count = (values) ->
-  return values.length
-
-###
-@method $min
-@static
-@param {Array} values
-@return {Number} The minimum value or null if no values
-###
-functions.$min = (values) ->
-  if values.length == 0
-    return null
-  temp = values[0]
-  for v in values
-    if v < temp
-      temp = v
-  return temp
-
-###
-@method $max
-@static
-@param {Array} values
-@return {Number} The maximum value or null if no values
-###
-functions.$max = (values) ->
-  if values.length == 0
-    return null
-  temp = values[0]
-  for v in values
-    if v > temp
-      temp = v
-  return temp
-
-###
-@method $push
-@static
-@param {Array} values
-@return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
-###
-functions.$push = (values) ->
-  temp = []
-  for v in values
-    temp.push(v)
-  return temp
-
-###
-@method $addToSet
-@static
-@param {Array} values
-@return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
-###
-functions.$addToSet = (values) ->
-  temp = {}
-  temp2 = []
-  for v in values
-    temp[v] = null
-  for key, value of temp
-    temp2.push(key)
-  return temp2
-
-###
-@method $average
-@static
-@param {Array} values
-@return {Number} The arithmetic mean
-###
-functions.$average = (values) ->
-  count = values.length
-  sum = 0
-  for v in values
-    sum += v
-  return sum / count
-
-###
-@method $variance
-@static
-@param {Array} values
-@return {Number} The variance
-###
-functions.$variance = (values) ->
-  n = values.length
-  sum = 0
-  sumSquares = 0
-  for v in values
-    sum += v
-    sumSquares += v * v
-  return (n * sumSquares - sum * sum) / (n * (n - 1))
-
-###
-@method $standardDeviation
-@static
-@param {Array} values
-@return {Number} The standard deviation
-###
-functions.$standardDeviation = (values) ->
-  return Math.sqrt(functions.$variance(values))
-
-exports.functions = functions
 exports.percentileCreator = percentileCreator
 exports.aggregate = aggregate
 exports.aggregateAt = aggregateAt

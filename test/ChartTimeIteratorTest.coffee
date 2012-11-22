@@ -1,5 +1,5 @@
-{ChartTime, ChartTimeIterator, ChartTimeRange, utils} = require('../')
-
+{ChartTime, ChartTimeIterator, ChartTimeRange} = require('../')
+utils = require('../src/utils')
 
 # !TODO: Needs testing of skip functionality
 

@@ -98,8 +98,7 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
   ## Basic usage ##
   
       {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
-      ChartTime.setTZPath('../vendor/tz')
-      
+
   Get ChartTime objects relative to now.
   
       d = new ChartTime('this millisecond in Pacific/Fiji')
@@ -182,8 +181,6 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
   ignore what you provide and load the time zone data from the files included in the package. We would like to remove the requirement
   for this initialization when running one of these packages, but for now, you still need the dummy call.
   
-      ChartTime.setTZPath('../vendor/tz')
-      
       console.log(new ChartTime('2011-01-01').getJSDate('America/Denver').toUTCString())
       # Sat, 01 Jan 2011 07:00:00 GMT
   ###
@@ -201,9 +198,9 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
     1. Human strings relative to now (e.g. "this day", "prior month", "next quarter", "this millisecond in Pacific/Fiji", etc.)
     2. ISO-8601 or custom masked (e.g. "I03D10" - 10th day of 3rd iteration)
     
-    ##\# Human strings relative to now ##\#
+    ## Human strings relative to now ##
     
-    The string must be in the form `(this, prior, next) <granularity> [in <timezone>]`
+    The string must be in the form `(this, prior, next) |granularity| [in |timezone|]`
     
     Examples
     
@@ -214,7 +211,7 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
     * `next quarter` next quarter
     * `prior week` last week
     
-    ##\# ISO-8601 or custom masked ##\#
+    ## ISO-8601 or custom masked ##
     
     When you pass in an ISO-8601 or custom mask string, ChartTime uses the masks that are defined for each granularity to figure out the granularity...
     unless you explicitly provide a granularity. This parser does not work on all valid ISO-8601 forms. Ordinal dates (`"2012-288"`)
@@ -336,11 +333,22 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
 
     @_inBoundsCheck()
     @_overUnderFlow()
-  
-  # `granularitySpecs` is a static object that is used to tell ChartTime what to do with particular granularties. You can think of
-  # each entry in it as a sort of sub-class of ChartTime. In that sense ChartTime is really a factory generating ChartTime objects
-  # of type granularity. When generic timebox granularities are added to ChartTime by `ChartTime.addGranularity()`, it adds to this
-  # `granularitySpecs` object.
+
+  ###
+  @property granularitySpecs
+  @static
+  `granularitySpecs` is a static object that is used to tell ChartTime what to do with particular granularties. You can think of
+  each entry in it as a sort of sub-class of ChartTime. In that sense ChartTime is really a factory generating ChartTime objects
+  of type granularity. When custom timebox granularities are added to ChartTime by `ChartTime.addGranularity()`, it adds to this
+  `granularitySpecs` object.
+
+  Each entry in `granularitySpecs` has the following:
+
+  * segments - an Array identifying the ancestry (e.g. for 'day', it is: `['year', 'month', 'day']`)
+  * mask - a String used to identify when this granularity is passed in and to serialize it on the way out.
+  * lowest - the lowest possible value for this granularity. 0 for millisecond but 1 for day.
+  * pastHighest - a callback function that will say when to rollover the next coarser granularity.
+  ###
   @granularitySpecs = {}
   @granularitySpecs['millisecond'] = {
     segments: ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'],
@@ -422,12 +430,24 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
         granularitySpec.regex = new RegExp(((if character == '#' then '\\d' else character) for character in mask.split('')).join(''))
       else  # 'PAST_LAST' and other specials will have no mask
         granularitySpec.regex = new RegExp(mask)
-    
+
+  @_setTZPath: (tzPath) ->
+    ###
+    @method setTZPath
+    @static
+    Allows you to set the path (can be relative) to the tz files. Must be called prior to doing timezone sensitive comparisons.
+    ###
+    timezoneJS.timezone.zoneFileBasePath = tzPath  # !TODO: Cleanup trailing '/'
+    timezoneJS.timezone.init()  # !TODO: Get lazy loading working again. Now doing LOAD_ALL.
+
   # The code below should run when ChartTime is loaded. It mutates the granularitySpecs object by converting 
-  # the mask into segmentStart, segmentLength, and regex
+  # the mask into segmentStart, segmentLength, and regex.
   for g, spec of @granularitySpecs  # !TODO: Do consistency checks on granularitySpecs in the loop below
     ChartTime._expandMask(spec)
-      
+
+  # It also preloads the tz files
+  ChartTime._setTZPath('../files/tz')
+
   _inBoundsCheck: () ->
     if @beforePastFlag == '' or !@beforePastFlag?
       segments = ChartTime.granularitySpecs[@granularity].segments
@@ -592,35 +612,30 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
             else
               throw new Error("RDN: #{rdn} seems to be out of range for #{granularity}")
         throw new Error("Something went badly wrong setting custom granularity #{granularity} for RDN: #{rdn}")
-        
+
   granularityAboveDay: () ->
     ###
-    Convenience function to tell if the ChartTime Object's granularity is above (courser than) "day" level.
+    @method granularityAboveDay
+    @return {Boolean} true if the ChartTime Object's granularity is above (coarser than) "day" level
     ###
     for segment in ChartTime.granularitySpecs[@granularity].segments
       if segment.indexOf('day') >= 0
         return false
     return true
 
-  @setTZPath: (tzPath) ->
-    ###
-    Allows you to set the path (can be relative) to the tz files. Must be called prior to doing timezone sensitive comparisons. 
-    ###
-    timezoneJS.timezone.zoneFileBasePath = tzPath  # !TODO: Cleanup trailing '/'
-    timezoneJS.timezone.init()  # !TODO: Get lazy loading working again. Now doing LOAD_ALL.
-  
   getJSDate: (tz) ->
     ###
-    Returns a JavaScript Date Object properly shifted. This Date Object can be compared to other Date Objects that you know
+    @method getJSDate
+    @param {String} tz
+    @return {Date}
+
+    Returnas a JavaScript Date Object properly shifted. This Date Object can be compared to other Date Objects that you know
     are already in the desired timezone. If you have data that comes from an API in GMT. You can first create a ChartTime object from
     it and then (using this getJSDate() function) you can compare it to JavaScript Date Objects created in local time.
     
     The full name of this function should be getJSDateInGMTasummingThisCTDateIsInTimezone(tz). It converts **TO** GMT 
     (actually something that can be compared to GMT). It does **NOT** convert **FROM** GMT. Use getJSDateInTZfromGMT()
     if you want to go in the other direction.
-    
-    Note, you must set the path to the tz files with `ChartTime.setTZPath('path/to/tz/files')` before you do timezone 
-    sensitive comparisions.
   
     ## Usage ##
     
@@ -639,7 +654,6 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
     if @beforePastFlag == 'BEFORE_FIRST'
       return new Date('0001-01-01')  # !TODO: This may not work on all browsers
     utils.assert(tz?, 'Must provide a timezone when calling getJSDate')
-    utils.assert(timezoneJS.timezone.zoneFileBasePath?, 'Call ChartTime.setTZPath("path/to/tz/files") before calling getJSDate')
     ct = this.inGranularity('millisecond')
     utcMilliseconds = Date.UTC(ct.year, ct.month - 1, ct.day, ct.hour, ct.minute, ct.second, ct.millisecond)
     offset = timezoneJS.timezone.getTzInfo(new Date(utcMilliseconds), tz).tzOffset
@@ -649,13 +663,20 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
   
   getShiftedISOString: (tz) ->
     ###
-    Returns the canonical ISO-8601 date in zulu representation but shifted to the specified tz
+    @method getShiftedISOString
+    @param {String} tz
+    @return {String} The canonical ISO-8601 date in zulu representation but shifted to the specified tz
     ###
     jsDate = @getJSDate(tz)
     return ChartTime.getZuluString(jsDate)
   
   @getZuluString: (jsDate) ->
     ###
+    @method getZuluString
+    @static
+    @param {Date} jsDate
+    @return {String}
+
     Given a JavaScript Date() Object, this will return the canonical ISO-8601 form.
     
     If you don't provide any parameters, it will return now, like `new Date()` except this is a zulu string.
@@ -676,6 +697,10 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
     
   getJSDateInTZfromGMT: (tz) ->
     ###
+    @method getJSDateInTZfromGMT
+    @param {String} tz
+    @return {Date}
+
     This assumes that the ChartTime is an actual GMT date/time as opposed to some abstract day like Christmas and shifts
     it into the specified timezone.
     
@@ -688,7 +713,6 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
     if @beforePastFlag == 'BEFORE_FIRST'
       return new Date('0001-01-01')  # !TODO: This may not work on all browsers
     utils.assert(tz?, 'Must provide a timezone when calling getJSDate')
-    utils.assert(timezoneJS.timezone.zoneFileBasePath?, 'Call ChartTime.setTZPath("path/to/tz/files") before calling getJSDate')
     ct = this.inGranularity('millisecond')
     utcMilliseconds = Date.UTC(ct.year, ct.month - 1, ct.day, ct.hour, ct.minute, ct.second, ct.millisecond)
     offset = timezoneJS.timezone.getTzInfo(new Date(utcMilliseconds), tz).tzOffset
@@ -698,7 +722,9 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
     
   getSegmentsAsObject: () ->
     ###
-    Returns a simple JavaScript Object containing the segments. This is useful when using utils.match for holiday comparison
+    @method getSegmentsAsObject
+    @return {Object} Returns a simple JavaScript Object containing the segments. This is useful when using utils.match
+    for holiday comparison
     ###
     segments = ChartTime.granularitySpecs[@granularity].segments
     rawObject = {}
@@ -708,7 +734,8 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
   
   toString: () ->
     ###
-    Uses granularity `mask` to generate the string representation.
+    @method toString
+    @return {String} Uses granularity `mask` to generate the string representation.
     ###
     if @beforePastFlag in ['BEFORE_FIRST', 'PAST_LAST']
       s = "#{@beforePastFlag}"
@@ -752,14 +779,16 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
 
   dowString: () ->
     ###
-    Returns the day of the week as a String.
+    @method dowString
+    @return {String} Returns the day of the week as a String.
     ###
     return ChartTime.DOW_N_TO_S_MAP[@dowNumber()]
 
-  rataDieNumber: () ->  # Also called common era days
+  rataDieNumber: () ->
     ###
-    Returns the number of days since 0001-01-01. Works for granularities finer than day (hour, minute, second, millisecond) but ignores the 
-    segments of finer granularity than day.
+    @method rataDieNumber
+    @return {Number} Returns the number of days since 0001-01-01. Works for granularities finer than day (hour, minute,
+    second, millisecond) but ignores the segments of finer granularity than day. Also called common era days.
     ###
     if @beforePastFlag == 'BEFORE_FIRST'
       return -1
@@ -795,7 +824,8 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
 
   inGranularity: (granularity) ->
     ###
-    Returns a new ChartTime object for the same date-time as this object but in the specified granularity.
+    @method inGranularity
+    @return {ChartTime} Returns a new ChartTime object for the same date-time as this object but in the specified granularity.
     Fills in missing finer granularity bits with `lowest` values.
     ###
     if @granularity in ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond']
@@ -809,7 +839,8 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
 
   daysInMonth: () ->
     ###
-    Returns the number of days in the current month for this ChartTime
+    @method daysInMonth
+    @return {Number} Returns the number of days in the current month for this ChartTime
     ###
     switch @month
       when 4, 6, 9, 11
@@ -824,7 +855,8 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
 
   isLeapYear: () ->
     ###
-    True if this is a leap year.
+    @method isLeapYear
+    @return {Boolean} true if this is a leap year
     ###
     if (@year % 4 == 0)
       if (@year % 100 == 0)
@@ -840,14 +872,17 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
   @YEARS_WITH_53_WEEKS =  [4, 9, 15, 20, 26, 32, 37, 43, 48, 54, 60, 65, 71, 76, 82, 88, 93, 99, 105, 111, 116, 122, 128, 133, 139, 144, 150, 156, 161, 167, 172, 178, 184, 189, 195, 201, 207, 212, 218, 224, 229, 235, 240, 246, 252, 257, 263, 268, 274, 280, 285, 291, 296, 303, 308, 314, 320, 325, 331, 336, 342, 348, 353, 359, 364, 370, 376, 381, 387, 392, 398]
   is53WeekYear: () ->
     ###
-    True if this is a 53-week year.
+    @method is53WeekYear
+    @return {Boolean} true if this is a 53-week year
     ###
     lookup = @year % 400
     return lookup in ChartTime.YEARS_WITH_53_WEEKS
 
   $eq: (other) ->
     ###
-    Returns true if this equals other. Throws an error if the granularities don't match.
+    @method $eq
+    @param {ChartTime} other
+    @return {Boolean} Returns true if this equals other. Throws an error if the granularities don't match.
 
         d3 = new ChartTime({granularity: 'day', year: 2011, month: 12, day: 31})
         d4 = new ChartTime('2012-01-01').add(-1)
@@ -877,7 +912,9 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
 
   $gt: (other) ->
     ###
-    Returns true if this is greater than other. Throws an error if the granularities don't match
+    @method $gt
+    @param {ChartTime} other
+    @return {Boolean} Returns true if this is greater than other. Throws an error if the granularities don't match
 
         d1 = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 28})
         d2 = new ChartTime({granularity: 'day', year: 2011, month: 3, day: 1})
@@ -911,7 +948,9 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
      
   $gte: (other) ->
     ###
-    True if this is greater than or equal to other.
+    @method $gte
+    @param {ChartTime} other
+    @return {Boolean} Returns true if this is greater than or equal to other
     ###
     gt = this.$gt(other)
     if gt
@@ -920,13 +959,17 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
 
   $lt: (other) ->
     ###
-    True if this is less than other.
+    @method $lt
+    @param {ChartTime} other
+    @return {Boolean} Returns true if this is less than other
     ###
     return other.$gt(this)
 
   $lte: (other) ->
     ###
-    True if this is less than or equal to other.
+    @method $lte
+    @param {ChartTime} other
+    @return {Boolean} Returns true if this is less than or equal to other
     ###
     return other.$gte(this)
 
@@ -951,7 +994,11 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
         
   decrement: (granularity) ->
     ###
-    Decrements by 1.
+    @method decrement
+    @param {String} [granularity]
+    @chainable
+    @return {ChartTime}
+    Decrements this by 1 in the granularity of the ChartTime or the granularity specified if it was specified
     ###
 
     if @beforePastFlag == 'PAST_LAST'
@@ -992,7 +1039,11 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
         
   increment: (granularity) ->
     ###
-    Increments by 1.
+    @method increment
+    @param {String} [granularity]
+    @chainable
+    @return {ChartTime}
+    Increments this by 1 in the granularity of the ChartTime or the granularity specified if it was specified
     ###
     if @beforePastFlag == 'BEFORE_FIRST'
       @beforePastFlag = ''
@@ -1031,10 +1082,12 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
 
   addInPlace: (qty, granularity) ->
     ###
-    Adds qty to the ChartTime object. It uses increment and decrement so it's not going to be efficient for large values
+    @method addInPlace
+    @chainable
+    @param {Number} qty Can be negative for subtraction
+    @param {String} [granularity]
+    @return {ChartTime} Adds qty to the ChartTime object. It uses increment and decrement so it's not going to be efficient for large values
     of qty, but it should be fine for charts where we'll increment/decrement small values of qty.
-
-    qty can be negative for subtraction.
     ###
     granularity ?= @granularity
 
@@ -1055,6 +1108,10 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
 
   add: (qty, granularity) ->
     ###
+    @method add
+    @param {Number} qty
+    @param {String} [granularity]
+    @return {ChartTime}
     Adds (or subtracts) quantity (negative quantity) and returns a new ChartTime.
     ###
     newChartTime = new ChartTime(this)
@@ -1063,6 +1120,10 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
     
   @addGranularity: (granularitySpec) -> 
     ###
+    @method addGranularity
+    @static
+    @param {Object} granularitySpec see {@link ChartTime#granularitySpecs} for existing granularitySpecs
+
     addGranularity allows you to add your own hierarchical granularities to ChartTime. Once you add a granularity to ChartTime
     you can then instantiate ChartTime objects in your newly specified granularity. You specify new granularities with 
     granularitySpec object like this:

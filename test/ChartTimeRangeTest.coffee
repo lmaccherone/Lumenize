@@ -1,4 +1,5 @@
-{ChartTime, ChartTimeIterator, ChartTimeRange, utils} = require('../')
+{ChartTime, ChartTimeIterator, ChartTimeRange} = require('../')
+utils = require('../src/utils')
 
 exports.ChartTimeRangeTest =
   testConstructor: (test) ->
@@ -33,8 +34,7 @@ exports.ChartTimeRangeTest =
     test.done()
     
   testExample: (test) ->
-    ChartTime.setTZPath('../vendor/tz')
-  
+
     r = new ChartTimeRange({
       start:new ChartTime('2011-01-02'),
       pastEnd:new ChartTime('2011-01-07')

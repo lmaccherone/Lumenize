@@ -2,14 +2,19 @@ utils = require('./utils')
 
 class ChartTimeInStateCalculator
   ###
-  Used to calculate how much time each uniqueID spent in-state.
+  @class ChartTimeInStateCalculator
+
+  Used to calculate how much time each uniqueID spent "in-state". You use this by querying a temporal data
+  model (like Rally's Lookback API) with a predicate indicating the "state" of interest. You'll then have a list of
+  snapshots where that predicate was true. You pass this in to the timeInState method of this previously instantiated
+  ChartTimeInStateCalculator class to identify how many "ticks" of the timeline specified by the iterator you used
+  to instantiate this class.
   
   Usage:
   
       charttime = require('../')
       {ChartTimeRange, ChartTime, ChartTimeIterator, ChartTimeInStateCalculator} = charttime
-      ChartTime.setTZPath('../vendor/tz')
-      
+
       snapshots = [ 
         { id: 1, from: '2011-01-06T15:10:00.000Z', to: '2011-01-06T15:30:00.000Z' }, # 20 minutes all within an hour
         { id: 2, from: '2011-01-06T15:50:00.000Z', to: '2011-01-06T16:10:00.000Z' }, # 20 minutes spanning an hour
@@ -94,7 +99,13 @@ class ChartTimeInStateCalculator
       #     finalTickAt: '2011-01-10T16:00:00.000Z',
       #     id: '7' } ]
   ###
+
   constructor: (@iterator, tz) ->
+    ###
+    @constructor
+    @param {ChartTimeIterator} iterator You must pass in a ChartTimeIterator in the correct granularity and wide enough to cover any snapshots that you will analyze with this ChartTimeInStateCalculator
+    @param {String} tz The timezone for analysis
+    ###
     @granularity = @iterator.ctr.granularity
     # !TODO: If this approach of walking through each tick turns out to be slow, then refactor algorithm
     # if @granularity in ['minute', 'second', 'millisecond']
@@ -130,11 +141,28 @@ class ChartTimeInStateCalculator
 
   timeInState: (snapshotArray, validFromField, validToField, uniqueIDField, excludeStillInState = true) ->
     ###
+    @method timeInState
+    @param {Array} snapshotArray
+    @param {String} validFromField What field in the snapshotArray indicates when the snapshot starts (inclusive)?
+    @param {String} validToField What field in the snapshotArray indicates when the snapshot ends (exclusive)?
+    @param {String} uniqueIDField What field in the snapshotArray holds the uniqueID
+    @param {Boolean} [excludeStillInState] If false, even ids that are still active on the last tick are included
+
+    @return {Array} An entry for each uniqueID.
+
+    The fields in each row in the returned Array include:
+
+    * ticks: The number of ticks of the iterator that intersect with the snapshots
+    * finalState: true if the last snapshot for this uniqueID had not yet ended by the moment of the last tick
+    * finalEventAt: the validFrom value for the final event
+    * finalTickAt: the last tick that intersected with this uniqueID
+    * |uniqueIDField|: The uniqueID value
+
     Assumptions about the snapshotArray that's passed in:
     
     * The snapshotArray includes all snapshots where the logical state you want
       to measure the "time in" is true. So, send the predicate you want to be true as part of the query to the snapshot service.
-    * The `validFromField` and `validToField` in the `snapshotArray` contain strings in ISO-6801 canonical
+    * The `validFromField` and `validToField` in the `snapshotArray` contain strings in ISO-8601 canonical
       Zulu format (eg `'2011-01-01T12:34:56.789Z'`).
     ###
     

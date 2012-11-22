@@ -1,5 +1,7 @@
 charttime = require('../')
-{histogram, utils} = charttime
+{histogram} = charttime
+utils = require('../src/utils')
+
 
 exports.histogramTest =
 

@@ -37,7 +37,9 @@
             
           </div>
           <div class="class_content">
-            <h1>ChartTimeIterator</h1>
+            <p>@class ChartTimeIterator</p>
+
+<h1>ChartTimeIterator</h1>
 
 <p>Iterate through days, months, years, etc. skipping weekends and holidays that you 
 specify. It will also iterate over hours, minutes, seconds, etc. and skip times that are not
@@ -46,8 +48,6 @@ between the specified work hours.</p>
 <h2>Usage</h2>
 
 <pre><code>{ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
-
-ChartTime.setTZPath('../vendor/tz')
 
 cti = new ChartTimeIterator({
   start:new ChartTime({granularity: 'day', year: 2009, month:1, day: 1}),
@@ -74,38 +74,39 @@ while (cti.hasNext())
                 
                 <div class="method">
                   <h4>constructor(ctr, @emit, @childGranularity, tz)</h4>
-                  <ul>
-<li><strong>ctr</strong> is a ChartTimeRange or a raw Object with all the necessary properties to be a spec for a new ChartTimeRange.
-Using a ChartTimeRange is now the preferred method. The raw Object is supported for backward compatibility.</li>
-<li><strong>emit</strong> is an optional String that specifies what should be emitted. Possible values are 'ChartTime' (default),
-'ChartTimeRange', and 'Date' (javascript Date Object). Note, to maintain backward compatibility with the time
-before ChartTimeRange existed, the default for emit when instantiating a new ChartTimeIterator directly is 
-'ChartTime'. However, if you request a new ChartTimeIterator from a ChartTimeRange object using getIterator(),
-the default is 'ChartTimeRange'.</li>
-<li><strong>childGranularity</strong> When emit is 'ChartTimeRange', this is the granularity for the start and pastEnd of the
-ChartTimeRange that is emitted.</li>
-<li><strong>tz</strong> is a Sting specifying the timezone in the standard form,<code>America/New_York</code> for example.</li>
-</ul>
-
-<p>Note, skip is assumed to be 1 or -1 for emitted ChartTimeRanges</p>
+                  <p>@constructor
+@param {ChartTimeRange} ctr A ChartTimeRange or a raw Object with all the necessary properties to be a spec for a new ChartTimeRange.
+   Using a ChartTimeRange is now the preferred method. The raw Object is supported for backward compatibility.
+@param {String} [emit] An optional String that specifies what should be emitted. Possible values are 'ChartTime' (default),
+   'ChartTimeRange', and 'Date' (javascript Date Object). Note, to maintain backward compatibility with the time
+   before ChartTimeRange existed, the default for emit when instantiating a new ChartTimeIterator directly is 
+   'ChartTime'. However, if you request a new ChartTimeIterator from a ChartTimeRange object using getIterator(),
+   the default is 'ChartTimeRange'.
+@param {String} [childGranularity] When emit is 'ChartTimeRange', this is the granularity for the start and pastEnd of the
+   ChartTimeRange that is emitted.
+@param {String} [tz] A Sting specifying the timezone in the standard form,<code>America/New_York</code> for example.</p>
                 </div>
                 
                 <div class="method">
                   <h4>startOver()</h4>
-                  <p>Will go back to the where the iterator started.</p>
+                  <p>@method startOver</p>
+
+<p>Will go back to the where the iterator started.</p>
                 </div>
                 
                 <div class="method">
                   <h4>hasNext()</h4>
-                  <p>Returns true if there are still things left to iterator over. Note that if there are holidays, weekends or non-workhours to skip,
-then hasNext() will take that into account. For example if the pastEnd is a Sunday, hasNext() will return true the next
-time it is called after the Friday is emitted.</p>
+                  <p>@method hasNext
+@return {Boolean} Returns true if there are still things left to iterator over. Note that if there are holidays,
+   weekends or non-workhours to skip, then hasNext() will take that into account. For example if the pastEnd is a
+   Sunday, hasNext() will return true the next time it is called after the Friday is emitted.</p>
                 </div>
                 
                 <div class="method">
                   <h4>next()</h4>
-                  <p>Emits the next value of the iterator. The start will be the first value emitted unless it should be skipped due
-to holiday, weekend, or workhour knockouts.</p>
+                  <p>@method next
+@return {varies} Emits the next value of the iterator. The start will be the first value emitted unless it should
+   be skipped due to holiday, weekend, or workhour knockouts.</p>
                 </div>
                 
                 <div class="method">
@@ -130,7 +131,9 @@ to holiday, weekend, or workhour knockouts.</p>
             
           </div>
           <div class="class_content">
-            <h1>ChartTimeRange</h1>
+            <p>@class ChartTimeRange</p>
+
+<h1>ChartTimeRange</h1>
 
 <p>Allows you to specify a range for iterating over or identifying if it <code>contains()</code> some other date.
 This <code>contains()</code> comparision can be done in a timezone sensitive way.</p>
@@ -140,8 +143,6 @@ This <code>contains()</code> comparision can be done in a timezone sensitive way
 <p>Let's create the <code>spec</code> for our ChartTimeRange</p>
 
 <pre><code>{ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
-
-ChartTime.setTZPath('../vendor/tz')
 
 r = new ChartTimeRange({
   start:new ChartTime('2011-01-02'),
@@ -210,9 +211,6 @@ it will automatically create the ChartTime to do the comparison.</p>
 <h2>Timezone sensitive comparisions</h2>
 
 <p>Now, let's look at how you do timezone sensitive comparisions.</p>
-
-<p>Note, you must set the path to the tz files with <code>ChartTime.setTZPath('path/to/tz/files')</code> before you do timezone 
-sensitive comparisions.</p>
 
 <p>If you pass in a timezone, then it will shift the CharTimeRange boundaries to that timezone to compare to the 
 date/timestamp that you pass in. This system is optimized to the pattern where you first define your boundaries without regard 
@@ -317,7 +315,10 @@ while i4.hasNext()
                 
                 <div class="method">
                   <h4>constructor(spec)</h4>
-                  <p>spec can have the following properties:</p>
+                  <p>@constructor
+@param {Object} spec</p>
+
+<p>spec can have the following properties:</p>
 
 <ul>
 <li><strong>start</strong> is a ChartTime object or a string. The first value that next() returns.</li>
@@ -345,7 +346,13 @@ the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.</li>
                 
                 <div class="method">
                   <h4>getIterator(emit, childGranularity, tz)</h4>
-                  <p>Returns a new ChartTimeIterator using this ChartTimeRange as the boundaries.</p>
+                  <p>@method getIterator
+@param {String} [emit]
+@param {String} [childGranularity]
+@param {String} [tz]
+@return {ChartTimeIterator}</p>
+
+<p>Returns a new ChartTimeIterator using this ChartTimeRange as the boundaries.</p>
 
 <p>Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
 instantiating a new ChartTimeIterator directly is 'ChartTime'. However, if you request a new ChartTimeIterator 
@@ -354,7 +361,13 @@ from a ChartTimeRange object using getIterator(), the default is 'ChartTimeRange
                 
                 <div class="method">
                   <h4>getAll(emit, childGranularity, tz)</h4>
-                  <p>Returns all of the points in the timeline specified by this ChartTimeRange.</p>
+                  <p>@method getAll
+@param {String} [emit]
+@param {String} [childGranularity]
+@param {String} [tz]
+@return {Array}</p>
+
+<p>Returns all of the points in the timeline specified by this ChartTimeRange.</p>
 
 <p>Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
 instantiating a new ChartTimeIterator directly is 'ChartTime'. However, if you request a new ChartTimeIterator 
@@ -363,14 +376,18 @@ from a ChartTimeRange object using getIterator(), the default is 'ChartTimeRange
                 
                 <div class="method">
                   <h4>getTimeline()</h4>
-                  <p>Returns all of the points in the timeline specified by this ChartTimeRange as ChartTime objects.</p>
+                  <p>@method getTimeline
+@return {Array}</p>
+
+<p>Returns all of the points in the timeline specified by this ChartTimeRange as ChartTime objects.</p>
                 </div>
                 
                 <div class="method">
                   <h4>contains(date, tz)</h4>
-                  <p>True if the date provided is within this ChartTimeRange.</p>
-
-<p><strong>date</strong> can be either a JavaScript date object or an ISO-8601 formatted string.</p>
+                  <p>@method contains
+@param {Date or String} date can be either a JavaScript date object or an ISO-8601 formatted string
+@param {String} tz
+@return {Boolean} true if the date provided is within this ChartTimeRange.</p>
 
 <h2>Usage:</h2>
 

@@ -139,7 +139,6 @@ the US standard for every day except Sunday. The US standard is to use 0 for Sun
 <h2>Basic usage</h2>
 
 <pre><code>{ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
-ChartTime.setTZPath('../vendor/tz')
 </code></pre>
 
 <p>Get ChartTime objects relative to now.</p>
@@ -235,9 +234,7 @@ Note, if you are using one of the pre-packaged Lumenize.js or Lumenize-min.js, t
 ignore what you provide and load the time zone data from the files included in the package. We would like to remove the requirement
 for this initialization when running one of these packages, but for now, you still need the dummy call.</p>
 
-<pre><code>ChartTime.setTZPath('../vendor/tz')
-
-console.log(new ChartTime('2011-01-01').getJSDate('America/Denver').toUTCString())
+<pre><code>console.log(new ChartTime('2011-01-01').getJSDate('America/Denver').toUTCString())
 # Sat, 01 Jan 2011 07:00:00 GMT
 </code></pre>
             <div class="methods">
@@ -246,20 +243,24 @@ console.log(new ChartTime('2011-01-01').getJSDate('America/Denver').toUTCString(
                 <h3>Static Methods</h3>
                 
                 <div class="method">
-                  <h4>ChartTime.setTZPath(tzPath)</h4>
-                  <p>Allows you to set the path (can be relative) to the tz files. Must be called prior to doing timezone sensitive comparisons. </p>
-                </div>
-                
-                <div class="method">
                   <h4>ChartTime.getZuluString(jsDate)</h4>
-                  <p>Given a JavaScript Date() Object, this will return the canonical ISO-8601 form.</p>
+                  <p>@method getZuluString
+@static
+@param {Date} jsDate
+@return {String}</p>
+
+<p>Given a JavaScript Date() Object, this will return the canonical ISO-8601 form.</p>
 
 <p>If you don't provide any parameters, it will return now, like <code>new Date()</code> except this is a zulu string.</p>
                 </div>
                 
                 <div class="method">
                   <h4>ChartTime.addGranularity(granularitySpec)</h4>
-                  <p>addGranularity allows you to add your own hierarchical granularities to ChartTime. Once you add a granularity to ChartTime
+                  <p>@method addGranularity
+@static
+@param {Object} granularitySpec see {@link ChartTime#granularitySpecs} for existing granularitySpecs</p>
+
+<p>addGranularity allows you to add your own hierarchical granularities to ChartTime. Once you add a granularity to ChartTime
 you can then instantiate ChartTime objects in your newly specified granularity. You specify new granularities with 
 granularitySpec object like this:</p>
 
@@ -373,9 +374,9 @@ granularity. If there is a use-case for it, ChartTime could be upgraded to allow
 <li>ISO-8601 or custom masked (e.g. "I03D10" - 10th day of 3rd iteration)</li>
 </ol>
 
-<h3>Human strings relative to now</h3>
+<h2>Human strings relative to now</h2>
 
-<p>The string must be in the form <code>(this, prior, next) &lt;granularity&gt; [in &lt;timezone&gt;]</code></p>
+<p>The string must be in the form <code>(this, prior, next) |granularity| [in |timezone|]</code></p>
 
 <p>Examples</p>
 
@@ -388,7 +389,7 @@ granularity. If there is a use-case for it, ChartTime could be upgraded to allow
 <li><code>prior week</code> last week</li>
 </ul>
 
-<h3>ISO-8601 or custom masked</h3>
+<h2>ISO-8601 or custom masked</h2>
 
 <p>When you pass in an ISO-8601 or custom mask string, ChartTime uses the masks that are defined for each granularity to figure out the granularity...
 unless you explicitly provide a granularity. This parser does not work on all valid ISO-8601 forms. Ordinal dates (<code>"2012-288"</code>)
@@ -461,21 +462,23 @@ the way back out of ChartTime/ChartTimeRange</li>
                 
                 <div class="method">
                   <h4>granularityAboveDay()</h4>
-                  <p>Convenience function to tell if the ChartTime Object's granularity is above (courser than) "day" level.</p>
+                  <p>@method granularityAboveDay
+@return {Boolean} true if the ChartTime Object's granularity is above (coarser than) "day" level</p>
                 </div>
                 
                 <div class="method">
                   <h4>getJSDate(tz)</h4>
-                  <p>Returns a JavaScript Date Object properly shifted. This Date Object can be compared to other Date Objects that you know
+                  <p>@method getJSDate
+@param {String} tz
+@return {Date}</p>
+
+<p>Returnas a JavaScript Date Object properly shifted. This Date Object can be compared to other Date Objects that you know
 are already in the desired timezone. If you have data that comes from an API in GMT. You can first create a ChartTime object from
 it and then (using this getJSDate() function) you can compare it to JavaScript Date Objects created in local time.</p>
 
 <p>The full name of this function should be getJSDateInGMTasummingThisCTDateIsInTimezone(tz). It converts <strong>TO</strong> GMT 
 (actually something that can be compared to GMT). It does <strong>NOT</strong> convert <strong>FROM</strong> GMT. Use getJSDateInTZfromGMT()
 if you want to go in the other direction.</p>
-
-<p>Note, you must set the path to the tz files with <code>ChartTime.setTZPath('path/to/tz/files')</code> before you do timezone 
-sensitive comparisions.</p>
 
 <h2>Usage</h2>
 
@@ -492,12 +495,18 @@ console.log(ct.inGranularity('hour').add(-5).getJSDate('America/New_York').getTi
                 
                 <div class="method">
                   <h4>getShiftedISOString(tz)</h4>
-                  <p>Returns the canonical ISO-8601 date in zulu representation but shifted to the specified tz</p>
+                  <p>@method getShiftedISOString
+@param {String} tz
+@return {String} The canonical ISO-8601 date in zulu representation but shifted to the specified tz</p>
                 </div>
                 
                 <div class="method">
                   <h4>getJSDateInTZfromGMT(tz)</h4>
-                  <p>This assumes that the ChartTime is an actual GMT date/time as opposed to some abstract day like Christmas and shifts
+                  <p>@method getJSDateInTZfromGMT
+@param {String} tz
+@return {Date}</p>
+
+<p>This assumes that the ChartTime is an actual GMT date/time as opposed to some abstract day like Christmas and shifts
 it into the specified timezone.</p>
 
 <p>Note, this function will be off by an hour for the times near midnight on the days where there is a shift to/from daylight 
@@ -507,12 +516,15 @@ moment in rules-space for that hour. The cost of fixing this issue was deemed to
                 
                 <div class="method">
                   <h4>getSegmentsAsObject()</h4>
-                  <p>Returns a simple JavaScript Object containing the segments. This is useful when using utils.match for holiday comparison</p>
+                  <p>@method getSegmentsAsObject
+@return {Object} Returns a simple JavaScript Object containing the segments. This is useful when using utils.match
+for holiday comparison</p>
                 </div>
                 
                 <div class="method">
                   <h4>toString()</h4>
-                  <p>Uses granularity <code>mask</code> to generate the string representation.</p>
+                  <p>@method toString
+@return {String} Uses granularity <code>mask</code> to generate the string representation.</p>
                 </div>
                 
                 <div class="method">
@@ -522,39 +534,47 @@ moment in rules-space for that hour. The cost of fixing this issue was deemed to
                 
                 <div class="method">
                   <h4>dowString()</h4>
-                  <p>Returns the day of the week as a String.</p>
+                  <p>@method dowString
+@return {String} Returns the day of the week as a String.</p>
                 </div>
                 
                 <div class="method">
                   <h4>rataDieNumber()</h4>
-                  <p>Returns the number of days since 0001-01-01. Works for granularities finer than day (hour, minute, second, millisecond) but ignores the 
-segments of finer granularity than day.</p>
+                  <p>@method rataDieNumber
+@return {Number} Returns the number of days since 0001-01-01. Works for granularities finer than day (hour, minute,
+second, millisecond) but ignores the segments of finer granularity than day. Also called common era days.</p>
                 </div>
                 
                 <div class="method">
                   <h4>inGranularity(granularity)</h4>
-                  <p>Returns a new ChartTime object for the same date-time as this object but in the specified granularity.
+                  <p>@method inGranularity
+@return {ChartTime} Returns a new ChartTime object for the same date-time as this object but in the specified granularity.
 Fills in missing finer granularity bits with <code>lowest</code> values.</p>
                 </div>
                 
                 <div class="method">
                   <h4>daysInMonth()</h4>
-                  <p>Returns the number of days in the current month for this ChartTime</p>
+                  <p>@method daysInMonth
+@return {Number} Returns the number of days in the current month for this ChartTime</p>
                 </div>
                 
                 <div class="method">
                   <h4>isLeapYear()</h4>
-                  <p>True if this is a leap year.</p>
+                  <p>@method isLeapYear
+@return {Boolean} true if this is a leap year</p>
                 </div>
                 
                 <div class="method">
                   <h4>is53WeekYear()</h4>
-                  <p>True if this is a 53-week year.</p>
+                  <p>@method is53WeekYear
+@return {Boolean} true if this is a 53-week year</p>
                 </div>
                 
                 <div class="method">
                   <h4>$eq(other)</h4>
-                  <p>Returns true if this equals other. Throws an error if the granularities don't match.</p>
+                  <p>@method $eq
+@param {ChartTime} other
+@return {Boolean} Returns true if this equals other. Throws an error if the granularities don't match.</p>
 
 <pre><code>d3 = new ChartTime({granularity: 'day', year: 2011, month: 12, day: 31})
 d4 = new ChartTime('2012-01-01').add(-1)
@@ -565,7 +585,9 @@ console.log(d3.$eq(d4))
                 
                 <div class="method">
                   <h4>$gt(other)</h4>
-                  <p>Returns true if this is greater than other. Throws an error if the granularities don't match</p>
+                  <p>@method $gt
+@param {ChartTime} other
+@return {Boolean} Returns true if this is greater than other. Throws an error if the granularities don't match</p>
 
 <pre><code>d1 = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 28})
 d2 = new ChartTime({granularity: 'day', year: 2011, month: 3, day: 1})
@@ -578,40 +600,60 @@ console.log(d2.$gt(d1))
                 
                 <div class="method">
                   <h4>$gte(other)</h4>
-                  <p>True if this is greater than or equal to other.</p>
+                  <p>@method $gte
+@param {ChartTime} other
+@return {Boolean} Returns true if this is greater than or equal to other</p>
                 </div>
                 
                 <div class="method">
                   <h4>$lt(other)</h4>
-                  <p>True if this is less than other.</p>
+                  <p>@method $lt
+@param {ChartTime} other
+@return {Boolean} Returns true if this is less than other</p>
                 </div>
                 
                 <div class="method">
                   <h4>$lte(other)</h4>
-                  <p>True if this is less than or equal to other.</p>
+                  <p>@method $lte
+@param {ChartTime} other
+@return {Boolean} Returns true if this is less than or equal to other</p>
                 </div>
                 
                 <div class="method">
                   <h4>decrement(granularity)</h4>
-                  <p>Decrements by 1.</p>
+                  <p>@method decrement
+@param {String} [granularity]
+@chainable
+@return {ChartTime}
+Decrements this by 1 in the granularity of the ChartTime or the granularity specified if it was specified</p>
                 </div>
                 
                 <div class="method">
                   <h4>increment(granularity)</h4>
-                  <p>Increments by 1.</p>
+                  <p>@method increment
+@param {String} [granularity]
+@chainable
+@return {ChartTime}
+Increments this by 1 in the granularity of the ChartTime or the granularity specified if it was specified</p>
                 </div>
                 
                 <div class="method">
                   <h4>addInPlace(qty, granularity)</h4>
-                  <p>Adds qty to the ChartTime object. It uses increment and decrement so it's not going to be efficient for large values
+                  <p>@method addInPlace
+@chainable
+@param {Number} qty Can be negative for subtraction
+@param {String} [granularity]
+@return {ChartTime} Adds qty to the ChartTime object. It uses increment and decrement so it's not going to be efficient for large values
 of qty, but it should be fine for charts where we'll increment/decrement small values of qty.</p>
-
-<p>qty can be negative for subtraction.</p>
                 </div>
                 
                 <div class="method">
                   <h4>add(qty, granularity)</h4>
-                  <p>Adds (or subtracts) quantity (negative quantity) and returns a new ChartTime.</p>
+                  <p>@method add
+@param {Number} qty
+@param {String} [granularity]
+@return {ChartTime}
+Adds (or subtracts) quantity (negative quantity) and returns a new ChartTime.</p>
                 </div>
                 
               </div>
