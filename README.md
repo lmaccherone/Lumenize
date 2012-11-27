@@ -32,28 +32,28 @@ Authors:
 * [Larry Maccherone](http://maccherone.com) (<Larry@Maccherone.com>)
 * Jennifer Maccherone
 
-Running:
+Used when running:
 
 * [timezoneJS](https://github.com/mde/timezone-js) - library for [tz file](http://www.twinsun.com/tz/tz-link.htm) parsing. Although I haven't touched the actual tz file parsing code, I have modified timezoneJS fairly significantly. The original included a drop-in replacement for JavaScript's Date object which I have removed. I also modified it to work on node.js and in the browser once "browserified" by bundling the tz files.
 
-Developing/Documenting:
+Used when developing:
 
 * [Node.js](http://nodejs.org/)
 * [CoffeeScript](http://coffeescript.org/)
-* [coffeedoc-lm](https://github.com/lmaccherone/coffeedoc) (Larry Maccherone's fork) forked from [coffeedoc](https://github.com/omarkhan/coffeedoc)
 * [coffeedoctest](https://github.com/lmaccherone/coffeedoctest) (by Larry Maccherone)
 * [nodeunit](https://github.com/caolan/nodeunit)
 * [browserify with fileify plugin](https://github.com/substack/node-browserify)
 * [uglify-js](https://github.com/mishoo/UglifyJS)
+* [wrench](https://github.com/ryanmcgrath/wrench-js)
 
 ## Using from a browser ##
 
 To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
 
-`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/master/deploy/lumenize-min.js"></script>`
+`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/master/deploy/Lumenize-0.4.0-min.js"></script>`
 
-The package is fairly large ~240KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip 
-the package so it's only ~49KB over the wire.
+The package is fairly large ~212KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip 
+the package so it's only ~45KB over the wire.
 
 Then at the top of the javascript where you want to call it, put the following:
 
@@ -83,9 +83,6 @@ If you want to add functionality to Lumenize, you'll need a working dev environm
 Once Node.js is installed, you should be able to run a few node package manager (npm) commands. Install the following:
 
 * `sudo npm -g install coffee-script`
-* `sudo npm -g install coffeedoc-lm`
-* `sudo npm -g install coffeedoctest`
-* `sudo npm -g install jitter`
 * `sudo npm -g install nodeunit`
  
 Add the following to your ~/.profile or your ~/.bash_profile file
@@ -106,21 +103,22 @@ Once you have that all working, submit a pull request on GitHub.
 
 ## Documentation and source code ##
 
-* [API Documentation](http://lmaccherone.github.com/Lumenize/docs/index.html)
+* [API Documentation](https://raw.github.com/lmaccherone/Lumenize/master/docs/Lumenize-docs/)
 * [Source Repository](https://github.com/lmaccherone/Lumenize)
 
 ## Changelog ##
 
-* 0.4.0 - 2012-11-25
+* 0.4.0 - 2012-11-27 (still in progress)
   * Major refactor of names/variables for inclusion in Rally's App SDK
   * Using JSDuck for documentation now
   * Build system now keeps old deploy versions
+  * pre-compiled directory removed
 * 0.3.0 - 2012-10-13
   * Support for instantiating ChartTime objects relative to now using strings (e.g. 'this day in Pacific/Fiji')
   * Added tests and fixed some bugs for rangeSpecs
 * 0.2.7 - 2012-10-10 - **Backward breaking change** to the structure of the data returned by groupBy() to match groupByAt()
 
-## License ##
+## MIT License ##
 
 Copyright (c) 2011, 2012, Lawrence S. Maccherone, Jr.
 
