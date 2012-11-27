@@ -1,0 +1,23 @@
+[
+    {
+        "name": "All...",
+        "groups": [
+            {
+                "name": "Classes",
+                "classes": [
+                    "*.ChartTime",
+                    "*.ChartTimeRange",
+                    "*.ChartTimeIterator",
+                    "*.ChartTimeInStateCalculator"
+                ]
+            },
+            {
+                "name": "Functions",
+                "classes": [
+                    "*.functions",
+                    "Lumenize"
+                ]
+            }
+        ]
+    }
+]

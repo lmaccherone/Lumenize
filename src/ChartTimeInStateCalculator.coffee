@@ -142,13 +142,13 @@ class ChartTimeInStateCalculator
   timeInState: (snapshotArray, validFromField, validToField, uniqueIDField, excludeStillInState = true) ->
     ###
     @method timeInState
-    @param {Array} snapshotArray
+    @param {Object[]} snapshotArray
     @param {String} validFromField What field in the snapshotArray indicates when the snapshot starts (inclusive)?
     @param {String} validToField What field in the snapshotArray indicates when the snapshot ends (exclusive)?
     @param {String} uniqueIDField What field in the snapshotArray holds the uniqueID
     @param {Boolean} [excludeStillInState] If false, even ids that are still active on the last tick are included
 
-    @return {Array} An entry for each uniqueID.
+    @return {Object[]} An entry for each uniqueID.
 
     The fields in each row in the returned Array include:
 

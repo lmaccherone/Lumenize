@@ -58,7 +58,7 @@ _extractFandAs = (a) ->
 aggregate = (list, aggregationSpec) ->  
   ###
   @method aggregate
-  @param {Array} list An Array or arbitrary rows
+  @param {Object[]} list An Array or arbitrary rows
   @param {Object} aggregationSpec
   @return {Object}
 
@@ -119,8 +119,9 @@ aggregate = (list, aggregationSpec) ->
 aggregateAt = (atArray, aggregationSpec) ->  # !TODO: Change the name of all of these "At" functions. Mark suggests aggregateEach
   ###
   @method aggregateAt
-  @param {Array of Arrays} atArray
-  @param {Array of Objects} aggregationSpec
+  @param {Array[]} atArray
+  @param {Object[]} aggregationSpec
+  @return {Object[]}
 
   Each sub-Array in atArray is passed to the `aggregate` function and the results are collected into a single array output.
   This is essentially a wrapper around the aggregate function so the spec parameter is the same. You can think of
@@ -135,9 +136,9 @@ aggregateAt = (atArray, aggregationSpec) ->  # !TODO: Change the name of all of 
 groupBy = (list, spec) ->
   ###
   @method groupBy
-  @param {Array} list An Array of rows
+  @param {Object[]} list An Array of rows
   @param {Object} spec
-  @return {Array}
+  @return {Object[]}
 
   Takes a list like this:
       
@@ -215,9 +216,9 @@ groupBy = (list, spec) ->
 groupByAt = (atArray, spec) ->
   ###
   @method groupByAt
-  @param {Array of Arrays} atArray
+  @param {Array[]} atArray
   @param {Object} spec
-  @return {Array of Arrays}
+  @return {Array[]}
 
   Each row in atArray is passed to the `groupBy` function and the results are collected into a single output.
   
@@ -274,7 +275,7 @@ groupByAt = (atArray, spec) ->
 timeSeriesCalculator = (snapshotArray, config) ->  
   ###
   @method timeSeriesCalculator
-  @param {Array} snapshotArray
+  @param {Object[]} snapshotArray
   @param {Object} config
   @return {Object} Returns an Object {listOfAtCTs, aggregationAtArray}
 
@@ -312,7 +313,7 @@ timeSeriesCalculator = (snapshotArray, config) ->
 timeSeriesGroupByCalculator = (snapshotArray, config) -> 
   ###
   @method timeSeriesGroupByCalculator
-  @param {Array} snapshotArray
+  @param {Object[]} snapshotArray
   @param {Object} config
   @return {Object} Returns an Object {listOfAtCTs, groupByAtArray, uniqueValues}
 

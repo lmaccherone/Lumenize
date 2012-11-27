@@ -3,9 +3,9 @@ functions = require('./functions').functions
 histogram = (rows, valueField) ->
   ###
   @method histogram
-  @param {Array} rows
+  @param {Object[]} rows
   @param {String} valueField Specifies the field containing the data to calculate the histogram
-  @return {Object}
+  @return {Object[]}
 
   Returns an object containing the following:
 

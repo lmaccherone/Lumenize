@@ -117,7 +117,7 @@ class ChartTimeIterator
   next: () ->
     ###
     @method next
-    @return {varies} Emits the next value of the iterator. The start will be the first value emitted unless it should
+    @return {ChartTime/Date/ChartTimeRange} Emits the next value of the iterator. The start will be the first value emitted unless it should
        be skipped due to holiday, weekend, or workhour knockouts.
     ###
     if !@hasNext()
@@ -150,6 +150,8 @@ class ChartTimeIterator
 
   getAll: () ->
     ###
+    @method getAll
+    @return {ChartTime[]/Date[]/ChartTimeRange[]}
     Returns all values as an array.
     ###
     @startOver()
@@ -445,7 +447,7 @@ class ChartTimeRange
     @param {String} [emit]
     @param {String} [childGranularity]
     @param {String} [tz]
-    @return {Array}
+    @return {ChartTime[]/Date[]/ChartTimeRange[]}
 
     Returns all of the points in the timeline specified by this ChartTimeRange.
     
@@ -458,9 +460,10 @@ class ChartTimeRange
   getTimeline: () ->
     ###
     @method getTimeline
-    @return {Array}
+    @return {ChartTime[]}
 
-    Returns all of the points in the timeline specified by this ChartTimeRange as ChartTime objects.
+    Returns all of the points in the timeline specified by this ChartTimeRange as ChartTime objects. This method also
+    makes sure that the array that is returned is sorted chrologically.
     ###
     timeline = new ChartTimeIterator(this, 'ChartTime', @granularity).getAll()
     if timeline[0].$gt(timeline[1])
@@ -470,8 +473,8 @@ class ChartTimeRange
   contains: (date, tz) ->
     ###
     @method contains
-    @param {Date or String} date can be either a JavaScript date object or an ISO-8601 formatted string
-    @param {String} tz
+    @param {ChartTime/Date/String} date can be either a JavaScript date object or an ISO-8601 formatted string
+    @param {String} [tz]
     @return {Boolean} true if the date provided is within this ChartTimeRange.
 
     ## Usage: ##

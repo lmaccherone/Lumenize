@@ -187,7 +187,9 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
   constructor: (spec_RDN_Date_Or_String, granularity, tz) ->
     ###
     @constructor
-    @param {Object} spec_RDN_Date_Or_String
+    @param {Object/Number/Date/String} spec_RDN_Date_Or_String
+    @param {String} [granularity]
+    @param {String} [tz]
 
     The constructor for ChartTime supports the passing in of a String, a rata die number (RDN), or a spec Object
     
@@ -431,22 +433,14 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
       else  # 'PAST_LAST' and other specials will have no mask
         granularitySpec.regex = new RegExp(mask)
 
-  @_setTZPath: (tzPath) ->
-    ###
-    @method setTZPath
-    @static
-    Allows you to set the path (can be relative) to the tz files. Must be called prior to doing timezone sensitive comparisons.
-    ###
-    timezoneJS.timezone.zoneFileBasePath = tzPath  # !TODO: Cleanup trailing '/'
-    timezoneJS.timezone.init()  # !TODO: Get lazy loading working again. Now doing LOAD_ALL.
-
-  # The code below should run when ChartTime is loaded. It mutates the granularitySpecs object by converting 
+  # The code below should run when ChartTime is loaded. It mutates the granularitySpecs object by converting
   # the mask into segmentStart, segmentLength, and regex.
   for g, spec of @granularitySpecs  # !TODO: Do consistency checks on granularitySpecs in the loop below
     ChartTime._expandMask(spec)
 
   # It also preloads the tz files
-  ChartTime._setTZPath('../files/tz')
+  timezoneJS.timezone.zoneFileBasePath = '../files/tz'
+  timezoneJS.timezone.init()
 
   _inBoundsCheck: () ->
     if @beforePastFlag == '' or !@beforePastFlag?
@@ -705,7 +699,7 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
     it into the specified timezone.
     
     Note, this function will be off by an hour for the times near midnight on the days where there is a shift to/from daylight 
-    savings time. The tz rules engine is designed to go in the other direction so we're mis-using it and will be using the wrong
+    savings time. The tz rules engine is designed to go in the other direction so we're mis-using it. This means we are using the wrong
     moment in rules-space for that hour. The cost of fixing this issue was deemed to high for chart applications.
     ###
     if @beforePastFlag == 'PAST_LAST'
@@ -761,6 +755,8 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
   @DOW_MONTH_TABLE = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4]
   dowNumber: () ->
     ###
+    @method dowNumber
+    @return {Number}
     Returns the day of the week as a number. Monday = 1, Sunday = 7
     ###
     if @granularity == 'week_day'
@@ -826,7 +822,8 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
     ###
     @method inGranularity
     @return {ChartTime} Returns a new ChartTime object for the same date-time as this object but in the specified granularity.
-    Fills in missing finer granularity bits with `lowest` values.
+    Fills in missing finer granularity segments with `lowest` values. Drops segments when convernting to a coarser
+    granularity.
     ###
     if @granularity in ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond']
       if granularity in ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond']
@@ -1112,7 +1109,7 @@ class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefor
     @param {Number} qty
     @param {String} [granularity]
     @return {ChartTime}
-    Adds (or subtracts) quantity (negative quantity) and returns a new ChartTime.
+    Adds (or subtracts) quantity (negative quantity) and returns a new ChartTime. Not efficient for large qty.
     ###
     newChartTime = new ChartTime(this)
     newChartTime.addInPlace(qty, granularity)

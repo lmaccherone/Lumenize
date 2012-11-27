@@ -4,10 +4,11 @@ utils = require('./utils')
 csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
   ###
   @method csvStyleArray_To_ArrayOfMaps
-  @param {Array of Arrays} csvStyleArray The first row is usually the list of column headers but if not, you can
+  @param {Array[]} csvStyleArray The first row is usually the list of column headers but if not, you can
     provide your own such list in the second parameter
-  @param {Array} [rowKeys] specify the column headers like `['column1', 'column2']`. If not provided, it will use
+  @param {String[]} [rowKeys] specify the column headers like `['column1', 'column2']`. If not provided, it will use
     the first row of the csvStyleArray
+  @return {Object[]}
 
   `csvStyleArry_To_ArryOfMaps` is a convenience function that will convert a csvStyleArray like:
   
@@ -48,14 +49,15 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
 snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueIDField, tz, validToField) ->  
   ###
   @method snapshotArray_To_AtArray
-  @param {Array} snapshotArray Array of snapshots sorted by validFromField # !TODO: Add the sort. Borrow from TimeInState.
-  @param {Array} atArray Array of ChartTime objects representing the moments we want the snapshots at
+  @param {Object[]} snapshotArray Array of snapshots sorted by validFromField # !TODO: Add the sort. Borrow from TimeInState.
+  @param {Array[]} atArray Array of ChartTime objects representing the moments we want the snapshots at
   @param {String} validFromField Specifies the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
   @param {String} validToField Same except for the end of the snapshot's active time.
     Defaults to '_ValidTo' for backward compatibility reasons.
   @param {String} uniqueIDField Specifies the field that holds the unique ID. Note, no matter the input type, they will come
      out the other side as Strings. I could fix this if it ever became a problem.
   @param {String} tz
+  @return {Array[]}
 
   If you have a list of snapshots representing the changes in a set of work items over time, this function will return the state of
   each item at each moments of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
@@ -179,12 +181,12 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
 groupByAtArray_To_HighChartsSeries = (groupByAtArray, nameField, valueField, nameFieldValues, returnPreOutput = false) ->  # !TODO: Move to RallyAnalytics
   ###
   @method groupByAtArray_To_HighChartsSeries
-  @param {Array} groupByAtArray result of calling groupByAt()
+  @param {Array[]} groupByAtArray result of calling groupByAt()
   @param {String} nameField
   @param {String} valueField
-  @pararm {Array} nameFieldValues
+  @pararm {String[]} nameFieldValues
   @param {Boolean} [returnPreOutput] if true, this function returns the map prior to squishing the name into the rows
-  @return {Array or Object}
+  @return {Array/Object}
 
   Takes an array of arrays that came from groupByAt and looks like this:
 
@@ -237,10 +239,10 @@ groupByAtArray_To_HighChartsSeries = (groupByAtArray, nameField, valueField, nam
 aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, aggregationSpec) ->  # !TODO: Move to RallyAnalytics
   ###
   @method aggregationAtArray_To_HighChartsSeries
-  @param {Array} aggregationAtArray
+  @param {Array[]} aggregationAtArray
   @param {Object} aggregationSpec You can use the same spec you useed to call aggregateAt() as long as it includes
     any yAxis specifications
-  @return {Array} in HighCharts form
+  @return {Object[]} in HighCharts form
 
   Takes an array of arrays that came from a call to aggregateAt() and looks like this:
 

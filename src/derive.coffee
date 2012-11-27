@@ -1,8 +1,8 @@
 deriveFields = (list, derivedFieldsSpec) ->
   ###
   @method deriveFields
-  @param {Array} list
-  @param {Array} derivedFieldsSpec
+  @param {Object[]} list
+  @param {Object[]} derivedFieldsSpec
 
   This function works on the list in place meaning that it's all side effect.
 
@@ -40,8 +40,9 @@ deriveFields = (list, derivedFieldsSpec) ->
 deriveFieldsAt = (atArray, derivedFieldsSpec) ->
   ###
   @method deriveFieldsAt
-  @param {Array of Arrays} atArray
-  @param {Array} derivedFieldsSpec
+  @param {Array[]} atArray
+  @param {Object[]} derivedFieldsSpec
+  @return {Array[]}
   Sends every sub-array in atArray to deriveFields upgrading the atArray in place.
   ###
   for a in atArray

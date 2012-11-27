@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize'>/**
+</span> * @class Lumenize
+ * 
+ * 
+ * # Lumenize #
+ * 
+ * Lumenize provides tools for aggregating data and creating timezone-precise timelines for visualizations.
+ * 
+ * Below, is a somewhat long example that utilizes most of Lumenize's functionality. It should provid a good introduction
+ * to its capabilities.
+ * 
+ * The first line below &quot;requires&quot; Lumenize. If you are using the browserified package or creating an App with Rally's
+ * App SDK, you will not need this line. Lumenize will already be available in the current scope.
+ * 
+ *     Lumenize = require('../')
+ * 
+ * Next, let's create some sample data. The example below creates a simple burnup chart. The data in the snapshots*
+ * variables below simulate data for various work items changing over time. It is shown here in tabular &quot;CSVStyle&quot;.
+ * 
+ *     snapshotsCSVStyle = [
+ *       [&quot;ObjectID&quot;, &quot;_ValidFrom&quot;,           &quot;_ValidTo&quot;,             &quot;ScheduleState&quot;, &quot;PlanEstimate&quot;],
+ * 
+ *       [1,          &quot;2010-10-10T15:00:00Z&quot;, &quot;2011-01-02T13:00:00Z&quot;, &quot;Ready to pull&quot;, 5             ],
+ * 
+ *       [1,          &quot;2011-01-02T15:10:00Z&quot;, &quot;2011-01-04T15:00:00Z&quot;, &quot;In progress&quot;  , 5             ],
+ *       [2,          &quot;2011-01-02T15:00:00Z&quot;, &quot;2011-01-03T15:00:00Z&quot;, &quot;Ready to pull&quot;, 3             ],
+ *       [3,          &quot;2011-01-02T15:00:00Z&quot;, &quot;2011-01-03T15:00:00Z&quot;, &quot;Ready to pull&quot;, 5             ],
+ * 
+ *       [2,          &quot;2011-01-03T15:00:00Z&quot;, &quot;2011-01-04T15:00:00Z&quot;, &quot;In progress&quot;  , 3             ],
+ *       [3,          &quot;2011-01-03T15:00:00Z&quot;, &quot;2011-01-04T15:00:00Z&quot;, &quot;Ready to pull&quot;, 5             ],
+ *       [4,          &quot;2011-01-03T15:00:00Z&quot;, &quot;2011-01-04T15:00:00Z&quot;, &quot;Ready to pull&quot;, 5             ],
+ *       [1,          &quot;2011-01-03T15:10:00Z&quot;, &quot;2011-01-04T15:00:00Z&quot;, &quot;In progress&quot;  , 5             ],
+ * 
+ *       [1,          &quot;2011-01-04T15:00:00Z&quot;, &quot;2011-01-06T15:00:00Z&quot;, &quot;Accepted&quot;     , 5             ],
+ *       [2,          &quot;2011-01-04T15:00:00Z&quot;, &quot;2011-01-06T15:00:00Z&quot;, &quot;In test&quot;      , 3             ],
+ *       [3,          &quot;2011-01-04T15:00:00Z&quot;, &quot;2011-01-05T15:00:00Z&quot;, &quot;In progress&quot;  , 5             ],
+ *       [4,          &quot;2011-01-04T15:00:00Z&quot;, &quot;2011-01-06T15:00:00Z&quot;, &quot;Ready to pull&quot;, 5             ],
+ *       [5,          &quot;2011-01-04T15:00:00Z&quot;, &quot;2011-01-06T15:00:00Z&quot;, &quot;Ready to pull&quot;, 2             ],
+ * 
+ *       [3,          &quot;2011-01-05T15:00:00Z&quot;, &quot;2011-01-07T15:00:00Z&quot;, &quot;In test&quot;      , 5             ],
+ * 
+ *       [1,          &quot;2011-01-06T15:00:00Z&quot;, &quot;2011-01-07T15:00:00Z&quot;, &quot;Released&quot;     , 5             ],
+ *       [2,          &quot;2011-01-06T15:00:00Z&quot;, &quot;2011-01-07T15:00:00Z&quot;, &quot;Accepted&quot;     , 3             ],
+ *       [4,          &quot;2011-01-06T15:00:00Z&quot;, &quot;2011-01-07T15:00:00Z&quot;, &quot;In progress&quot;  , 5             ],
+ *       [5,          &quot;2011-01-06T15:00:00Z&quot;, &quot;2011-01-07T15:00:00Z&quot;, &quot;Ready to pull&quot;, 2             ],
+ * 
+ *       [1,          &quot;2011-01-07T15:00:00Z&quot;, &quot;9999-01-01T00:00:00Z&quot;, &quot;Released&quot;     , 5             ],
+ *       [2,          &quot;2011-01-07T15:00:00Z&quot;, &quot;9999-01-01T00:00:00Z&quot;, &quot;Released&quot;     , 3             ],
+ *       [3,          &quot;2011-01-07T15:00:00Z&quot;, &quot;9999-01-01T00:00:00Z&quot;, &quot;Accepted&quot;     , 5             ],
+ *       [4,          &quot;2011-01-07T15:00:00Z&quot;, &quot;9999-01-01T00:00:00Z&quot;, &quot;In test&quot;      , 5             ],
+ *       [5,          &quot;2011-01-07T15:00:00Z&quot;, &quot;9999-01-01T00:00:00Z&quot;, &quot;In progress&quot;  , 2             ]
+ *     ]
+ * 
+ * However, Lumenize assumes the data is in the form of an &quot;Array of Maps&quot; like Rally's LookbackAPI would emit. The
+ * `Lumenize.csvStyleArray_To_ArrayOfMaps` convenience function will convert it to the expected form.
+ * 
+ *     snapshotArray = Lumenize.csvStyleArray_To_ArrayOfMaps(snapshotsCSVStyle)
+ * 
+ * The `rangeSpec` defines the specification for the x-axis. Notice how you can exclude weekends and holidays. Here we
+ * specify a `start` and a `pastEnd`. However, it's fairly common in charts to specify `pastEnd: &quot;this day&quot;` and
+ * `limit: 60` (no `start`). A number of human readable dates like `&quot;next month&quot;` or `&quot;prior week&quot;` are supported. You
+ * need to specify any 2 of start, pastEnd, or limit.
+ * 
+ *     rangeSpec = {
+ *       start: &quot;2011-01-02&quot;
+ *       pastEnd: &quot;2011-01-08&quot;,
+ *       workDays: [&quot;Monday&quot;, &quot;Tuesday&quot;, &quot;Wednesday&quot;, &quot;Thursday&quot;, &quot;Friday&quot;],  # Also supports &quot;Monday, Tuesday, ...&quot;
+ *       holidays: [
+ *         {&quot;month&quot;: 1, &quot;day&quot;: 1},
+ *         {&quot;month&quot;: 12, &quot;day&quot;: 25},
+ *         &quot;2011-01-05&quot;  # Made up holiday to demo holiday knockout
+ *       ]
+ *     }
+ * 
+ * If you think of the list of snapshots as a table of data, then `derivedFields` is just like adding a virtual column
+ * to the table. Simply specify a name and a callback function &quot;f&quot;.
+ * 
+ *     derivedFields = [
+ *       {
+ *       &quot;name&quot;: &quot;accepted&quot;,
+ *       &quot;f&quot;: (row) -&gt;
+ *         if row.ScheduleState in [&quot;Accepted&quot;, &quot;Released&quot;]
+ *           return 1
+ *         else
+ *           return 0
+ *       }
+ *     ]
+ * 
+ * The `aggregationSpec` supports a number of functions including $sum, $count, $addToSet, $standardDeviation,
+ * $p50 (for median), and $p?? (for any quartile/percentile). It will also allow you to specify a callback function
+ * like in derivedFields above if none of the built-in functions serves.
+ * 
+ *     aggregationSpec = [
+ *       {&quot;as&quot;: &quot;scope&quot;, &quot;f&quot;: &quot;$count&quot;, &quot;field&quot;: &quot;ObjectID&quot;},
+ *       {&quot;as&quot;: &quot;accepted&quot;, &quot;f&quot;: &quot;$sum&quot;, &quot;field&quot;: &quot;accepted&quot;}
+ *     ]
+ * 
+ * Since Lumenize was designed to work with other temporal data models besides Rally's, you must tell it what fields
+ * are used for the valid from, valid to, and unique id. You must also tell it what timezone to use for the boundaries
+ * of your x-axis values. The snapshot data is in Zulu time, but the start of the day in New York is shifted by 4 or 5
+ * hours depending upon the time of year. Specifying a timezone, allows Lumenize to shift the raw Zulu dates into
+ * the timezone of your choosing.
+ * 
+ *     config = {
+ *       snapshotValidFromField: '_ValidFrom',
+ *       snapshotValidToField: '_ValidTo',
+ *       snapshotUniqueID: 'ObjectID',
+ *       timezone: 'America/New_York',
+ *       rangeSpec: rangeSpec,
+ *       derivedFields: derivedFields,
+ *       aggregationSpec: aggregationSpec
+ *     }
+ * 
+ * Next, we call `Lumenize.timeSeriesCalculator` with the snapshots as well as the config object that we just built.
+ * It will calculate the time-series data according to our specifications. It returns two values. A list of ChartTime
+ * objects specifying the x-axis (`listOfAtCTs`) and our calculations (`aggregationAtArray`).
+ * 
+ *     {listOfAtCTs, aggregationAtArray} = Lumenize.timeSeriesCalculator(snapshotArray, config)
+ * 
+ * You could graph this output to render a burnup chart by story count.
+ * 
+ *     for value, index in listOfAtCTs
+ *       console.log(value.toString(), aggregationAtArray[index])
+ * 
+ *     # 2011-01-03 { scope: 3, accepted: 0 }
+ *     # 2011-01-04 { scope: 4, accepted: 0 }
+ *     # 2011-01-06 { scope: 5, accepted: 1 }
+ *     # 2011-01-07 { scope: 5, accepted: 2 }
+ * 
+ * Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). So let's modify our configuration to use
+ * `PlanEstimate`.
+ * 
+ *     config.derivedFields = [
+ *       {
+ *       &quot;name&quot;: &quot;accepted&quot;,
+ *       &quot;f&quot;: (row) -&gt;
+ *         if row.ScheduleState in [&quot;Accepted&quot;, &quot;Released&quot;]
+ *           return row.PlanEstimate;
+ *         else
+ *           return 0
+ *       }
+ *     ]
+ * 
+ *     config.aggregationSpec = [
+ *       {&quot;as&quot;: &quot;scope&quot;, &quot;f&quot;: &quot;$sum&quot;, &quot;field&quot;: &quot;PlanEstimate&quot;},
+ *       {&quot;as&quot;: &quot;accepted&quot;, &quot;f&quot;: &quot;$sum&quot;, &quot;field&quot;: &quot;accepted&quot;}
+ *     ]
+ * 
+ *     {listOfAtCTs, aggregationAtArray} = Lumenize.timeSeriesCalculator(snapshotArray, config)
+ * 
+ *     for value, index in listOfAtCTs
+ *       console.log(value.toString(), aggregationAtArray[index])
+ * 
+ *     # 2011-01-03 { scope: 13, accepted: 0 }
+ *     # 2011-01-04 { scope: 18, accepted: 0 }
+ *     # 2011-01-06 { scope: 20, accepted: 5 }
+ *     # 2011-01-07 { scope: 20, accepted: 8 }
+ * 
+ */
+/* &lt;CoffeeScript&gt;
+
+exports.ChartTime = require('./src/ChartTime').ChartTime
+
+chartTimeIteratorAndRange = require('./src/ChartTimeIteratorAndRange')
+exports.ChartTimeIterator = chartTimeIteratorAndRange.ChartTimeIterator
+exports.ChartTimeRange = chartTimeIteratorAndRange.ChartTimeRange
+
+exports.ChartTimeInStateCalculator = require('./src/ChartTimeInStateCalculator').ChartTimeInStateCalculator
+
+datatransform = require('./src/dataTransform')
+exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps
+exports.snapshotArray_To_AtArray = datatransform.snapshotArray_To_AtArray
+exports.groupByAtArray_To_HighChartsSeries = datatransform.groupByAtArray_To_HighChartsSeries
+exports.aggregationAtArray_To_HighChartsSeries = datatransform.aggregationAtArray_To_HighChartsSeries
+
+aggregate = require('./src/aggregate')
+exports.aggregate = aggregate.aggregate
+exports.aggregateAt = aggregate.aggregateAt
+exports.groupBy = aggregate.groupBy
+exports.groupByAt = aggregate.groupByAt
+exports.percentileCreator = aggregate.percentileCreator
+exports.timeSeriesCalculator = aggregate.timeSeriesCalculator
+exports.timeSeriesGroupByCalculator = aggregate.timeSeriesGroupByCalculator
+
+exports.functions = require('./src/functions').functions
+
+derive = require('./src/derive')
+exports.deriveFields = derive.deriveFields
+exports.deriveFieldsAt = derive.deriveFieldsAt
+
+exports.histogram = require('./src/histogram').histogram
+
+&lt;/CoffeeScript&gt; */</pre>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
   "name": "Lumenize",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "main": "./lumenize",
   "description": "Illuminating the forest AND the trees in your data.",
   "keywords": [
@@ -33,7 +33,9 @@
     "uglify-js": "1.3.x",
     "nodeunit": "0.7.x",
     "browserify": "1.16.x",
-    "fileify": "0.3.x"
+    "fileify": "0.3.x",
+    "jsduckify": "0.2.x",
+    "wrench": "1.4.x"
   },
   "licenses": [
      {
