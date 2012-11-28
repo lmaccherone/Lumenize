@@ -3,6 +3,7 @@ path          = require('path')
 {print}       = require('sys')
 {spawn, exec} = require('child_process')
 wrench        = require('wrench')
+marked        = require('marked')
 
 runProducedError = false
 process.on('exit', () ->
@@ -51,11 +52,28 @@ task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
   process.chdir(__dirname)
   run('coffeedoctest', ['--readme', 'src', 'lumenize.coffee'], (stout) ->
     unless runProducedError
+      # create README.html
+      readmeDotCSSString = fs.readFileSync('README.css', 'utf8')
+      readmeDotMDString = fs.readFileSync('README.md', 'utf8')
+      readmeDotHTMLString = marked(readmeDotMDString)
+      readmeDotHTMLString = """
+        <style>
+        #{readmeDotCSSString}
+        </style>
+        <body>
+        <div class="readme">
+        #{readmeDotHTMLString}
+        </div>
+        </body>
+      """
+      fs.writeFileSync(path.join(__dirname, 'docs', 'README.html'), readmeDotHTMLString)
+
+      # jsduckify
       {name, version} = require('./package.json')
       outputDirectory = path.join(__dirname, 'docs', "#{name}-#{version}-docs")
       if fs.existsSync(outputDirectory)
         wrench.rmdirSyncRecursive(outputDirectory, false)
-      run('node_modules/.bin/jsduckify', ['-d', outputDirectory, __dirname], (stout) ->
+      run('node_modules/jsduckify/bin/jsduckify', ['-d', outputDirectory, __dirname], (stout) ->
         unless runProducedError
           commonOutputDirectory = path.join(__dirname, 'docs', "#{name}-docs")
           if fs.existsSync(commonOutputDirectory)

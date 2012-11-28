@@ -1,0 +1,76 @@
+.readme li {
+    display: list-item;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    list-style: disc outside;
+}
+
+.readme ul, .readme ol {
+    display: block;
+    padding-left: 10px;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+.readme ul :first-child, .readme ol :first-child {
+    margin-top: 0;
+}
+
+.readme > ul {
+    margin-left: 20px;
+}
+
+.readme h1, .readme h2 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    line-height: 20px;
+    font-weight: bold;
+    font-size: 16px;
+    padding-bottom: 5px;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: rgb(241, 241, 241);
+    color: rgb(49, 78, 100);
+}
+
+.readme h1 {
+    font-size: 24px;
+    line-height: 24px;
+}
+
+.readme h2 {
+    font-size: 20px;
+}
+
+.readme h3 {
+    font-style: italic;
+}
+
+.readme p {
+    margin-top: 15px;
+}
+
+.readme p, .readme ul, .readme li, .readme ol, .readme pre, .readme code {
+    max-width: 900px;
+    color: rgb(72, 72, 72);
+}
+
+.readme pre, .readme code {
+    white-space: pre;
+    margin: 0px;
+    overflow-x: auto;
+    padding: 1px 3px;
+    font-family: "Menlo", "Courier New", "Courier", monospace;
+    color: #314e64;
+    border-radius: 5px;
+    background-color: #f7f7f7;
+    border: solid 1px #e8e8e8;
+}
+
+.readme em {
+    font-style: italic;
+}
+
+.readme b {
+    font-weight: bold;
+}

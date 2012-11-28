@@ -1,3 +1,4 @@
 {
-    "--title": "Lumenize"
+    "--title": "Lumenize",
+    "--welcome": "docs/README.html"
 }

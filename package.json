@@ -34,7 +34,8 @@
     "browserify": "1.16.x",
     "fileify": "0.3.x",
     "jsduckify": "0.2.x",
-    "wrench": "1.4.x"
+    "wrench": "1.4.x",
+    "marked": "0.2.6"
   },
   "licenses": [
      {
