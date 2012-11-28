@@ -16,14 +16,11 @@ Lumenize is a collection of tools for making awesome visualizations out of your 
     * Year, quarter, week, day, hour, etc.
     * No more recording `2012-03-05T00:00:00.000Z` when you really just mean `2012-03-05`
     * Create and use custom granularities: `R02I04-07` = Seventh day of fourth iteration in second release
-   
 * Create aggregations from temporal data models like Rally's Lookback API
-
 * Tested - Over 300 tests
-
-* [Documented](http://lmaccherone.github.com/Lumenize/docs/index.html) - Robust documentation for an open source library
-
-* [DocTested](https://github.com/lmaccherone/coffeedoctest) - The examples will always match the code because it fails automated testing when they don't
+* [Documented](http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html) - Robust documentation for an open source library
+* [DocTested](https://github.com/lmaccherone/coffeedoctest) - The examples will always match the code because it fails automated testing
+   when they don't
 
 ## Credits ##
 
@@ -111,9 +108,9 @@ Once you have that all working, submit a pull request on GitHub.
 
 In November of 2012, Lumenize started keeping old versions around because it was about to undergo a huge backward-breaking change. Version 0.4.0 is the last version before this change. Note, that there is a version of Lumenize without any versioning annotation in the deploy folder. That's version 0.3.0. It will be left around for a while in case someone is directly linking to it. It will then be changed to track the latest. The docs already track the latest.
 
-* 0.5.0 - 2012-12-15 (not started yet)
+* 0.5.0 - 2012-12-15 (not pushed to github yet)
   * Major refactor of names/variables for inclusion in Rally's App SDK
-* 0.4.0 - 2012-11-27 (still in progress)
+* 0.4.0 - 2012-11-27
   * Using JSDuck for documentation now
   * Build system now keeps old deploy versions
   * Pre-compiled directory removed
