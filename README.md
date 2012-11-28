@@ -50,10 +50,11 @@ Used when developing:
 
 To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
 
-`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/master/deploy/Lumenize-0.4.0-min.js"></script>`
+`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/master/deploy/Lumenize-{{version}}-min.js"></script>`
 
-The package is fairly large ~212KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip 
-the package so it's only ~45KB over the wire.
+Replace `{{version}}` with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. 
+
+The package is fairly large ~212KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip the package so it's only ~45KB over the wire.
 
 Then at the top of the javascript where you want to call it, put the following:
 
@@ -108,12 +109,17 @@ Once you have that all working, submit a pull request on GitHub.
 
 ## Changelog ##
 
+In November of 2012, Lumenize started keeping old versions around because it was about to undergo a huge backward-breaking change. Version 0.4.0 is the last version before this change. Note, that there is a version of Lumenize without any versioning annotation in the deploy folder. That's version 0.3.0. It will be left around for a while in case someone is directly linking to it. It will then be changed to track the latest. The docs already track the latest.
+
 * 0.5.0 - 2012-12-15 (not started yet)
   * Major refactor of names/variables for inclusion in Rally's App SDK
 * 0.4.0 - 2012-11-27 (still in progress)
   * Using JSDuck for documentation now
   * Build system now keeps old deploy versions
-  * pre-compiled directory removed
+  * Pre-compiled directory removed
+  * Bug fix for TimeInStateCalculator and snapshotArray_To_AtArray. They now sort (correctly). snapshotArray_To_AtArray will now also 
+    propertly remove from later ticks any entity that falls out of scope. Previously, deletions were not registered correctly by
+    snapshotArray_To_AtArray.
 * 0.3.0 - 2012-10-13
   * Support for instantiating ChartTime objects relative to now using strings (e.g. 'this day in Pacific/Fiji')
   * Added tests and fixed some bugs for rangeSpecs
