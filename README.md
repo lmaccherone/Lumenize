@@ -103,13 +103,14 @@ Once you have that all working, submit a pull request on GitHub.
 
 ## Documentation and source code ##
 
-* [API Documentation](https://raw.github.com/lmaccherone/Lumenize/master/docs/Lumenize-docs/)
+* [API Documentation](http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html)
 * [Source Repository](https://github.com/lmaccherone/Lumenize)
 
 ## Changelog ##
 
-* 0.4.0 - 2012-11-27 (still in progress)
+* 0.5.0 - 2012-12-15 (not started yet)
   * Major refactor of names/variables for inclusion in Rally's App SDK
+* 0.4.0 - 2012-11-27 (still in progress)
   * Using JSDuck for documentation now
   * Build system now keeps old deploy versions
   * pre-compiled directory removed

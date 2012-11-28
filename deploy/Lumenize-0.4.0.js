@@ -8039,7 +8039,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
   snapshotArray_To_AtArray = function(snapshotArray, listOfAtCTs, validFromField, uniqueIDField, tz, validToField) {
     /*
       @method snapshotArray_To_AtArray
-      @param {Object[]} snapshotArray Array of snapshots sorted by validFromField # !TODO: Add the sort. Borrow from TimeInState.
+      @param {Object[]} snapshotArray Array of snapshots
       @param {Array[]} atArray Array of ChartTime objects representing the moments we want the snapshots at
       @param {String} validFromField Specifies the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
       @param {String} validToField Same except for the end of the snapshot's active time.
@@ -8106,14 +8106,23 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     if (validToField == null) {
       validToField = '_ValidTo';
     }
+    snapshotArray.sort(function(a, b) {
+      if (a[validFromField] > b[validFromField]) {
+        return 1;
+      } else if (a[validFromField] === b[validFromField]) {
+        return 0;
+      } else {
+        return -1;
+      }
+    });
     atLength = listOfAtCTs.length;
     snapshotLength = snapshotArray.length;
     preOutput = [];
     if (atLength <= 0 || snapshotLength <= 0) {
       return preOutput;
     }
-    atPointer = 0;
     granularity = listOfAtCTs[0].granularity;
+    atPointer = 0;
     snapshotPointer = 0;
     currentSnapshot = snapshotArray[snapshotPointer];
     currentRow = {};
@@ -8689,8 +8698,6 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
          The output of this operation is called an `atArray`
       3. Use `deriveFieldsAt` to add fields in each object in the `atArray` whose values are derived from the other fields in the object.
       4. Use `aggregateAt` to calculate aggregations into an `aggregationAtArray` which contains chartable values.
-      
-      Note: We assume the snapshotArray is sorted by the config.snapshotValidFromField
     */
 
     var aggregationAtArray, atArray, listOfAtCTs;
@@ -8722,8 +8729,6 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
          The output of this operation is called an `atArray`
       3. Use `groupByAt` to create a `groupByAtArray` of grouped aggregations to chart
-    
-      Note: We assume the snapshotArray is sorted by the config.snapshotValidFromField
     */
 
     var aggregationSpec, atArray, groupByAtArray, listOfAtCTs;

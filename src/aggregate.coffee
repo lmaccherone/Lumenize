@@ -292,7 +292,6 @@ timeSeriesCalculator = (snapshotArray, config) ->
   3. Use `deriveFieldsAt` to add fields in each object in the `atArray` whose values are derived from the other fields in the object.
   4. Use `aggregateAt` to calculate aggregations into an `aggregationAtArray` which contains chartable values.
   
-  Note: We assume the snapshotArray is sorted by the config.snapshotValidFromField
   ###
   
   # 1. Figuring out the points for the x-axis (listOfAtCTs) 
@@ -329,7 +328,6 @@ timeSeriesGroupByCalculator = (snapshotArray, config) ->
      The output of this operation is called an `atArray`
   3. Use `groupByAt` to create a `groupByAtArray` of grouped aggregations to chart
 
-  Note: We assume the snapshotArray is sorted by the config.snapshotValidFromField
   ###
 
   # 1. Figuring out the points for the x-axis (listOfAtCTs)

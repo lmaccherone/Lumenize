@@ -1,21 +1,26 @@
 [
     {
-        "name": "All...",
+        "name": "Lumenize",
         "groups": [
             {
-                "name": "Classes",
+                "name": "Primary Functions",
+                "classes": [
+                    "Lumenize"
+                ]
+            },
+            {
+                "name": "Supporting Functions",
+                "classes": [
+                    "*.functions"
+                ]
+            },
+            {
+                "name": "Supporting Classes",
                 "classes": [
                     "*.ChartTime",
                     "*.ChartTimeRange",
                     "*.ChartTimeIterator",
                     "*.ChartTimeInStateCalculator"
-                ]
-            },
-            {
-                "name": "Functions",
-                "classes": [
-                    "*.functions",
-                    "Lumenize"
                 ]
             }
         ]

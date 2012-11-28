@@ -1,7 +1,7 @@
 utils = require('./utils')
 timezoneJS = require('timezone-js').timezoneJS
 
-class ChartTime  # !TODO: Change "start" to "startAt" and "pastEnd" to "endBefore"
+class ChartTime  # !TODO: Change "start" to "startOn" and "pastEnd" to "endBefore"
   ###
   @class ChartTime
   # ChartTime #

@@ -49,7 +49,7 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
 snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueIDField, tz, validToField) ->  
   ###
   @method snapshotArray_To_AtArray
-  @param {Object[]} snapshotArray Array of snapshots sorted by validFromField # !TODO: Add the sort. Borrow from TimeInState.
+  @param {Object[]} snapshotArray Array of snapshots
   @param {Array[]} atArray Array of ChartTime objects representing the moments we want the snapshots at
   @param {String} validFromField Specifies the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
   @param {String} validToField Same except for the end of the snapshot's active time.
@@ -113,13 +113,25 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
   ###
   unless validToField?
     validToField = '_ValidTo'
+
+  # sort the snapshotArray array by the validFromField field
+  snapshotArray.sort((a, b) ->
+    if a[validFromField] > b[validFromField]
+      return 1
+    else if a[validFromField] == b[validFromField]
+        return 0
+    else
+      return -1
+  )
+
   atLength = listOfAtCTs.length
   snapshotLength = snapshotArray.length
   preOutput = []
   if (atLength <= 0 or snapshotLength <= 0)
     return preOutput
-  atPointer = 0
   granularity = listOfAtCTs[0].granularity
+
+  atPointer = 0
   snapshotPointer = 0
   currentSnapshot = snapshotArray[snapshotPointer]
   currentRow = {}

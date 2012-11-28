@@ -28,18 +28,6 @@ run = (command, options, next) ->
   )
   return runProducedError
 
-#compile = (watch, callback) ->
-#  if typeof watch is 'function'
-#    callback = watch
-#    watch = false
-#  options = ['-c', '-o', 'js', 'src']
-#  options.unshift '-w' if watch
-#  run('coffee', options)
-#
-#task('compile', 'Compile CoffeeScript source files to JavaScript and place in ./js', () ->
-#    compile()
-#)
-
 #task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
 #  fs.readdir('src', (err, contents) ->
 #    projectCoffeeFile =  path.basename(__dirname) + '.coffee'
@@ -65,7 +53,9 @@ task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
     unless runProducedError
       {name, version} = require('./package.json')
       outputDirectory = path.join(__dirname, 'docs', "#{name}-#{version}-docs")
-      run('node_modules/.bin/jsduckify', ['--noduck', '-d', outputDirectory, __dirname], (stout) ->
+      if fs.existsSync(outputDirectory)
+        wrench.rmdirSyncRecursive(outputDirectory, false)
+      run('node_modules/.bin/jsduckify', ['-d', outputDirectory, __dirname], (stout) ->
         unless runProducedError
           commonOutputDirectory = path.join(__dirname, 'docs', "#{name}-docs")
           if fs.existsSync(commonOutputDirectory)
@@ -75,10 +65,10 @@ task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
   )
 )
 
-#task('pub-docs', 'Push master to gh-pages on github', () ->
-#  process.chdir(__dirname)
-#  run('git push -f origin master:gh-pages')
-#)
+task('pub-docs', 'Push master to gh-pages on github', () ->
+  process.chdir(__dirname)
+  run('git push -f origin master:gh-pages')
+)
 
 task('publish', 'Publish to npm', () ->
   process.chdir(__dirname)
