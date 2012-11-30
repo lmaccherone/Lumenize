@@ -1,6 +1,6 @@
 {
   "name": "Lumenize",
-  "version": "0.5.0",
+  "version": "0.4.1",
   "main": "./lumenize",
   "description": "Illuminating the forest AND the trees in your data.",
   "keywords": [
