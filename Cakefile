@@ -92,7 +92,8 @@ task('publish', 'Publish to npm', () ->
   process.chdir(__dirname)
   run('npm publish .', [], (stout) ->
     unless runProducedError
-      run("git push origin master:v#{require('./package.json').version}")
+      run("git tag v#{require('./package.json').version}")
+      run("git push --tags")
   )
 )
 
