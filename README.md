@@ -111,8 +111,10 @@ In November of 2012, Lumenize started keeping old versions around because it was
 
 * 0.5.0 - 2012-12-15 (not pushed to github yet)
   * Major refactor of names/variables for inclusion in Rally's App SDK
+* 0.4.2 - 2012-11-28 - Playing with using git tags for keeping old versions
+* 0.4.1 - 2012-11-28 - Playing with using git branches for keeping old versions
 * 0.4.0 - 2012-11-27
-  * **Backward breaking change**
+  * **Backward breaking change** No longer required/allowed to call ChartTime.setTZPath()
   * Using JSDuck for documentation now
   * Build system now keeps old deploy versions
   * Pre-compiled directory removed
