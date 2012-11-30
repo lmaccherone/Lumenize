@@ -5,6 +5,8 @@ path          = require('path')
 wrench        = require('wrench')
 marked        = require('marked')
 
+uglify = require("uglify-js")
+
 runProducedError = false
 process.on('exit', () ->
   if runProducedError
@@ -70,16 +72,10 @@ task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
 
       # jsduckify
       {name, version} = require('./package.json')
-      outputDirectory = path.join(__dirname, 'docs', "#{name}-#{version}-docs")
+      outputDirectory = path.join(__dirname, 'docs', "#{name}-docs")
       if fs.existsSync(outputDirectory)
         wrench.rmdirSyncRecursive(outputDirectory, false)
-      run('node_modules/jsduckify/bin/jsduckify', ['-d', outputDirectory, __dirname], (stout) ->
-        unless runProducedError
-          commonOutputDirectory = path.join(__dirname, 'docs', "#{name}-docs")
-          if fs.existsSync(commonOutputDirectory)
-            wrench.rmdirSyncRecursive(commonOutputDirectory, false)
-          wrench.copyDirSyncRecursive(outputDirectory, commonOutputDirectory)
-      )
+      run('node_modules/jsduckify/bin/jsduckify', ['-d', outputDirectory, __dirname])
   )
 )
 
@@ -105,8 +101,19 @@ task('build', 'Build with browserify and place in ./deploy', () ->
   b.ignore(['files'])
   b.require("./lumenize")
   {name, version} = require('./package.json')
-  fs.writeFileSync("deploy/#{name}-#{version}.js", b.bundle())
-  run("uglifyjs deploy/#{name}-#{version}.js > deploy/#{name}-#{version}-min.js")
+  fileString = """
+    /*
+    #{name} version: #{version}
+    */
+    #{b.bundle()}
+  """
+  deployFileName = "deploy/#{name}.js"
+  fs.writeFileSync(deployFileName, fileString)
+
+  minFileString = uglify.minify(deployFileName).code
+  fs.writeFileSync("deploy/#{name}-min.js", fileString)
+
+#  run("uglifyjs deploy/#{name}.js > deploy/#{name}-min.js")
   # !TODO: Need to run tests on the built version
 )
 

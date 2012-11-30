@@ -48,9 +48,11 @@ Used when developing:
 
 To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
 
-`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/master/deploy/Lumenize-{{version}}-min.js"></script>`
+`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/v{{version}}/deploy/Lumenize-min.js"></script>`
 
-Replace `{{version}}` with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. 
+Replace `{{version}}` with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:
+
+`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/v0.4.3/deploy/Lumenize-min.js"></script>`
 
 The package is fairly large ~212KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip the package so it's only ~45KB over the wire.
 
@@ -107,7 +109,7 @@ Once you have that all working, submit a pull request on GitHub.
 
 ## Changelog ##
 
-In November of 2012, Lumenize started keeping old versions around because it was about to undergo a huge backward-breaking change. Version 0.4.0 is the last version before this change. Note, that there is a version of Lumenize without any versioning annotation in the deploy folder. That's version 0.3.0. It will be left around for a while in case someone is directly linking to it. It will then be changed to track the latest. The docs already track the latest.
+In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
 * 0.5.0 - 2012-12-15 (not pushed to github yet)
   * Major refactor of names/variables for inclusion in Rally's App SDK
