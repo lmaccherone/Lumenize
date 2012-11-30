@@ -90,7 +90,7 @@ task('pub-docs', 'Push master to gh-pages on github', () ->
 
 task('publish', 'Publish to npm', () ->
   process.chdir(__dirname)
-  run('npm publish .', (stout) ->
+  run('npm publish .', [], (stout) ->
     unless runProducedError
       run("git push origin master:v#{require('./package.json').version}")
   )
