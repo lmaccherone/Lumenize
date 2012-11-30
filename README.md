@@ -42,6 +42,7 @@ Used when developing:
 * [browserify with fileify plugin](https://github.com/substack/node-browserify)
 * [uglify-js](https://github.com/mishoo/UglifyJS)
 * [wrench](https://github.com/ryanmcgrath/wrench-js)
+* [marked](https://github.com/chjj/marked)
 
 ## Using from a browser ##
 
@@ -111,6 +112,7 @@ In November of 2012, Lumenize started keeping old versions around because it was
 * 0.5.0 - 2012-12-15 (not pushed to github yet)
   * Major refactor of names/variables for inclusion in Rally's App SDK
 * 0.4.0 - 2012-11-27
+  * **Backward breaking change**
   * Using JSDuck for documentation now
   * Build system now keeps old deploy versions
   * Pre-compiled directory removed
