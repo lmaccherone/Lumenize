@@ -13,6 +13,7 @@ run = (command, options, next) ->
     command += ' ' + options.join(' ')
 
   {stdout, stderr} = execSync(command, true)
+  console.log(stderr)
   if stderr.length > 0
     process.exit(1)
   if next?
