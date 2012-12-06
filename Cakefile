@@ -6,30 +6,37 @@ wrench        = require('wrench')
 marked        = require('marked')
 
 uglify = require("uglify-js")
-
-runProducedError = false
-process.on('exit', () ->
-  if runProducedError
-    console.log('\nErrors found. Exiting CakeFile with code 1.')
-    process.exit(1)
-)
+execSync = require('exec-sync')
 
 run = (command, options, next) ->
   if options? and options.length > 0
     command += ' ' + options.join(' ')
-  exec(command, (error, stdout, stderr) ->
-    if stderr.length > 0
-      console.log("Stderr exec'ing command '#{command}'...\n" + stderr)
-    if error?
-      console.log('exec error: ' + error)
-      runProducedError = true
-    if next?
-      next(stdout)
-    else
-      if stdout.length > 0
-        console.log("Stdout exec'ing command '#{command}'...\n" + stdout)
-  )
-  return runProducedError
+
+  {stdout, stderr} = execSync(command, true)
+  if stderr.length > 0
+    process.exit(1)
+  if next?
+    next(stdout)
+  else
+    if stdout.length > 0
+      console.log("Stdout exec'ing command '#{command}'...\n" + stdout)
+
+#run = (command, options, next) ->
+#  if options? and options.length > 0
+#    command += ' ' + options.join(' ')
+#  exec(command, (error, stdout, stderr) ->
+#    if stderr.length > 0
+#      console.log("Stderr exec'ing command '#{command}'...\n" + stderr)
+#    if error?
+#      console.log('exec error: ' + error)
+#      runProducedError = true
+#    if next?
+#      next(stdout)
+#    else
+#      if stdout.length > 0
+#        console.log("Stdout exec'ing command '#{command}'...\n" + stdout)
+#  )
+#  return runProducedError
 
 #task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
 #  fs.readdir('src', (err, contents) ->
@@ -52,45 +59,50 @@ run = (command, options, next) ->
 
 task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
   process.chdir(__dirname)
-  run('coffeedoctest', ['--readme', 'src', 'lumenize.coffee'], (stout) ->
-    unless runProducedError
-      # create README.html
-      readmeDotCSSString = fs.readFileSync('README.css', 'utf8')
-      readmeDotMDString = fs.readFileSync('README.md', 'utf8')
-      readmeDotHTMLString = marked(readmeDotMDString)
-      readmeDotHTMLString = """
-        <style>
-        #{readmeDotCSSString}
-        </style>
-        <body>
-        <div class="readme">
-        #{readmeDotHTMLString}
-        </div>
-        </body>
-      """
-      fs.writeFileSync(path.join(__dirname, 'docs', 'README.html'), readmeDotHTMLString)
+  run('coffeedoctest', ['--readme', 'src', 'lumenize.coffee'])
+  # create README.html
+  readmeDotCSSString = fs.readFileSync('read-me.css', 'utf8')
+  readmeDotMDString = fs.readFileSync('README.md', 'utf8')
+  readmeDotHTMLString = marked(readmeDotMDString)
+  readmeDotHTMLString = """
+    <style>
+    #{readmeDotCSSString}
+    </style>
+    <body>
+    <div class="readme">
+    #{readmeDotHTMLString}
+    </div>
+    </body>
+  """
+  fs.writeFileSync(path.join(__dirname, 'docs', 'README.html'), readmeDotHTMLString)
 
-      # jsduckify
-      {name, version} = require('./package.json')
-      outputDirectory = path.join(__dirname, 'docs', "#{name}-docs")
-      if fs.existsSync(outputDirectory)
-        wrench.rmdirSyncRecursive(outputDirectory, false)
-      run('node_modules/jsduckify/bin/jsduckify', ['-d', outputDirectory, __dirname])
-  )
+  # jsduckify
+  {name, version} = require('./package.json')
+  outputDirectory = path.join(__dirname, 'docs', "#{name}-docs")
+  if fs.existsSync(outputDirectory)
+    wrench.rmdirSyncRecursive(outputDirectory, false)
+  run('node_modules/jsduckify/bin/jsduckify', ['-d', outputDirectory, __dirname])
 )
 
 task('pub-docs', 'Push master to gh-pages on github', () ->
+  invoke('docs')
+  pubDocsRaw()
+)
+
+pubDocsRaw = () ->
   process.chdir(__dirname)
   run('git push -f origin master:gh-pages')
-)
 
 task('publish', 'Publish to npm', () ->
   process.chdir(__dirname)
-  run('npm publish .', [], (stout) ->
-    unless runProducedError
-      run("git tag v#{require('./package.json').version}")
-      run("git push --tags")
-  )
+  run('cake test')  # Doing this exernally to make it synchrous and cause the rest to not run unless it fails
+  invoke('docs')
+  invoke('build')
+  # assure that we're all committed
+  run('npm publish .')
+  run("git tag v#{require('./package.json').version}")
+  run("git push --tags")
+  pubDocsRaw()
 )
 
 task('build', 'Build with browserify and place in ./deploy', () -> 
@@ -142,9 +154,19 @@ task('build', 'Build with browserify and place in ./deploy', () ->
 #     ) 
 # )
 
+#task('test', 'Run the CoffeeScript test suite with nodeunit', () ->
+#  {reporters} = require 'nodeunit'
+#  process.chdir __dirname
+#  reporters.default.run(['test'])
+#)
+
 task('test', 'Run the CoffeeScript test suite with nodeunit', () ->
-  {reporters} = require 'nodeunit'
-  process.chdir __dirname
-  reporters.default.run ['test']
+  {reporters} = require('nodeunit')
+  process.chdir(__dirname)
+  reporters.default.run(['test'], undefined, (failure) ->
+    if failure?
+      console.error(failure)
+      process.exit(1)
+  )
 )
 

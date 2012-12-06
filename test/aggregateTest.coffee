@@ -2,6 +2,10 @@
 
 exports.aggregateTest =
 
+#  testFail: (test) ->
+#    test.ok(false)
+#    test.done()
+
   testPercentile: (test) ->
   
     a = [15, 20, 35, 40, 50]
