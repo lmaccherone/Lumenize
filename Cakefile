@@ -98,11 +98,15 @@ task('publish', 'Publish to npm', () ->
   run('cake test')  # Doing this exernally to make it synchrous and cause the rest to not run unless it fails
   invoke('docs')
   invoke('build')
-  # assure that we're all committed
-  run('npm publish .')
-  run("git tag v#{require('./package.json').version}")
-  run("git push --tags")
-  pubDocsRaw()
+  # if git status --porcelain comes back blank, then everything is committed but might not be pushed
+  run('git status --porcelain', [], (stdout) ->
+    console.log(stdout.length)
+#    run('git push origin master')
+#    run('npm publish .')
+#    run("git tag v#{require('./package.json').version}")
+#    run("git push --tags")
+#    pubDocsRaw()
+  )
 )
 
 task('build', 'Build with browserify and place in ./deploy', () -> 
