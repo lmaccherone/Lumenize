@@ -100,12 +100,14 @@ task('publish', 'Publish to npm', () ->
   invoke('build')
   # if git status --porcelain comes back blank, then everything is committed but might not be pushed
   run('git status --porcelain', [], (stdout) ->
-    console.log(stdout.length)
-#    run('git push origin master')
-#    run('npm publish .')
-#    run("git tag v#{require('./package.json').version}")
-#    run("git push --tags")
-#    pubDocsRaw()
+    if stdout.length == 0
+      run('git push origin master')
+      run('npm publish .')
+      run("git tag v#{require('./package.json').version}")
+      run("git push --tags")
+      pubDocsRaw()
+    else
+      console.error('`git status --porcelain` was not clean. Not publishing.')
   )
 )
 
