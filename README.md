@@ -26,7 +26,7 @@ Lumenize is a collection of tools for making awesome visualizations out of your 
 
 Authors:
 
-* [Larry Maccherone](http://maccherone.com) (<Larry@Maccherone.com>)
+* [Larry Maccherone](http://maccherone.com)
 * Jennifer Maccherone
 
 Used when running:
