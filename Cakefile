@@ -102,12 +102,12 @@ task('publish', 'Publish to npm', () ->
   # if git status --porcelain comes back blank, then everything is committed but might not be pushed
   run('git status --porcelain', [], (stdout) ->
     if stdout.length == 0
-      console.log('running git push origin master')
-      run('git push origin master')
-      console.log('skipping npm publish and following git tagging calls')
-#      run('npm publish .')
-#      run("git tag v#{require('./package.json').version}")
-#      run("git push --tags")
+#      console.log('running git push origin master')
+#      run('git push origin master')
+      console.log('running npm publish and following git tagging calls')
+      run('npm publish .')
+      run("git tag v#{require('./package.json').version}")
+      run("git push --tags")
       console.log('running pubDocsRaw()')
       pubDocsRaw()
     else
