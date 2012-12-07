@@ -105,8 +105,10 @@ task('publish', 'Publish to npm', () ->
       # Need to confirm that everything is pushed
 #      console.log('running git push origin master')
 #      run('git push origin master')
-      {stdoutOrigin, stderrOrigin} = execSync('git rev-parse origin', true)
-      {stdoutMaster, stderrMaster} = execSync('git rev-parse master', true)
+      {stdout, stderr} = execSync('git rev-parse origin', true)
+      stdoutOrigin = stdout
+      {stdout, stderr} = execSync('git rev-parse master', true)
+      stdoutMaster = stdout
       console.log(stderrOrigin, stderrMaster)
 #      console.log('running npm publish')
 #      {stdout, stderr} = execSync('npm publish .', true)
