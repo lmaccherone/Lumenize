@@ -104,8 +104,9 @@ task('publish', 'Publish to npm', () ->
     if stdout.length == 0
 #      console.log('running git push origin master')
 #      run('git push origin master')
-      console.log('running npm publish and following git tagging calls')
+      console.log('running npm publish')
       run('npm publish .')
+      console.log('running git tag')
       run("git tag v#{require('./package.json').version}")
       run("git push --tags")
       console.log('running pubDocsRaw()')
