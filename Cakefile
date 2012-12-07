@@ -105,7 +105,7 @@ task('publish', 'Publish to npm', () ->
       stdoutOrigin = stdout
       {stdout, stderr} = execSync('git rev-parse master', true)
       stdoutMaster = stdout
-      if stdoutOrigin == stdMaster
+      if stdoutOrigin == stdoutMaster
         console.log('running npm publish')
         {stdout, stderr} = execSync('npm publish .', true)
         if fs.existsSync('npm-debug.log')
