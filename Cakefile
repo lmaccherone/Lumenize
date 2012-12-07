@@ -14,7 +14,7 @@ run = (command, options, next) ->
 
   {stdout, stderr} = execSync(command, true)
   if stderr.length > 0
-    console.error(stderr)
+    console.error("Error running `#{command}\n" + stderr)
     process.exit(1)
   if next?
     next(stdout)
