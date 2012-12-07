@@ -96,30 +96,28 @@ pubDocsRaw = () ->
 
 task('publish', 'Publish to npm', () ->
   process.chdir(__dirname)
-  run('cake test')  # Doing this exernally to make it synchrous and cause the rest to not run unless it fails
+  run('cake test')  # Doing this exernally to make it synchrous
   invoke('docs')
   invoke('build')
-  # if git status --porcelain comes back blank, then everything is committed but might not be pushed
   run('git status --porcelain', [], (stdout) ->
     if stdout.length == 0
-      # Need to confirm that everything is pushed
-#      console.log('running git push origin master')
-#      run('git push origin master')
       {stdout, stderr} = execSync('git rev-parse origin', true)
       stdoutOrigin = stdout
       {stdout, stderr} = execSync('git rev-parse master', true)
       stdoutMaster = stdout
-      console.log(stdoutOrigin, stdoutMaster)
-#      console.log('running npm publish')
-#      {stdout, stderr} = execSync('npm publish .', true)
-#      if fs.existsSync('npm-debug.log')
-#        console.error('`npm publish` failed. See npm-debug.log for details.')
-#      else
-#        console.log('running git tag')
-#        run("git tag v#{require('./package.json').version}")
-#        run("git push --tags")
-#        console.log('running pubDocsRaw()')
-#        pubDocsRaw()
+      if stdoutOrigin == stdMaster
+        console.log('running npm publish')
+        {stdout, stderr} = execSync('npm publish .', true)
+        if fs.existsSync('npm-debug.log')
+          console.error('`npm publish` failed. See npm-debug.log for details.')
+        else
+          console.log('running git tag')
+          run("git tag v#{require('./package.json').version}")
+          run("git push --tags")
+          console.log('running pubDocsRaw()')
+          pubDocsRaw()
+      else
+        console.error('Origin and master out of sync. Not publishing.')
     else
       console.error('`git status --porcelain` was not clean. Not publishing.')
   )
