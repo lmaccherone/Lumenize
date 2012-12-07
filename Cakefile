@@ -14,7 +14,7 @@ run = (command, options, next) ->
 
   {stdout, stderr} = execSync(command, true)
   if stderr.length > 0
-    console.error("Error running `#{command}\n" + stderr)
+    console.error("Error running `#{command}`\n" + stderr)
     process.exit(1)
   if next?
     next(stdout)
@@ -102,15 +102,19 @@ task('publish', 'Publish to npm', () ->
   # if git status --porcelain comes back blank, then everything is committed but might not be pushed
   run('git status --porcelain', [], (stdout) ->
     if stdout.length == 0
+      # Need to confirm that everything is pushed
 #      console.log('running git push origin master')
 #      run('git push origin master')
       console.log('running npm publish')
-      run('npm publish .')
-      console.log('running git tag')
-      run("git tag v#{require('./package.json').version}")
-      run("git push --tags")
-      console.log('running pubDocsRaw()')
-      pubDocsRaw()
+      {stdout, stderr} = execSync('npm publish .', true)
+      if fs.existsSync('npm-debug.log')
+        console.error('`npm publish` failed. See npm-debug.log for details.')
+      else
+        console.log('running git tag')
+        run("git tag v#{require('./package.json').version}")
+        run("git push --tags")
+        console.log('running pubDocsRaw()')
+        pubDocsRaw()
     else
       console.error('`git status --porcelain` was not clean. Not publishing.')
   )

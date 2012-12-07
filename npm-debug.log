@@ -10,17 +10,17 @@
 9 silly lockFile 3a52ce78- .
 10 verbose lock . /Users/lmaccherone/.npm/3a52ce78-.lock
 11 verbose read json package.json
-12 verbose tar pack [ '/var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-61146/1354838842093-0.5393732686061412/tmp.tgz',
+12 verbose tar pack [ '/var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-62104/1354839804889-0.24246492167003453/tmp.tgz',
 12 verbose tar pack   '.' ]
-13 verbose tarball /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-61146/1354838842093-0.5393732686061412/tmp.tgz
+13 verbose tarball /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-62104/1354839804889-0.24246492167003453/tmp.tgz
 14 verbose folder .
-15 info prepublish Lumenize@0.4.4
-16 silly lockFile 8e4998e6-42093-0-5393732686061412-tmp-tgz /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-61146/1354838842093-0.5393732686061412/tmp.tgz
-17 verbose lock /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-61146/1354838842093-0.5393732686061412/tmp.tgz /Users/lmaccherone/.npm/8e4998e6-42093-0-5393732686061412-tmp-tgz.lock
-18 silly lockFile 8e4998e6-42093-0-5393732686061412-tmp-tgz /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-61146/1354838842093-0.5393732686061412/tmp.tgz
-19 verbose tar unpack /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-61146/1354838842093-0.5393732686061412/tmp.tgz
-20 silly lockFile fd707e9c-42093-0-5393732686061412-package /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-61146/1354838842093-0.5393732686061412/package
-21 verbose lock /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-61146/1354838842093-0.5393732686061412/package /Users/lmaccherone/.npm/fd707e9c-42093-0-5393732686061412-package.lock
+15 info prepublish Lumenize@0.4.5
+16 silly lockFile c6038460-4889-0-24246492167003453-tmp-tgz /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-62104/1354839804889-0.24246492167003453/tmp.tgz
+17 verbose lock /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-62104/1354839804889-0.24246492167003453/tmp.tgz /Users/lmaccherone/.npm/c6038460-4889-0-24246492167003453-tmp-tgz.lock
+18 silly lockFile c6038460-4889-0-24246492167003453-tmp-tgz /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-62104/1354839804889-0.24246492167003453/tmp.tgz
+19 verbose tar unpack /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-62104/1354839804889-0.24246492167003453/tmp.tgz
+20 silly lockFile 78085425-4889-0-24246492167003453-package /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-62104/1354839804889-0.24246492167003453/package
+21 verbose lock /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-62104/1354839804889-0.24246492167003453/package /Users/lmaccherone/.npm/78085425-4889-0-24246492167003453-package.lock
 22 silly gunzTarPerm modes [ '755', '644' ]
 23 silly gunzTarPerm extractEntry package.json
 24 silly gunzTarPerm extractEntry .npmignore
@@ -538,22 +538,22 @@
 536 silly gunzTarPerm extractEntry src/histogram.coffee
 537 silly gunzTarPerm extractEntry src/utils.coffee
 538 silly gunzTarPerm extractEntry jsduck-config.json
-539 verbose read json /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-61146/1354838842093-0.5393732686061412/package/package.json
-540 silly lockFile fd707e9c-42093-0-5393732686061412-package /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-61146/1354838842093-0.5393732686061412/package
-541 verbose from cache /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-61146/1354838842093-0.5393732686061412/package/package.json
-542 verbose tar pack [ '/Users/lmaccherone/.npm/Lumenize/0.4.4/package.tgz',
-542 verbose tar pack   '/var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-61146/1354838842093-0.5393732686061412/package' ]
-543 verbose tarball /Users/lmaccherone/.npm/Lumenize/0.4.4/package.tgz
-544 verbose folder /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-61146/1354838842093-0.5393732686061412/package
-545 silly lockFile c04c941f-e-npm-Lumenize-0-4-4-package-tgz /Users/lmaccherone/.npm/Lumenize/0.4.4/package.tgz
-546 verbose lock /Users/lmaccherone/.npm/Lumenize/0.4.4/package.tgz /Users/lmaccherone/.npm/c04c941f-e-npm-Lumenize-0-4-4-package-tgz.lock
-547 silly lockFile c04c941f-e-npm-Lumenize-0-4-4-package-tgz /Users/lmaccherone/.npm/Lumenize/0.4.4/package.tgz
-548 silly lockFile 7a2b83fb-erone-npm-Lumenize-0-4-4-package /Users/lmaccherone/.npm/Lumenize/0.4.4/package
-549 verbose lock /Users/lmaccherone/.npm/Lumenize/0.4.4/package /Users/lmaccherone/.npm/7a2b83fb-erone-npm-Lumenize-0-4-4-package.lock
-550 silly lockFile 7a2b83fb-erone-npm-Lumenize-0-4-4-package /Users/lmaccherone/.npm/Lumenize/0.4.4/package
-551 verbose tar unpack /Users/lmaccherone/.npm/Lumenize/0.4.4/package.tgz
-552 silly lockFile 7a2b83fb-erone-npm-Lumenize-0-4-4-package /Users/lmaccherone/.npm/Lumenize/0.4.4/package
-553 verbose lock /Users/lmaccherone/.npm/Lumenize/0.4.4/package /Users/lmaccherone/.npm/7a2b83fb-erone-npm-Lumenize-0-4-4-package.lock
+539 verbose read json /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-62104/1354839804889-0.24246492167003453/package/package.json
+540 silly lockFile 78085425-4889-0-24246492167003453-package /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-62104/1354839804889-0.24246492167003453/package
+541 verbose from cache /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-62104/1354839804889-0.24246492167003453/package/package.json
+542 verbose tar pack [ '/Users/lmaccherone/.npm/Lumenize/0.4.5/package.tgz',
+542 verbose tar pack   '/var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-62104/1354839804889-0.24246492167003453/package' ]
+543 verbose tarball /Users/lmaccherone/.npm/Lumenize/0.4.5/package.tgz
+544 verbose folder /var/folders/wr/t3gmh2pnkmq41gx2ljzsdhshlr04k9/T/npm-62104/1354839804889-0.24246492167003453/package
+545 silly lockFile 008f7e0e-e-npm-Lumenize-0-4-5-package-tgz /Users/lmaccherone/.npm/Lumenize/0.4.5/package.tgz
+546 verbose lock /Users/lmaccherone/.npm/Lumenize/0.4.5/package.tgz /Users/lmaccherone/.npm/008f7e0e-e-npm-Lumenize-0-4-5-package-tgz.lock
+547 silly lockFile 008f7e0e-e-npm-Lumenize-0-4-5-package-tgz /Users/lmaccherone/.npm/Lumenize/0.4.5/package.tgz
+548 silly lockFile 4f3d0f10-erone-npm-Lumenize-0-4-5-package /Users/lmaccherone/.npm/Lumenize/0.4.5/package
+549 verbose lock /Users/lmaccherone/.npm/Lumenize/0.4.5/package /Users/lmaccherone/.npm/4f3d0f10-erone-npm-Lumenize-0-4-5-package.lock
+550 silly lockFile 4f3d0f10-erone-npm-Lumenize-0-4-5-package /Users/lmaccherone/.npm/Lumenize/0.4.5/package
+551 verbose tar unpack /Users/lmaccherone/.npm/Lumenize/0.4.5/package.tgz
+552 silly lockFile 4f3d0f10-erone-npm-Lumenize-0-4-5-package /Users/lmaccherone/.npm/Lumenize/0.4.5/package
+553 verbose lock /Users/lmaccherone/.npm/Lumenize/0.4.5/package /Users/lmaccherone/.npm/4f3d0f10-erone-npm-Lumenize-0-4-5-package.lock
 554 silly gunzTarPerm modes [ '755', '644' ]
 555 silly gunzTarPerm extractEntry package.json
 556 silly gunzTarPerm extractEntry .npmignore
@@ -1071,8 +1071,8 @@
 1068 silly gunzTarPerm extractEntry test/timelineTest.coffee
 1069 silly gunzTarPerm extractEntry test/utilsTest.coffee
 1070 silly gunzTarPerm extractEntry jsduck-config.json
-1071 verbose read json /Users/lmaccherone/.npm/Lumenize/0.4.4/package/package.json
-1072 silly lockFile 7a2b83fb-erone-npm-Lumenize-0-4-4-package /Users/lmaccherone/.npm/Lumenize/0.4.4/package
+1071 verbose read json /Users/lmaccherone/.npm/Lumenize/0.4.5/package/package.json
+1072 silly lockFile 4f3d0f10-erone-npm-Lumenize-0-4-5-package /Users/lmaccherone/.npm/Lumenize/0.4.5/package
 1073 silly shasum updated bytes 40960
 1074 silly shasum updated bytes 40960
 1075 silly shasum updated bytes 40960
@@ -1116,15 +1116,15 @@
 1113 silly shasum updated bytes 40960
 1114 silly shasum updated bytes 40960
 1115 silly shasum updated bytes 40960
-1116 silly shasum updated bytes 40879
-1117 info shasum 9d183af52ec6f60db1d8a1d50dceb45c6d9e461a
-1117 info shasum /Users/lmaccherone/.npm/Lumenize/0.4.4/package.tgz
-1118 verbose from cache /Users/lmaccherone/.npm/Lumenize/0.4.4/package/package.json
-1119 verbose chmod /Users/lmaccherone/.npm/Lumenize/0.4.4/package.tgz 644
-1120 verbose chown /Users/lmaccherone/.npm/Lumenize/0.4.4/package.tgz [ 662704713, 20 ]
+1116 silly shasum updated bytes 40948
+1117 info shasum 97847c1e1277f4911f4c28047c4c2fcf85aeb6c6
+1117 info shasum /Users/lmaccherone/.npm/Lumenize/0.4.5/package.tgz
+1118 verbose from cache /Users/lmaccherone/.npm/Lumenize/0.4.5/package/package.json
+1119 verbose chmod /Users/lmaccherone/.npm/Lumenize/0.4.5/package.tgz 644
+1120 verbose chown /Users/lmaccherone/.npm/Lumenize/0.4.5/package.tgz [ 662704713, 20 ]
 1121 silly lockFile 3a52ce78- .
 1122 silly publish { name: 'Lumenize',
-1122 silly publish   version: '0.4.4',
+1122 silly publish   version: '0.4.5',
 1122 silly publish   main: './lumenize',
 1122 silly publish   description: 'Illuminating the forest AND the trees in your data.',
 1122 silly publish   keywords:
@@ -1152,25 +1152,25 @@
 1122 silly publish      wrench: '1.4.x',
 1122 silly publish      marked: '0.2.6' },
 1122 silly publish   licenses: [ { type: 'MIT', url: 'http://www.opensource.org/licenses/MIT' } ],
-1122 silly publish   readme: '\n# Lumenize #\n\nCopyright (c) 2009-2012, Lawrence S. Maccherone, Jr.\n\n_Illuminating the forest AND the trees in your data._\n\nLumenize is a collection of tools for making awesome visualizations out of your data.\n\n## Features ##\n\n* Create time-series axis for charts\n  * Knockout weekends, holidays, non-workhours\n  * Work with timezone precision\n  * Work in any granularity\n    * Year, quarter, week, day, hour, etc.\n    * No more recording `2012-03-05T00:00:00.000Z` when you really just mean `2012-03-05`\n    * Create and use custom granularities: `R02I04-07` = Seventh day of fourth iteration in second release\n* Create aggregations from temporal data models like Rally\'s Lookback API\n* Tested - Over 300 tests\n* [Documented](http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html) - Robust documentation for an open source library\n* [DocTested](https://github.com/lmaccherone/coffeedoctest) - The examples will always match the code because it fails automated testing\n   when they don\'t\n\n## Credits ##\n\nAuthors:\n\n* [Larry Maccherone](http://maccherone.com)\n* Jennifer Maccherone\n\nUsed when running:\n\n* [timezoneJS](https://github.com/mde/timezone-js) - library for [tz file](http://www.twinsun.com/tz/tz-link.htm) parsing. Although I haven\'t touched the actual tz file parsing code, I have modified timezoneJS fairly significantly. The original included a drop-in replacement for JavaScript\'s Date object which I have removed. I also modified it to work on node.js and in the browser once "browserified" by bundling the tz files.\n\nUsed when developing:\n\n* [Node.js](http://nodejs.org/)\n* [CoffeeScript](http://coffeescript.org/)\n* [coffeedoctest](https://github.com/lmaccherone/coffeedoctest) (by Larry Maccherone)\n* [nodeunit](https://github.com/caolan/nodeunit)\n* [browserify with fileify plugin](https://github.com/substack/node-browserify)\n* [uglify-js](https://github.com/mishoo/UglifyJS)\n* [wrench](https://github.com/ryanmcgrath/wrench-js)\n* [marked](https://github.com/chjj/marked)\n\n## Using from a browser ##\n\nTo use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:\n\n`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/v{{version}}/deploy/Lumenize-min.js"></script>`\n\nReplace `{{version}}` with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:\n\n`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/v0.4.3/deploy/Lumenize-min.js"></script>`\n\nThe package is fairly large ~212KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip the package so it\'s only ~45KB over the wire.\n\nThen at the top of the javascript where you want to call it, put the following:\n\n`var lumenize = require(\'./lumenize\');`\n\nThen to use it, you can either create local aliases like:\n\n`var ChartTime = lumenize.ChartTime;`\n\nor you can just use the lumenize namespace:\n\n`var stdDev = lumenize.functions.$standardDeviation([20, 30, 50]);`\n    \n## Installation for node.js usage ##\n\nTo install in the node_modules directory of your project, run the following from the root folder of your project:\n\n`npm install Lumenize`\n\nor better yet, add it to the dependencies section of your package.json file and run\n\n`npm install`\n\n## Contributing to Lumenize ##\n    \nIf you want to add functionality to Lumenize, you\'ll need a working dev environment which is based upon node.js, so the first step is to install that on your system.\nOnce Node.js is installed, you should be able to run a few node package manager (npm) commands. Install the following:\n\n* `sudo npm -g install coffee-script`\n* `sudo npm -g install nodeunit`\n \nAdd the following to your ~/.profile or your ~/.bash_profile file\n  \n`NODE_PATH=/usr/local/lib/node_modules; export NODE_PATH`\n\nAfter edit, restart your session or use command `source ~/.[bash_]profile` to activate the changes immediately.\n\nOnce you have the above installed, add tests for your upgrades and make sure all test pass with:\n\n`cake test`\n    \nAlso, add examples in the "docstrings", then generate the docs (which will also confirm that the examples give the expected output when run):\n\n`cake docs`\n\nOnce you have that all working, submit a pull request on GitHub.\n\n## Documentation and source code ##\n\n* [API Documentation](http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html)\n* [Source Repository](https://github.com/lmaccherone/Lumenize)\n\n## Changelog ##\n\nIn November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.\n\n* 0.5.0 - 2012-12-15 (not pushed to github yet)\n  * Major refactor of names/variables for inclusion in Rally\'s App SDK\n* 0.4.4 - 2012-12-05 - Fixing issue with README.css showing up as cover page on npm\n* 0.4.3 - 2012-11-28 - Cleaning up doc issues\n* 0.4.2 - 2012-11-28 - Playing with using git tags for keeping old versions\n* 0.4.1 - 2012-11-28 - Playing with using git branches for keeping old versions\n* 0.4.0 - 2012-11-27\n  * **Backward breaking change** No longer required/allowed to call ChartTime.setTZPath()\n  * Using JSDuck for documentation now\n  * Build system now keeps old deploy versions\n  * Pre-compiled directory removed\n  * Bug fix for TimeInStateCalculator and snapshotArray_To_AtArray. They now sort (correctly). snapshotArray_To_AtArray will now also \n    propertly remove from later ticks any entity that falls out of scope. Previously, deletions were not registered correctly by\n    snapshotArray_To_AtArray.\n* 0.3.0 - 2012-10-13\n  * Support for instantiating ChartTime objects relative to now using strings (e.g. \'this day in Pacific/Fiji\')\n  * Added tests and fixed some bugs for rangeSpecs\n* 0.2.7 - 2012-10-10 - **Backward breaking change** to the structure of the data returned by groupBy() to match groupByAt()\n\n## MIT License ##\n\nCopyright (c) 2011, 2012, Lawrence S. Maccherone, Jr.\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated \ndocumentation files (the "Software"), to deal in the Software without restriction, including without limitation \nthe rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and \nto permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED \nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL \nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF \nCONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS \nIN THE SOFTWARE.\n\n\n\n\n\n',
+1122 silly publish   readme: '\n# Lumenize #\n\nCopyright (c) 2009-2012, Lawrence S. Maccherone, Jr.\n\n_Illuminating the forest AND the trees in your data._\n\nLumenize is a collection of tools for making awesome visualizations out of your data.\n\n## Features ##\n\n* Create time-series axis for charts\n  * Knockout weekends, holidays, non-workhours\n  * Work with timezone precision\n  * Work in any granularity\n    * Year, quarter, week, day, hour, etc.\n    * No more recording `2012-03-05T00:00:00.000Z` when you really just mean `2012-03-05`\n    * Create and use custom granularities: `R02I04-07` = Seventh day of fourth iteration in second release\n* Create aggregations from temporal data models like Rally\'s Lookback API\n* Tested - Over 300 tests\n* [Documented](http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html) - Robust documentation for an open source library\n* [DocTested](https://github.com/lmaccherone/coffeedoctest) - The examples will always match the code because it fails automated testing\n   when they don\'t\n\n## Credits ##\n\nAuthors:\n\n* [Larry Maccherone](http://maccherone.com)\n* Jennifer Maccherone\n\nUsed when running:\n\n* [timezoneJS](https://github.com/mde/timezone-js) - library for [tz file](http://www.twinsun.com/tz/tz-link.htm) parsing. Although I haven\'t touched the actual tz file parsing code, I have modified timezoneJS fairly significantly. The original included a drop-in replacement for JavaScript\'s Date object which I have removed. I also modified it to work on node.js and in the browser once "browserified" by bundling the tz files.\n\nUsed when developing:\n\n* [Node.js](http://nodejs.org/)\n* [CoffeeScript](http://coffeescript.org/)\n* [coffeedoctest](https://github.com/lmaccherone/coffeedoctest) (by Larry Maccherone)\n* [nodeunit](https://github.com/caolan/nodeunit)\n* [browserify with fileify plugin](https://github.com/substack/node-browserify)\n* [uglify-js](https://github.com/mishoo/UglifyJS)\n* [wrench](https://github.com/ryanmcgrath/wrench-js)\n* [marked](https://github.com/chjj/marked)\n\n## Using from a browser ##\n\nTo use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:\n\n`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/v{{version}}/deploy/Lumenize-min.js"></script>`\n\nReplace `{{version}}` with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:\n\n`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/v0.4.3/deploy/Lumenize-min.js"></script>`\n\nThe package is fairly large ~212KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip the package so it\'s only ~45KB over the wire.\n\nThen at the top of the javascript where you want to call it, put the following:\n\n`var lumenize = require(\'./lumenize\');`\n\nThen to use it, you can either create local aliases like:\n\n`var ChartTime = lumenize.ChartTime;`\n\nor you can just use the lumenize namespace:\n\n`var stdDev = lumenize.functions.$standardDeviation([20, 30, 50]);`\n    \n## Installation for node.js usage ##\n\nTo install in the node_modules directory of your project, run the following from the root folder of your project:\n\n`npm install Lumenize`\n\nor better yet, add it to the dependencies section of your package.json file and run\n\n`npm install`\n\n## Contributing to Lumenize ##\n    \nIf you want to add functionality to Lumenize, you\'ll need a working dev environment which is based upon node.js, so the first step is to install that on your system.\nOnce Node.js is installed, you should be able to run a few node package manager (npm) commands. Install the following:\n\n* `sudo npm -g install coffee-script`\n* `sudo npm -g install nodeunit`\n \nAdd the following to your ~/.profile or your ~/.bash_profile file\n  \n`NODE_PATH=/usr/local/lib/node_modules; export NODE_PATH`\n\nAfter edit, restart your session or use command `source ~/.[bash_]profile` to activate the changes immediately.\n\nOnce you have the above installed, add tests for your upgrades and make sure all test pass with:\n\n`cake test`\n    \nAlso, add examples in the "docstrings", then generate the docs (which will also confirm that the examples give the expected output when run):\n\n`cake docs`\n\nOnce you have that all working, submit a pull request on GitHub.\n\n## Documentation and source code ##\n\n* [API Documentation](http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html)\n* [Source Repository](https://github.com/lmaccherone/Lumenize)\n\n## Changelog ##\n\nIn November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.\n\n* 0.5.0 - 2012-12-15 (not pushed to github yet)\n  * Major refactor of names/variables for inclusion in Rally\'s App SDK\n* 0.4.5 - 2012-12-06 - Testing build and automatic npm publishing\n* 0.4.4 - 2012-12-06 - Fixing issue with README.css showing up as cover page on npm\n* 0.4.3 - 2012-11-28 - Cleaning up doc issues\n* 0.4.2 - 2012-11-28 - Playing with using git tags for keeping old versions\n* 0.4.1 - 2012-11-28 - Playing with using git branches for keeping old versions\n* 0.4.0 - 2012-11-27\n  * **Backward breaking change** No longer required/allowed to call ChartTime.setTZPath()\n  * Using JSDuck for documentation now\n  * Build system now keeps old deploy versions\n  * Pre-compiled directory removed\n  * Bug fix for TimeInStateCalculator and snapshotArray_To_AtArray. They now sort (correctly). snapshotArray_To_AtArray will now also \n    propertly remove from later ticks any entity that falls out of scope. Previously, deletions were not registered correctly by\n    snapshotArray_To_AtArray.\n* 0.3.0 - 2012-10-13\n  * Support for instantiating ChartTime objects relative to now using strings (e.g. \'this day in Pacific/Fiji\')\n  * Added tests and fixed some bugs for rangeSpecs\n* 0.2.7 - 2012-10-10 - **Backward breaking change** to the structure of the data returned by groupBy() to match groupByAt()\n\n## MIT License ##\n\nCopyright (c) 2011, 2012, Lawrence S. Maccherone, Jr.\n\nPermission is hereby granted, free of charge, to any person obtaining a copy of this software and associated \ndocumentation files (the "Software"), to deal in the Software without restriction, including without limitation \nthe rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and \nto permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED \nTO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL \nTHE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF \nCONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS \nIN THE SOFTWARE.\n\n\n\n\n\n',
 1122 silly publish   readmeFilename: 'README.md',
-1122 silly publish   _id: 'Lumenize@0.4.4',
-1122 silly publish   dist: { shasum: '9d183af52ec6f60db1d8a1d50dceb45c6d9e461a' } }
+1122 silly publish   _id: 'Lumenize@0.4.5',
+1122 silly publish   dist: { shasum: '97847c1e1277f4911f4c28047c4c2fcf85aeb6c6' } }
 1123 verbose url raw Lumenize
 1124 verbose url resolving [ 'https://registry.npmjs.org/', './Lumenize' ]
 1125 verbose url resolved https://registry.npmjs.org/Lumenize
-1126 info trying registry request attempt 1 at 19:07:27
+1126 info trying registry request attempt 1 at 19:23:29
 1127 http PUT https://registry.npmjs.org/Lumenize
 1128 http 409 https://registry.npmjs.org/Lumenize
 1129 verbose url raw Lumenize
 1130 verbose url resolving [ 'https://registry.npmjs.org/', './Lumenize' ]
 1131 verbose url resolved https://registry.npmjs.org/Lumenize
-1132 info trying registry request attempt 1 at 19:07:38
+1132 info trying registry request attempt 1 at 19:23:40
 1133 http GET https://registry.npmjs.org/Lumenize
 1134 http 200 https://registry.npmjs.org/Lumenize
 1135 error publish fail Cannot publish over existing version.
 1135 error publish fail Bump the 'version' field, set the --force flag, or
-1135 error publish fail     npm unpublish 'Lumenize@0.4.4'
+1135 error publish fail     npm unpublish 'Lumenize@0.4.5'
 1135 error publish fail and try again
 1136 error System Darwin 11.4.2
 1137 error command "node" "/usr/local/bin/npm" "publish" "."
