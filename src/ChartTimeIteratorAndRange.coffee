@@ -1,6 +1,6 @@
 ChartTime = require('./ChartTime').ChartTime
 ChartTimeInStateCalculator = require('./ChartTimeInStateCalculator').ChartTimeInStateCalculator
-timezoneJS = require('timezone-js').timezoneJS
+timezoneJS = require('./timezone-js.js').timezoneJS
 utils = require('./utils')
 
 class ChartTimeIterator

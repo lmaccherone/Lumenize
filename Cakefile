@@ -1,14 +1,14 @@
-fs            = require('fs')
-path          = require('path')
-{print}       = require('sys')
+fs = require('fs')
+path = require('path')
 {spawn, exec} = require('child_process')
-wrench        = require('wrench')
-marked        = require('marked')
-
+wrench = require('wrench')
+marked = require('marked')
 uglify = require("uglify-js")
+browserify = require('browserify')
+fileify = require('fileify-lm')
 execSync = require('exec-sync')
 
-run = (command, options, next) ->
+runSync = (command, options, next) ->
   if options? and options.length > 0
     command += ' ' + options.join(' ')
 
@@ -22,45 +22,24 @@ run = (command, options, next) ->
     if stdout.length > 0
       console.log("Stdout exec'ing command '#{command}'...\n" + stdout)
 
-#run = (command, options, next) ->
-#  if options? and options.length > 0
-#    command += ' ' + options.join(' ')
-#  exec(command, (error, stdout, stderr) ->
-#    if stderr.length > 0
-#      console.log("Stderr exec'ing command '#{command}'...\n" + stderr)
-#    if error?
-#      console.log('exec error: ' + error)
-#      runProducedError = true
-#    if next?
-#      next(stdout)
-#    else
-#      if stdout.length > 0
-#        console.log("Stdout exec'ing command '#{command}'...\n" + stdout)
-#  )
-#  return runProducedError
-
-#task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
-#  fs.readdir('src', (err, contents) ->
-#    projectCoffeeFile =  path.basename(__dirname) + '.coffee'
-#    srcPlus = "#{projectCoffeeFile}"
-#    files = ("#{file}" for file in contents when (file.indexOf('.coffee') > 0))
-#
-#    # Make sure the file with the same name as the project (directory) is at the beginning
-#    position = files.indexOf(srcPlus)
-#    if position > 0
-#      files = [srcPlus].concat(files[0..position-1], files[position+1..files.length-1])
-#
-#    process.chdir(__dirname + '/src')
-#    run('coffeedoc', ['-o', '../docs', '-p', '../package.json'].concat(files))
-#
-#    process.chdir(__dirname)
-#    run('coffeedoctest', ['--readme', 'src', 'lumenize.coffee'])
-#  )
-#)
+runAsync = (command, options, next) ->
+  if options? and options.length > 0
+    command += ' ' + options.join(' ')
+  exec(command, (error, stdout, stderr) ->
+    if stderr.length > 0
+      console.log("Stderr exec'ing command '#{command}'...\n" + stderr)
+    if error?
+      console.log('exec error: ' + error)
+    if next?
+      next(stdout)
+    else
+      if stdout.length > 0
+        console.log("Stdout exec'ing command '#{command}'...\n" + stdout)
+  )
 
 task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
   process.chdir(__dirname)
-  run('coffeedoctest', ['--readme', 'src', 'lumenize.coffee'])
+  runSync('coffeedoctest', ['--readme', 'src', 'lumenize.coffee'])
   # create README.html
   readmeDotCSSString = fs.readFileSync('read-me.css', 'utf8')
   readmeDotMDString = fs.readFileSync('README.md', 'utf8')
@@ -82,26 +61,25 @@ task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
   outputDirectory = path.join(__dirname, 'docs', "#{name}-docs")
   if fs.existsSync(outputDirectory)
     wrench.rmdirSyncRecursive(outputDirectory, false)
-  run('node_modules/jsduckify/bin/jsduckify', ['-d', outputDirectory, __dirname])
+  runSync('node_modules/jsduckify/bin/jsduckify', ['-d', outputDirectory, __dirname])
 )
 
 task('pub-docs', 'Push master to gh-pages on github', () ->
-  invoke('docs')
   pubDocsRaw()
 )
 
 pubDocsRaw = () ->
   process.chdir(__dirname)
-  run('git push -f origin master:gh-pages')
+  runAsync('git push -f origin master:gh-pages')
 
 task('publish', 'Publish to npm', () ->
   process.chdir(__dirname)
-  run('cake test')  # Doing this exernally to make it synchrous
+  runSync('cake test')  # Doing this exernally to make it synchrous
   invoke('docs')
   invoke('build')
-  run('git status --porcelain', [], (stdout) ->
+  runSync('git status --porcelain', [], (stdout) ->
     if stdout.length == 0
-      {stdout, stderr} = execSync('git rev-parse origin', true)
+      {stdout, stderr} = execSync('git rev-parse origin/master', true)
       stdoutOrigin = stdout
       {stdout, stderr} = execSync('git rev-parse master', true)
       stdoutMaster = stdout
@@ -111,11 +89,11 @@ task('publish', 'Publish to npm', () ->
         if fs.existsSync('npm-debug.log')
           console.error('`npm publish` failed. See npm-debug.log for details.')
         else
-          console.log('running git tag')
-          run("git tag v#{require('./package.json').version}")
-          run("git push --tags")
           console.log('running pubDocsRaw()')
           pubDocsRaw()
+          console.log('running git tag')
+          runSync("git tag v#{require('./package.json').version}")
+          runAsync("git push --tags")
       else
         console.error('Origin and master out of sync. Not publishing.')
     else
@@ -124,8 +102,6 @@ task('publish', 'Publish to npm', () ->
 )
 
 task('build', 'Build with browserify and place in ./deploy', () -> 
-  browserify = require('browserify')
-  fileify = require('fileify')
   b = browserify()
   b.use(fileify('files', __dirname + '/files'))
   b.ignore(['files'])
@@ -143,7 +119,6 @@ task('build', 'Build with browserify and place in ./deploy', () ->
   minFileString = uglify.minify(deployFileName).code
   fs.writeFileSync("deploy/#{name}-min.js", fileString)
 
-#  run("uglifyjs deploy/#{name}.js > deploy/#{name}-min.js")
   # !TODO: Need to run tests on the built version
 )
 
@@ -172,11 +147,6 @@ task('build', 'Build with browserify and place in ./deploy', () ->
 #     ) 
 # )
 
-#task('test', 'Run the CoffeeScript test suite with nodeunit', () ->
-#  {reporters} = require 'nodeunit'
-#  process.chdir __dirname
-#  reporters.default.run(['test'])
-#)
 
 task('test', 'Run the CoffeeScript test suite with nodeunit', () ->
   {reporters} = require('nodeunit')

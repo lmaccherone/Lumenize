@@ -346,7 +346,7 @@ process.nextTick = (function () {
     ;
 
     if (canSetImmediate) {
-        return window.setImmediate;
+        return function (f) { return window.setImmediate(f) };
     }
 
     if (canPost) {
@@ -4801,7 +4801,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
 
   utils = require('./utils');
 
-  timezoneJS = require('timezone-js').timezoneJS;
+  timezoneJS = require('timezone-js.js').timezoneJS;
 
   ChartTime = (function() {
     /*
@@ -7042,7 +7042,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
 
   ChartTimeInStateCalculator = require('./ChartTimeInStateCalculator').ChartTimeInStateCalculator;
 
-  timezoneJS = require('timezone-js').timezoneJS;
+  timezoneJS = require('timezone-js.js').timezoneJS;
 
   utils = require('./utils');
 
