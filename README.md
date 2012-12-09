@@ -1,4 +1,4 @@
-
+[![build status](https://secure.travis-ci.org/lmaccherone/Lumenize.png)](http://travis-ci.org/lmaccherone/Lumenize)
 # Lumenize #
 
 Copyright (c) 2009-2012, Lawrence S. Maccherone, Jr.
