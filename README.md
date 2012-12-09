@@ -109,6 +109,7 @@ In November of 2012, Lumenize wanted to start keeping old versions around becaus
 
 * 0.5.0 - 2012-12-15 (not pushed to github yet)
   * Major refactor of names/variables for inclusion in Rally's App SDK
+* 0.4.8 - 2012-12-08 - Turn off prefer global
 * 0.4.7 - 2012-12-08 - Updated dependencies
 * 0.4.6 - 2012-12-06 - More testing build and automatic npm publishing
 * 0.4.5 - 2012-12-06 - Testing build and automatic npm publishing

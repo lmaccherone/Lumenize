@@ -164,3 +164,8 @@ task('test', 'Run the CoffeeScript test suite with nodeunit', () ->
   )
 )
 
+task('test-all', 'Run tests and coffeedoctest', () ->
+  process.chdir(__dirname)
+  runSync('cake test')  # Doing this exernally to make it synchrous
+  runSync('coffeedoctest', ['--readme', 'src', 'lumenize.coffee'])
+)

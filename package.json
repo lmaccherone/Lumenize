@@ -1,6 +1,6 @@
 {
   "name": "Lumenize",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "main": "./lumenize",
   "description": "Illuminating the forest AND the trees in your data.",
   "keywords": [
@@ -23,7 +23,7 @@
     "type" : "git",
     "url" : "http://github.com/lmaccherone/Lumenize.git"
   },
-  "preferGlobal": true,
+  "preferGlobal": false,
   "dependencies": {
     "coffee-script": "1.4.x"
   },
@@ -37,6 +37,9 @@
     "marked": "0.2.x",
     "exec-sync": "~0.1.5",
     "fileify-lm": "~0.3.1"
+  },
+  "scripts": {
+    "test": "cake test-all"
   },
   "licenses": [
      {
