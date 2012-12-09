@@ -39,7 +39,7 @@ Used when developing:
 * [CoffeeScript](http://coffeescript.org/)
 * [coffeedoctest](https://github.com/lmaccherone/coffeedoctest) (by Larry Maccherone)
 * [nodeunit](https://github.com/caolan/nodeunit)
-* [browserify with fileify plugin](https://github.com/substack/node-browserify)
+* [browserify with fileify plugin (modified)](https://github.com/substack/node-browserify)
 * [uglify-js](https://github.com/mishoo/UglifyJS)
 * [wrench](https://github.com/ryanmcgrath/wrench-js)
 * [marked](https://github.com/chjj/marked)
@@ -70,13 +70,9 @@ or you can just use the lumenize namespace:
     
 ## Installation for node.js usage ##
 
-To install in the node_modules directory of your project, run the following from the root folder of your project:
+To install, run the following from the root folder of your project:
 
-`npm install Lumenize`
-
-or better yet, add it to the dependencies section of your package.json file and run
-
-`npm install`
+`npm install Lumenize --save`
 
 ## Contributing to Lumenize ##
     
@@ -113,6 +109,7 @@ In November of 2012, Lumenize wanted to start keeping old versions around becaus
 
 * 0.5.0 - 2012-12-15 (not pushed to github yet)
   * Major refactor of names/variables for inclusion in Rally's App SDK
+* 0.4.7 - 2012-12-08 - Updated dependencies
 * 0.4.6 - 2012-12-06 - More testing build and automatic npm publishing
 * 0.4.5 - 2012-12-06 - Testing build and automatic npm publishing
 * 0.4.4 - 2012-12-06 - Fixing issue with README.css showing up as cover page on npm

@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.4.6
+Lumenize version: 0.4.7
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -4801,7 +4801,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
 
   utils = require('./utils');
 
-  timezoneJS = require('timezone-js.js').timezoneJS;
+  timezoneJS = require('./timezone-js.js').timezoneJS;
 
   ChartTime = (function() {
     /*
@@ -6425,7 +6425,7 @@ require.define("/src/utils.coffee",function(require,module,exports,__dirname,__f
 
 });
 
-require.define("/node_modules/timezone-js.js",function(require,module,exports,__dirname,__filename,process,global){/*
+require.define("/src/timezone-js.js",function(require,module,exports,__dirname,__filename,process,global){/*
  * Copyright 2010 Matthew Eernisse (mde@fleegix.org)
  * and Open Source Applications Foundation
  *
@@ -7042,7 +7042,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
 
   ChartTimeInStateCalculator = require('./ChartTimeInStateCalculator').ChartTimeInStateCalculator;
 
-  timezoneJS = require('timezone-js.js').timezoneJS;
+  timezoneJS = require('./timezone-js.js').timezoneJS;
 
   utils = require('./utils');
 

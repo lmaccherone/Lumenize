@@ -101,7 +101,8 @@ task('publish', 'Publish to npm', () ->
   )
 )
 
-task('build', 'Build with browserify and place in ./deploy', () -> 
+task('build', 'Build with browserify and place in ./deploy', () ->
+  console.log('building...')
   b = browserify()
   b.use(fileify('files', __dirname + '/files'))
   b.ignore(['files'])
@@ -118,8 +119,13 @@ task('build', 'Build with browserify and place in ./deploy', () ->
 
   minFileString = uglify.minify(deployFileName).code
   fs.writeFileSync("deploy/#{name}-min.js", fileString)
-
+  console.log('done')
   # !TODO: Need to run tests on the built version
+)
+
+task('build-and-docs', 'Build and docs combined for LiveReload.', () ->
+  invoke('build')
+  invoke('docs')
 )
 
 # task('prep-tz', 'NOT WORKING - Prepare the tz files found in vendor/tz for browserify/fileify and place in files/tz.', () ->
