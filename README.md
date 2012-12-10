@@ -76,25 +76,16 @@ To install, run the following from the root folder of your project:
 
 ## Contributing to Lumenize ##
     
-If you want to add functionality to Lumenize, you'll need a working dev environment which is based upon node.js, so the first step is to install that on your system.
-Once Node.js is installed, you should be able to run a few node package manager (npm) commands. Install the following:
+To contribute to Lumenize:
 
-* `sudo npm -g install coffee-script`
-* `sudo npm -g install nodeunit`
- 
-Add the following to your ~/.profile or your ~/.bash_profile file
-  
-`NODE_PATH=/usr/local/lib/node_modules; export NODE_PATH`
+1. Fork Lumenize on GitHub.
+2. Clone your fork to your local computer.
+3. Run `npm install` to install all of the development dependencies.
+4. Add the relative path `./node_modules/.bin/` to your PATH. I've struggled with various ways to accomplish this on my various computers. On my Mac, I used to modify ~./bash_profile, but I now understand that the best thing to do is to modify `/etc/launchd.conf` by adding a line like this: `setenv PATH /usr/bin:/bin:/usr/sbin:/sbin:./node_modules/.bin/`. The beginning part of the line I found by typeing `launchctl export`. I just added the `:./node_modules/.bin/`.
 
-After edit, restart your session or use command `source ~/.[bash_]profile` to activate the changes immediately.
+Once you have the above installed/configured, make some awesome modification to Lumenize, add tests for your upgrades, add examples in your docstrings, and make sure all test pass and examples work with:
 
-Once you have the above installed, add tests for your upgrades and make sure all test pass with:
-
-`cake test`
-    
-Also, add examples in the "docstrings", then generate the docs (which will also confirm that the examples give the expected output when run):
-
-`cake docs`
+`cake test-all`
 
 Once you have that all working, submit a pull request on GitHub.
 
