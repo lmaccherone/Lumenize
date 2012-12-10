@@ -8,7 +8,7 @@ exports.timelineTest =
   testDay: (test) ->
 
     spec = {
-      start:'2012-08-31',
+      startOn:'2012-08-31',
       limit: 10,
       workDays: 'Monday, Tuesday, Wednesday, Thursday, Friday',
       holidays: [
@@ -38,7 +38,7 @@ exports.timelineTest =
   testQuarter: (test) ->
 
     spec = {
-      start:'2012Q2',
+      startOn:'2012Q2',
       limit: 4,
     }
     timeline = new ChartTimeRange(spec).getTimeline()
@@ -56,8 +56,8 @@ exports.timelineTest =
   testMonth: (test) ->
 
     spec = {
-      start:'2012-11',
-      pastEnd: '2013-03',
+      startOn:'2012-11',
+      endBefore: '2013-03',
     }
     timeline = new ChartTimeRange(spec).getTimeline()
     s = (t.toString() for t in timeline)
@@ -74,7 +74,7 @@ exports.timelineTest =
   testMixedGranularity: (test) ->
   
     spec = {
-      pastEnd:'2012W38',
+      endBefore:'2012W38',
       limit: 10,
       granularity: 'day',
       workDays: 'Monday, Tuesday, Wednesday, Thursday, Friday',
@@ -100,18 +100,18 @@ exports.timelineTest =
     ]
     test.deepEqual(expected, s)
     
-    spec.pastEnd = '2012-09-15'
+    spec.endBefore = '2012-09-15'
     timeline = new ChartTimeRange(spec).getTimeline()
     s = (t.toString() for t in timeline)
     test.deepEqual(expected, s)
     
-    spec.start = '2012-08-31'
+    spec.startOn = '2012-08-31'
     delete spec.limit
     s = (t.toString() for t in timeline)
     test.deepEqual(expected, s)
     
     spec.limit = 10
-    delete spec.pastEnd
+    delete spec.endBefore
     s = (t.toString() for t in timeline)
     test.deepEqual(expected, s)
     
@@ -120,12 +120,12 @@ exports.timelineTest =
   testHours: (test) ->
   
     spec = {
-      pastEnd:'2012-09-05',
+      endBefore:'2012-09-05',
       limit: 10,
       granularity: 'hour',
       workDays: 'Monday, Tuesday, Wednesday, Thursday, Friday',
-      startWorkTime: {hour: 9, minute:0},
-      pastEndWorkTime: {hour:11, minute:0},
+      workDayStartOn: {hour: 9, minute:0},
+      workDayEndBefore: {hour:11, minute:0},
       holidays: [
         {month: 12, day: 25},
         {month: 1, day: 1},

@@ -5,15 +5,15 @@ exports.ChartTimeRangeTest =
   testConstructor: (test) ->
   
     r = new ChartTimeRange({
-      start:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
-      pastEnd:new ChartTime({granularity: 'day', year: 2011, month:1, day: 7})
+      startOn:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
+      endBefore:new ChartTime({granularity: 'day', year: 2011, month:1, day: 7})
     })
     
-    test.equal(r.start.year, 2011, 'start.year should be 2011')
-    test.equal(r.pastEnd.day, 7, 'pastEnd.day should be 7')
+    test.equal(r.startOn.year, 2011, 'startOn.year should be 2011')
+    test.equal(r.endBefore.day, 7, 'endBefore.day should be 7')
     i2 = new ChartTimeRange({
-      start:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
-      pastEnd:new ChartTime({granularity: 'day', year: 2011, month:1, day: 3}),
+      startOn:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
+      endBefore:new ChartTime({granularity: 'day', year: 2011, month:1, day: 3}),
       workDays: 'Monday ,Tuesday,Wednesday, Thursday,Saturday'
     })
     test.deepEqual(i2.workDays, ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Saturday'], 'workdays should be [M, T, W, Th, S]')
@@ -22,8 +22,8 @@ exports.ChartTimeRangeTest =
       
   testDefaults: (test) ->
     r = new ChartTimeRange({
-      start:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
-      pastEnd:new ChartTime({granularity: 'day', year: 2011, month:1, day: 7})
+      startOn:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
+      endBefore:new ChartTime({granularity: 'day', year: 2011, month:1, day: 7})
     })
     
     test.equal(r.skip, 1, 'Default skip should be 1')
@@ -36,8 +36,8 @@ exports.ChartTimeRangeTest =
   testExample: (test) ->
 
     r = new ChartTimeRange({
-      start:new ChartTime('2011-01-02'),
-      pastEnd:new ChartTime('2011-01-07')
+      startOn:new ChartTime('2011-01-02'),
+      endBefore:new ChartTime('2011-01-07')
       holidays: [
         {month: 1, day: 1},  # Notice the lack of a year specification
         {year: 2011, month: 1, day: 5}  # Got January 5 off also in 2011
@@ -54,18 +54,18 @@ exports.ChartTimeRangeTest =
     test.equal(i.hasNext(), false)
     
     r2 = new ChartTimeRange({
-      start:new ChartTime('2011-01-02T00'),
-      pastEnd:new ChartTime('2011-01-07T00'),
-      startWorkTime: {hour: 9, minute: 0},
-      pastEndWorkTime: {hour: 17, minute: 0}
+      startOn:new ChartTime('2011-01-02T00'),
+      endBefore:new ChartTime('2011-01-07T00'),
+      workDayStartOn: {hour: 9, minute: 0},
+      workDayEndBefore: {hour: 17, minute: 0}
     })
     
-    test.equal(r2.contains(new ChartTime('2011-01-02T00')), true)  # start is inclusive
-    test.equal(r2.contains(new ChartTime('2011-01-07T00')), false)  # pastEnd is exclusive
+    test.equal(r2.contains(new ChartTime('2011-01-02T00')), true)  # startOn is inclusive
+    test.equal(r2.contains(new ChartTime('2011-01-07T00')), false)  # endBefore is exclusive
     
     
-    # If you pass in a string without a timezone, it will assume that you are using the same timezone as the start/pastEnd
-    test.equal(r2.contains('2011-01-06T23'), true) # but just before pastEnd is OK
+    # If you pass in a string without a timezone, it will assume that you are using the same timezone as the startOn/endBefore
+    test.equal(r2.contains('2011-01-06T23'), true) # but just before endBefore is OK
     # But if you pass in a timezone, then it will shift the boundaries to that time zone and assume the 1st parameter is GMT
     # When it's 3am in GMT on 2011-01-02, it's still 2011-01-01 in New York
     test.equal(r2.contains('2011-01-02T03:00:00.000', 'America/New_York'), false)  # requires a tz if you pass in a string
@@ -76,33 +76,33 @@ exports.ChartTimeRangeTest =
     
   testSubRange: (test) ->
     r3 = new ChartTimeRange({
-      start:new ChartTime('2011-01-06'),
-      pastEnd:new ChartTime('2011-01-11'),
-      startWorkTime: {hour: 9, minute: 0},
-      pastEndWorkTime: {hour: 11, minute: 0}  # Very short work day for demo purposes
+      startOn:new ChartTime('2011-01-06'),
+      endBefore:new ChartTime('2011-01-11'),
+      workDayStartOn: {hour: 9, minute: 0},
+      workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes
     })
         
     i3 = r3.getIterator('ChartTimeRange', 'hour')
     
-    test.equal(r3.start, '2011-01-06')
-    test.equal(r3.pastEnd, '2011-01-11')
+    test.equal(r3.startOn, '2011-01-06')
+    test.equal(r3.endBefore, '2011-01-11')
     subRange = i3.next()
-    test.equal(subRange.start, '2011-01-06T00')
-    test.equal(subRange.pastEnd, '2011-01-07T00')
+    test.equal(subRange.startOn, '2011-01-06T00')
+    test.equal(subRange.endBefore, '2011-01-07T00')
     subIterator = subRange.getIterator('ChartTime')
     test.equal(subIterator.next().hour, 9)
     test.equal(subIterator.next().hour, 10)
     test.equal(subIterator.hasNext(), false)
     subRange = i3.next()
-    test.equal(subRange.start, '2011-01-07T00')
-    test.equal(subRange.pastEnd, '2011-01-10T00')
+    test.equal(subRange.startOn, '2011-01-07T00')
+    test.equal(subRange.endBefore, '2011-01-10T00')
     subIterator = subRange.getIterator('ChartTime')
     test.equal(subIterator.next().hour, 9)
     test.equal(subIterator.next().hour, 10)
     test.equal(subIterator.hasNext(), false)
     subRange = i3.next()
-    test.equal(subRange.start, '2011-01-10T00')
-    test.equal(subRange.pastEnd, '2011-01-11T00')
+    test.equal(subRange.startOn, '2011-01-10T00')
+    test.equal(subRange.endBefore, '2011-01-11T00')
     subIterator = subRange.getIterator('ChartTime')
     test.equal(subIterator.next().hour, 9)
     test.equal(subIterator.next().hour, 10)
@@ -113,10 +113,10 @@ exports.ChartTimeRangeTest =
   
   testHourGranularity: (test) ->
     r4 = new ChartTimeRange({
-      start:'2011-01-06T00',  # Notice how we include the hour now
-      pastEnd:'2011-01-11T00',
-      startWorkTime: {hour: 9, minute: 0},
-      pastEndWorkTime: {hour: 11, minute: 0}  # Very short work day for demo purposes
+      startOn:'2011-01-06T00',  # Notice how we include the hour now
+      endBefore:'2011-01-11T00',
+      workDayStartOn: {hour: 9, minute: 0},
+      workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes
     })
         
     i4 = r4.getIterator('ChartTime')

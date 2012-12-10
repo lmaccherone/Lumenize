@@ -55,13 +55,13 @@ However, Lumenize assumes the data is in the form of an "Array of Maps" like Ral
     snapshotArray = Lumenize.csvStyleArray_To_ArrayOfMaps(snapshotsCSVStyle)
 
 The `rangeSpec` defines the specification for the x-axis. Notice how you can exclude weekends and holidays. Here we
-specify a `start` and a `pastEnd`. However, it's fairly common in charts to specify `pastEnd: "this day"` and
-`limit: 60` (no `start`). A number of human readable dates like `"next month"` or `"prior week"` are supported. You
-need to specify any 2 of start, pastEnd, or limit.
+specify a `startOn` and a `endBefore`. However, it's fairly common in charts to specify `endBefore: "this day"` and
+`limit: 60` (no `startOn`). A number of human readable dates like `"next month"` or `"prior week"` are supported. You
+need to specify any 2 of startOn, endBefore, or limit.
 
     rangeSpec = {
-      start: "2011-01-02"
-      pastEnd: "2011-01-08",
+      startOn: "2011-01-02"
+      endBefore: "2011-01-08",
       workDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],  # Also supports "Monday, Tuesday, ..."
       holidays: [
         {"month": 1, "day": 1},

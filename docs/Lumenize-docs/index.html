@@ -216,37 +216,15 @@
 
 </p>
 <ol>
-<li>Fork Lumenize on GitHub</li>
-<li>Clone your fork to your local computer</li>
-<li>Run <code>npm install</code> to install all of the development dependencies</li>
+<li>Fork Lumenize on GitHub.</li>
+<li>Clone your fork to your local computer.</li>
+<li>Run <code>npm install</code> to install all of the development dependencies.</li>
+<li>Add the relative path <code>./node_modules/.bin/</code> to your PATH. I&#39;ve struggled with various ways to accomplish this on my various computers. On my Mac, I used to modify ~./bash_profile, but I now understand that the best thing to do is to modify <code>/etc/launchd.conf</code> by adding a line like this: <code>setenv PATH /usr/bin:/bin:/usr/sbin:/sbin:./node_modules/.bin/</code>. The beginning part of the line I found by typeing <code>launchctl export</code>. I just added the <code>:./node_modules/.bin/</code>.</li>
 </ol>
-<p>If you want to add functionality to Lumenize, you&#39;ll need a working dev environment which is based upon node.js, so the first step is to install that on your system.
-Once Node.js is installed, you should be able to run a few node package manager (npm) commands. Install the following:
+<p>Once you have the above installed/configured, make some awesome modification to Lumenize, add tests for your upgrades, add examples in your docstrings, and make sure all test pass and examples work with:
 
 </p>
-<ul>
-<li><code>sudo npm -g install coffee-script</code></li>
-<li><code>sudo npm -g install nodeunit</code></li>
-</ul>
-<p>Add the following to your ~/.profile or your ~/.bash_profile file
-
-</p>
-<p><code>NODE_PATH=/usr/local/lib/node_modules; export NODE_PATH</code>
-
-</p>
-<p>After edit, restart your session or use command <code>source ~/.[bash_]profile</code> to activate the changes immediately.
-
-</p>
-<p>Once you have the above installed, add tests for your upgrades and make sure all test pass with:
-
-</p>
-<p><code>cake test</code>
-
-</p>
-<p>Also, add examples in the &quot;docstrings&quot;, then generate the docs (which will also confirm that the examples give the expected output when run):
-
-</p>
-<p><code>cake docs</code>
+<p><code>cake test-all</code>
 
 </p>
 <p>Once you have that all working, submit a pull request on GitHub.

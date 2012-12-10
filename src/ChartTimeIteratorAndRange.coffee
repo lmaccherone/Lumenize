@@ -18,8 +18,8 @@ class ChartTimeIterator
       {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
       
       cti = new ChartTimeIterator({
-        start:new ChartTime({granularity: 'day', year: 2009, month:1, day: 1}),
-        pastEnd:new ChartTime({granularity: 'day', year: 2009, month:1, day: 8}),
+        startOn:new ChartTime({granularity: 'day', year: 2009, month:1, day: 1}),
+        endBefore:new ChartTime({granularity: 'day', year: 2009, month:1, day: 8}),
         workDays: 'Monday, Tuesday, Wednesday, Thursday, Friday',
         holidays: [
           {month: 1, day: 1},  # New Years day was a Thursday in 2009
@@ -44,7 +44,7 @@ class ChartTimeIterator
        before ChartTimeRange existed, the default for emit when instantiating a new ChartTimeIterator directly is 
        'ChartTime'. However, if you request a new ChartTimeIterator from a ChartTimeRange object using getIterator(),
        the default is 'ChartTimeRange'.
-    @param {String} [childGranularity] When emit is 'ChartTimeRange', this is the granularity for the start and pastEnd of the
+    @param {String} [childGranularity] When emit is 'ChartTimeRange', this is the granularity for the startOn and endBefore of the
        ChartTimeRange that is emitted.
     @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example.
     ###
@@ -68,9 +68,9 @@ class ChartTimeIterator
     Will go back to the where the iterator started.
     ###
     if @ctr.skip > 0
-      @current = new ChartTime(@ctr.start)
+      @current = new ChartTime(@ctr.startOn)
     else
-      @current = new ChartTime(@ctr.pastEnd)
+      @current = new ChartTime(@ctr.endBefore)
       @current.decrement()
     @count = 0
     @_proceedToNextValid()
@@ -79,7 +79,7 @@ class ChartTimeIterator
     ###
     @method hasNext
     @return {Boolean} Returns true if there are still things left to iterator over. Note that if there are holidays,
-       weekends or non-workhours to skip, then hasNext() will take that into account. For example if the pastEnd is a
+       weekends or non-workhours to skip, then hasNext() will take that into account. For example if the endBefore is a
        Sunday, hasNext() will return true the next time it is called after the Friday is emitted.
     ###
     return @ctr.contains(@current) and (@count < @ctr.limit)
@@ -99,11 +99,11 @@ class ChartTimeIterator
       currentMinutes = @current.hour * 60
       if @current.minute?
         currentMinutes += @current.minute
-      if @ctr.startWorkMinutes <= @ctr.pastEndWorkMinutes
-        if (currentMinutes < @ctr.startWorkMinutes) or (currentMinutes >= @ctr.pastEndWorkMinutes)
+      if @ctr.startWorkMinutes <= @ctr.endBeforeWorkMinutes
+        if (currentMinutes < @ctr.startWorkMinutes) or (currentMinutes >= @ctr.endBeforeWorkMinutes)
           return true
       else
-        if @ctr.startWorkMinutes >= currentMinutes > @ctr.pastEndWorkMinutes
+        if @ctr.startWorkMinutes >= currentMinutes > @ctr.endBeforeWorkMinutes
           return true
     return false
 
@@ -137,12 +137,12 @@ class ChartTimeIterator
         return currentCopy.getJSDate(@tz)
       when 'ChartTimeRange'
         spec = {
-          start: currentCopy.inGranularity(@childGranularity),
-          pastEnd: @current.inGranularity(@childGranularity),
+          startOn: currentCopy.inGranularity(@childGranularity),
+          endBefore: @current.inGranularity(@childGranularity),
           workDays: @ctr.workDays,
           holidays: @ctr.holidays,
-          startWorkTime: @ctr.startWorkTime,
-          pastEndWorkTime: @ctr.pastEndWorkTime
+          workDayStartOn: @ctr.workDayStartOn,
+          workDayEndBefore: @ctr.workDayEndBefore
         }
         childCTR = new ChartTimeRange(spec)
         return childCTR
@@ -180,8 +180,8 @@ class ChartTimeRange
       {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
       
       r = new ChartTimeRange({
-        start:new ChartTime('2011-01-02'),
-        pastEnd:new ChartTime('2011-01-07'),
+        startOn:new ChartTime('2011-01-02'),
+        endBefore:new ChartTime('2011-01-07'),
         holidays: [
           {month: 1, day: 1},  # Notice the lack of a year specification
           {year: 2011, month: 1, day: 2}  # Got January 2 off also in 2011
@@ -205,28 +205,28 @@ class ChartTimeRange
       # 2011-01-05
       # 2011-01-06
   
-  Notice how 2011-01-02 was skipped because it was a holiday. Also notice how the pastEnd is not included.
-  Ranges are inclusive of the start and exclusive of the pastEnd. This allows the pastEnd of one to be
-  the start of the next with no overlap or gap. This focus on precision pervades the design of the ChartTime library.
+  Notice how 2011-01-02 was skipped because it was a holiday. Also notice how the endBefore is not included.
+  Ranges are inclusive of the startOn and exclusive of the endBefore. This allows the endBefore of one to be
+  the startOn of the next with no overlap or gap. This focus on precision pervades the design of the ChartTime library.
   
   Now, let's create a ChartTimeRange with `hour` granularity to elaborate on this inclusive/exclusive behavior.
       
       r2 = new ChartTimeRange({
-        start:new ChartTime('2011-01-02T00'),
-        pastEnd:new ChartTime('2011-01-07T00'),
+        startOn:new ChartTime('2011-01-02T00'),
+        endBefore:new ChartTime('2011-01-07T00'),
       })
       
-  `start` is inclusive.
+  `startOn` is inclusive.
   
       console.log(r2.contains(new ChartTime('2011-01-02T00')))
       # true
       
-  But `pastEnd` is exclusive
+  But `endBefore` is exclusive
   
       console.log(r2.contains(new ChartTime('2011-01-07T00')))
       # false
   
-  But just before `pastEnd` is OK
+  But just before `endBefore` is OK
   
       console.log(r2.contains('2011-01-06T23'))
       # true
@@ -234,7 +234,7 @@ class ChartTimeRange
   In the above line, notice how we omitted the `new ChartTime(...)`. If you pass in a string without a timezone, 
   it will automatically create the ChartTime to do the comparison.
   
-  All of the above comparisons assume that the `start`/`pastEnd` boundaries are in the same timezone as the contains date.
+  All of the above comparisons assume that the `startOn`/`endBefore` boundaries are in the same timezone as the contains date.
   
   ## Timezone sensitive comparisions ##
   
@@ -247,7 +247,7 @@ class ChartTimeRange
   it down from an API but the data is represented with a GMT date/timestamp. You then want to decide if the GMT date/timestamp 
   is contained within the iteration as defined by a particular timezone, or is a Saturday, or is during workhours, etc. 
   The key concept to remember is that the timebox boundaries are shifted NOT the other way around. It says at what moment
-  in time July 10th starts in a particular timezone and internally represents that in a way that can be compared to a GMT 
+  in time July 10th starts on in a particular timezone and internally represents that in a way that can be compared to a GMT
   date/timestamp.
   
   So, when it's 3am in GMT on 2011-01-02, it's still 2011-01-01 in New York. Using the above `r2` range, we say:
@@ -263,18 +263,18 @@ class ChartTimeRange
   Now, let's explore how ChartTimeRanges and ChartTimeIterators are used together. Here is a range spec.
 
       r3 = new ChartTimeRange({
-        start:new ChartTime('2011-01-06'),
-        pastEnd:new ChartTime('2011-01-11'),
-        startWorkTime: {hour: 9, minute: 0},
-        pastEndWorkTime: {hour: 11, minute: 0}  # Very short work day for demo purposes
+        startOn:new ChartTime('2011-01-06'),
+        endBefore:new ChartTime('2011-01-11'),
+        workDayStartOn: {hour: 9, minute: 0},
+        workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes
       })
           
   You can ask for an iterator to emit ChartTimeRanges rather than ChartTime values. On each call to `next()`, the
-  iterator will give you a new ChartTimeRange with the `start` value set to what you would have gotten had you 
-  requested that it emit ChartTimes. The `pastEnd' of the emitted ChartTimeRange will be set to the following value.
+  iterator will give you a new ChartTimeRange with the `startOn` value set to what you would have gotten had you
+  requested that it emit ChartTimes. The `endBefore' of the emitted ChartTimeRange will be set to the following value.
   This is how you drill-down from one granularity into a lower granularity.
   
-  By default, the granularity of the iterator will equal the `start`/`pastEnd` of the original ChartTimeRange. 
+  By default, the granularity of the iterator will equal the `startOn`/`endBefore` of the original ChartTimeRange.
   However, you can provide a different granularity (`hour` in the example below) for the iterator if you want 
   to drill-down at a lower granularity.
   
@@ -282,7 +282,7 @@ class ChartTimeRange
       
       while i3.hasNext()
         subRange = i3.next()
-        console.log("Sub range goes from #{subRange.start.toString()} to #{subRange.pastEnd.toString()}")
+        console.log("Sub range goes from #{subRange.startOn.toString()} to #{subRange.endBefore.toString()}")
         subIterator = subRange.getIterator('ChartTime')
         while subIterator.hasNext()
           console.log('    Hour: ' + subIterator.next().hour)
@@ -306,13 +306,13 @@ class ChartTimeRange
   the drill up/down to day/month/year levels automatically.
   
       r4 = new ChartTimeRange({
-        start:'2011-01-06T00',  # Notice how we include the hour now
-        pastEnd:'2011-01-11T00',
-        startWorkTime: {hour: 9, minute: 0},
-        pastEndWorkTime: {hour: 11, minute: 0}  # Very short work day for demo purposes
+        startOn:'2011-01-06T00',  # Notice how we include the hour now
+        endBefore:'2011-01-11T00',
+        workDayStartOn: {hour: 9, minute: 0},
+        workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes
       })
           
-  Notice how we are able to simply use strings to represent the start/pastEnd dates. ChartTimeRange automatically constructs 
+  Notice how we are able to simply use strings to represent the startOn/endBefore dates. ChartTimeRange automatically constructs
   ChartTime objects from those strings. We could have done that in the earlier examples. I chose not to do so to illustrate
   how ChartTimes are used under the covers.
 
@@ -339,55 +339,55 @@ class ChartTimeRange
 
     spec can have the following properties:
 
-    * **start** is a ChartTime object or a string. The first value that next() returns.
-    * **pastEnd** is a ChartTime object or string. Must match granularity. hasNext() returns false when current is here or later.
-    * **skip** is an optional num. Defaults to 1 or -1. Use -1 to march backwards from pastEnd - 1. Currently any
+    * **startOn** is a ChartTime object or a string. The first value that next() returns.
+    * **endBefore** is a ChartTime object or string. Must match granularity. hasNext() returns false when current is here or later.
+    * **skip** is an optional num. Defaults to 1 or -1. Use -1 to march backwards from endBefore - 1. Currently any
        values other than 1 and -1 give unexpected behavior.
     * **granularity** is used to determine the granularity that you will iterate over. Note, you can have granularity of say month 
-       for the start and/or pastEnd but have a finer granularity for the range. Let's say you want to iterate over all the days
-       of the current month. In this case, pastEnd would be 'next month', and start would be 'prior month'.
-    * **limit** you can specify limit plus one of start/pastEnd and only get back this many.
+       for the startOn and/or endBefore but have a finer granularity for the range. Let's say you want to iterate over all the days
+       of the current month. In this case, endBefore would be 'next month', and startOn would be 'prior month'.
+    * **limit** you can specify limit plus one of startOn/endBefore and only get back this many.
     * **workDays** list of days of the week that you work on. Either ['Monday', 'Tuesday', ...] or "Monday,Tuesday,..."
        Defaults to ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].
     * **holidays** is an optional Array like: [{month: 12, day: 25}, {year: 2011, month: 11, day: 24}]. Notice how
        you can leave off the year if the holiday falls on the same day every year.
-    * **startWorkTime** is an optional object in the form {hour: 8, minute: 15}. Must include minute even when 0.
-       If startWorkTime is later than pastEndWorkTime, then it assumes that you work the night shift and your work
+    * **workDayStartOn** is an optional object in the form {hour: 8, minute: 15}. Must include minute even when 0.
+       If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
        hours span midnight.
-    * **pastEndWorkTime** is an optional object in the form {hour: 17, minute: 0}. Must include minute even when 0.
-       The use of startWorkTime and pastEndWorkTime only make sense when the granularity is "hour" or finer.
-       Note: If the business closes at 5:00pm, you'll want to leave pastEndWorkTime to 17:00, rather
+    * **workDayEndBefore** is an optional object in the form {hour: 17, minute: 0}. Must include minute even when 0.
+       The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
+       Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
        than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
        the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
     ###
-    if spec.pastEnd? 
-      @pastEnd = spec.pastEnd
-      if @pastEnd != 'PAST_LAST'
-        if utils.type(@pastEnd) == 'string'
-          @pastEnd = new ChartTime(@pastEnd)
-        @granularity = @pastEnd.granularity
-    if spec.start? 
-      @start = spec.start
-      if @start != 'BEFORE_FIRST'
-        if utils.type(@start) == 'string'
-          @start = new ChartTime(@start)
-        @granularity = @start.granularity
+    if spec.endBefore? 
+      @endBefore = spec.endBefore
+      if @endBefore != 'PAST_LAST'
+        if utils.type(@endBefore) == 'string'
+          @endBefore = new ChartTime(@endBefore)
+        @granularity = @endBefore.granularity
+    if spec.startOn?
+      @startOn = spec.startOn
+      if @startOn != 'BEFORE_FIRST'
+        if utils.type(@startOn) == 'string'
+          @startOn = new ChartTime(@startOn)
+        @granularity = @startOn.granularity
     if spec.granularity?
       @granularity = spec.granularity
-      if @start?
-        @start = @start.inGranularity(@granularity)
-      if @pastEnd?
-        @pastEnd = @pastEnd.inGranularity(@granularity)
+      if @startOn?
+        @startOn = @startOn.inGranularity(@granularity)
+      if @endBefore?
+        @endBefore = @endBefore.inGranularity(@granularity)
     unless @granularity
       throw new Error('Cannot determine granularity for ChartTimeRange.')  
-    if @start == 'BEFORE_FIRST'
-      @start = new ChartTime(@start, @granularity)
-    if @pastEnd == 'PAST_LAST'
-      @pastEnd == new ChartTime(@pastEnd, @granularity)
-    if !@pastEnd
-      @pastEnd = new ChartTime('PAST_LAST', @granularity)
-    if !@start
-      @start = new ChartTime('BEFORE_FIRST', @granularity)
+    if @startOn == 'BEFORE_FIRST'
+      @startOn = new ChartTime(@startOn, @granularity)
+    if @endBefore == 'PAST_LAST'
+      @endBefore == new ChartTime(@endBefore, @granularity)
+    if !@endBefore
+      @endBefore = new ChartTime('PAST_LAST', @granularity)
+    if !@startOn
+      @startOn = new ChartTime('BEFORE_FIRST', @granularity)
 
     @limit = if spec.limit? then spec.limit else utils.MAX_INT
     
@@ -404,24 +404,24 @@ class ChartTimeRange
       if utils.type(holiday) == 'string'
         @holidays[idx] = new ChartTime(holiday).getSegmentsAsObject()
     
-    @startWorkTime = if spec.startWorkTime? then spec.startWorkTime
-    @startWorkMinutes = if @startWorkTime? then @startWorkTime.hour * 60 + @startWorkTime.minute else 0
-    @pastEndWorkTime = if spec.pastEndWorkTime? then spec.pastEndWorkTime
-    @pastEndWorkMinutes = if @pastEndWorkTime? then @pastEndWorkTime.hour * 60 + @pastEndWorkTime.minute else 24 * 60
+    @workDayStartOn = if spec.workDayStartOn? then spec.workDayStartOn
+    @startWorkMinutes = if @workDayStartOn? then @workDayStartOn.hour * 60 + @workDayStartOn.minute else 0
+    @workDayEndBefore = if spec.workDayEndBefore? then spec.workDayEndBefore
+    @endBeforeWorkMinutes = if @workDayEndBefore? then @workDayEndBefore.hour * 60 + @workDayEndBefore.minute else 24 * 60
     
     if spec.skip?
       @skip = spec.skip
-    else if spec.pastEnd? and @start?.$gt(@pastEnd)
+    else if spec.endBefore? and @startOn?.$gt(@endBefore)
       @skip = -1
-    else if spec.pastEnd? and not spec.start? and spec.limit?
+    else if spec.endBefore? and not spec.startOn? and spec.limit?
       @skip = -1
     else
       @skip = 1
     utils.assert(
-      (spec.start? and spec.pastEnd?) or
-      (spec.start? and spec.limit? and @skip > 0) or
-      (spec.pastEnd? and spec.limit? and @skip < 0),
-      'Must provide two out of "start", "pastEnd", or "limit" and the sign of skip must match.'
+      (spec.startOn? and spec.endBefore?) or
+      (spec.startOn? and spec.limit? and @skip > 0) or
+      (spec.endBefore? and spec.limit? and @skip < 0),
+      'Must provide two out of "startOn", "endBefore", or "limit" and the sign of skip must match.'
     )
     
   getIterator: (emit = 'ChartTimeRange', childGranularity = 'day', tz) ->
@@ -482,8 +482,8 @@ class ChartTimeRange
     We can create a range from May to July.
     
         r = new ChartTimeRange({
-          start: '2011-05',
-          pastEnd: '2011-07'
+          startOn: '2011-05',
+          endBefore: '2011-07'
         })
         
         console.log(r.contains('2011-06-15T12:00:00.000Z', 'America/New_York'))
@@ -491,7 +491,7 @@ class ChartTimeRange
     
     ###
     if date instanceof ChartTime
-      return date.$lt(@pastEnd) and date.$gte(@start)
+      return date.$lt(@endBefore) and date.$gte(@startOn)
     utils.assert(tz? or utils.type(date) != 'date', 'ChartTimeRange.contains() requires a second parameter (timezone) when the first parameter is a Date()')
     switch utils.type(date)
       when 'string'
@@ -499,14 +499,14 @@ class ChartTimeRange
           target = timezoneJS.parseISO(date)
         else
           target = new ChartTime(date)
-          return target.$lt(@pastEnd) and target.$gte(@start)       
+          return target.$lt(@endBefore) and target.$gte(@startOn)
       when 'date'
         target = date.getTime()  # !TODO: A - Need to use my getJSDate to be sure this behaves as expected... or test the hell out of this
       else
         throw new Error('ChartTimeRange.contains() requires that the first parameter be of type ChartTime, String, or Date')
-    start = @start.getJSDate(tz)
-    pastEnd = @pastEnd.getJSDate(tz)
-    return target < pastEnd and target >= start
+    startOn = @startOn.getJSDate(tz)
+    endBefore = @endBefore.getJSDate(tz)
+    return target < endBefore and target >= startOn
 
 exports.ChartTimeRange = ChartTimeRange
 exports.ChartTimeIterator = ChartTimeIterator

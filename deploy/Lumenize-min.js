@@ -4641,13 +4641,13 @@ However, Lumenize assumes the data is in the form of an "Array of Maps" like Ral
     snapshotArray = Lumenize.csvStyleArray_To_ArrayOfMaps(snapshotsCSVStyle)
 
 The `rangeSpec` defines the specification for the x-axis. Notice how you can exclude weekends and holidays. Here we
-specify a `start` and a `pastEnd`. However, it's fairly common in charts to specify `pastEnd: "this day"` and
-`limit: 60` (no `start`). A number of human readable dates like `"next month"` or `"prior week"` are supported. You
-need to specify any 2 of start, pastEnd, or limit.
+specify a `startOn` and a `endBefore`. However, it's fairly common in charts to specify `endBefore: "this day"` and
+`limit: 60` (no `startOn`). A number of human readable dates like `"next month"` or `"prior week"` are supported. You
+need to specify any 2 of startOn, endBefore, or limit.
 
     rangeSpec = {
-      start: "2011-01-02"
-      pastEnd: "2011-01-08",
+      startOn: "2011-01-02"
+      endBefore: "2011-01-08",
       workDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],  # Also supports "Monday, Tuesday, ..."
       holidays: [
         {"month": 1, "day": 1},
@@ -5509,7 +5509,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
             afterCT = beforeCT.add(1);
             afterRDN = afterCT.rataDieNumber();
             if (afterCT.beforePastFlag === 'PAST_LAST') {
-              if (rdn >= ChartTime.granularitySpecs[beforeCT.granularity].dayPastEnd.rataDieNumber()) {
+              if (rdn >= ChartTime.granularitySpecs[beforeCT.granularity].endBeforeDay.rataDieNumber()) {
                 this._setFromSpec(afterCT);
                 this.beforePastFlag === 'PAST_LAST';
                 return;
@@ -6200,27 +6200,27 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
                   segments: ['release'],
                   mask: 'R##',
                   lowest: 1,
-                  dayPastEnd: new ChartTime('2011-07-01')
+                  endBeforeDay: new ChartTime('2011-07-01')
                   pastHighest: (ct) ->
                     return ChartTime.granularitySpecs.iteration.timeBoxes.length + 1  # Yes, it's correct to use the length of iteration.timeBoxes
                   rataDieNumber: (ct) ->
-                    return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].start.rataDieNumber()
+                    return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].startOn.rataDieNumber()
                 },
                 iteration: {
                   segments: ['release', 'iteration'],
                   mask: 'R##I##',
                   lowest: 1,
-                  dayPastEnd: new ChartTime('2011-07-01')        
+                  endBeforeDay: new ChartTime('2011-07-01')        
                   timeBoxes: [
                     [
-                      {start: new ChartTime('2011-01-01'), label: 'R1 Iteration 1'},
-                      {start: new ChartTime('2011-02-01'), label: 'R1 Iteration 2'},
-                      {start: new ChartTime('2011-03-01'), label: 'R1 Iteration 3'},
+                      {startOn: new ChartTime('2011-01-01'), label: 'R1 Iteration 1'},
+                      {startOn: new ChartTime('2011-02-01'), label: 'R1 Iteration 2'},
+                      {startOn: new ChartTime('2011-03-01'), label: 'R1 Iteration 3'},
                     ],
                     [
-                      {start: new ChartTime('2011-04-01'), label: 'R2 Iteration 1'},
-                      {start: new ChartTime('2011-05-01'), label: 'R2 Iteration 2'},
-                      {start: new ChartTime('2011-06-01'), label: 'R2 Iteration 3'},
+                      {startOn: new ChartTime('2011-04-01'), label: 'R2 Iteration 1'},
+                      {startOn: new ChartTime('2011-05-01'), label: 'R2 Iteration 2'},
+                      {startOn: new ChartTime('2011-06-01'), label: 'R2 Iteration 3'},
                     ]
                   ]
                   pastHighest: (ct) ->
@@ -6232,13 +6232,13 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
                       return ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length + 1
           
                   rataDieNumber: (ct) ->
-                    return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].start.rataDieNumber()
+                    return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber()
                 },
                 iteration_day: {  # By convention, it knows to use day functions on it. This is the lowest allowed custom granularity
                   segments: ['release', 'iteration', 'iteration_day'],
                   mask: 'R##I##-##',
                   lowest: 1,
-                  dayPastEnd: new ChartTime('2011-07-01'),
+                  endBeforeDay: new ChartTime('2011-07-01'),
                   pastHighest: (ct) ->
                     iterationTimeBox = ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1]?[ct.iteration-1]
                     if !iterationTimeBox? or ct.beforePastFlag == 'PAST_LAST'
@@ -6246,15 +6246,15 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
                       numberOfIterationsInLastRelease = ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length
                       iterationTimeBox = ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1][numberOfIterationsInLastRelease-1]
                       
-                    thisIteration = iterationTimeBox.start.inGranularity('iteration')
+                    thisIteration = iterationTimeBox.startOn.inGranularity('iteration')
                     nextIteration = thisIteration.add(1)
                     if nextIteration.beforePastFlag == 'PAST_LAST'
-                      return ChartTime.granularitySpecs.iteration_day.dayPastEnd.rataDieNumber() - iterationTimeBox.start.rataDieNumber() + 1
+                      return ChartTime.granularitySpecs.iteration_day.endBeforeDay.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1
                     else
-                      return nextIteration.rataDieNumber() - iterationTimeBox.start.rataDieNumber() + 1 
+                      return nextIteration.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1
                      
                   rataDieNumber: (ct) ->
-                    return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].start.rataDieNumber() + ct.iteration_day - 1
+                    return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber() + ct.iteration_day - 1
                 }
               }    
               ChartTime.addGranularity(granularitySpec)
@@ -7061,8 +7061,8 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
           {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
           
           cti = new ChartTimeIterator({
-            start:new ChartTime({granularity: 'day', year: 2009, month:1, day: 1}),
-            pastEnd:new ChartTime({granularity: 'day', year: 2009, month:1, day: 8}),
+            startOn:new ChartTime({granularity: 'day', year: 2009, month:1, day: 1}),
+            endBefore:new ChartTime({granularity: 'day', year: 2009, month:1, day: 8}),
             workDays: 'Monday, Tuesday, Wednesday, Thursday, Friday',
             holidays: [
               {month: 1, day: 1},  # New Years day was a Thursday in 2009
@@ -7093,7 +7093,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
              before ChartTimeRange existed, the default for emit when instantiating a new ChartTimeIterator directly is 
              'ChartTime'. However, if you request a new ChartTimeIterator from a ChartTimeRange object using getIterator(),
              the default is 'ChartTimeRange'.
-          @param {String} [childGranularity] When emit is 'ChartTimeRange', this is the granularity for the start and pastEnd of the
+          @param {String} [childGranularity] When emit is 'ChartTimeRange', this is the granularity for the startOn and endBefore of the
              ChartTimeRange that is emitted.
           @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example.
       */
@@ -7120,9 +7120,9 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
           Will go back to the where the iterator started.
       */
       if (this.ctr.skip > 0) {
-        this.current = new ChartTime(this.ctr.start);
+        this.current = new ChartTime(this.ctr.startOn);
       } else {
-        this.current = new ChartTime(this.ctr.pastEnd);
+        this.current = new ChartTime(this.ctr.endBefore);
         this.current.decrement();
       }
       this.count = 0;
@@ -7133,7 +7133,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
       /*
           @method hasNext
           @return {Boolean} Returns true if there are still things left to iterator over. Note that if there are holidays,
-             weekends or non-workhours to skip, then hasNext() will take that into account. For example if the pastEnd is a
+             weekends or non-workhours to skip, then hasNext() will take that into account. For example if the endBefore is a
              Sunday, hasNext() will return true the next time it is called after the Friday is emitted.
       */
       return this.ctr.contains(this.current) && (this.count < this.ctr.limit);
@@ -7160,12 +7160,12 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
         if (this.current.minute != null) {
           currentMinutes += this.current.minute;
         }
-        if (this.ctr.startWorkMinutes <= this.ctr.pastEndWorkMinutes) {
-          if ((currentMinutes < this.ctr.startWorkMinutes) || (currentMinutes >= this.ctr.pastEndWorkMinutes)) {
+        if (this.ctr.startWorkMinutes <= this.ctr.endBeforeWorkMinutes) {
+          if ((currentMinutes < this.ctr.startWorkMinutes) || (currentMinutes >= this.ctr.endBeforeWorkMinutes)) {
             return true;
           }
         } else {
-          if ((this.ctr.startWorkMinutes >= currentMinutes && currentMinutes > this.ctr.pastEndWorkMinutes)) {
+          if ((this.ctr.startWorkMinutes >= currentMinutes && currentMinutes > this.ctr.endBeforeWorkMinutes)) {
             return true;
           }
         }
@@ -7214,12 +7214,12 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
           return currentCopy.getJSDate(this.tz);
         case 'ChartTimeRange':
           spec = {
-            start: currentCopy.inGranularity(this.childGranularity),
-            pastEnd: this.current.inGranularity(this.childGranularity),
+            startOn: currentCopy.inGranularity(this.childGranularity),
+            endBefore: this.current.inGranularity(this.childGranularity),
             workDays: this.ctr.workDays,
             holidays: this.ctr.holidays,
-            startWorkTime: this.ctr.startWorkTime,
-            pastEndWorkTime: this.ctr.pastEndWorkTime
+            workDayStartOn: this.ctr.workDayStartOn,
+            workDayEndBefore: this.ctr.workDayEndBefore
           };
           childCTR = new ChartTimeRange(spec);
           return childCTR;
@@ -7268,8 +7268,8 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
           {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
           
           r = new ChartTimeRange({
-            start:new ChartTime('2011-01-02'),
-            pastEnd:new ChartTime('2011-01-07'),
+            startOn:new ChartTime('2011-01-02'),
+            endBefore:new ChartTime('2011-01-07'),
             holidays: [
               {month: 1, day: 1},  # Notice the lack of a year specification
               {year: 2011, month: 1, day: 2}  # Got January 2 off also in 2011
@@ -7293,28 +7293,28 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
           # 2011-01-05
           # 2011-01-06
       
-      Notice how 2011-01-02 was skipped because it was a holiday. Also notice how the pastEnd is not included.
-      Ranges are inclusive of the start and exclusive of the pastEnd. This allows the pastEnd of one to be
-      the start of the next with no overlap or gap. This focus on precision pervades the design of the ChartTime library.
+      Notice how 2011-01-02 was skipped because it was a holiday. Also notice how the endBefore is not included.
+      Ranges are inclusive of the startOn and exclusive of the endBefore. This allows the endBefore of one to be
+      the startOn of the next with no overlap or gap. This focus on precision pervades the design of the ChartTime library.
       
       Now, let's create a ChartTimeRange with `hour` granularity to elaborate on this inclusive/exclusive behavior.
           
           r2 = new ChartTimeRange({
-            start:new ChartTime('2011-01-02T00'),
-            pastEnd:new ChartTime('2011-01-07T00'),
+            startOn:new ChartTime('2011-01-02T00'),
+            endBefore:new ChartTime('2011-01-07T00'),
           })
           
-      `start` is inclusive.
+      `startOn` is inclusive.
       
           console.log(r2.contains(new ChartTime('2011-01-02T00')))
           # true
           
-      But `pastEnd` is exclusive
+      But `endBefore` is exclusive
       
           console.log(r2.contains(new ChartTime('2011-01-07T00')))
           # false
       
-      But just before `pastEnd` is OK
+      But just before `endBefore` is OK
       
           console.log(r2.contains('2011-01-06T23'))
           # true
@@ -7322,7 +7322,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
       In the above line, notice how we omitted the `new ChartTime(...)`. If you pass in a string without a timezone, 
       it will automatically create the ChartTime to do the comparison.
       
-      All of the above comparisons assume that the `start`/`pastEnd` boundaries are in the same timezone as the contains date.
+      All of the above comparisons assume that the `startOn`/`endBefore` boundaries are in the same timezone as the contains date.
       
       ## Timezone sensitive comparisions ##
       
@@ -7335,7 +7335,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
       it down from an API but the data is represented with a GMT date/timestamp. You then want to decide if the GMT date/timestamp 
       is contained within the iteration as defined by a particular timezone, or is a Saturday, or is during workhours, etc. 
       The key concept to remember is that the timebox boundaries are shifted NOT the other way around. It says at what moment
-      in time July 10th starts in a particular timezone and internally represents that in a way that can be compared to a GMT 
+      in time July 10th starts on in a particular timezone and internally represents that in a way that can be compared to a GMT
       date/timestamp.
       
       So, when it's 3am in GMT on 2011-01-02, it's still 2011-01-01 in New York. Using the above `r2` range, we say:
@@ -7351,18 +7351,18 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
       Now, let's explore how ChartTimeRanges and ChartTimeIterators are used together. Here is a range spec.
     
           r3 = new ChartTimeRange({
-            start:new ChartTime('2011-01-06'),
-            pastEnd:new ChartTime('2011-01-11'),
-            startWorkTime: {hour: 9, minute: 0},
-            pastEndWorkTime: {hour: 11, minute: 0}  # Very short work day for demo purposes
+            startOn:new ChartTime('2011-01-06'),
+            endBefore:new ChartTime('2011-01-11'),
+            workDayStartOn: {hour: 9, minute: 0},
+            workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes
           })
               
       You can ask for an iterator to emit ChartTimeRanges rather than ChartTime values. On each call to `next()`, the
-      iterator will give you a new ChartTimeRange with the `start` value set to what you would have gotten had you 
-      requested that it emit ChartTimes. The `pastEnd' of the emitted ChartTimeRange will be set to the following value.
+      iterator will give you a new ChartTimeRange with the `startOn` value set to what you would have gotten had you
+      requested that it emit ChartTimes. The `endBefore' of the emitted ChartTimeRange will be set to the following value.
       This is how you drill-down from one granularity into a lower granularity.
       
-      By default, the granularity of the iterator will equal the `start`/`pastEnd` of the original ChartTimeRange. 
+      By default, the granularity of the iterator will equal the `startOn`/`endBefore` of the original ChartTimeRange.
       However, you can provide a different granularity (`hour` in the example below) for the iterator if you want 
       to drill-down at a lower granularity.
       
@@ -7370,7 +7370,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
           
           while i3.hasNext()
             subRange = i3.next()
-            console.log("Sub range goes from #{subRange.start.toString()} to #{subRange.pastEnd.toString()}")
+            console.log("Sub range goes from #{subRange.startOn.toString()} to #{subRange.endBefore.toString()}")
             subIterator = subRange.getIterator('ChartTime')
             while subIterator.hasNext()
               console.log('    Hour: ' + subIterator.next().hour)
@@ -7394,13 +7394,13 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
       the drill up/down to day/month/year levels automatically.
       
           r4 = new ChartTimeRange({
-            start:'2011-01-06T00',  # Notice how we include the hour now
-            pastEnd:'2011-01-11T00',
-            startWorkTime: {hour: 9, minute: 0},
-            pastEndWorkTime: {hour: 11, minute: 0}  # Very short work day for demo purposes
+            startOn:'2011-01-06T00',  # Notice how we include the hour now
+            endBefore:'2011-01-11T00',
+            workDayStartOn: {hour: 9, minute: 0},
+            workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes
           })
               
-      Notice how we are able to simply use strings to represent the start/pastEnd dates. ChartTimeRange automatically constructs 
+      Notice how we are able to simply use strings to represent the startOn/endBefore dates. ChartTimeRange automatically constructs
       ChartTime objects from those strings. We could have done that in the earlier examples. I chose not to do so to illustrate
       how ChartTimes are used under the covers.
     
@@ -7426,70 +7426,70 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
       
           spec can have the following properties:
       
-          * **start** is a ChartTime object or a string. The first value that next() returns.
-          * **pastEnd** is a ChartTime object or string. Must match granularity. hasNext() returns false when current is here or later.
-          * **skip** is an optional num. Defaults to 1 or -1. Use -1 to march backwards from pastEnd - 1. Currently any
+          * **startOn** is a ChartTime object or a string. The first value that next() returns.
+          * **endBefore** is a ChartTime object or string. Must match granularity. hasNext() returns false when current is here or later.
+          * **skip** is an optional num. Defaults to 1 or -1. Use -1 to march backwards from endBefore - 1. Currently any
              values other than 1 and -1 give unexpected behavior.
           * **granularity** is used to determine the granularity that you will iterate over. Note, you can have granularity of say month 
-             for the start and/or pastEnd but have a finer granularity for the range. Let's say you want to iterate over all the days
-             of the current month. In this case, pastEnd would be 'next month', and start would be 'prior month'.
-          * **limit** you can specify limit plus one of start/pastEnd and only get back this many.
+             for the startOn and/or endBefore but have a finer granularity for the range. Let's say you want to iterate over all the days
+             of the current month. In this case, endBefore would be 'next month', and startOn would be 'prior month'.
+          * **limit** you can specify limit plus one of startOn/endBefore and only get back this many.
           * **workDays** list of days of the week that you work on. Either ['Monday', 'Tuesday', ...] or "Monday,Tuesday,..."
              Defaults to ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].
           * **holidays** is an optional Array like: [{month: 12, day: 25}, {year: 2011, month: 11, day: 24}]. Notice how
              you can leave off the year if the holiday falls on the same day every year.
-          * **startWorkTime** is an optional object in the form {hour: 8, minute: 15}. Must include minute even when 0.
-             If startWorkTime is later than pastEndWorkTime, then it assumes that you work the night shift and your work
+          * **workDayStartOn** is an optional object in the form {hour: 8, minute: 15}. Must include minute even when 0.
+             If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
              hours span midnight.
-          * **pastEndWorkTime** is an optional object in the form {hour: 17, minute: 0}. Must include minute even when 0.
-             The use of startWorkTime and pastEndWorkTime only make sense when the granularity is "hour" or finer.
-             Note: If the business closes at 5:00pm, you'll want to leave pastEndWorkTime to 17:00, rather
+          * **workDayEndBefore** is an optional object in the form {hour: 17, minute: 0}. Must include minute even when 0.
+             The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
+             Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
              than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
              the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
       */
 
       var holiday, idx, s, _i, _len, _ref, _ref1;
-      if (spec.pastEnd != null) {
-        this.pastEnd = spec.pastEnd;
-        if (this.pastEnd !== 'PAST_LAST') {
-          if (utils.type(this.pastEnd) === 'string') {
-            this.pastEnd = new ChartTime(this.pastEnd);
+      if (spec.endBefore != null) {
+        this.endBefore = spec.endBefore;
+        if (this.endBefore !== 'PAST_LAST') {
+          if (utils.type(this.endBefore) === 'string') {
+            this.endBefore = new ChartTime(this.endBefore);
           }
-          this.granularity = this.pastEnd.granularity;
+          this.granularity = this.endBefore.granularity;
         }
       }
-      if (spec.start != null) {
-        this.start = spec.start;
-        if (this.start !== 'BEFORE_FIRST') {
-          if (utils.type(this.start) === 'string') {
-            this.start = new ChartTime(this.start);
+      if (spec.startOn != null) {
+        this.startOn = spec.startOn;
+        if (this.startOn !== 'BEFORE_FIRST') {
+          if (utils.type(this.startOn) === 'string') {
+            this.startOn = new ChartTime(this.startOn);
           }
-          this.granularity = this.start.granularity;
+          this.granularity = this.startOn.granularity;
         }
       }
       if (spec.granularity != null) {
         this.granularity = spec.granularity;
-        if (this.start != null) {
-          this.start = this.start.inGranularity(this.granularity);
+        if (this.startOn != null) {
+          this.startOn = this.startOn.inGranularity(this.granularity);
         }
-        if (this.pastEnd != null) {
-          this.pastEnd = this.pastEnd.inGranularity(this.granularity);
+        if (this.endBefore != null) {
+          this.endBefore = this.endBefore.inGranularity(this.granularity);
         }
       }
       if (!this.granularity) {
         throw new Error('Cannot determine granularity for ChartTimeRange.');
       }
-      if (this.start === 'BEFORE_FIRST') {
-        this.start = new ChartTime(this.start, this.granularity);
+      if (this.startOn === 'BEFORE_FIRST') {
+        this.startOn = new ChartTime(this.startOn, this.granularity);
       }
-      if (this.pastEnd === 'PAST_LAST') {
-        this.pastEnd === new ChartTime(this.pastEnd, this.granularity);
+      if (this.endBefore === 'PAST_LAST') {
+        this.endBefore === new ChartTime(this.endBefore, this.granularity);
       }
-      if (!this.pastEnd) {
-        this.pastEnd = new ChartTime('PAST_LAST', this.granularity);
+      if (!this.endBefore) {
+        this.endBefore = new ChartTime('PAST_LAST', this.granularity);
       }
-      if (!this.start) {
-        this.start = new ChartTime('BEFORE_FIRST', this.granularity);
+      if (!this.startOn) {
+        this.startOn = new ChartTime('BEFORE_FIRST', this.granularity);
       }
       this.limit = spec.limit != null ? spec.limit : utils.MAX_INT;
       if (spec.workDays != null) {
@@ -7519,20 +7519,20 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
           this.holidays[idx] = new ChartTime(holiday).getSegmentsAsObject();
         }
       }
-      this.startWorkTime = spec.startWorkTime != null ? spec.startWorkTime : void 0;
-      this.startWorkMinutes = this.startWorkTime != null ? this.startWorkTime.hour * 60 + this.startWorkTime.minute : 0;
-      this.pastEndWorkTime = spec.pastEndWorkTime != null ? spec.pastEndWorkTime : void 0;
-      this.pastEndWorkMinutes = this.pastEndWorkTime != null ? this.pastEndWorkTime.hour * 60 + this.pastEndWorkTime.minute : 24 * 60;
+      this.workDayStartOn = spec.workDayStartOn != null ? spec.workDayStartOn : void 0;
+      this.startWorkMinutes = this.workDayStartOn != null ? this.workDayStartOn.hour * 60 + this.workDayStartOn.minute : 0;
+      this.workDayEndBefore = spec.workDayEndBefore != null ? spec.workDayEndBefore : void 0;
+      this.endBeforeWorkMinutes = this.workDayEndBefore != null ? this.workDayEndBefore.hour * 60 + this.workDayEndBefore.minute : 24 * 60;
       if (spec.skip != null) {
         this.skip = spec.skip;
-      } else if ((spec.pastEnd != null) && ((_ref1 = this.start) != null ? _ref1.$gt(this.pastEnd) : void 0)) {
+      } else if ((spec.endBefore != null) && ((_ref1 = this.startOn) != null ? _ref1.$gt(this.endBefore) : void 0)) {
         this.skip = -1;
-      } else if ((spec.pastEnd != null) && !(spec.start != null) && (spec.limit != null)) {
+      } else if ((spec.endBefore != null) && !(spec.startOn != null) && (spec.limit != null)) {
         this.skip = -1;
       } else {
         this.skip = 1;
       }
-      utils.assert(((spec.start != null) && (spec.pastEnd != null)) || ((spec.start != null) && (spec.limit != null) && this.skip > 0) || ((spec.pastEnd != null) && (spec.limit != null) && this.skip < 0), 'Must provide two out of "start", "pastEnd", or "limit" and the sign of skip must match.');
+      utils.assert(((spec.startOn != null) && (spec.endBefore != null)) || ((spec.startOn != null) && (spec.limit != null) && this.skip > 0) || ((spec.endBefore != null) && (spec.limit != null) && this.skip < 0), 'Must provide two out of "startOn", "endBefore", or "limit" and the sign of skip must match.');
     }
 
     ChartTimeRange.prototype.getIterator = function(emit, childGranularity, tz) {
@@ -7612,17 +7612,17 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
           We can create a range from May to July.
           
               r = new ChartTimeRange({
-                start: '2011-05',
-                pastEnd: '2011-07'
+                startOn: '2011-05',
+                endBefore: '2011-07'
               })
               
               console.log(r.contains('2011-06-15T12:00:00.000Z', 'America/New_York'))
               # true
       */
 
-      var pastEnd, start, target;
+      var endBefore, startOn, target;
       if (date instanceof ChartTime) {
-        return date.$lt(this.pastEnd) && date.$gte(this.start);
+        return date.$lt(this.endBefore) && date.$gte(this.startOn);
       }
       utils.assert((tz != null) || utils.type(date) !== 'date', 'ChartTimeRange.contains() requires a second parameter (timezone) when the first parameter is a Date()');
       switch (utils.type(date)) {
@@ -7631,7 +7631,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
             target = timezoneJS.parseISO(date);
           } else {
             target = new ChartTime(date);
-            return target.$lt(this.pastEnd) && target.$gte(this.start);
+            return target.$lt(this.endBefore) && target.$gte(this.startOn);
           }
           break;
         case 'date':
@@ -7640,9 +7640,9 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
         default:
           throw new Error('ChartTimeRange.contains() requires that the first parameter be of type ChartTime, String, or Date');
       }
-      start = this.start.getJSDate(tz);
-      pastEnd = this.pastEnd.getJSDate(tz);
-      return target < pastEnd && target >= start;
+      startOn = this.startOn.getJSDate(tz);
+      endBefore = this.endBefore.getJSDate(tz);
+      return target < endBefore && target >= startOn;
     };
 
     return ChartTimeRange;
@@ -7693,10 +7693,10 @@ require.define("/src/ChartTimeInStateCalculator.coffee",function(require,module,
           
           rangeSpec = 
             granularity: granularity
-            start: new ChartTime(snapshots[0].from, granularity, timezone).decrement()
-            pastEnd: '2011-01-11T00:00:00.000'
-            startWorkTime: {hour: 9, minute: 0}  # 15:00 in Chicago
-            pastEndWorkTime: {hour: 11, minute: 0}  # 17:00 in Chicago.
+            startOn: new ChartTime(snapshots[0].from, granularity, timezone).decrement()
+            endBefore: '2011-01-11T00:00:00.000'
+            workDayStartOn: {hour: 9, minute: 0}  # 15:00 in Chicago
+            workDayEndBefore: {hour: 11, minute: 0}  # 17:00 in Chicago.
           
           r1 = new ChartTimeRange(rangeSpec)
           i1 = r1.getIterator('ChartTime')

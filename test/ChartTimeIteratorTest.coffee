@@ -6,8 +6,8 @@ utils = require('../src/utils')
 exports.ChartTimeIteratorTest =
   setUp: (callback) ->
     @i = new ChartTimeIterator({
-      start:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
-      pastEnd:new ChartTime({granularity: 'day', year: 2011, month:1, day: 7})
+      startOn:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
+      endBefore:new ChartTime({granularity: 'day', year: 2011, month:1, day: 7})
     })
     
     callback()
@@ -15,8 +15,8 @@ exports.ChartTimeIteratorTest =
   testNextAndHasNext: (test) ->
     f = () ->
       i2 = new ChartTimeIterator({
-        start:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
-        pastEnd:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1})
+        startOn:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
+        endBefore:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1})
       })
       i2.next()
 
@@ -24,8 +24,8 @@ exports.ChartTimeIteratorTest =
     test.throws(f, StopIteration, 'should throw on calling next() when hasNext() is false')
 
     i2 = new ChartTimeIterator({
-      start:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
-      pastEnd:new ChartTime({granularity: 'day', year: 2011, month:1, day: 10}),
+      startOn:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
+      endBefore:new ChartTime({granularity: 'day', year: 2011, month:1, day: 10}),
       workDays: 'Monday ,   Wednesday, Thursday ,Saturday',
       holidays: [
         {month: 12, day: 25},
@@ -53,8 +53,8 @@ exports.ChartTimeIteratorTest =
 
   testIterator: (test) ->
     spec = {
-      start:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
-      pastEnd:new ChartTime({granularity: 'day', year: 2011, month:1, day: 10}),
+      startOn:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
+      endBefore:new ChartTime({granularity: 'day', year: 2011, month:1, day: 10}),
       workDays: 'Monday ,   Wednesday, Thursday ,Saturday',
       holidays: [
         {month: 12, day: 25},
@@ -77,15 +77,15 @@ exports.ChartTimeIteratorTest =
 
     all.reverse()
     delete spec.skip
-    pastEnd = spec.pastEnd
-    delete spec.pastEnd
+    endBefore = spec.endBefore
+    delete spec.endBefore
     spec.limit = 4
     i2 = new ChartTimeIterator(spec)
     test.deepEqual(i2.getAll(), all, 'should be the same with limit')
 
-    spec.pastEnd = pastEnd
-    start = spec.start
-    delete spec.start
+    spec.endBefore = endBefore
+    startOn = spec.startOn
+    delete spec.startOn
     spec.limit = 4
     spec.skip = -1
     i2 = new ChartTimeIterator(spec)
@@ -95,10 +95,10 @@ exports.ChartTimeIteratorTest =
 
   testHours: (test) ->
     spec = {
-      start: new ChartTime({granularity: 'hour', year: 2011, month:1, day: 3, hour: 14}),
-      pastEnd: new ChartTime('2011-01-04T22'),
-      startWorkTime: {hour: 9, minute: 0},
-      pastEndWorkTime: {hour: 17, minute: 0}
+      startOn: new ChartTime({granularity: 'hour', year: 2011, month:1, day: 3, hour: 14}),
+      endBefore: new ChartTime('2011-01-04T22'),
+      workDayStartOn: {hour: 9, minute: 0},
+      workDayEndBefore: {hour: 17, minute: 0}
     }
     i2 = new ChartTimeIterator(spec)
 
@@ -108,10 +108,10 @@ exports.ChartTimeIteratorTest =
     
   testHoursNightShift: (test) ->
     spec = {
-      start: new ChartTime({granularity: 'hour', year: 2011, month:1, day: 3, hour: 20}),
-      pastEnd: new ChartTime(granularity: 'hour', hour: 8, year:2011, month:1, day:4)
-      startWorkTime: {hour: 23, minute: 0},
-      pastEndWorkTime: {hour: 8, minute:0}
+      startOn: new ChartTime({granularity: 'hour', year: 2011, month:1, day: 3, hour: 20}),
+      endBefore: new ChartTime(granularity: 'hour', hour: 8, year:2011, month:1, day:4)
+      workDayStartOn: {hour: 23, minute: 0},
+      workDayEndBefore: {hour: 8, minute:0}
     }
     i2 = new ChartTimeIterator(spec)
     test.equal(i2.getAll().length, 8, 'should be 8 work hours from 11pm til 7am')
@@ -120,10 +120,10 @@ exports.ChartTimeIteratorTest =
     
    testHoursSpanDays: (test) ->
     spec = {
-      start: new ChartTime({granularity: 'hour', year: 2011, month:1, day: 3, hour: 7}),
-      pastEnd: new ChartTime(granularity: 'hour', year:2011, month:1, day:4, hour: 23)
-      startWorkTime: {hour: 8, minute: 0},
-      pastEndWorkTime: {hour: 18, minute:0}
+      startOn: new ChartTime({granularity: 'hour', year: 2011, month:1, day: 3, hour: 7}),
+      endBefore: new ChartTime(granularity: 'hour', year:2011, month:1, day:4, hour: 23)
+      workDayStartOn: {hour: 8, minute: 0},
+      workDayEndBefore: {hour: 18, minute:0}
     }
     i2 = new ChartTimeIterator(spec)
     test.equal(i2.getAll().length, 20, 'should be 20 work hours')
@@ -132,8 +132,8 @@ exports.ChartTimeIteratorTest =
     
   testHoursSpanWeeks: (test) ->
     spec = {
-      start: new ChartTime(granularity:'hour', year: 2011, month: 12, day: 30, hour: 1),
-      pastEnd: new ChartTime(granularity: 'hour', year: 2012, month: 1, day: 3, hour: 1)
+      startOn: new ChartTime(granularity:'hour', year: 2011, month: 12, day: 30, hour: 1),
+      endBefore: new ChartTime(granularity: 'hour', year: 2012, month: 1, day: 3, hour: 1)
     }
     i2 = new ChartTimeIterator(spec)
     test.equal(i2.getAll().length, 48)  
@@ -141,10 +141,10 @@ exports.ChartTimeIteratorTest =
   
   testWorkHours: (test) ->
     spec = {
-      start: new ChartTime(granularity: 'hour', year: 2012, month: 2, day: 1, hour: 5),
-      pastEnd: new ChartTime(granularity: 'hour', year: 2012, month: 2, day: 5, hour: 23)
-      startWorkTime: {hour: 10, minute: 30}
-      pastEndWorkTime: {hour: 12, minute: 30}
+      startOn: new ChartTime(granularity: 'hour', year: 2012, month: 2, day: 1, hour: 5),
+      endBefore: new ChartTime(granularity: 'hour', year: 2012, month: 2, day: 5, hour: 23)
+      workDayStartOn: {hour: 10, minute: 30}
+      workDayEndBefore: {hour: 12, minute: 30}
     }
     i2 = new ChartTimeIterator(spec)
     test.equal(i2.getAll().length, 6)
@@ -152,10 +152,10 @@ exports.ChartTimeIteratorTest =
   
   testMinutes: (test) ->
     spec = {
-      start: new ChartTime({granularity: 'minute', year: 2011, month:1, day: 3, hour: 14, minute: 23}),
-      pastEnd: new ChartTime('2011-01-04T22:23'),
-      startWorkTime: {hour: 9, minute: 30},
-      pastEndWorkTime: {hour: 17, minute: 15}
+      startOn: new ChartTime({granularity: 'minute', year: 2011, month:1, day: 3, hour: 14, minute: 23}),
+      endBefore: new ChartTime('2011-01-04T22:23'),
+      workDayStartOn: {hour: 9, minute: 30},
+      workDayEndBefore: {hour: 17, minute: 15}
     }
     i2 = new ChartTimeIterator(spec)
 
@@ -165,8 +165,8 @@ exports.ChartTimeIteratorTest =
     
   testMinutesSpanDays: (test) ->
     spec = {
-    	start: new ChartTime(granularity: 'minute', year: 2012, month:1, day: 17, hour: 12, minute: 0)
-    	pastEnd: new ChartTime(granularity: 'minute', year: 2012, month: 1, day: 18, hour: 12, minute: 0)
+    	startOn: new ChartTime(granularity: 'minute', year: 2012, month:1, day: 17, hour: 12, minute: 0)
+    	endBefore: new ChartTime(granularity: 'minute', year: 2012, month: 1, day: 18, hour: 12, minute: 0)
     }
     i2 = new ChartTimeIterator(spec)
     test.equal(i2.getAll().length, 1440)
@@ -174,8 +174,8 @@ exports.ChartTimeIteratorTest =
     
   testMinutesSpanWeeks: (test) ->
     spec = {
-    	start: new ChartTime(granularity: 'minute', year: 2012, month:1, day: 20, hour: 12, minute: 0)
-    	pastEnd: new ChartTime(granularity: 'minute', year: 2012, month: 1, day: 23, hour: 12, minute: 0)
+    	startOn: new ChartTime(granularity: 'minute', year: 2012, month:1, day: 20, hour: 12, minute: 0)
+    	endBefore: new ChartTime(granularity: 'minute', year: 2012, month: 1, day: 23, hour: 12, minute: 0)
     }
     i2 = new ChartTimeIterator(spec)
     test.equal(i2.getAll().length, 1440)
@@ -183,8 +183,8 @@ exports.ChartTimeIteratorTest =
   
   testMilliseconds: (test) ->
     spec = {
-      start: new ChartTime(granularity: 'millisecond', year: 2011, month:1, day: 3, hour: 14, minute: 23, second: 45, millisecond: 900),
-      pastEnd: new ChartTime(granularity: 'millisecond', year: 2011, month:1, day:3, hour: 14, minute: 23, second: 46, millisecond: 5),
+      startOn: new ChartTime(granularity: 'millisecond', year: 2011, month:1, day: 3, hour: 14, minute: 23, second: 45, millisecond: 900),
+      endBefore: new ChartTime(granularity: 'millisecond', year: 2011, month:1, day:3, hour: 14, minute: 23, second: 46, millisecond: 5),
     }
     i2 = new ChartTimeIterator(spec)
 
@@ -193,8 +193,8 @@ exports.ChartTimeIteratorTest =
  
   testQuarter: (test) ->
     spec = {
-      start: new ChartTime({granularity: 'quarter', year: 2011, quarter:1}),
-      pastEnd: new ChartTime('2013Q3'),
+      startOn: new ChartTime({granularity: 'quarter', year: 2011, quarter:1}),
+      endBefore: new ChartTime('2013Q3'),
     }
     i2 = new ChartTimeIterator(spec)
 
@@ -204,8 +204,8 @@ exports.ChartTimeIteratorTest =
 
   testDow: (test) ->
     spec = {
-      start: new ChartTime('2008W52-3'),
-      pastEnd: new ChartTime(granularity: 'week_day', year: 2011, week: 3, week_day: 3),
+      startOn: new ChartTime('2008W52-3'),
+      endBefore: new ChartTime(granularity: 'week_day', year: 2011, week: 3, week_day: 3),
       holidays: [
         {month: 12, day: 25},
         {month: 1, day: 1},
@@ -221,8 +221,8 @@ exports.ChartTimeIteratorTest =
     
   testWeeks: (test) ->
     spec = {
-      start: new ChartTime('2008W52'),
-      pastEnd: new ChartTime(granularity: 'week', year: 2011, week: 3),
+      startOn: new ChartTime('2008W52'),
+      endBefore: new ChartTime(granularity: 'week', year: 2011, week: 3),
     }
     i2 = new ChartTimeIterator(spec)
 
@@ -232,8 +232,8 @@ exports.ChartTimeIteratorTest =
     
   testDaysSpanYears: (test) ->
     spec = {
-       start: new ChartTime('2010-12-30'),
-       pastEnd: new ChartTime('2011-01-15')
+       startOn: new ChartTime('2010-12-30'),
+       endBefore: new ChartTime('2011-01-15')
     }
     i2 = new ChartTimeIterator(spec)
     test.equal(i2.getAll().length, 12)
@@ -241,8 +241,8 @@ exports.ChartTimeIteratorTest =
     
   testWeeksSpanYears: (test) ->
     spec = {
-       start: new ChartTime('2010-11-30').inGranularity('week'),  # Could just do new ChartTime('2010W48')
-       pastEnd: new ChartTime('2011-01-15').inGranularity('week') # '2011W02'
+       startOn: new ChartTime('2010-11-30').inGranularity('week'),  # Could just do new ChartTime('2010W48')
+       endBefore: new ChartTime('2011-01-15').inGranularity('week') # '2011W02'
     }
     i2 = new ChartTimeIterator(spec)
     test.equal(i2.getAll().length, 6) # I think 6 is correct. Remember weeks start on Monday.
@@ -250,8 +250,8 @@ exports.ChartTimeIteratorTest =
    
   testDaysSpanMonths: (test) ->
     spec = {
-     	start: new ChartTime('2011-01-15')
-     	pastEnd: new ChartTime('2011-02-15')
+     	startOn: new ChartTime('2011-01-15')
+     	endBefore: new ChartTime('2011-02-15')
     }
     i2 = new ChartTimeIterator(spec)
     test.equal(i2.getAll().length, 21)
@@ -259,8 +259,8 @@ exports.ChartTimeIteratorTest =
     
   testDaysSpanWeeks: (test) ->
     spec = {
-    	start: new ChartTime('2011-05-05')
-    	pastEnd: new ChartTime('2011-05-25')
+    	startOn: new ChartTime('2011-05-05')
+    	endBefore: new ChartTime('2011-05-25')
     }
     i2 = new ChartTimeIterator(spec)
     test.equal(i2.getAll().length, 14)
@@ -268,8 +268,8 @@ exports.ChartTimeIteratorTest =
    
 #    testMonthsSpanQuarters: (test) ->  # Commented out because month is not yet a sub-granularity to quarter. It stops at quarter right now. Maybe will upgrade later.
 #      spec = {
-#      	start: new ChartTime('2011-02-01'),
-#      	pastEnd: new ChartTime('2011-07-01')
+#      	startOn: new ChartTime('2011-02-01'),
+#      	endBefore: new ChartTime('2011-07-01')
 #      }
 #    	 i2 = new ChartTimeIterator(spec)
 #    	 test.equal(i2.getAll().length, 6)
@@ -278,8 +278,8 @@ exports.ChartTimeIteratorTest =
    
    testQuartersSpanYears: (test) ->
      spec = {
-     	start: new ChartTime('2011-10-01').inGranularity('quarter'),  # Could just do new ChartTime('2011Q3')
-     	pastEnd: new ChartTime('2012-04-01').inGranularity('quarter')
+     	startOn: new ChartTime('2011-10-01').inGranularity('quarter'),  # Could just do new ChartTime('2011Q3')
+     	endBefore: new ChartTime('2012-04-01').inGranularity('quarter')
      }
      i2 = new ChartTimeIterator(spec)
      test.equal(i2.getAll().length, 2)
@@ -287,8 +287,8 @@ exports.ChartTimeIteratorTest =
      
   testThrows: (test) ->
     spec = {
-      start:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
-      pastEnd:new ChartTime({granularity: 'day', year: 2011, month:1, day: 10}),
+      startOn:new ChartTime({granularity: 'day', year: 2011, month:1, day: 1}),
+      endBefore:new ChartTime({granularity: 'day', year: 2011, month:1, day: 10}),
       workDays: 'Monday ,   Wednesday, Thursday ,Saturday',
       holidays: [
         {month: 12, day: 25},
@@ -301,22 +301,22 @@ exports.ChartTimeIteratorTest =
     f = () ->
       i3 = new ChartTimeIterator(spec)
 
-    pastEnd = spec.pastEnd
-    delete spec.pastEnd
-    test.throws(f, utils.AssertException, 'should throw with only start')
+    endBefore = spec.endBefore
+    delete spec.endBefore
+    test.throws(f, utils.AssertException, 'should throw with only startOn')
 
     spec.limit = 10
     spec.skip = -1
-    test.throws(f, utils.AssertException, 'should throw when no pastEnd and skip is negative')
+    test.throws(f, utils.AssertException, 'should throw when no endBefore and skip is negative')
 
-    start = spec.start
-    delete spec.start
+    startOn = spec.startOn
+    delete spec.startOn
     delete spec.limit
-    test.throws(f, Error, 'should throw with no start, pastEnd, limit')
+    test.throws(f, Error, 'should throw with no startOn, endBefore, limit')
 
-    spec.pastEnd = pastEnd
+    spec.endBefore = endBefore
     spec.limit = 10
     spec.skip = 1
-    test.throws(f, utils.AssertException, 'should throw when no start and skip is positive')
+    test.throws(f, utils.AssertException, 'should throw when no startOn and skip is positive')
 
     test.done()

@@ -50,10 +50,10 @@ class ChartTimeInStateCalculator
    *     
    *     rangeSpec = 
    *       granularity: granularity
-   *       start: new ChartTime(snapshots[0].from, granularity, timezone).decrement()
-   *       pastEnd: '2011-01-11T00:00:00.000'
-   *       startWorkTime: {hour: 9, minute: 0}  # 15:00 in Chicago
-   *       pastEndWorkTime: {hour: 11, minute: 0}  # 17:00 in Chicago.
+   *       startOn: new ChartTime(snapshots[0].from, granularity, timezone).decrement()
+   *       endBefore: '2011-01-11T00:00:00.000'
+   *       workDayStartOn: {hour: 9, minute: 0}  # 15:00 in Chicago
+   *       workDayEndBefore: {hour: 11, minute: 0}  # 17:00 in Chicago.
    *     
    *     r1 = new ChartTimeRange(rangeSpec)
    *     i1 = r1.getIterator('ChartTime')

@@ -1,7 +1,7 @@
 utils = require('./utils')
 timezoneJS = require('./timezone-js.js').timezoneJS
 
-class ChartTime  # !TODO: Change "start" to "startOn" and "pastEnd" to "endBefore"
+class ChartTime  #
   ###
   @class ChartTime
   # ChartTime #
@@ -596,7 +596,7 @@ class ChartTime  # !TODO: Change "start" to "startOn" and "pastEnd" to "endBefor
           afterCT = beforeCT.add(1)
           afterRDN = afterCT.rataDieNumber()
           if afterCT.beforePastFlag == 'PAST_LAST'
-            if rdn >= ChartTime.granularitySpecs[beforeCT.granularity].dayPastEnd.rataDieNumber()
+            if rdn >= ChartTime.granularitySpecs[beforeCT.granularity].endBeforeDay.rataDieNumber()
               @_setFromSpec(afterCT)
               @beforePastFlag == 'PAST_LAST'
               return
@@ -1130,27 +1130,27 @@ class ChartTime  # !TODO: Change "start" to "startOn" and "pastEnd" to "endBefor
             segments: ['release'],
             mask: 'R##',
             lowest: 1,
-            dayPastEnd: new ChartTime('2011-07-01')
+            endBeforeDay: new ChartTime('2011-07-01')
             pastHighest: (ct) ->
               return ChartTime.granularitySpecs.iteration.timeBoxes.length + 1  # Yes, it's correct to use the length of iteration.timeBoxes
             rataDieNumber: (ct) ->
-              return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].start.rataDieNumber()
+              return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].startOn.rataDieNumber()
           },
           iteration: {
             segments: ['release', 'iteration'],
             mask: 'R##I##',
             lowest: 1,
-            dayPastEnd: new ChartTime('2011-07-01')        
+            endBeforeDay: new ChartTime('2011-07-01')        
             timeBoxes: [
               [
-                {start: new ChartTime('2011-01-01'), label: 'R1 Iteration 1'},
-                {start: new ChartTime('2011-02-01'), label: 'R1 Iteration 2'},
-                {start: new ChartTime('2011-03-01'), label: 'R1 Iteration 3'},
+                {startOn: new ChartTime('2011-01-01'), label: 'R1 Iteration 1'},
+                {startOn: new ChartTime('2011-02-01'), label: 'R1 Iteration 2'},
+                {startOn: new ChartTime('2011-03-01'), label: 'R1 Iteration 3'},
               ],
               [
-                {start: new ChartTime('2011-04-01'), label: 'R2 Iteration 1'},
-                {start: new ChartTime('2011-05-01'), label: 'R2 Iteration 2'},
-                {start: new ChartTime('2011-06-01'), label: 'R2 Iteration 3'},
+                {startOn: new ChartTime('2011-04-01'), label: 'R2 Iteration 1'},
+                {startOn: new ChartTime('2011-05-01'), label: 'R2 Iteration 2'},
+                {startOn: new ChartTime('2011-06-01'), label: 'R2 Iteration 3'},
               ]
             ]
             pastHighest: (ct) ->
@@ -1162,13 +1162,13 @@ class ChartTime  # !TODO: Change "start" to "startOn" and "pastEnd" to "endBefor
                 return ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length + 1
     
             rataDieNumber: (ct) ->
-              return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].start.rataDieNumber()
+              return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber()
           },
           iteration_day: {  # By convention, it knows to use day functions on it. This is the lowest allowed custom granularity
             segments: ['release', 'iteration', 'iteration_day'],
             mask: 'R##I##-##',
             lowest: 1,
-            dayPastEnd: new ChartTime('2011-07-01'),
+            endBeforeDay: new ChartTime('2011-07-01'),
             pastHighest: (ct) ->
               iterationTimeBox = ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1]?[ct.iteration-1]
               if !iterationTimeBox? or ct.beforePastFlag == 'PAST_LAST'
@@ -1176,15 +1176,15 @@ class ChartTime  # !TODO: Change "start" to "startOn" and "pastEnd" to "endBefor
                 numberOfIterationsInLastRelease = ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length
                 iterationTimeBox = ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1][numberOfIterationsInLastRelease-1]
                 
-              thisIteration = iterationTimeBox.start.inGranularity('iteration')
+              thisIteration = iterationTimeBox.startOn.inGranularity('iteration')
               nextIteration = thisIteration.add(1)
               if nextIteration.beforePastFlag == 'PAST_LAST'
-                return ChartTime.granularitySpecs.iteration_day.dayPastEnd.rataDieNumber() - iterationTimeBox.start.rataDieNumber() + 1
+                return ChartTime.granularitySpecs.iteration_day.endBeforeDay.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1
               else
-                return nextIteration.rataDieNumber() - iterationTimeBox.start.rataDieNumber() + 1 
+                return nextIteration.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1
                
             rataDieNumber: (ct) ->
-              return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].start.rataDieNumber() + ct.iteration_day - 1
+              return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber() + ct.iteration_day - 1
           }
         }    
         ChartTime.addGranularity(granularitySpec)
@@ -1213,9 +1213,9 @@ class ChartTime  # !TODO: Change "start" to "startOn" and "pastEnd" to "endBefor
     `_day` granularity but right now those lower order time granularities are only supported for the canonical ISO-6801 form.
 
     ###
-    for g, spec of granularitySpec  # !TODO: Need a way for the user to provide a loose stream of timebox dates that are converted into this format. Would cleanup situations where the timeboxes overlapped and error out on impossible situations like nested timeboxes. Use the start.
+    for g, spec of granularitySpec  # !TODO: Need a way for the user to provide a loose stream of timebox dates that are converted into this format. Would cleanup situations where the timeboxes overlapped and error out on impossible situations like nested timeboxes. Use the startOn.
       ChartTime._expandMask(spec)  # !TODO: Add @label() and @end() methods. The @start() method could also be an alias for @inGranularity()
-      @granularitySpecs[g] = spec # !TODO: Assert that we don't have a conflict with existing granularities and that the granularity equals the last segment. Assert that the pastEnd date of one equals the start date of the next.
+      @granularitySpecs[g] = spec # !TODO: Assert that we don't have a conflict with existing granularities and that the granularity equals the last segment. Assert that the endBefore date of one equals the startOn date of the next.
 
 
 exports.ChartTime = ChartTime
