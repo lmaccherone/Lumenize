@@ -85,7 +85,7 @@ class ChartTimeIterator
     return @ctr.contains(@current) and (@count < @ctr.limit)
 
   _shouldBeExcluded: () ->
-    if @current.granularityAboveDay()
+    if @current._isGranularityCoarserThanDay()
       return false
       
     # Do everything below for granularies day and lower
@@ -99,11 +99,11 @@ class ChartTimeIterator
       currentMinutes = @current.hour * 60
       if @current.minute?
         currentMinutes += @current.minute
-      if @ctr.startWorkMinutes <= @ctr.endBeforeWorkMinutes
-        if (currentMinutes < @ctr.startWorkMinutes) or (currentMinutes >= @ctr.endBeforeWorkMinutes)
+      if @ctr.startOnWorkMinutes <= @ctr.endBeforeWorkMinutes
+        if (currentMinutes < @ctr.startOnWorkMinutes) or (currentMinutes >= @ctr.endBeforeWorkMinutes)
           return true
       else
-        if @ctr.startWorkMinutes >= currentMinutes > @ctr.endBeforeWorkMinutes
+        if @ctr.startOnWorkMinutes >= currentMinutes > @ctr.endBeforeWorkMinutes
           return true
     return false
 
@@ -405,13 +405,28 @@ class ChartTimeRange
         @holidays[idx] = new ChartTime(holiday).getSegmentsAsObject()
     
     @workDayStartOn = if spec.workDayStartOn? then spec.workDayStartOn
-    @startWorkMinutes = if @workDayStartOn? then @workDayStartOn.hour * 60 + @workDayStartOn.minute else 0
+    if @workDayStartOn?
+      h = if @workDayStartOn.hour? then @workDayStartOn.hour else 0
+      m = if @workDayStartOn.minute? then @workDayStartOn.minute else 0
+      @startOnWorkMinutes = h * 60 + m
+      if @startOnWorkMinutes < 0
+        @startOnWorkMinutes = 0
+    else
+      @startOnWorkMinutes = 0
+
     @workDayEndBefore = if spec.workDayEndBefore? then spec.workDayEndBefore
-    @endBeforeWorkMinutes = if @workDayEndBefore? then @workDayEndBefore.hour * 60 + @workDayEndBefore.minute else 24 * 60
+    if @workDayEndBefore?
+      h = if @workDayEndBefore.hour? then @workDayEndBefore.hour else 24
+      m = if @workDayEndBefore.minute? then @workDayEndBefore.minute else 0
+      @endBeforeWorkMinutes = h * 60 + m
+      if @endBeforeWorkMinutes > 24 * 60
+        @endBeforeWorkMinutes = 24 * 60
+    else
+      @endBeforeWorkMinutes = 24 * 60
     
     if spec.skip?
       @skip = spec.skip
-    else if spec.endBefore? and @startOn?.$gt(@endBefore)
+    else if spec.endBefore? and @startOn?.gt(@endBefore)
       @skip = -1
     else if spec.endBefore? and not spec.startOn? and spec.limit?
       @skip = -1
@@ -466,7 +481,7 @@ class ChartTimeRange
     makes sure that the array that is returned is sorted chrologically.
     ###
     timeline = new ChartTimeIterator(this, 'ChartTime', @granularity).getAll()
-    if timeline[0].$gt(timeline[1])
+    if timeline[0].gt(timeline[1])
       timeline.reverse()
     return timeline
 
@@ -491,7 +506,7 @@ class ChartTimeRange
     
     ###
     if date instanceof ChartTime
-      return date.$lt(@endBefore) and date.$gte(@startOn)
+      return date.lt(@endBefore) and date.gte(@startOn)
     utils.assert(tz? or utils.type(date) != 'date', 'ChartTimeRange.contains() requires a second parameter (timezone) when the first parameter is a Date()')
     switch utils.type(date)
       when 'string'
@@ -499,7 +514,7 @@ class ChartTimeRange
           target = timezoneJS.parseISO(date)
         else
           target = new ChartTime(date)
-          return target.$lt(@endBefore) and target.$gte(@startOn)
+          return target.lt(@endBefore) and target.gte(@startOn)
       when 'date'
         target = date.getTime()  # !TODO: A - Need to use my getJSDate to be sure this behaves as expected... or test the hell out of this
       else

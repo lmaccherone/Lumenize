@@ -66,7 +66,7 @@ Then to use it, you can either create local aliases like:
 
 or you can just use the lumenize namespace:
 
-`var stdDev = lumenize.functions.$standardDeviation([20, 30, 50]);`
+`var stdDev = lumenize.functions.standardDeviation([20, 30, 50]);`
     
 ## Installation for node.js usage ##
 

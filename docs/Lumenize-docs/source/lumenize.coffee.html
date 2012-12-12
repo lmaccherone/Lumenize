@@ -105,13 +105,13 @@
  *       }
  *     ]
  * 
- * The `aggregationSpec` supports a number of functions including $sum, $count, $addToSet, $standardDeviation,
- * $p50 (for median), and $p?? (for any quartile/percentile). It will also allow you to specify a callback function
+ * The `aggregationSpec` supports a number of functions including sum, count, addToSet, standardDeviation,
+ * p50 (for median), and p?? (for any quartile/percentile). It will also allow you to specify a callback function
  * like in derivedFields above if none of the built-in functions serves.
  * 
  *     aggregationSpec = [
- *       {&quot;as&quot;: &quot;scope&quot;, &quot;f&quot;: &quot;$count&quot;, &quot;field&quot;: &quot;ObjectID&quot;},
- *       {&quot;as&quot;: &quot;accepted&quot;, &quot;f&quot;: &quot;$sum&quot;, &quot;field&quot;: &quot;accepted&quot;}
+ *       {&quot;as&quot;: &quot;scope&quot;, &quot;f&quot;: &quot;count&quot;, &quot;field&quot;: &quot;ObjectID&quot;},
+ *       {&quot;as&quot;: &quot;accepted&quot;, &quot;f&quot;: &quot;sum&quot;, &quot;field&quot;: &quot;accepted&quot;}
  *     ]
  * 
  * Since Lumenize was designed to work with other temporal data models besides Rally's, you must tell it what fields
@@ -161,8 +161,8 @@
  *     ]
  * 
  *     config.aggregationSpec = [
- *       {&quot;as&quot;: &quot;scope&quot;, &quot;f&quot;: &quot;$sum&quot;, &quot;field&quot;: &quot;PlanEstimate&quot;},
- *       {&quot;as&quot;: &quot;accepted&quot;, &quot;f&quot;: &quot;$sum&quot;, &quot;field&quot;: &quot;accepted&quot;}
+ *       {&quot;as&quot;: &quot;scope&quot;, &quot;f&quot;: &quot;sum&quot;, &quot;field&quot;: &quot;PlanEstimate&quot;},
+ *       {&quot;as&quot;: &quot;accepted&quot;, &quot;f&quot;: &quot;sum&quot;, &quot;field&quot;: &quot;accepted&quot;}
  *     ]
  * 
  *     {listOfAtCTs, aggregationAtArray} = Lumenize.timeSeriesCalculator(snapshotArray, config)

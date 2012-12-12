@@ -4670,13 +4670,13 @@ to the table. Simply specify a name and a callback function "f".
       }
     ]
 
-The `aggregationSpec` supports a number of functions including $sum, $count, $addToSet, $standardDeviation,
-$p50 (for median), and $p?? (for any quartile/percentile). It will also allow you to specify a callback function
+The `aggregationSpec` supports a number of functions including sum, count, addToSet, standardDeviation,
+p50 (for median), and p?? (for any quartile/percentile). It will also allow you to specify a callback function
 like in derivedFields above if none of the built-in functions serves.
 
     aggregationSpec = [
-      {"as": "scope", "f": "$count", "field": "ObjectID"},
-      {"as": "accepted", "f": "$sum", "field": "accepted"}
+      {"as": "scope", "f": "count", "field": "ObjectID"},
+      {"as": "accepted", "f": "sum", "field": "accepted"}
     ]
 
 Since Lumenize was designed to work with other temporal data models besides Rally's, you must tell it what fields
@@ -4726,8 +4726,8 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
     ]
 
     config.aggregationSpec = [
-      {"as": "scope", "f": "$sum", "field": "PlanEstimate"},
-      {"as": "accepted", "f": "$sum", "field": "accepted"}
+      {"as": "scope", "f": "sum", "field": "PlanEstimate"},
+      {"as": "accepted", "f": "sum", "field": "accepted"}
     ]
 
     {listOfAtCTs, aggregationAtArray} = Lumenize.timeSeriesCalculator(snapshotArray, config)
@@ -4922,9 +4922,9 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           
       Increment/decrement and compare ChartTimes without regard to timezone
       
-          console.log(d1.$gte(d2)) 
+          console.log(d1.gte(d2))
           d1.increment()
-          console.log(d1.$eq(d2))
+          console.log(d1.equals(d2))
           # false
           # true
       
@@ -4989,10 +4989,10 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
 
     var g, spec, _ref;
 
-    function ChartTime(spec_RDN_Date_Or_String, granularity, tz) {
+    function ChartTime(value, granularity, tz) {
       /*
           @constructor
-          @param {Object/Number/Date/String} spec_RDN_Date_Or_String
+          @param {Object/Number/Date/String} value
           @param {String} [granularity]
           @param {String} [tz]
       
@@ -5052,7 +5052,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           
           You can also pass in a JavaScript Date() Object. The passing in of a tz with this option doesn't make sense. You'll end
           up with the same ChartTime value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
-          option is even really useful. In most cases, you are probably better off using ChartTime.getZuluString()
+          option is even really useful. In most cases, you are probably better off using ChartTime.getISOStringFromJSDate()
           
           ## Spec ##
           
@@ -5088,41 +5088,41 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
 
       var jsDate, newCT, newSpec, rdn, s, spec, _ref;
       this.beforePastFlag = '';
-      switch (utils.type(spec_RDN_Date_Or_String)) {
+      switch (utils.type(value)) {
         case 'string':
-          s = spec_RDN_Date_Or_String;
+          s = value;
           if (tz != null) {
             newCT = new ChartTime(s, 'millisecond');
-            jsDate = newCT.getJSDateInTZfromGMT(tz);
+            jsDate = newCT.getJSDateFromGMTInTZ(tz);
           } else {
             this._setFromString(s, granularity);
           }
           break;
         case 'number':
-          rdn = spec_RDN_Date_Or_String;
+          rdn = value;
           if (tz != null) {
             newCT = new ChartTime(rdn, 'millisecond');
-            jsDate = newCT.getJSDateInTZfromGMT(tz);
+            jsDate = newCT.getJSDateFromGMTInTZ(tz);
           } else {
             this._setFromRDN(rdn, granularity);
           }
           break;
         case 'date':
-          jsDate = spec_RDN_Date_Or_String;
+          jsDate = value;
           if (tz != null) {
             newCT = new ChartTime(jsDate, 'millisecond');
-            jsDate = newCT.getJSDateInTZfromGMT(tz);
+            jsDate = newCT.getJSDateFromGMTInTZ(tz);
           }
           if (tz == null) {
             tz = 'GMT';
           }
           break;
         case 'object':
-          spec = spec_RDN_Date_Or_String;
+          spec = value;
           if (tz != null) {
             spec.granularity = 'millisecond';
             newCT = new ChartTime(spec);
-            jsDate = newCT.getJSDateInTZfromGMT(tz);
+            jsDate = newCT.getJSDateFromGMTInTZ(tz);
           } else {
             this._setFromSpec(spec);
           }
@@ -5167,7 +5167,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       * segments - an Array identifying the ancestry (e.g. for 'day', it is: `['year', 'month', 'day']`)
       * mask - a String used to identify when this granularity is passed in and to serialize it on the way out.
       * lowest - the lowest possible value for this granularity. 0 for millisecond but 1 for day.
-      * pastHighest - a callback function that will say when to rollover the next coarser granularity.
+      * rolloverValue - a callback function that will say when to rollover the next coarser granularity.
     */
 
 
@@ -5177,7 +5177,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       segments: ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'],
       mask: '####-##-##T##:##:##.###',
       lowest: 0,
-      pastHighest: function() {
+      rolloverValue: function() {
         return 1000;
       }
     };
@@ -5186,7 +5186,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       segments: ['year', 'month', 'day', 'hour', 'minute', 'second'],
       mask: '####-##-##T##:##:##',
       lowest: 0,
-      pastHighest: function() {
+      rolloverValue: function() {
         return 60;
       }
     };
@@ -5195,7 +5195,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       segments: ['year', 'month', 'day', 'hour', 'minute'],
       mask: '####-##-##T##:##',
       lowest: 0,
-      pastHighest: function() {
+      rolloverValue: function() {
         return 60;
       }
     };
@@ -5204,7 +5204,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       segments: ['year', 'month', 'day', 'hour'],
       mask: '####-##-##T##',
       lowest: 0,
-      pastHighest: function() {
+      rolloverValue: function() {
         return 24;
       }
     };
@@ -5213,7 +5213,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       segments: ['year', 'month', 'day'],
       mask: '####-##-##',
       lowest: 1,
-      pastHighest: function(ct) {
+      rolloverValue: function(ct) {
         return ct.daysInMonth() + 1;
       }
     };
@@ -5222,7 +5222,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       segments: ['year', 'month'],
       mask: '####-##',
       lowest: 1,
-      pastHighest: function() {
+      rolloverValue: function() {
         return 12 + 1;
       }
     };
@@ -5231,7 +5231,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       segments: ['year'],
       mask: '####',
       lowest: 1,
-      pastHighest: function() {
+      rolloverValue: function() {
         return 9999 + 1;
       }
     };
@@ -5240,7 +5240,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       segments: ['year', 'week'],
       mask: '####W##',
       lowest: 1,
-      pastHighest: function(ct) {
+      rolloverValue: function(ct) {
         if (ct.is53WeekYear()) {
           return 53 + 1;
         } else {
@@ -5253,7 +5253,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       segments: ['year', 'week', 'week_day'],
       mask: '####W##-#',
       lowest: 1,
-      pastHighest: function(ct) {
+      rolloverValue: function(ct) {
         return 7 + 1;
       }
     };
@@ -5262,7 +5262,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       segments: ['year', 'quarter'],
       mask: '####Q#',
       lowest: 1,
-      pastHighest: function() {
+      rolloverValue: function() {
         return 4 + 1;
       }
     };
@@ -5309,7 +5309,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
     timezoneJS.timezone.init();
 
     ChartTime.prototype._inBoundsCheck = function() {
-      var gs, lowest, pastHighest, segment, segments, temp, _i, _len, _results;
+      var gs, lowest, rolloverValue, segment, segments, temp, _i, _len, _results;
       if (this.beforePastFlag === '' || !(this.beforePastFlag != null)) {
         segments = ChartTime.granularitySpecs[this.granularity].segments;
         _results = [];
@@ -5318,16 +5318,16 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           gs = ChartTime.granularitySpecs[segment];
           temp = this[segment];
           lowest = gs.lowest;
-          pastHighest = gs.pastHighest(this);
-          if (temp < lowest || temp >= pastHighest) {
+          rolloverValue = gs.rolloverValue(this);
+          if (temp < lowest || temp >= rolloverValue) {
             if (temp === lowest - 1) {
               this[segment]++;
               _results.push(this.decrement(segment));
-            } else if (temp === pastHighest) {
+            } else if (temp === rolloverValue) {
               this[segment]--;
               _results.push(this.increment(segment));
             } else {
-              throw new Error("Tried to set " + segment + " to " + temp + ". It must be >= " + lowest + " and < " + pastHighest);
+              throw new Error("Tried to set " + segment + " to " + temp + ". It must be >= " + lowest + " and < " + rolloverValue);
             }
           } else {
             _results.push(void 0);
@@ -5525,9 +5525,10 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype.granularityAboveDay = function() {
+    ChartTime.prototype._isGranularityCoarserThanDay = function() {
       /*
           @method granularityAboveDay
+          @private
           @return {Boolean} true if the ChartTime Object's granularity is above (coarser than) "day" level
       */
 
@@ -5548,12 +5549,12 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           @param {String} tz
           @return {Date}
       
-          Returnas a JavaScript Date Object properly shifted. This Date Object can be compared to other Date Objects that you know
+          Returns a JavaScript Date Object properly shifted. This Date Object can be compared to other Date Objects that you know
           are already in the desired timezone. If you have data that comes from an API in GMT. You can first create a ChartTime object from
           it and then (using this getJSDate() function) you can compare it to JavaScript Date Objects created in local time.
           
           The full name of this function should be getJSDateInGMTasummingThisCTDateIsInTimezone(tz). It converts **TO** GMT 
-          (actually something that can be compared to GMT). It does **NOT** convert **FROM** GMT. Use getJSDateInTZfromGMT()
+          (actually something that can be compared to GMT). It does **NOT** convert **FROM** GMT. Use getJSDateFromGMTInTZ()
           if you want to go in the other direction.
         
           ## Usage ##
@@ -5584,7 +5585,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return newDate;
     };
 
-    ChartTime.prototype.getShiftedISOString = function(tz) {
+    ChartTime.prototype.getISOStringInTZ = function(tz) {
       /*
           @method getShiftedISOString
           @param {String} tz
@@ -5592,13 +5593,14 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       */
 
       var jsDate;
+      utils.assert(tz != null, 'Must provide a timezone when calling getShiftedISOString');
       jsDate = this.getJSDate(tz);
-      return ChartTime.getZuluString(jsDate);
+      return ChartTime.getISOStringFromJSDate(jsDate);
     };
 
-    ChartTime.getZuluString = function(jsDate) {
+    ChartTime.getISOStringFromJSDate = function(jsDate) {
       /*
-          @method getZuluString
+          @method getISOStringFromJSDate
           @static
           @param {Date} jsDate
           @return {String}
@@ -5623,7 +5625,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return s;
     };
 
-    ChartTime.prototype.getJSDateInTZfromGMT = function(tz) {
+    ChartTime.prototype.getJSDateFromGMTInTZ = function(tz) {
       /*
           @method getJSDateInTZfromGMT
           @param {String} tz
@@ -5658,6 +5660,10 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           @method getSegmentsAsObject
           @return {Object} Returns a simple JavaScript Object containing the segments. This is useful when using utils.match
           for holiday comparison
+      
+              t = new ChartTime('2011-01-10')
+              console.log(t.getSegmentsAsObject())
+              # { year: 2011, month: 1, day: 10 }
       */
 
       var rawObject, segment, segments, _i, _len;
@@ -5673,7 +5679,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
     ChartTime.prototype.toString = function() {
       /*
           @method toString
-          @return {String} Uses granularity `mask` to generate the string representation.
+          @return {String} Uses granularity `mask` in granularitySpecs to generate the string representation.
       */
 
       var after, before, granularitySpec, l, s, segment, segments, start, _i, _len, _ref1;
@@ -5747,7 +5753,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
     ChartTime.prototype.dowString = function() {
       /*
           @method dowString
-          @return {String} Returns the day of the week as a String.
+          @return {String} Returns the day of the week as a String (e.g. "Monday")
       */
       return ChartTime.DOW_N_TO_S_MAP[this.dowNumber()];
     };
@@ -5755,8 +5761,9 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
     ChartTime.prototype.rataDieNumber = function() {
       /*
           @method rataDieNumber
-          @return {Number} Returns the number of days since 0001-01-01. Works for granularities finer than day (hour, minute,
-          second, millisecond) but ignores the segments of finer granularity than day. Also called common era days.
+          @return {Number} Returns the number of days since 0001-01-01 (yyyy-mm-dd, i.e. 1 AD, not 1970). Works for
+          granularities finer than day (hour, minute, second, millisecond) but ignores the segments of finer granularity than
+          day. Also called common era days.
       */
 
       var ew, monthDays, y, yearDays;
@@ -5806,6 +5813,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
     ChartTime.prototype.inGranularity = function(granularity) {
       /*
           @method inGranularity
+          @param {String} granularity
           @return {ChartTime} Returns a new ChartTime object for the same date-time as this object but in the specified granularity.
           Fills in missing finer granularity segments with `lowest` values. Drops segments when convernting to a coarser
           granularity.
@@ -5886,15 +5894,24 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return __indexOf.call(ChartTime.YEARS_WITH_53_WEEKS, lookup) >= 0;
     };
 
-    ChartTime.prototype.$eq = function(other) {
+    ChartTime.prototype.eq = function(other) {
       /*
-          @method $eq
+          @method eq
+          @param {ChartTime} other
+          @return {Boolean} Returns true if this equals other. Throws an error if the granularities don't match.
+      */
+      return this.equals(other);
+    };
+
+    ChartTime.prototype.equals = function(other) {
+      /*
+          @method equals
           @param {ChartTime} other
           @return {Boolean} Returns true if this equals other. Throws an error if the granularities don't match.
       
               d3 = new ChartTime({granularity: 'day', year: 2011, month: 12, day: 31})
               d4 = new ChartTime('2012-01-01').add(-1)
-              console.log(d3.$eq(d4))
+              console.log(d3.equals(d4))
               # true
       */
 
@@ -5928,17 +5945,17 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return true;
     };
 
-    ChartTime.prototype.$gt = function(other) {
+    ChartTime.prototype.gt = function(other) {
       /*
-          @method $gt
+          @method gt
           @param {ChartTime} other
           @return {Boolean} Returns true if this is greater than other. Throws an error if the granularities don't match
       
               d1 = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 28})
               d2 = new ChartTime({granularity: 'day', year: 2011, month: 3, day: 1})
-              console.log(d1.$gt(d2))
+              console.log(d1.gt(d2))
               # false
-              console.log(d2.$gt(d1))
+              console.log(d2.gt(d1))
               # true
       */
 
@@ -5975,41 +5992,41 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return false;
     };
 
-    ChartTime.prototype.$gte = function(other) {
+    ChartTime.prototype.gte = function(other) {
       /*
-          @method $gte
+          @method gte
           @param {ChartTime} other
           @return {Boolean} Returns true if this is greater than or equal to other
       */
 
       var gt;
-      gt = this.$gt(other);
+      gt = this.gt(other);
       if (gt) {
         return true;
       }
-      return this.$eq(other);
+      return this.equals(other);
     };
 
-    ChartTime.prototype.$lt = function(other) {
+    ChartTime.prototype.lt = function(other) {
       /*
-          @method $lt
+          @method lt
           @param {ChartTime} other
           @return {Boolean} Returns true if this is less than other
       */
-      return other.$gt(this);
+      return other.gt(this);
     };
 
-    ChartTime.prototype.$lte = function(other) {
+    ChartTime.prototype.lte = function(other) {
       /*
-          @method $lte
+          @method lte
           @param {ChartTime} other
           @return {Boolean} Returns true if this is less than or equal to other
       */
-      return other.$gte(this);
+      return other.gte(this);
     };
 
     ChartTime.prototype._overUnderFlow = function() {
-      var granularitySpec, highestLevel, highestLevelSpec, lowest, pastHighest, value, _ref1;
+      var granularitySpec, highestLevel, highestLevelSpec, lowest, rolloverValue, value, _ref1;
       if ((_ref1 = this.beforePastFlag) === 'BEFORE_FIRST' || _ref1 === 'PAST_LAST') {
         return true;
       } else {
@@ -6017,9 +6034,9 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         highestLevel = granularitySpec.segments[0];
         highestLevelSpec = ChartTime.granularitySpecs[highestLevel];
         value = this[highestLevel];
-        pastHighest = highestLevelSpec.pastHighest(this);
+        rolloverValue = highestLevelSpec.rolloverValue(this);
         lowest = highestLevelSpec.lowest;
-        if (value >= pastHighest) {
+        if (value >= rolloverValue) {
           this.beforePastFlag = 'PAST_LAST';
           return true;
         } else if (value < lowest) {
@@ -6049,7 +6066,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         for (_i = 0, _len = segments.length; _i < _len; _i++) {
           segment = segments[_i];
           gs = ChartTime.granularitySpecs[segment];
-          _results.push(this[segment] = gs.pastHighest(this) - 1);
+          _results.push(this[segment] = gs.rolloverValue(this) - 1);
         }
         return _results;
       } else {
@@ -6070,7 +6087,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           granularitySpec = ChartTime.granularitySpecs[segment];
           while ((i > 0) && (this[segment] < granularitySpec.lowest)) {
             this[segments[i - 1]]--;
-            this[segment] = granularitySpec.pastHighest(this) - 1;
+            this[segment] = granularitySpec.rolloverValue(this) - 1;
             i--;
             segment = segments[i];
             granularitySpec = ChartTime.granularitySpecs[segment];
@@ -6123,7 +6140,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           i = segments.length - 1;
           segment = segments[i];
           granularitySpec = ChartTime.granularitySpecs[segment];
-          while ((i > 0) && (this[segment] >= granularitySpec.pastHighest(this))) {
+          while ((i > 0) && (this[segment] >= granularitySpec.rolloverValue(this))) {
             this[segment] = granularitySpec.lowest;
             this[segments[i - 1]]++;
             i--;
@@ -6201,7 +6218,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
                   mask: 'R##',
                   lowest: 1,
                   endBeforeDay: new ChartTime('2011-07-01')
-                  pastHighest: (ct) ->
+                  rolloverValue: (ct) ->
                     return ChartTime.granularitySpecs.iteration.timeBoxes.length + 1  # Yes, it's correct to use the length of iteration.timeBoxes
                   rataDieNumber: (ct) ->
                     return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].startOn.rataDieNumber()
@@ -6223,7 +6240,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
                       {startOn: new ChartTime('2011-06-01'), label: 'R2 Iteration 3'},
                     ]
                   ]
-                  pastHighest: (ct) ->
+                  rolloverValue: (ct) ->
                     temp = ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1]?.length + 1
                     if temp? and not isNaN(temp) and ct.beforePastFlag != 'PAST_LAST'
                       return temp
@@ -6239,7 +6256,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
                   mask: 'R##I##-##',
                   lowest: 1,
                   endBeforeDay: new ChartTime('2011-07-01'),
-                  pastHighest: (ct) ->
+                  rolloverValue: (ct) ->
                     iterationTimeBox = ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1]?[ct.iteration-1]
                     if !iterationTimeBox? or ct.beforePastFlag == 'PAST_LAST'
                       numberOfReleases = ChartTime.granularitySpecs.iteration.timeBoxes.length
@@ -6266,7 +6283,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           distinguish your custom granularity, your highest level must start with some number of digits other than 4 or a prefix letter 
           (`R` in the example above).
           
-          In order for the ChartTimeIterator to work, you must provide `pastHighest` and `rataDieNumber` callback functions. You should
+          In order for the ChartTimeIterator to work, you must provide `rolloverValue` and `rataDieNumber` callback functions. You should
           be able to mimic (or use as-is) the example above for most use cases. Notice how the `rataDieNumber` function simply leverages
           `rataDieNumber` functions for the standard granularities.
           
@@ -6275,8 +6292,8 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           is provided.
           
           **The `timeBoxes` propoerty in the `granularitySpec` Object above has no special meaning** to ChartTime or ChartTimeIterator. It's simply used
-          by the `pastHighest` and `rataDieNumber` functions. The boundaries could come from where ever you want and even have been encoded as
-          literals in the `pastHighest` and `rataDieNumber` callback functions.
+          by the `rolloverValue` and `rataDieNumber` functions. The boundaries could come from where ever you want and even have been encoded as
+          literals in the `rolloverValue` and `rataDieNumber` callback functions.
           
           The convention of naming the lowest order granularity with `_day` at the end IS signficant. ChartTime knows to treat that as a day-level
           granularity. If there is a use-case for it, ChartTime could be upgraded to allow you to drill down into hours, minutes, etc. from any
@@ -7141,7 +7158,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
 
     ChartTimeIterator.prototype._shouldBeExcluded = function() {
       var currentInDay, currentMinutes, holiday, _i, _len, _ref, _ref1, _ref2;
-      if (this.current.granularityAboveDay()) {
+      if (this.current._isGranularityCoarserThanDay()) {
         return false;
       }
       currentInDay = this.current.inGranularity('day');
@@ -7160,12 +7177,12 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
         if (this.current.minute != null) {
           currentMinutes += this.current.minute;
         }
-        if (this.ctr.startWorkMinutes <= this.ctr.endBeforeWorkMinutes) {
-          if ((currentMinutes < this.ctr.startWorkMinutes) || (currentMinutes >= this.ctr.endBeforeWorkMinutes)) {
+        if (this.ctr.startOnWorkMinutes <= this.ctr.endBeforeWorkMinutes) {
+          if ((currentMinutes < this.ctr.startOnWorkMinutes) || (currentMinutes >= this.ctr.endBeforeWorkMinutes)) {
             return true;
           }
         } else {
-          if ((this.ctr.startWorkMinutes >= currentMinutes && currentMinutes > this.ctr.endBeforeWorkMinutes)) {
+          if ((this.ctr.startOnWorkMinutes >= currentMinutes && currentMinutes > this.ctr.endBeforeWorkMinutes)) {
             return true;
           }
         }
@@ -7448,7 +7465,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
              the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
       */
 
-      var holiday, idx, s, _i, _len, _ref, _ref1;
+      var h, holiday, idx, m, s, _i, _len, _ref, _ref1;
       if (spec.endBefore != null) {
         this.endBefore = spec.endBefore;
         if (this.endBefore !== 'PAST_LAST') {
@@ -7520,12 +7537,30 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
         }
       }
       this.workDayStartOn = spec.workDayStartOn != null ? spec.workDayStartOn : void 0;
-      this.startWorkMinutes = this.workDayStartOn != null ? this.workDayStartOn.hour * 60 + this.workDayStartOn.minute : 0;
+      if (this.workDayStartOn != null) {
+        h = this.workDayStartOn.hour != null ? this.workDayStartOn.hour : 0;
+        m = this.workDayStartOn.minute != null ? this.workDayStartOn.minute : 0;
+        this.startOnWorkMinutes = h * 60 + m;
+        if (this.startOnWorkMinutes < 0) {
+          this.startOnWorkMinutes = 0;
+        }
+      } else {
+        this.startOnWorkMinutes = 0;
+      }
       this.workDayEndBefore = spec.workDayEndBefore != null ? spec.workDayEndBefore : void 0;
-      this.endBeforeWorkMinutes = this.workDayEndBefore != null ? this.workDayEndBefore.hour * 60 + this.workDayEndBefore.minute : 24 * 60;
+      if (this.workDayEndBefore != null) {
+        h = this.workDayEndBefore.hour != null ? this.workDayEndBefore.hour : 24;
+        m = this.workDayEndBefore.minute != null ? this.workDayEndBefore.minute : 0;
+        this.endBeforeWorkMinutes = h * 60 + m;
+        if (this.endBeforeWorkMinutes > 24 * 60) {
+          this.endBeforeWorkMinutes = 24 * 60;
+        }
+      } else {
+        this.endBeforeWorkMinutes = 24 * 60;
+      }
       if (spec.skip != null) {
         this.skip = spec.skip;
-      } else if ((spec.endBefore != null) && ((_ref1 = this.startOn) != null ? _ref1.$gt(this.endBefore) : void 0)) {
+      } else if ((spec.endBefore != null) && ((_ref1 = this.startOn) != null ? _ref1.gt(this.endBefore) : void 0)) {
         this.skip = -1;
       } else if ((spec.endBefore != null) && !(spec.startOn != null) && (spec.limit != null)) {
         this.skip = -1;
@@ -7594,7 +7629,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
 
       var timeline;
       timeline = new ChartTimeIterator(this, 'ChartTime', this.granularity).getAll();
-      if (timeline[0].$gt(timeline[1])) {
+      if (timeline[0].gt(timeline[1])) {
         timeline.reverse();
       }
       return timeline;
@@ -7622,7 +7657,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
 
       var endBefore, startOn, target;
       if (date instanceof ChartTime) {
-        return date.$lt(this.endBefore) && date.$gte(this.startOn);
+        return date.lt(this.endBefore) && date.gte(this.startOn);
       }
       utils.assert((tz != null) || utils.type(date) !== 'date', 'ChartTimeRange.contains() requires a second parameter (timezone) when the first parameter is a Date()');
       switch (utils.type(date)) {
@@ -7631,7 +7666,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
             target = timezoneJS.parseISO(date);
           } else {
             target = new ChartTime(date);
-            return target.$lt(this.endBefore) && target.$gte(this.startOn);
+            return target.lt(this.endBefore) && target.gte(this.startOn);
           }
           break;
         case 'date':
@@ -7793,27 +7828,27 @@ require.define("/src/ChartTimeInStateCalculator.coffee",function(require,module,
         if (previousState) {
           previousState = true;
           this.ticks.push({
-            at: ct.getShiftedISOString(this.tz),
+            at: ct.getISOStringInTZ(this.tz),
             state: true
           });
           if (idx + 1 === allCTsLength) {
             previousState = false;
             this.ticks.push({
-              at: ctPlus1.getShiftedISOString(this.tz),
+              at: ctPlus1.getISOStringInTZ(this.tz),
               state: false
             });
           } else {
-            if (!ctPlus1.$eq(allCTs[idx + 1])) {
+            if (!ctPlus1.eq(allCTs[idx + 1])) {
               previousState = false;
               this.ticks.push({
-                at: ctPlus1.getShiftedISOString(this.tz),
+                at: ctPlus1.getISOStringInTZ(this.tz),
                 state: false
               });
             }
           }
         } else {
           this.ticks.push({
-            at: ct.getShiftedISOString(this.tz),
+            at: ct.getISOStringInTZ(this.tz),
             state: true
           });
           previousState = true;
@@ -8132,7 +8167,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     listOfAtStrings = [];
     for (_i = 0, _len = listOfAtCTs.length; _i < _len; _i++) {
       atCT = listOfAtCTs[_i];
-      listOfAtStrings.push(atCT.getShiftedISOString(tz));
+      listOfAtStrings.push(atCT.getISOStringInTZ(tz));
     }
     currentAtString = listOfAtStrings[atPointer];
     currentSnapshotValidFrom = currentSnapshot[validFromField];
@@ -8375,11 +8410,11 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
   @param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
   @return {Function} A funtion to calculate the percentile
   
-  When the user passes in `$p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate
+  When the user passes in `p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate
   percentile function. The returned function will find the `<n>`th percentile where `<n>` is some number in the form of
-  `##[.##]`. (e.g. `$p40`, `$p99`, `$p99.9`).
+  `##[.##]`. (e.g. `p40`, `p99`, `p99.9`).
   
-  Note: `$median` is an alias for `$p50`.
+  Note: `median` is an alias for `p50`.
   
   There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
   use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
@@ -8420,10 +8455,10 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       f = a.f;
     } else if (functions[a.f] != null) {
       f = functions[a.f];
-    } else if (a.f === '$median') {
+    } else if (a.f === 'median') {
       f = percentileCreator(50);
-    } else if (a.f.substr(0, 2) === '$p') {
-      p = /\$p(\d+(.\d+)?)/.exec(a.f)[1];
+    } else if (a.f.substr(0, 2) === 'p') {
+      p = /\p(\d+(.\d+)?)/.exec(a.f)[1];
       f = percentileCreator(Number(p));
     } else {
       throw new Error("" + a.f + " is not a recognized built-in function");
@@ -8454,9 +8489,9 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       and a list of aggregationSpec like this:
     
           aggregationSpec = [
-            {field: 'ObjectID', f: '$count'}
-            {as: 'Drill-down', field:'ObjectID', f:'$push'}
-            {field: 'PlanEstimate', f: '$sum'}
+            {field: 'ObjectID', f: 'count'}
+            {as: 'Drill-down', field:'ObjectID', f:'push'}
+            {field: 'PlanEstimate', f: 'sum'}
             {as: 'mySum', field: 'PlanEstimate', f: (values) ->
               temp = 0
               for v in values
@@ -8470,9 +8505,9 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
           a = aggregate(list, aggregationSpec)
           console.log(a)
      
-          #   { 'ObjectID_$count': 3, 
+          #   { ObjectID_count: 3,
           #     'Drill-down': [ '1', '2', '3' ], 
-          #     'PlanEstimate_$sum': 13, 
+          #     PlanEstimate_sum: 13,
           #     mySum: 13 } 
           
       For each aggregation, you must provide a `field` and `f` (function) value. You can optionally 
@@ -8542,9 +8577,9 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
           spec = {
             groupBy: 'KanbanState',
             aggregationSpec: [
-              {field: 'ObjectID', f: '$count'}
-              {as: 'Drill-down', field:'ObjectID', f:'$push'}
-              {field: 'PlanEstimate', f: '$sum'}
+              {field: 'ObjectID', f: 'count'}
+              {as: 'Drill-down', field:'ObjectID', f:'push'}
+              {field: 'PlanEstimate', f: 'sum'}
               {as: 'mySum', field: 'PlanEstimate', f: (values) ->
                 temp = 0
                 for v in values
@@ -8560,14 +8595,14 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
           console.log(a)
     
           #   [ { KanbanState: 'In progress',
-          #       'ObjectID_$count': 1,
+          #       ObjectID_count: 1,
           #       'Drill-down': [ '1' ], 
-          #       'PlanEstimate_$sum': 5, 
+          #       PlanEstimate_sum: 5,
           #       mySum: 5 },
           #     { KanbanState: 'Ready to pull',
-          #       'ObjectID_$count': 2, 
+          #       ObjectID_count: 2,
           #       'Drill-down': [ '2', '3' ], 
-          #       'PlanEstimate_$sum': 8, 
+          #       PlanEstimate_sum: 8,
           #       mySum: 8 } ]
           
       The first element of this specification is the `groupBy` field. This is analagous to
@@ -8748,11 +8783,11 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
         }, {
           as: 'Count',
           field: 'ObjectID',
-          f: '$count'
+          f: 'count'
         }, {
           as: 'DrillDown',
           field: 'ObjectID',
-          f: '$push'
+          f: 'push'
         }
       ]
     };
@@ -8876,14 +8911,14 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   functions = {};
 
   /*
-  @method $sum
+  @method sum
   @static
   @param {Number[]} values
   @return {Number} The sum of the values
   */
 
 
-  functions.$sum = function(values) {
+  functions.sum = function(values) {
     var temp, v, _i, _len;
     temp = 0;
     for (_i = 0, _len = values.length; _i < _len; _i++) {
@@ -8894,14 +8929,14 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   };
 
   /*
-  @method $sumSquares
+  @method sumSquares
   @static
   @param {Number[]} values
   @return {Number} The sum of the squares of the values
   */
 
 
-  functions.$sumSquares = function(values) {
+  functions.sumSquares = function(values) {
     var temp, v, _i, _len;
     temp = 0;
     for (_i = 0, _len = values.length; _i < _len; _i++) {
@@ -8912,26 +8947,26 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   };
 
   /*
-  @method $count
+  @method count
   @static
   @param {Number[]} values
   @return {Number} The length of the values Array
   */
 
 
-  functions.$count = function(values) {
+  functions.count = function(values) {
     return values.length;
   };
 
   /*
-  @method $min
+  @method min
   @static
   @param {Number[]} values
   @return {Number} The minimum value or null if no values
   */
 
 
-  functions.$min = function(values) {
+  functions.min = function(values) {
     var temp, v, _i, _len;
     if (values.length === 0) {
       return null;
@@ -8947,14 +8982,14 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   };
 
   /*
-  @method $max
+  @method max
   @static
   @param {Number[]} values
   @return {Number} The maximum value or null if no values
   */
 
 
-  functions.$max = function(values) {
+  functions.max = function(values) {
     var temp, v, _i, _len;
     if (values.length === 0) {
       return null;
@@ -8970,14 +9005,14 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   };
 
   /*
-  @method $push
+  @method push
   @static
   @param {Number[]} values
   @return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
   */
 
 
-  functions.$push = function(values) {
+  functions.push = function(values) {
     var temp, v, _i, _len;
     temp = [];
     for (_i = 0, _len = values.length; _i < _len; _i++) {
@@ -8988,14 +9023,14 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   };
 
   /*
-  @method $addToSet
+  @method addToSet
   @static
   @param {Number[]} values
   @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
   */
 
 
-  functions.$addToSet = function(values) {
+  functions.addToSet = function(values) {
     var key, temp, temp2, v, value, _i, _len;
     temp = {};
     temp2 = [];
@@ -9011,14 +9046,14 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   };
 
   /*
-  @method $average
+  @method average
   @static
   @param {Number[]} values
   @return {Number} The arithmetic mean
   */
 
 
-  functions.$average = function(values) {
+  functions.average = function(values) {
     var count, sum, v, _i, _len;
     count = values.length;
     sum = 0;
@@ -9030,14 +9065,14 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   };
 
   /*
-  @method $variance
+  @method variance
   @static
   @param {Number[]} values
   @return {Number} The variance
   */
 
 
-  functions.$variance = function(values) {
+  functions.variance = function(values) {
     var n, sum, sumSquares, v, _i, _len;
     n = values.length;
     sum = 0;
@@ -9051,15 +9086,15 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   };
 
   /*
-  @method $standardDeviation
+  @method standardDeviation
   @static
   @param {Number[]} values
   @return {Number} The standard deviation
   */
 
 
-  functions.$standardDeviation = function(values) {
-    return Math.sqrt(functions.$variance(values));
+  functions.standardDeviation = function(values) {
+    return Math.sqrt(functions.variance(values));
   };
 
   exports.functions = functions;
@@ -9157,8 +9192,8 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
       }
       return _results;
     })();
-    average = functions.$average(chartValues);
-    standardDeviation = functions.$standardDeviation(chartValues);
+    average = functions.average(chartValues);
+    standardDeviation = functions.standardDeviation(chartValues);
     upperBound = average + 2 * standardDeviation;
     chartValuesMinusOutliers = (function() {
       var _i, _len, _results;
@@ -9179,7 +9214,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     upperBound = bucketSize * bucketCount;
     chartMin = 0;
     chartMax = upperBound + bucketSize;
-    valueMax = Math.floor(functions.$max(chartValues)) + 1;
+    valueMax = Math.floor(functions.max(chartValues)) + 1;
     valueMax = Math.max(chartMax, valueMax);
     for (_i = 0, _len = rows.length; _i < _len; _i++) {
       row = rows[_i];

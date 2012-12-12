@@ -146,16 +146,16 @@ class ChartTimeInStateCalculator
       ctPlus1 = ct.add(1)
       if previousState
         previousState = true
-        @ticks.push({at: ct.getShiftedISOString(@tz), state: true})
+        @ticks.push({at: ct.getISOStringInTZ(@tz), state: true})
         if idx + 1 == allCTsLength
           previousState = false
-          @ticks.push({at: ctPlus1.getShiftedISOString(@tz), state: false})
+          @ticks.push({at: ctPlus1.getISOStringInTZ(@tz), state: false})
         else
-          unless ctPlus1.$eq(allCTs[idx + 1])
+          unless ctPlus1.eq(allCTs[idx + 1])
             previousState = false
-            @ticks.push({at: ctPlus1.getShiftedISOString(@tz), state: false})
+            @ticks.push({at: ctPlus1.getISOStringInTZ(@tz), state: false})
       else
-        @ticks.push({at: ct.getShiftedISOString(@tz), state: true})
+        @ticks.push({at: ct.getISOStringInTZ(@tz), state: true})
         previousState = true
 
   timeInState: (snapshotArray, validFromField, validToField, uniqueIDField, excludeStillInState = true) -&gt;

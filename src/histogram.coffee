@@ -76,8 +76,8 @@ histogram = (rows, valueField) ->
   ###
   chartValues = (row[valueField] for row in rows)
   
-  average = functions.$average(chartValues)
-  standardDeviation = functions.$standardDeviation(chartValues)
+  average = functions.average(chartValues)
+  standardDeviation = functions.standardDeviation(chartValues)
   upperBound = average + 2 * standardDeviation
   
   chartValuesMinusOutliers = (c for c in chartValues when c < upperBound)
@@ -94,7 +94,7 @@ histogram = (rows, valueField) ->
   chartMin = 0
   chartMax = upperBound + bucketSize  # This will be at the very top of the top bucket
   
-  valueMax = Math.floor(functions.$max(chartValues)) + 1
+  valueMax = Math.floor(functions.max(chartValues)) + 1
   valueMax = Math.max(chartMax, valueMax)
   
   # add clippedChartValues to timeInState

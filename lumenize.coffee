@@ -84,13 +84,13 @@ to the table. Simply specify a name and a callback function "f".
       }
     ]
 
-The `aggregationSpec` supports a number of functions including $sum, $count, $addToSet, $standardDeviation,
-$p50 (for median), and $p?? (for any quartile/percentile). It will also allow you to specify a callback function
+The `aggregationSpec` supports a number of functions including sum, count, addToSet, standardDeviation,
+p50 (for median), and p?? (for any quartile/percentile). It will also allow you to specify a callback function
 like in derivedFields above if none of the built-in functions serves.
 
     aggregationSpec = [
-      {"as": "scope", "f": "$count", "field": "ObjectID"},
-      {"as": "accepted", "f": "$sum", "field": "accepted"}
+      {"as": "scope", "f": "count", "field": "ObjectID"},
+      {"as": "accepted", "f": "sum", "field": "accepted"}
     ]
 
 Since Lumenize was designed to work with other temporal data models besides Rally's, you must tell it what fields
@@ -140,8 +140,8 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
     ]
 
     config.aggregationSpec = [
-      {"as": "scope", "f": "$sum", "field": "PlanEstimate"},
-      {"as": "accepted", "f": "$sum", "field": "accepted"}
+      {"as": "scope", "f": "sum", "field": "PlanEstimate"},
+      {"as": "accepted", "f": "sum", "field": "accepted"}
     ]
 
     {listOfAtCTs, aggregationAtArray} = Lumenize.timeSeriesCalculator(snapshotArray, config)

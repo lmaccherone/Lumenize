@@ -120,9 +120,9 @@ class ChartTime  #
       
   Increment/decrement and compare ChartTimes without regard to timezone
   
-      console.log(d1.$gte(d2)) 
+      console.log(d1.gte(d2))
       d1.increment()
-      console.log(d1.$eq(d2))
+      console.log(d1.equals(d2))
       # false
       # true
   
@@ -184,10 +184,10 @@ class ChartTime  #
       console.log(new ChartTime('2011-01-01').getJSDate('America/Denver').toUTCString())
       # Sat, 01 Jan 2011 07:00:00 GMT
   ###
-  constructor: (spec_RDN_Date_Or_String, granularity, tz) ->
+  constructor: (value, granularity, tz) ->
     ###
     @constructor
-    @param {Object/Number/Date/String} spec_RDN_Date_Or_String
+    @param {Object/Number/Date/String} value
     @param {String} [granularity]
     @param {String} [tz]
 
@@ -247,7 +247,7 @@ class ChartTime  #
     
     You can also pass in a JavaScript Date() Object. The passing in of a tz with this option doesn't make sense. You'll end
     up with the same ChartTime value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
-    option is even really useful. In most cases, you are probably better off using ChartTime.getZuluString()
+    option is even really useful. In most cases, you are probably better off using ChartTime.getISOStringFromJSDate()
     
     ## Spec ##
     
@@ -281,34 +281,34 @@ class ChartTime  #
        the way back out of ChartTime/ChartTimeRange
     ###
     @beforePastFlag = ''
-    switch utils.type(spec_RDN_Date_Or_String)
+    switch utils.type(value)
       when 'string'
-        s = spec_RDN_Date_Or_String
+        s = value
         if tz?
           newCT = new ChartTime(s, 'millisecond')
-          jsDate = newCT.getJSDateInTZfromGMT(tz)
+          jsDate = newCT.getJSDateFromGMTInTZ(tz)
         else
           @_setFromString(s, granularity)
       when 'number'
-        rdn = spec_RDN_Date_Or_String
+        rdn = value
         if tz?
           newCT = new ChartTime(rdn, 'millisecond')
-          jsDate = newCT.getJSDateInTZfromGMT(tz)
+          jsDate = newCT.getJSDateFromGMTInTZ(tz)
         else
           @_setFromRDN(rdn, granularity)
       when 'date'
-        jsDate = spec_RDN_Date_Or_String
+        jsDate = value
         if tz?
           newCT = new ChartTime(jsDate, 'millisecond')
-          jsDate = newCT.getJSDateInTZfromGMT(tz)
+          jsDate = newCT.getJSDateFromGMTInTZ(tz)
         unless tz?
           tz = 'GMT'
       when 'object'
-        spec = spec_RDN_Date_Or_String
+        spec = value
         if tz?
           spec.granularity = 'millisecond'
           newCT = new ChartTime(spec)
-          jsDate = newCT.getJSDateInTZfromGMT(tz)
+          jsDate = newCT.getJSDateFromGMTInTZ(tz)
         else
           @_setFromSpec(spec)
 
@@ -349,56 +349,56 @@ class ChartTime  #
   * segments - an Array identifying the ancestry (e.g. for 'day', it is: `['year', 'month', 'day']`)
   * mask - a String used to identify when this granularity is passed in and to serialize it on the way out.
   * lowest - the lowest possible value for this granularity. 0 for millisecond but 1 for day.
-  * pastHighest - a callback function that will say when to rollover the next coarser granularity.
+  * rolloverValue - a callback function that will say when to rollover the next coarser granularity.
   ###
   @granularitySpecs = {}
   @granularitySpecs['millisecond'] = {
     segments: ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'],
     mask: '####-##-##T##:##:##.###',
     lowest: 0,
-    pastHighest: () -> return 1000,
+    rolloverValue: () -> return 1000,
   }
   @granularitySpecs['second'] = {
     segments: ['year', 'month', 'day', 'hour', 'minute', 'second'], 
     mask: '####-##-##T##:##:##',
     lowest: 0,
-    pastHighest: () -> return 60
+    rolloverValue: () -> return 60
   }
   @granularitySpecs['minute'] = {
     segments: ['year', 'month', 'day', 'hour', 'minute'], 
     mask: '####-##-##T##:##',
     lowest: 0,
-    pastHighest: () -> return 60
+    rolloverValue: () -> return 60
   }
   @granularitySpecs['hour'] = {
     segments: ['year', 'month', 'day', 'hour'], 
     mask: '####-##-##T##',
     lowest: 0,
-    pastHighest: () -> return 24
+    rolloverValue: () -> return 24
   }
   @granularitySpecs['day'] = {
     segments: ['year', 'month', 'day'], 
     mask: '####-##-##',
     lowest: 1,
-    pastHighest: (ct) -> return ct.daysInMonth() + 1
+    rolloverValue: (ct) -> return ct.daysInMonth() + 1
   }
   @granularitySpecs['month'] = {
     segments: ['year', 'month'], 
     mask: '####-##',
     lowest: 1,
-    pastHighest: () -> return 12 + 1
+    rolloverValue: () -> return 12 + 1
   }  
   @granularitySpecs['year'] = {
     segments: ['year'], 
     mask: '####',
     lowest: 1,
-    pastHighest: () -> return 9999 + 1
+    rolloverValue: () -> return 9999 + 1
   }
   @granularitySpecs['week'] = {
     segments: ['year', 'week'],
     mask: '####W##',
     lowest: 1,
-    pastHighest: (ct) ->
+    rolloverValue: (ct) ->
       if ct.is53WeekYear()
         return 53 + 1
       else
@@ -408,13 +408,13 @@ class ChartTime  #
     segments: ['year', 'week', 'week_day'],
     mask: '####W##-#'
     lowest: 1,
-    pastHighest: (ct) -> return 7 + 1
+    rolloverValue: (ct) -> return 7 + 1
   }
   @granularitySpecs['quarter'] = { # !TODO: Support quarter_month and quarter_month_day
     segments: ['year', 'quarter'],
     mask: '####Q#',
     lowest: 1,
-    pastHighest: () -> return 4 + 1
+    rolloverValue: () -> return 4 + 1
   }
   
   @_expandMask: (granularitySpec) ->
@@ -449,16 +449,16 @@ class ChartTime  #
         gs = ChartTime.granularitySpecs[segment]
         temp = this[segment]
         lowest = gs.lowest
-        pastHighest = gs.pastHighest(this)
-        if temp < lowest or temp >= pastHighest
+        rolloverValue = gs.rolloverValue(this)
+        if temp < lowest or temp >= rolloverValue
           if temp == lowest - 1  # Supports overflows of just 1 in one segment. If more than that, will fail
             this[segment]++
             this.decrement(segment)
-          else if temp == pastHighest
+          else if temp == rolloverValue
             this[segment]--
             this.increment(segment)
           else  
-            throw new Error("Tried to set #{segment} to #{temp}. It must be >= #{lowest} and < #{pastHighest}")
+            throw new Error("Tried to set #{segment} to #{temp}. It must be >= #{lowest} and < #{rolloverValue}")
         
   _setFromSpec: (spec) ->
     utils.assert(spec.granularity?, 'A granularity property must be part of the supplied spec.')
@@ -607,9 +607,10 @@ class ChartTime  #
               throw new Error("RDN: #{rdn} seems to be out of range for #{granularity}")
         throw new Error("Something went badly wrong setting custom granularity #{granularity} for RDN: #{rdn}")
 
-  granularityAboveDay: () ->
+  _isGranularityCoarserThanDay: () ->
     ###
     @method granularityAboveDay
+    @private
     @return {Boolean} true if the ChartTime Object's granularity is above (coarser than) "day" level
     ###
     for segment in ChartTime.granularitySpecs[@granularity].segments
@@ -623,12 +624,12 @@ class ChartTime  #
     @param {String} tz
     @return {Date}
 
-    Returnas a JavaScript Date Object properly shifted. This Date Object can be compared to other Date Objects that you know
+    Returns a JavaScript Date Object properly shifted. This Date Object can be compared to other Date Objects that you know
     are already in the desired timezone. If you have data that comes from an API in GMT. You can first create a ChartTime object from
     it and then (using this getJSDate() function) you can compare it to JavaScript Date Objects created in local time.
     
     The full name of this function should be getJSDateInGMTasummingThisCTDateIsInTimezone(tz). It converts **TO** GMT 
-    (actually something that can be compared to GMT). It does **NOT** convert **FROM** GMT. Use getJSDateInTZfromGMT()
+    (actually something that can be compared to GMT). It does **NOT** convert **FROM** GMT. Use getJSDateFromGMTInTZ()
     if you want to go in the other direction.
   
     ## Usage ##
@@ -655,18 +656,19 @@ class ChartTime  #
     newDate = new Date(utcMilliseconds)
     return newDate
   
-  getShiftedISOString: (tz) ->
+  getISOStringInTZ: (tz) ->
     ###
     @method getShiftedISOString
     @param {String} tz
     @return {String} The canonical ISO-8601 date in zulu representation but shifted to the specified tz
     ###
+    utils.assert(tz?, 'Must provide a timezone when calling getShiftedISOString')
     jsDate = @getJSDate(tz)
-    return ChartTime.getZuluString(jsDate)
+    return ChartTime.getISOStringFromJSDate(jsDate)
   
-  @getZuluString: (jsDate) ->
+  @getISOStringFromJSDate: (jsDate) ->
     ###
-    @method getZuluString
+    @method getISOStringFromJSDate
     @static
     @param {Date} jsDate
     @return {String}
@@ -689,7 +691,7 @@ class ChartTime  #
         ChartTime._pad(millisecond, 3) + 'Z'
     return s
     
-  getJSDateInTZfromGMT: (tz) ->
+  getJSDateFromGMTInTZ: (tz) ->
     ###
     @method getJSDateInTZfromGMT
     @param {String} tz
@@ -719,6 +721,10 @@ class ChartTime  #
     @method getSegmentsAsObject
     @return {Object} Returns a simple JavaScript Object containing the segments. This is useful when using utils.match
     for holiday comparison
+
+        t = new ChartTime('2011-01-10')
+        console.log(t.getSegmentsAsObject())
+        # { year: 2011, month: 1, day: 10 }
     ###
     segments = ChartTime.granularitySpecs[@granularity].segments
     rawObject = {}
@@ -729,7 +735,7 @@ class ChartTime  #
   toString: () ->
     ###
     @method toString
-    @return {String} Uses granularity `mask` to generate the string representation.
+    @return {String} Uses granularity `mask` in granularitySpecs to generate the string representation.
     ###
     if @beforePastFlag in ['BEFORE_FIRST', 'PAST_LAST']
       s = "#{@beforePastFlag}"
@@ -776,15 +782,16 @@ class ChartTime  #
   dowString: () ->
     ###
     @method dowString
-    @return {String} Returns the day of the week as a String.
+    @return {String} Returns the day of the week as a String (e.g. "Monday")
     ###
     return ChartTime.DOW_N_TO_S_MAP[@dowNumber()]
 
   rataDieNumber: () ->
     ###
     @method rataDieNumber
-    @return {Number} Returns the number of days since 0001-01-01. Works for granularities finer than day (hour, minute,
-    second, millisecond) but ignores the segments of finer granularity than day. Also called common era days.
+    @return {Number} Returns the number of days since 0001-01-01 (yyyy-mm-dd, i.e. 1 AD, not 1970). Works for
+    granularities finer than day (hour, minute, second, millisecond) but ignores the segments of finer granularity than
+    day. Also called common era days.
     ###
     if @beforePastFlag == 'BEFORE_FIRST'
       return -1
@@ -821,6 +828,7 @@ class ChartTime  #
   inGranularity: (granularity) ->
     ###
     @method inGranularity
+    @param {String} granularity
     @return {ChartTime} Returns a new ChartTime object for the same date-time as this object but in the specified granularity.
     Fills in missing finer granularity segments with `lowest` values. Drops segments when convernting to a coarser
     granularity.
@@ -839,6 +847,7 @@ class ChartTime  #
     @method daysInMonth
     @return {Number} Returns the number of days in the current month for this ChartTime
     ###
+    # !TODO: Error on granularities without month
     switch @month
       when 4, 6, 9, 11
         return 30
@@ -875,15 +884,23 @@ class ChartTime  #
     lookup = @year % 400
     return lookup in ChartTime.YEARS_WITH_53_WEEKS
 
-  $eq: (other) ->
+  eq: (other) ->
     ###
-    @method $eq
+    @method eq
+    @param {ChartTime} other
+    @return {Boolean} Returns true if this equals other. Throws an error if the granularities don't match.
+    ###
+    return @equals(other)
+
+  equals: (other) ->
+    ###
+    @method equals
     @param {ChartTime} other
     @return {Boolean} Returns true if this equals other. Throws an error if the granularities don't match.
 
         d3 = new ChartTime({granularity: 'day', year: 2011, month: 12, day: 31})
         d4 = new ChartTime('2012-01-01').add(-1)
-        console.log(d3.$eq(d4))
+        console.log(d3.equals(d4))
         # true
     ###
     utils.assert(@granularity == other.granularity, "Granulary of #{this} does not match granularity of #{other} on equality/inequality test")
@@ -907,17 +924,17 @@ class ChartTime  #
         return false
     return true
 
-  $gt: (other) ->
+  gt: (other) ->
     ###
-    @method $gt
+    @method gt
     @param {ChartTime} other
     @return {Boolean} Returns true if this is greater than other. Throws an error if the granularities don't match
 
         d1 = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 28})
         d2 = new ChartTime({granularity: 'day', year: 2011, month: 3, day: 1})
-        console.log(d1.$gt(d2))
+        console.log(d1.gt(d2))
         # false
-        console.log(d2.$gt(d1))
+        console.log(d2.gt(d1))
         # true
     ###
     utils.assert(@granularity == other.granularity, "Granulary of #{this} does not match granularity of #{other} on equality/inequality test")
@@ -943,32 +960,32 @@ class ChartTime  #
         return false
     return false
      
-  $gte: (other) ->
+  gte: (other) ->
     ###
-    @method $gte
+    @method gte
     @param {ChartTime} other
     @return {Boolean} Returns true if this is greater than or equal to other
     ###
-    gt = this.$gt(other)
+    gt = this.gt(other)
     if gt
       return true
-    return this.$eq(other) 
+    return this.equals(other)
 
-  $lt: (other) ->
+  lt: (other) ->
     ###
-    @method $lt
+    @method lt
     @param {ChartTime} other
     @return {Boolean} Returns true if this is less than other
     ###
-    return other.$gt(this)
+    return other.gt(this)
 
-  $lte: (other) ->
+  lte: (other) ->
     ###
-    @method $lte
+    @method lte
     @param {ChartTime} other
     @return {Boolean} Returns true if this is less than or equal to other
     ###
-    return other.$gte(this)
+    return other.gte(this)
 
   _overUnderFlow: () ->
     if @beforePastFlag in ['BEFORE_FIRST', 'PAST_LAST']
@@ -978,9 +995,9 @@ class ChartTime  #
       highestLevel = granularitySpec.segments[0]
       highestLevelSpec = ChartTime.granularitySpecs[highestLevel]
       value = this[highestLevel]
-      pastHighest = highestLevelSpec.pastHighest(this)
+      rolloverValue = highestLevelSpec.rolloverValue(this)
       lowest = highestLevelSpec.lowest
-      if value >= pastHighest
+      if value >= rolloverValue
         @beforePastFlag = 'PAST_LAST'  # !TODO: This won't erase the other segments. Maybe that's OK.
         return true
       else if value < lowest
@@ -1004,7 +1021,7 @@ class ChartTime  #
       segments = granularitySpec.segments
       for segment in segments
         gs = ChartTime.granularitySpecs[segment]
-        this[segment] = gs.pastHighest(this) - 1
+        this[segment] = gs.rolloverValue(this) - 1
     else
       lastDayInMonthFlag = (@day == @daysInMonth())
       granularity ?= @granularity
@@ -1022,7 +1039,7 @@ class ChartTime  #
         granularitySpec = ChartTime.granularitySpecs[segment]
         while (i > 0) and (this[segment] < granularitySpec.lowest) # stop before going back to year
           this[segments[i - 1]]--
-          this[segment] = granularitySpec.pastHighest(this) - 1
+          this[segment] = granularitySpec.rolloverValue(this) - 1
           i--
           segment = segments[i]
           granularitySpec = ChartTime.granularitySpecs[segment]
@@ -1064,7 +1081,7 @@ class ChartTime  #
         i = segments.length - 1  # start just before the last one which should equal granularity
         segment = segments[i]
         granularitySpec = ChartTime.granularitySpecs[segment]
-        while (i > 0) and (this[segment] >= granularitySpec.pastHighest(this)) # stop before going back to year
+        while (i > 0) and (this[segment] >= granularitySpec.rolloverValue(this)) # stop before going back to year
           this[segment] = granularitySpec.lowest
           this[segments[i - 1]]++
           i--
@@ -1131,7 +1148,7 @@ class ChartTime  #
             mask: 'R##',
             lowest: 1,
             endBeforeDay: new ChartTime('2011-07-01')
-            pastHighest: (ct) ->
+            rolloverValue: (ct) ->
               return ChartTime.granularitySpecs.iteration.timeBoxes.length + 1  # Yes, it's correct to use the length of iteration.timeBoxes
             rataDieNumber: (ct) ->
               return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].startOn.rataDieNumber()
@@ -1153,7 +1170,7 @@ class ChartTime  #
                 {startOn: new ChartTime('2011-06-01'), label: 'R2 Iteration 3'},
               ]
             ]
-            pastHighest: (ct) ->
+            rolloverValue: (ct) ->
               temp = ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1]?.length + 1
               if temp? and not isNaN(temp) and ct.beforePastFlag != 'PAST_LAST'
                 return temp
@@ -1169,7 +1186,7 @@ class ChartTime  #
             mask: 'R##I##-##',
             lowest: 1,
             endBeforeDay: new ChartTime('2011-07-01'),
-            pastHighest: (ct) ->
+            rolloverValue: (ct) ->
               iterationTimeBox = ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1]?[ct.iteration-1]
               if !iterationTimeBox? or ct.beforePastFlag == 'PAST_LAST'
                 numberOfReleases = ChartTime.granularitySpecs.iteration.timeBoxes.length
@@ -1196,7 +1213,7 @@ class ChartTime  #
     distinguish your custom granularity, your highest level must start with some number of digits other than 4 or a prefix letter 
     (`R` in the example above).
     
-    In order for the ChartTimeIterator to work, you must provide `pastHighest` and `rataDieNumber` callback functions. You should
+    In order for the ChartTimeIterator to work, you must provide `rolloverValue` and `rataDieNumber` callback functions. You should
     be able to mimic (or use as-is) the example above for most use cases. Notice how the `rataDieNumber` function simply leverages
     `rataDieNumber` functions for the standard granularities.
     
@@ -1205,8 +1222,8 @@ class ChartTime  #
     is provided.
     
     **The `timeBoxes` propoerty in the `granularitySpec` Object above has no special meaning** to ChartTime or ChartTimeIterator. It's simply used
-    by the `pastHighest` and `rataDieNumber` functions. The boundaries could come from where ever you want and even have been encoded as
-    literals in the `pastHighest` and `rataDieNumber` callback functions.
+    by the `rolloverValue` and `rataDieNumber` functions. The boundaries could come from where ever you want and even have been encoded as
+    literals in the `rolloverValue` and `rataDieNumber` callback functions.
     
     The convention of naming the lowest order granularity with `_day` at the end IS signficant. ChartTime knows to treat that as a day-level
     granularity. If there is a use-case for it, ChartTime could be upgraded to allow you to drill down into hours, minutes, etc. from any
@@ -1214,7 +1231,7 @@ class ChartTime  #
 
     ###
     for g, spec of granularitySpec  # !TODO: Need a way for the user to provide a loose stream of timebox dates that are converted into this format. Would cleanup situations where the timeboxes overlapped and error out on impossible situations like nested timeboxes. Use the startOn.
-      ChartTime._expandMask(spec)  # !TODO: Add @label() and @end() methods. The @start() method could also be an alias for @inGranularity()
+      ChartTime._expandMask(spec)  # !TODO: Add @label() and @end() methods.
       @granularitySpecs[g] = spec # !TODO: Assert that we don't have a conflict with existing granularities and that the granularity equals the last segment. Assert that the endBefore date of one equals the startOn date of the next.
 
 

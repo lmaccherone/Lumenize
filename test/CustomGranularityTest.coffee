@@ -9,7 +9,7 @@ exports.CustomGranularityTest =
         mask: 'R##',
         lowest: 1,
         endBeforeDay: new ChartTime('2011-07-01')
-        pastHighest: (ct) ->
+        rolloverValue: (ct) ->
           return ChartTime.granularitySpecs.iteration.timeBoxes.length + 1  # Yes, it's correct to use the length of iteration.timeBoxes
         rataDieNumber: (ct) ->
           return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].startOn.rataDieNumber()
@@ -31,7 +31,7 @@ exports.CustomGranularityTest =
             {startOn: new ChartTime('2011-06-01'), label: 'R2 Iteration 3'},
           ]
         ]
-        pastHighest: (ct) ->
+        rolloverValue: (ct) ->
           temp = ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1]?.length + 1
           if temp? and not isNaN(temp) and ct.beforePastFlag != 'PAST_LAST'
             return temp
@@ -47,7 +47,7 @@ exports.CustomGranularityTest =
         mask: 'R##I##-##',
         lowest: 1,
         endBeforeDay: new ChartTime('2011-07-01'),
-        pastHighest: (ct) ->
+        rolloverValue: (ct) ->
           iterationTimeBox = ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1]?[ct.iteration-1]
           if !iterationTimeBox? or ct.beforePastFlag == 'PAST_LAST'
             numberOfReleases = ChartTime.granularitySpecs.iteration.timeBoxes.length

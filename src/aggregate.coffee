@@ -11,11 +11,11 @@ utils = require('./utils')
 @param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
 @return {Function} A funtion to calculate the percentile
 
-When the user passes in `$p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate
+When the user passes in `p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate
 percentile function. The returned function will find the `<n>`th percentile where `<n>` is some number in the form of
-`##[.##]`. (e.g. `$p40`, `$p99`, `$p99.9`).
+`##[.##]`. (e.g. `p40`, `p99`, `p99.9`).
 
-Note: `$median` is an alias for `$p50`.
+Note: `median` is an alias for `p50`.
 
 There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
 use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
@@ -46,10 +46,10 @@ _extractFandAs = (a) ->
     f = a.f
   else if functions[a.f]?
     f = functions[a.f]
-  else if a.f == '$median'
+  else if a.f == 'median'
     f = percentileCreator(50)
-  else if a.f.substr(0, 2) == '$p'
-    p = /\$p(\d+(.\d+)?)/.exec(a.f)[1]
+  else if a.f.substr(0, 2) == 'p'
+    p = /\p(\d+(.\d+)?)/.exec(a.f)[1]
     f = percentileCreator(Number(p))
   else
     throw new Error("#{a.f} is not a recognized built-in function")
@@ -75,9 +75,9 @@ aggregate = (list, aggregationSpec) ->
   and a list of aggregationSpec like this:
 
       aggregationSpec = [
-        {field: 'ObjectID', f: '$count'}
-        {as: 'Drill-down', field:'ObjectID', f:'$push'}
-        {field: 'PlanEstimate', f: '$sum'}
+        {field: 'ObjectID', f: 'count'}
+        {as: 'Drill-down', field:'ObjectID', f:'push'}
+        {field: 'PlanEstimate', f: 'sum'}
         {as: 'mySum', field: 'PlanEstimate', f: (values) ->
           temp = 0
           for v in values
@@ -91,9 +91,9 @@ aggregate = (list, aggregationSpec) ->
       a = aggregate(list, aggregationSpec)
       console.log(a)
  
-      #   { 'ObjectID_$count': 3, 
+      #   { ObjectID_count: 3,
       #     'Drill-down': [ '1', '2', '3' ], 
-      #     'PlanEstimate_$sum': 13, 
+      #     PlanEstimate_sum: 13,
       #     mySum: 13 } 
       
   For each aggregation, you must provide a `field` and `f` (function) value. You can optionally 
@@ -155,9 +155,9 @@ groupBy = (list, spec) ->
       spec = {
         groupBy: 'KanbanState',
         aggregationSpec: [
-          {field: 'ObjectID', f: '$count'}
-          {as: 'Drill-down', field:'ObjectID', f:'$push'}
-          {field: 'PlanEstimate', f: '$sum'}
+          {field: 'ObjectID', f: 'count'}
+          {as: 'Drill-down', field:'ObjectID', f:'push'}
+          {field: 'PlanEstimate', f: 'sum'}
           {as: 'mySum', field: 'PlanEstimate', f: (values) ->
             temp = 0
             for v in values
@@ -173,14 +173,14 @@ groupBy = (list, spec) ->
       console.log(a)
 
       #   [ { KanbanState: 'In progress',
-      #       'ObjectID_$count': 1,
+      #       ObjectID_count: 1,
       #       'Drill-down': [ '1' ], 
-      #       'PlanEstimate_$sum': 5, 
+      #       PlanEstimate_sum: 5,
       #       mySum: 5 },
       #     { KanbanState: 'Ready to pull',
-      #       'ObjectID_$count': 2, 
+      #       ObjectID_count: 2,
       #       'Drill-down': [ '2', '3' ], 
-      #       'PlanEstimate_$sum': 8, 
+      #       PlanEstimate_sum: 8,
       #       mySum: 8 } ]
       
   The first element of this specification is the `groupBy` field. This is analagous to
@@ -342,8 +342,8 @@ timeSeriesGroupByCalculator = (snapshotArray, config) ->
     uniqueValues: utils.clone(config.groupByFieldValues)
     aggregationSpec: [
       {as: 'GroupBy', field: config.aggregationField, f: config.aggregationFunction}
-      {as: 'Count', field:'ObjectID', f:'$count'}
-      {as: 'DrillDown', field:'ObjectID', f:'$push'}
+      {as: 'Count', field:'ObjectID', f:'count'}
+      {as: 'DrillDown', field:'ObjectID', f:'push'}
     ]
   groupByAtArray = groupByAt(atArray, aggregationSpec)  
   
