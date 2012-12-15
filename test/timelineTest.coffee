@@ -1,7 +1,7 @@
 {ChartTime, ChartTimeRange, utils} = require('../')
 
 
-# !TODO: Needs testing of skip functionality
+# !TODO: Needs more testing of step functionality
 
 exports.timelineTest =
 
@@ -148,5 +148,24 @@ exports.timelineTest =
       '2012-09-04T10' 
     ]
     test.deepEqual(expected, s)
-    
+
+    test.done()
+
+  testSinglePointTimeline: (test) ->
+    r5 = new ChartTimeRange({
+      startOn:'2011-01-06T00',
+      endBefore:'2011-01-07T00',
+      workDayStartOn: {hour: 9, minute: 0},
+      workDayEndBefore: {hour: 10, minute: 0}
+    })
+
+    test.deepEqual([{
+      beforePastFlag: '',
+      granularity: 'hour',
+      year: 2011,
+      month: 1,
+      day: 6,
+      hour: 9
+    }], r5.getTimeline())
+
     test.done()

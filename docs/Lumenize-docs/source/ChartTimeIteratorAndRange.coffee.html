@@ -89,7 +89,7 @@ class ChartTimeIterator
      * Will go back to the where the iterator started.
      */
 /* &lt;CoffeeScript&gt;
-    if @ctr.skip &gt; 0
+    if @ctr.step &gt; 0
       @current = new ChartTime(@ctr.startOn)
     else
       @current = new ChartTime(@ctr.endBefore)
@@ -134,7 +134,7 @@ class ChartTimeIterator
 
   _proceedToNextValid: () -&gt;
     while @hasNext() and @_shouldBeExcluded()
-      if @ctr.skip &gt; 0
+      if @ctr.step &gt; 0
         @current.increment()
       else
         @current.decrement()
@@ -144,7 +144,7 @@ class ChartTimeIterator
 <span id='Lumenize-ChartTimeIterator-method-next'>    /**
 </span>     * @method next
      * @member Lumenize.ChartTimeIterator
-     * @return {ChartTime/Date/ChartTimeRange} Emits the next value of the iterator. The start will be the first value emitted unless it should
+     * @return {ChartTime/Date/ChartTimeRange} Returns the next value of the iterator. The start will be the first value emitted unless it should
      *    be skipped due to holiday, weekend, or workhour knockouts.
      */
 /* &lt;CoffeeScript&gt;
@@ -152,8 +152,8 @@ class ChartTimeIterator
       throw new StopIteration('Cannot call next() past end.')
     currentCopy = new ChartTime(@current)
     @count++
-    for i in [Math.abs(@ctr.skip)..1]
-      if @ctr.skip &gt; 0
+    for i in [Math.abs(@ctr.step)..1]
+      if @ctr.step &gt; 0
         @current.increment()
       else
         @current.decrement()
@@ -370,20 +370,30 @@ class ChartTimeRange
    * 
    * * **startOn** is a ChartTime object or a string. The first value that next() returns.
    * * **endBefore** is a ChartTime object or string. Must match granularity. hasNext() returns false when current is here or later.
-   * * **skip** is an optional num. Defaults to 1 or -1. Use -1 to march backwards from endBefore - 1. Currently any
-   *    values other than 1 and -1 give unexpected behavior.
-   * * **granularity** is used to determine the granularity that you will iterate over. Note, you can have granularity of say month 
-   *    for the startOn and/or endBefore but have a finer granularity for the range. Let's say you want to iterate over all the days
-   *    of the current month. In this case, endBefore would be 'next month', and startOn would be 'prior month'.
-   * * **limit** you can specify limit plus one of startOn/endBefore and only get back this many.
-   * * **workDays** list of days of the week that you work on. Either ['Monday', 'Tuesday', ...] or &quot;Monday,Tuesday,...&quot;
+   * * **limit** you can specify limit and either startOn or endBefore and only get back this many. Must specify 2 out of
+   *    3 of startOn, endBefore, and limit.
+   * * **step** is an optional parameter. Defaults to 1 or -1. Use -1 to march backwards from endBefore - 1. Currently any
+   *    values other than 1 and -1 may give unexpected behavior. It should be able to step by more but there are not
+   *    good tests around it now.
+   * * **granularity** is used to determine the granularity that you will iterate over. Note, this is independent of the
+   *    granularity you have used to specify startOn and endBefore. For example:
+   * 
+   *        {startOn: '2012-01', # Month Granularity
+   *         endBefore: '2012-02', # Month Granularity
+   *         granularity: ChartTime.DAY} # Day granularity}
+   * 
+   * * **workDays** list of days of the week that you work on. You can specify this as an Array of Strings
+   *    (['Monday', 'Tuesday', ...]) or a single comma seperated String (&quot;Monday,Tuesday,...&quot;).
    *    Defaults to ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].
-   * * **holidays** is an optional Array like: [{month: 12, day: 25}, {year: 2011, month: 11, day: 24}]. Notice how
-   *    you can leave off the year if the holiday falls on the same day every year.
-   * * **workDayStartOn** is an optional object in the form {hour: 8, minute: 15}. Must include minute even when 0.
+   * * **holidays** is an optional Array of either ISOStrings or JavaScript Objects (and you can mix and match). Example:
+   * 
+   *       [{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, &quot;2012-12-24&quot;]
+   * 
+   *    Notice how you can leave off the year if the holiday falls on the same day every year.
+   * * **workDayStartOn** is an optional object in the form {hour: 8, minute: 15}. If minute is zero it can be omitted.
    *    If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
    *    hours span midnight.
-   * * **workDayEndBefore** is an optional object in the form {hour: 17, minute: 0}. Must include minute even when 0.
+   * * **workDayEndBefore** is an optional object in the form {hour: 17, minute: 0}. If minute is zero it can be omitted.
    *    The use of workDayStartOn and workDayEndBefore only make sense when the granularity is &quot;hour&quot; or finer.
    *    Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
    *    than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
@@ -456,19 +466,19 @@ class ChartTimeRange
     else
       @endBeforeWorkMinutes = 24 * 60
     
-    if spec.skip?
-      @skip = spec.skip
-    else if spec.endBefore? and @startOn?.gt(@endBefore)
-      @skip = -1
+    if spec.step?
+      @step = spec.step
+    else if spec.endBefore? and @startOn?.greaterThan(@endBefore)
+      @step = -1
     else if spec.endBefore? and not spec.startOn? and spec.limit?
-      @skip = -1
+      @step = -1
     else
-      @skip = 1
+      @step = 1
     utils.assert(
       (spec.startOn? and spec.endBefore?) or
-      (spec.startOn? and spec.limit? and @skip &gt; 0) or
-      (spec.endBefore? and spec.limit? and @skip &lt; 0),
-      'Must provide two out of &quot;startOn&quot;, &quot;endBefore&quot;, or &quot;limit&quot; and the sign of skip must match.'
+      (spec.startOn? and spec.limit? and @step &gt; 0) or
+      (spec.endBefore? and spec.limit? and @step &lt; 0),
+      'Must provide two out of &quot;startOn&quot;, &quot;endBefore&quot;, or &quot;limit&quot; and the sign of step must match.'
     )
     
   getIterator: (emit = 'ChartTimeRange', childGranularity = 'day', tz) -&gt;
@@ -522,7 +532,7 @@ class ChartTimeRange
      */
 /* &lt;CoffeeScript&gt;
     timeline = new ChartTimeIterator(this, 'ChartTime', @granularity).getAll()
-    if timeline[0].gt(timeline[1])
+    if timeline.length &gt; 1 and timeline[0].greaterThan(timeline[1])
       timeline.reverse()
     return timeline
 
@@ -550,7 +560,7 @@ class ChartTimeRange
      */
 /* &lt;CoffeeScript&gt;
     if date instanceof ChartTime
-      return date.lt(@endBefore) and date.gte(@startOn)
+      return date.lessThan(@endBefore) and date.greaterThanOrEqual(@startOn)
     utils.assert(tz? or utils.type(date) != 'date', 'ChartTimeRange.contains() requires a second parameter (timezone) when the first parameter is a Date()')
     switch utils.type(date)
       when 'string'
@@ -558,7 +568,7 @@ class ChartTimeRange
           target = timezoneJS.parseISO(date)
         else
           target = new ChartTime(date)
-          return target.lt(@endBefore) and target.gte(@startOn)
+          return target.lessThan(@endBefore) and target.greaterThanOrEqual(@startOn)
       when 'date'
         target = date.getTime()  # !TODO: A - Need to use my getJSDate to be sure this behaves as expected... or test the hell out of this
       else

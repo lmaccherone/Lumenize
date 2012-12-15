@@ -56,7 +56,7 @@ However, Lumenize assumes the data is in the form of an "Array of Maps" like Ral
 
 The `rangeSpec` defines the specification for the x-axis. Notice how you can exclude weekends and holidays. Here we
 specify a `startOn` and a `endBefore`. However, it's fairly common in charts to specify `endBefore: "this day"` and
-`limit: 60` (no `startOn`). A number of human readable dates like `"next month"` or `"prior week"` are supported. You
+`limit: 60` (no `startOn`). A number of human readable dates like `"next month"` or `"previous week"` are supported. You
 need to specify any 2 of startOn, endBefore, or limit.
 
     rangeSpec = {

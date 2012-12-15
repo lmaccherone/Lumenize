@@ -282,10 +282,10 @@ timeSeriesCalculator = (snapshotArray, config) ->
   Takes an MVCC style `snapshotArray` array and returns the time series calculations `At` each moment specified by
   the ChartTimeRange spec (`rangeSpec`) within the config object.
   
-  This is really just a thin wrapper around various ChartTime calculations, so look at the documentation for each of
+  This is really just a thin wrapper around various other calculations, so look at the documentation for each of
   those to get the detail picture of what this timeSeriesCalculator does. The general flow is:
   
-  1. Use `ChartTimeRange.getTimeline()` against the `rangeSpec` to find the points for the x-axis.
+  1. Use `ChartTimeRange.getTimeline()` against `config.rangeSpec` to find the points for the x-axis.
      The output of this work is a `listOfAtCTs` array.
   2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
      The output of this operation is called an `atArray`
@@ -296,7 +296,8 @@ timeSeriesCalculator = (snapshotArray, config) ->
   
   # 1. Figuring out the points for the x-axis (listOfAtCTs) 
   listOfAtCTs = new ChartTimeRange(config.rangeSpec).getTimeline()
-  
+  utils.assert(listOfAtCTs.length > 0, "Timeline has no data points.")
+
   # 2. Finding the state of each object **AT** each point in the listOfAtCTs array.
   atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField)
     
@@ -319,10 +320,10 @@ timeSeriesGroupByCalculator = (snapshotArray, config) ->
   Takes an MVCC style `snapshotArray` array and returns the data groupedBy a particular field `At` each moment specified by
   the ChartTimeRange spec (`rangeSpec`) within the config object. 
   
-  This is really just a thin wrapper around various ChartTime calculations, so look at the documentation for each of
+  This is really just a thin wrapper around various other calculations, so look at the documentation for each of
   those to get the detail picture of what this timeSeriesGroupByCalculator does. The general flow is:
   
-  1. Use `ChartTimeRange` and `ChartTimeIterator` against the `rangeSpec` to find the points for the x-axis.
+  1. Use `ChartTimeRange` and `ChartTimeIterator` against `config.rangeSpec` to find the points for the x-axis.
      The output of this work is a `listOfAtCTs` array.
   2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
      The output of this operation is called an `atArray`
@@ -332,6 +333,7 @@ timeSeriesGroupByCalculator = (snapshotArray, config) ->
 
   # 1. Figuring out the points for the x-axis (listOfAtCTs)
   listOfAtCTs = new ChartTimeRange(config.rangeSpec).getTimeline()
+  utils.assert(listOfAtCTs.length > 0, "Timeline has no data points.")
   
   # 2. Finding the state of each object **AT** each point in the listOfAtCTs array.
   atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField)

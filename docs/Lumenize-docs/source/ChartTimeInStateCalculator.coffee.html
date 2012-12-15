@@ -151,7 +151,7 @@ class ChartTimeInStateCalculator
           previousState = false
           @ticks.push({at: ctPlus1.getISOStringInTZ(@tz), state: false})
         else
-          unless ctPlus1.eq(allCTs[idx + 1])
+          unless ctPlus1.equal(allCTs[idx + 1])
             previousState = false
             @ticks.push({at: ctPlus1.getISOStringInTZ(@tz), state: false})
       else

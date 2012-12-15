@@ -10,9 +10,9 @@ exports.CustomGranularityTest =
         lowest: 1,
         endBeforeDay: new ChartTime('2011-07-01')
         rolloverValue: (ct) ->
-          return ChartTime.granularitySpecs.iteration.timeBoxes.length + 1  # Yes, it's correct to use the length of iteration.timeBoxes
+          return ChartTime._granularitySpecs.iteration.timeBoxes.length + 1  # Yes, it's correct to use the length of iteration.timeBoxes
         rataDieNumber: (ct) ->
-          return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].startOn.rataDieNumber()
+          return ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].startOn.rataDieNumber()
       },
       iteration: {
         segments: ['release', 'iteration'],
@@ -32,15 +32,15 @@ exports.CustomGranularityTest =
           ]
         ]
         rolloverValue: (ct) ->
-          temp = ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1]?.length + 1
+          temp = ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1]?.length + 1
           if temp? and not isNaN(temp) and ct.beforePastFlag != 'PAST_LAST'
             return temp
           else
-            numberOfReleases = ChartTime.granularitySpecs.iteration.timeBoxes.length
-            return ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length + 1
+            numberOfReleases = ChartTime._granularitySpecs.iteration.timeBoxes.length
+            return ChartTime._granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length + 1
 
         rataDieNumber: (ct) ->
-          return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber()
+          return ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber()
       },
       iteration_day: {  # By convention, it knows to use day functions on it. This is the lowest allowed custom granularity
         segments: ['release', 'iteration', 'iteration_day'],
@@ -48,21 +48,21 @@ exports.CustomGranularityTest =
         lowest: 1,
         endBeforeDay: new ChartTime('2011-07-01'),
         rolloverValue: (ct) ->
-          iterationTimeBox = ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1]?[ct.iteration-1]
+          iterationTimeBox = ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1]?[ct.iteration-1]
           if !iterationTimeBox? or ct.beforePastFlag == 'PAST_LAST'
-            numberOfReleases = ChartTime.granularitySpecs.iteration.timeBoxes.length
-            numberOfIterationsInLastRelease = ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length
-            iterationTimeBox = ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1][numberOfIterationsInLastRelease-1]
+            numberOfReleases = ChartTime._granularitySpecs.iteration.timeBoxes.length
+            numberOfIterationsInLastRelease = ChartTime._granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length
+            iterationTimeBox = ChartTime._granularitySpecs.iteration.timeBoxes[numberOfReleases-1][numberOfIterationsInLastRelease-1]
             
           thisIteration = iterationTimeBox.startOn.inGranularity('iteration')
           nextIteration = thisIteration.add(1)
           if nextIteration.beforePastFlag == 'PAST_LAST'
-            return ChartTime.granularitySpecs.iteration_day.endBeforeDay.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1
+            return ChartTime._granularitySpecs.iteration_day.endBeforeDay.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1
           else
             return nextIteration.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1 
            
         rataDieNumber: (ct) ->
-          return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber() + ct.iteration_day - 1
+          return ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber() + ct.iteration_day - 1
       }
     }   
     ChartTime.addGranularity(granularitySpec)
@@ -148,7 +148,7 @@ exports.CustomGranularityTest =
     i = new ChartTimeIterator({
       endBefore:new ChartTime('PAST_LAST', 'iteration_day'),
       limit: 3,
-      skip: -1,
+      step: -1,
       holidays: [
         {year: 2011, month: 1, day: 17}
       ]
@@ -169,7 +169,7 @@ exports.CustomGranularityTest =
     i = new ChartTimeIterator({
       endBefore:new ChartTime('PAST_LAST', 'iteration'),
       limit: 4,
-      skip: -1,
+      step: -1,
       holidays: [
         {year: 2011, month: 1, day: 17}
       ]

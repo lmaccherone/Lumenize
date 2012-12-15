@@ -4,7 +4,7 @@ utils = require('../src/utils')
 exports.ChartTimeTest =
   testConstruction: (test) ->
     test.expect(4)
-    temp = new ChartTime({granularity: 'day', year:2011, month:10, day:27})
+    temp = new ChartTime({granularity: ChartTime.DAY, year:2011, month:10, day:27})
     test.equal(temp.year, 2011, 'year should be 2011')
     test.equal(temp.month, 10, 'month should be 10')
     test.equal(temp.day, 27, 'day should be 27')
@@ -22,43 +22,43 @@ exports.ChartTimeTest =
     
   testConstructionDate: (test) ->
     jsDate = new Date('2011-01-01T12:34:56.789Z')
-    temp = new ChartTime(jsDate, 'millisecond', 'America/Denver')
-    temp2 = new ChartTime(jsDate, 'millisecond', 'America/New_York')
-    temp.addInPlace(2, 'hour')
+    temp = new ChartTime(jsDate, ChartTime.MILLISECOND, 'America/Denver')
+    temp2 = new ChartTime(jsDate, ChartTime.MILLISECOND, 'America/New_York')
+    temp.addInPlace(2, ChartTime.HOUR)
     test.equal(temp.toString(), temp2.toString())
     test.done()
  
   testHour: (test) ->
-    d = new ChartTime(granularity: 'hour', year: 2011, month:11, day:20, hour:9).hour
+    d = new ChartTime(granularity: ChartTime.HOUR, year: 2011, month:11, day:20, hour:9).hour
     test.equal(d, '9')
-    d = new ChartTime(granularity: 'hour', year: 2012, month: 6, day: 15, hour: 23).hour
+    d = new ChartTime(granularity: ChartTime.HOUR, year: 2012, month: 6, day: 15, hour: 23).hour
     test.equal(d, '23')
     
     f = () ->
-      d = new ChartTime(granularity: 'hour', year: 2013, month: 5, day: 1, hour: 27) #this hour is greater than 24, but no error is thrown
+      d = new ChartTime(granularity: ChartTime.HOUR, year: 2013, month: 5, day: 1, hour: 27) #this hour is greater than 24, but no error is thrown
       console.log('inside testHour')
       console.log(d)
     test.throws(f, Error)
     test.done()  
     
   testDOW: (test) ->
-    d = new ChartTime({granularity: 'day', year:2011, month:11, day:20}).dowString()
+    d = new ChartTime({granularity: ChartTime.DAY, year:2011, month:11, day:20}).dowString()
     test.equal(d, 'Sunday', '2011-11-20 is a Sunday')
 
-    d = new ChartTime({granularity: 'day', year:1783, month:9, day:18}).dowString()
+    d = new ChartTime({granularity: ChartTime.DAY, year:1783, month:9, day:18}).dowString()
     test.equal(d, 'Thursday', '1783-09-18 is a Thursday')
 
-    d = new ChartTime({granularity: 'day', year:1676, month:2, day:23}).dowString()
+    d = new ChartTime({granularity: ChartTime.DAY, year:1676, month:2, day:23}).dowString()
     d2 = new Date(1676, 2-1, 23)
     test.equal(d, ChartTime.DOW_N_TO_S_MAP[d2.getDay()], '1676-02-23 is a ' + d2)
 
-    d = new ChartTime({granularity: 'day', year:2012, month:2, day:29}).dowString()
+    d = new ChartTime({granularity: ChartTime.DAY, year:2012, month:2, day:29}).dowString()
     test.equal(d, 'Wednesday', '2012-02-29 is a Wednesday')
 
-    d = new ChartTime({granularity: 'day', year:2011, month:12, day:31}).dowString()
+    d = new ChartTime({granularity: ChartTime.DAY, year:2011, month:12, day:31}).dowString()
     test.equal(d, 'Saturday', '2011-12-31 is a Saturday')
 
-    d = new ChartTime({granularity: 'day', year:2012, month:1, day:1}).dowString()
+    d = new ChartTime({granularity: ChartTime.DAY, year:2012, month:1, day:1}).dowString()
     test.equal(d, 'Sunday', '2012-01-01 is a Sunday')
 
     test.done()
@@ -90,19 +90,19 @@ exports.ChartTimeTest =
     test.done() 
   
   testDaysInMonth: (test) ->
-    d = new ChartTime({granularity: 'day', year: 2011, month: 1, day: 1})
+    d = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 1, day: 1})
     test.equal(d.daysInMonth(), 31, 'January has 31 days')
     
-    d = new ChartTime({granularity: 'day', year: 2000, month: 2, day: 1})
+    d = new ChartTime({granularity: ChartTime.DAY, year: 2000, month: 2, day: 1})
     test.equal(d.daysInMonth(), 29, 'Feb-2000 has 29 days')
     
-    d = new ChartTime({granularity: 'day', year: 1900, month: 2, day: 1})
+    d = new ChartTime({granularity: ChartTime.DAY, year: 1900, month: 2, day: 1})
     test.equal(d.daysInMonth(), 28, 'Feb-1900 has 28 days')
     
-    d = new ChartTime({granularity: 'day', year: 2012, month: 2, day: 1})
+    d = new ChartTime({granularity: ChartTime.DAY, year: 2012, month: 2, day: 1})
     test.equal(d.daysInMonth(), 29, 'Feb-2012 has 29 days')
     
-    d = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 1})
+    d = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 2, day: 1})
     test.equal(d.daysInMonth(), 28, 'Feb-2011 has 28 days')
 
     test.done()
@@ -121,103 +121,103 @@ exports.ChartTimeTest =
     test.done()
 
   testInequalities: (test) ->
-    d1 = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 1})
-    d2 = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 1})
-    d3 = new ChartTime({granularity: 'day', year: 2011, month: 12, day: 31})
-    d4 = new ChartTime({granularity: 'hour', year: 2011, month: 12, day: 31, hour: 22})
-    test.ok(d1.equals(d2), '' + d1 + ' equals ' + d2)
-    test.ok(d1.lte(d2), '' + d1 + ' lte ' + d2)
-    test.ok(d1.gte(d2), '' + d1 + ' gte ' + d2)
-    test.ok(d1.lte(d3), '' + d1 + ' lte ' + d3)
-    test.ok(d3.gte(d1), '' + d3 + ' gte ' + d1)
-    test.equal(d1.lt(d2), false, '' + d1 + ' is not lt ' + d2)
-    test.equal(d1.gt(d2), false, '' + d1 + ' is not gt ' + d2)
-    test.ok(d1.lt(d3), '' + d1 + ' lt ' + d3)
+    d1 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 2, day: 1})
+    d2 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 2, day: 1})
+    d3 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 12, day: 31})
+    d4 = new ChartTime({granularity: ChartTime.HOUR, year: 2011, month: 12, day: 31, hour: 22})
+    test.ok(d1.equal(d2), '' + d1 + ' equals ' + d2)
+    test.ok(d1.lessThanOrEqual(d2), '' + d1 + ' lte ' + d2)
+    test.ok(d1.greaterThanOrEqual(d2), '' + d1 + ' gte ' + d2)
+    test.ok(d1.lessThanOrEqual(d3), '' + d1 + ' lte ' + d3)
+    test.ok(d3.greaterThanOrEqual(d1), '' + d3 + ' gte ' + d1)
+    test.equal(d1.lessThan(d2), false, '' + d1 + ' is not lt ' + d2)
+    test.equal(d1.greaterThan(d2), false, '' + d1 + ' is not gt ' + d2)
+    test.ok(d1.lessThan(d3), '' + d1 + ' lt ' + d3)
 
     f = () ->
-      d3.equals(d4)
+      d3.equal(d4)
     test.throws(f, utils.AssertException, '' + d3 + ' does not have the same granularity as ' + d4)
 
     test.done()
 
   testIncrement: (test) ->
-    d1 = new ChartTime({granularity: 'day', year: 2004, month: 2, day: 28})
-    d2 = new ChartTime({granularity: 'day', year: 2004, month: 2, day: 29})
+    d1 = new ChartTime({granularity: ChartTime.DAY, year: 2004, month: 2, day: 28})
+    d2 = new ChartTime({granularity: ChartTime.DAY, year: 2004, month: 2, day: 29})
     d1.increment()
-    test.ok(d1.equals(d2), '' + d1 + ' should equal ' + d2)
+    test.ok(d1.equal(d2), '' + d1 + ' should equal ' + d2)
 
-    d1 = new ChartTime({granularity: 'day', year: 2100, month: 2, day: 28})
-    d2 = new ChartTime({granularity: 'day', year: 2100, month: 3, day: 1})
+    d1 = new ChartTime({granularity: ChartTime.DAY, year: 2100, month: 2, day: 28})
+    d2 = new ChartTime({granularity: ChartTime.DAY, year: 2100, month: 3, day: 1})
     d1.increment()
-    test.ok(d1.equals(d2), '' + d1 + ' should equal ' + d2)
+    test.ok(d1.equal(d2), '' + d1 + ' should equal ' + d2)
 
-    d1 = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 28})
-    d2 = new ChartTime({granularity: 'day', year: 2011, month: 3, day: 1})
+    d1 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 2, day: 28})
+    d2 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 3, day: 1})
     d1.increment()
-    test.ok(d1.equals(d2), '' + d1 + ' should equal ' + d2)
+    test.ok(d1.equal(d2), '' + d1 + ' should equal ' + d2)
 
-    d1 = new ChartTime({granularity: 'millisecond', year: 999, month: 12, day: 31, hour: 23, minute: 59, second: 59, millisecond: 999})
+    d1 = new ChartTime({granularity: ChartTime.MILLISECOND, year: 999, month: 12, day: 31, hour: 23, minute: 59, second: 59, millisecond: 999})
     test.equal(d1.toString(), '0999-12-31T23:59:59.999')
-    d2 = new ChartTime({granularity: 'millisecond', year: 1000, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0})
+    d2 = new ChartTime({granularity: ChartTime.MILLISECOND, year: 1000, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0})
     d1.increment()
-    test.ok(d1.equals(d2), '' + d1 + ' should equal ' + d2)
+    test.ok(d1.equal(d2), '' + d1 + ' should equal ' + d2)
     test.equal(d2.toString(), '1000-01-01T00:00:00.000')
 
     test.done()
 
   testDecrement: (test) ->
-    d2 = new ChartTime({granularity: 'day', year: 2004, month: 2, day: 28})
-    d1 = new ChartTime({granularity: 'day', year: 2004, month: 2, day: 29})
+    d2 = new ChartTime({granularity: ChartTime.DAY, year: 2004, month: 2, day: 28})
+    d1 = new ChartTime({granularity: ChartTime.DAY, year: 2004, month: 2, day: 29})
     d1.decrement()
-    test.ok(d1.equals(d2), '' + d1 + ' should equal ' + d2)
+    test.ok(d1.equal(d2), '' + d1 + ' should equal ' + d2)
 
-    d2 = new ChartTime({granularity: 'day', year: 2100, month: 2, day: 28})
-    d1 = new ChartTime({granularity: 'day', year: 2100, month: 3, day: 1})
+    d2 = new ChartTime({granularity: ChartTime.DAY, year: 2100, month: 2, day: 28})
+    d1 = new ChartTime({granularity: ChartTime.DAY, year: 2100, month: 3, day: 1})
     d1.decrement()
-    test.ok(d1.equals(d2), '' + d1 + ' should equal ' + d2)
+    test.ok(d1.equal(d2), '' + d1 + ' should equal ' + d2)
 
-    d2 = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 28})
-    d1 = new ChartTime({granularity: 'day', year: 2011, month: 3, day: 1})
+    d2 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 2, day: 28})
+    d1 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 3, day: 1})
     d1.decrement()
-    test.ok(d1.equals(d2), '' + d1 + ' should equal ' + d2)
+    test.ok(d1.equal(d2), '' + d1 + ' should equal ' + d2)
 
-    d2 = new ChartTime({granularity: 'millisecond', year: 999, month: 12, day: 31, hour: 23, minute: 59, second: 59, millisecond: 999})
-    d1 = new ChartTime({granularity: 'millisecond', year: 1000, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0})
+    d2 = new ChartTime({granularity: ChartTime.MILLISECOND, year: 999, month: 12, day: 31, hour: 23, minute: 59, second: 59, millisecond: 999})
+    d1 = new ChartTime({granularity: ChartTime.MILLISECOND, year: 1000, month: 1, day: 1, hour: 0, minute: 0, second: 0, millisecond: 0})
     d1.decrement()
-    test.ok(d1.equals(d2), '' + d1 + ' should equal ' + d2)
+    test.ok(d1.equal(d2), '' + d1 + ' should equal ' + d2)
 
     test.done()
 
   testAdd: (test) ->
-    d1 = new ChartTime({granularity: 'day', year: 2004, month: 2, day: 27})
-    d2 = new ChartTime({granularity: 'day', year: 2004, month: 2, day: 29})
+    d1 = new ChartTime({granularity: ChartTime.DAY, year: 2004, month: 2, day: 27})
+    d2 = new ChartTime({granularity: ChartTime.DAY, year: 2004, month: 2, day: 29})
     d3 = d1.add(2)
-    test.ok(d3.equals(d2), '' + d3 + ' should equal ' + d2)
+    test.ok(d3.equal(d2), '' + d3 + ' should equal ' + d2)
 
-    d1 = new ChartTime({granularity: 'day', year: 2004, month: 2, day: 27})
-    d2 = new ChartTime({granularity: 'day', year: 2004, month: 3, day: 1})
+    d1 = new ChartTime({granularity: ChartTime.DAY, year: 2004, month: 2, day: 27})
+    d2 = new ChartTime({granularity: ChartTime.DAY, year: 2004, month: 3, day: 1})
     d3 = d1.add(3)
-    test.ok(d3.equals(d2), '' + d3 + ' should equal ' + d2)
+    test.ok(d3.equal(d2), '' + d3 + ' should equal ' + d2)
 
-    d1 = new ChartTime({granularity: 'day', year: 2011, month: 12, day: 10})
-    d2 = new ChartTime({granularity: 'day', year: 2012, month: 1, day: 10})
+    d1 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 12, day: 10})
+    d2 = new ChartTime({granularity: ChartTime.DAY, year: 2012, month: 1, day: 10})
     d3 = d1.add(31)
-    test.ok(d3.equals(d2), '' + d3 + ' should equal ' + d2)
+    test.ok(d3.equal(d2), '' + d3 + ' should equal ' + d2)
 
-    d1 = new ChartTime({granularity: 'day', year: 2004, month: 2, day: 29})
-    d2 = new ChartTime({granularity: 'day', year: 2004, month: 3, day: 31})
-    d3 = d1.add(1, 'month')
-    test.ok(d3.equals(d2), '' + d3 + ' should equal ' + d2)
+    d1 = new ChartTime({granularity: ChartTime.DAY, year: 2004, month: 2, day: 29})
+    d2 = new ChartTime({granularity: ChartTime.DAY, year: 2004, month: 3, day: 31})
+    d3 = d1.add(1, ChartTime.MONTH)
+    test.ok(d3.equal(d2), '' + d3 + ' should equal ' + d2)
 
-    d1 = new ChartTime({granularity: 'day', year: 2004, month: 2, day: 29})
-    d2 = new ChartTime({granularity: 'day', year: 2005, month: 2, day: 28})
-    d3 = d1.add(1, 'year')
-    test.ok(d3.equals(d2), '' + d3 + ' should equal ' + d2)
+    d1 = new ChartTime({granularity: ChartTime.DAY, year: 2004, month: 2, day: 29})
+    d2 = new ChartTime({granularity: ChartTime.DAY, year: 2005, month: 2, day: 28})
+    d3 = d1.add(1, ChartTime.YEAR)
+    test.ok(d3.equal(d2), '' + d3 + ' should equal ' + d2)
 
-    d1 = new ChartTime({granularity: 'day', year: 2003, month: 12, day: 31})
-    d2 = new ChartTime({granularity: 'day', year: 2004, month: 3, day: 31})
-    d3 = d1.add(3, 'month')
-    test.ok(d3.equals(d2), '' + d3 + ' should equal ' + d2)
+    d1 = new ChartTime({granularity: ChartTime.DAY, year: 2003, month: 12, day: 31})
+    d2 = new ChartTime({granularity: ChartTime.DAY, year: 2004, month: 3, day: 31})
+    d3 = d1.add(3, ChartTime.MONTH)
+    test.ok(d3.equal(d2), '' + d3 + ' should equal ' + d2)
 
     test.done()
     
@@ -238,7 +238,7 @@ exports.ChartTimeTest =
     }
     for day, week_day of testObj
       test.equal(new ChartTime(day).inGranularity('week_day'), week_day, "#{day} should be #{week_day}")
-      test.equal(new ChartTime(week_day).inGranularity('day'), day, "#{week_day} should be #{day}")
+      test.equal(new ChartTime(week_day).inGranularity(ChartTime.DAY), day, "#{week_day} should be #{day}")
 
     test.done()
 
@@ -258,7 +258,7 @@ exports.ChartTimeTest =
       '2010-12-31': '2010Q4'
     }
     for day, quarter of testObj
-      test.equal(new ChartTime(day).inGranularity('quarter'), quarter, "#{day} should be #{quarter}")
+      test.equal(new ChartTime(day).inGranularity(ChartTime.QUARTER), quarter, "#{day} should be #{quarter}")
    
     testObj = {
       '2009Q1': '2009-01-01',
@@ -267,101 +267,101 @@ exports.ChartTimeTest =
       '2012Q4': '2012-10-01'
     } 
     for quarter, day of testObj
-      test.equal(new ChartTime(quarter).inGranularity('day'), day, "#{quarter} should be #{day}")
+      test.equal(new ChartTime(quarter).inGranularity(ChartTime.DAY), day, "#{quarter} should be #{day}")
       
     test.done()
     
   testBeforePast: (test) ->
-    pastLast = new ChartTime('PAST_LAST', 'day')
-    beforeFirst = new ChartTime('BEFORE_FIRST', 'day')
+    pastLast = new ChartTime('PAST_LAST', ChartTime.DAY)
+    beforeFirst = new ChartTime('BEFORE_FIRST', ChartTime.DAY)
     someday = new ChartTime('2011-01-01')
-    test.ok(pastLast.equals(pastLast))
-    test.ok(beforeFirst.equals(beforeFirst))
-    test.ok(pastLast.gt(beforeFirst))
-    test.ok(beforeFirst.lt(pastLast))
-    test.ok(pastLast.gte(beforeFirst))
-    test.ok(beforeFirst.lte(pastLast))
-    test.ok(pastLast.gt(someday))
-    test.ok(beforeFirst.lte(someday))
-    test.equal(pastLast.lt(someday), false)
-    test.equal(pastLast.gt(pastLast), false)
-    test.equal(pastLast.lt(pastLast), false)
+    test.ok(pastLast.equal(pastLast))
+    test.ok(beforeFirst.equal(beforeFirst))
+    test.ok(pastLast.greaterThan(beforeFirst))
+    test.ok(beforeFirst.lessThan(pastLast))
+    test.ok(pastLast.greaterThanOrEqual(beforeFirst))
+    test.ok(beforeFirst.lessThanOrEqual(pastLast))
+    test.ok(pastLast.greaterThan(someday))
+    test.ok(beforeFirst.lessThanOrEqual(someday))
+    test.equal(pastLast.lessThan(someday), false)
+    test.equal(pastLast.greaterThan(pastLast), false)
+    test.equal(pastLast.lessThan(pastLast), false)
     
     test.done()
     
   testMathOnPastLast: (test) ->
-    d = new ChartTime('PAST_LAST', 'day')
+    d = new ChartTime('PAST_LAST', ChartTime.DAY)
     d.addInPlace(-1)
     test.equal(d, '9999-12-31')
     
-    d = new ChartTime('PAST_LAST', 'day')
+    d = new ChartTime('PAST_LAST', ChartTime.DAY)
     d.addInPlace(-3)
     test.equal(d, '9999-12-29')
     
-    d = new ChartTime('PAST_LAST', 'day')
+    d = new ChartTime('PAST_LAST', ChartTime.DAY)
     d.decrement()
     test.equal(d, '9999-12-31')
     
-    d = new ChartTime('PAST_LAST', 'day')
+    d = new ChartTime('PAST_LAST', ChartTime.DAY)
     d2 = d.add(-1)
     test.equal(d2, '9999-12-31')
     
-    d = new ChartTime('PAST_LAST', 'month')
+    d = new ChartTime('PAST_LAST', ChartTime.MONTH)
     d.decrement()
     test.equal(d, '9999-12')
     
-    d = new ChartTime('PAST_LAST', 'year')
+    d = new ChartTime('PAST_LAST', ChartTime.YEAR)
     d.decrement()
     test.equal(d, '9999')
     
-    d = new ChartTime('PAST_LAST', 'year')
+    d = new ChartTime('PAST_LAST', ChartTime.YEAR)
     d.increment()
     test.equal(d, 'PAST_LAST')
         
-    d = new ChartTime('PAST_LAST', 'month')
+    d = new ChartTime('PAST_LAST', ChartTime.MONTH)
     d.increment()
     test.equal(d, 'PAST_LAST')
         
-    d = new ChartTime('PAST_LAST', 'day')
+    d = new ChartTime('PAST_LAST', ChartTime.DAY)
     d.increment()
     test.equal(d, 'PAST_LAST')
         
     test.done()
     
   testMathOnBeforeFirst: (test) ->
-    d = new ChartTime('BEFORE_FIRST', 'day')
+    d = new ChartTime('BEFORE_FIRST', ChartTime.DAY)
     d.addInPlace(1)
     test.equal(d, '0001-01-01')
     
-    d = new ChartTime('BEFORE_FIRST', 'day')
+    d = new ChartTime('BEFORE_FIRST', ChartTime.DAY)
     d.addInPlace(3)
     test.equal(d, '0001-01-03')
     
-    d = new ChartTime('BEFORE_FIRST', 'day')
+    d = new ChartTime('BEFORE_FIRST', ChartTime.DAY)
     d.increment()
     test.equal(d, '0001-01-01')
     
-    d = new ChartTime('BEFORE_FIRST', 'day')
+    d = new ChartTime('BEFORE_FIRST', ChartTime.DAY)
     d2 = d.add(1)
     test.equal(d2, '0001-01-01')
     
-    d = new ChartTime('BEFORE_FIRST', 'month')
+    d = new ChartTime('BEFORE_FIRST', ChartTime.MONTH)
     d.increment()
     test.equal(d, '0001-01')
     
-    d = new ChartTime('BEFORE_FIRST', 'year')
+    d = new ChartTime('BEFORE_FIRST', ChartTime.YEAR)
     d.increment()
     test.equal(d, '0001')
     
-    d = new ChartTime('BEFORE_FIRST', 'year')
+    d = new ChartTime('BEFORE_FIRST', ChartTime.YEAR)
     d.decrement()
     test.equal(d, 'BEFORE_FIRST')
         
-    d = new ChartTime('BEFORE_FIRST', 'month')
+    d = new ChartTime('BEFORE_FIRST', ChartTime.MONTH)
     d.decrement()
     test.equal(d, 'BEFORE_FIRST')
         
-    d = new ChartTime('BEFORE_FIRST', 'day')
+    d = new ChartTime('BEFORE_FIRST', ChartTime.DAY)
     d.decrement()
     test.equal(d, 'BEFORE_FIRST')
         
@@ -412,22 +412,30 @@ exports.ChartTimeTest =
     
     test.done()
     
-  testSetThisNextPrior: (test) ->
+  testSetThisNextPrevious: (test) ->
     ct = new ChartTime('this day')
-    test.equal(ct.granularity, 'day')
+    test.equal(ct.granularity, ChartTime.DAY)
     ctNext = new ChartTime('next day')
     test.deepEqual(ct.increment(), ctNext)
-    ctPrior = new ChartTime('prior day')
-    test.deepEqual(ct.decrement().decrement(), ctPrior)
+    ctPrevious = new ChartTime('previous day')
+    test.deepEqual(ct.decrement().decrement(), ctPrevious)
 
     ct = new ChartTime('this minute')
-    test.equal(ct.granularity, 'minute')
+    test.equal(ct.granularity, ChartTime.MINUTE)
     ct = new ChartTime('this quarter')
-    test.equal(ct.granularity, 'quarter')
+    test.equal(ct.granularity, ChartTime.QUARTER)
     
     ct = new ChartTime('this day in America/Denver')
-    test.equal(ct.granularity, 'day')
+    test.equal(ct.granularity, ChartTime.DAY)
     
     # I really don't know how to test this other than to assure that the above don't fail
+    test.done()
+
+  testRDN: (test) ->
+    dateString = '1970-01-01'
+    rdn = new ChartTime(dateString).rataDieNumber()
+    fromRDN = new ChartTime(rdn, ChartTime.DAY)
+    test.equal(dateString, fromRDN)
+
     test.done()
     

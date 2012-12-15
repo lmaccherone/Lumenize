@@ -26,7 +26,7 @@ exports.ChartTimeRangeTest =
       endBefore:new ChartTime({granularity: 'day', year: 2011, month:1, day: 7})
     })
     
-    test.equal(r.skip, 1, 'Default skip should be 1')
+    test.equal(r.step, 1, 'Default step should be 1')
     test.deepEqual(r.workDays, ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'], 'Default workdays should be [M, T, W, Th, F]')
     test.equal(r.holidays.length, 0, 'Default holidays should be length 0')
     test.ok(utils.isArray(r.holidays), 'Default holidays should be an array')

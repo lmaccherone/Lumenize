@@ -1,5 +1,6 @@
-execSync = require('exec-sync')
+{ChartTime} = require('../')
 
-{stdout, stderr} = execSync('cake test', true)
-if stderr.length > 0
-  console.log('error')
+thisDay = new ChartTime('this day')
+nextDay = new ChartTime('next day')
+
+console.log(thisDay.lessThanOrEqual(nextDay))

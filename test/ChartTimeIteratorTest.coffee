@@ -1,7 +1,7 @@
 {ChartTime, ChartTimeIterator, ChartTimeRange} = require('../')
 utils = require('../src/utils')
 
-# !TODO: Needs testing of skip functionality
+# !TODO: Need more testing of step functionality
 
 exports.ChartTimeIteratorTest =
   setUp: (callback) ->
@@ -71,12 +71,12 @@ exports.ChartTimeIteratorTest =
 
     all = i2.getAll()
 
-    spec.skip = -1
+    spec.step = -1
     i2 = new ChartTimeIterator(spec)
     test.deepEqual(i2.getAll(), all.reverse(), 'should be the same in reverse')
 
     all.reverse()
-    delete spec.skip
+    delete spec.step
     endBefore = spec.endBefore
     delete spec.endBefore
     spec.limit = 4
@@ -87,7 +87,7 @@ exports.ChartTimeIteratorTest =
     startOn = spec.startOn
     delete spec.startOn
     spec.limit = 4
-    spec.skip = -1
+    spec.step = -1
     i2 = new ChartTimeIterator(spec)
     test.deepEqual(i2.getAll(), all.reverse(), 'should be the same in reverse')
 
@@ -306,8 +306,8 @@ exports.ChartTimeIteratorTest =
     test.throws(f, utils.AssertException, 'should throw with only startOn')
 
     spec.limit = 10
-    spec.skip = -1
-    test.throws(f, utils.AssertException, 'should throw when no endBefore and skip is negative')
+    spec.step = -1
+    test.throws(f, utils.AssertException, 'should throw when no endBefore and step is negative')
 
     startOn = spec.startOn
     delete spec.startOn
@@ -316,7 +316,7 @@ exports.ChartTimeIteratorTest =
 
     spec.endBefore = endBefore
     spec.limit = 10
-    spec.skip = 1
-    test.throws(f, utils.AssertException, 'should throw when no startOn and skip is positive')
+    spec.step = 1
+    test.throws(f, utils.AssertException, 'should throw when no startOn and step is positive')
 
     test.done()
