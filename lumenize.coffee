@@ -54,12 +54,12 @@ However, Lumenize assumes the data is in the form of an "Array of Maps" like Ral
 
     snapshotArray = Lumenize.csvStyleArray_To_ArrayOfMaps(snapshotsCSVStyle)
 
-The `rangeSpec` defines the specification for the x-axis. Notice how you can exclude weekends and holidays. Here we
+The `timelineConfig` defines the specification for the x-axis. Notice how you can exclude weekends and holidays. Here we
 specify a `startOn` and a `endBefore`. However, it's fairly common in charts to specify `endBefore: "this day"` and
 `limit: 60` (no `startOn`). A number of human readable dates like `"next month"` or `"previous week"` are supported. You
 need to specify any 2 of startOn, endBefore, or limit.
 
-    rangeSpec = {
+    timelineConfig = {
       startOn: "2011-01-02"
       endBefore: "2011-01-08",
       workDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],  # Also supports "Monday, Tuesday, ..."
@@ -84,11 +84,11 @@ to the table. Simply specify a name and a callback function "f".
       }
     ]
 
-The `aggregationSpec` supports a number of functions including sum, count, addToSet, standardDeviation,
+The `aggregationConfig` supports a number of functions including sum, count, addToSet, standardDeviation,
 p50 (for median), and p?? (for any quartile/percentile). It will also allow you to specify a callback function
 like in derivedFields above if none of the built-in functions serves.
 
-    aggregationSpec = [
+    aggregationConfig = [
       {"as": "scope", "f": "count", "field": "ObjectID"},
       {"as": "accepted", "f": "sum", "field": "accepted"}
     ]
@@ -104,13 +104,13 @@ the timezone of your choosing.
       snapshotValidToField: '_ValidTo',
       snapshotUniqueID: 'ObjectID',
       timezone: 'America/New_York',
-      rangeSpec: rangeSpec,
+      timelineConfig: timelineConfig,
       derivedFields: derivedFields,
-      aggregationSpec: aggregationSpec
+      aggregationConfig: aggregationConfig
     }
 
 Next, we call `Lumenize.timeSeriesCalculator` with the snapshots as well as the config object that we just built.
-It will calculate the time-series data according to our specifications. It returns two values. A list of ChartTime
+It will calculate the time-series data according to our specifications. It returns two values. A list of Time
 objects specifying the x-axis (`listOfAtCTs`) and our calculations (`aggregationAtArray`).
 
     {listOfAtCTs, aggregationAtArray} = Lumenize.timeSeriesCalculator(snapshotArray, config)
@@ -139,7 +139,7 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
       }
     ]
 
-    config.aggregationSpec = [
+    config.aggregationConfig = [
       {"as": "scope", "f": "sum", "field": "PlanEstimate"},
       {"as": "accepted", "f": "sum", "field": "accepted"}
     ]
@@ -156,13 +156,13 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
 
 ###
 
-exports.ChartTime = require('./src/ChartTime').ChartTime
+exports.Time = require('./src/Time').Time
 
-chartTimeIteratorAndRange = require('./src/ChartTimeIteratorAndRange')
-exports.ChartTimeIterator = chartTimeIteratorAndRange.ChartTimeIterator
-exports.ChartTimeRange = chartTimeIteratorAndRange.ChartTimeRange
+Timeline = require('./src/Timeline')
+exports.TimelineIterator = Timeline.TimelineIterator
+exports.Timeline = Timeline.Timeline
 
-exports.ChartTimeInStateCalculator = require('./src/ChartTimeInStateCalculator').ChartTimeInStateCalculator
+exports.TimeInStateCalculator = require('./src/TimeInStateCalculator').TimeInStateCalculator
 
 datatransform = require('./src/dataTransform')
 exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps
@@ -175,7 +175,6 @@ exports.aggregate = aggregate.aggregate
 exports.aggregateAt = aggregate.aggregateAt
 exports.groupBy = aggregate.groupBy
 exports.groupByAt = aggregate.groupByAt
-exports.percentileCreator = aggregate.percentileCreator
 exports.timeSeriesCalculator = aggregate.timeSeriesCalculator
 exports.timeSeriesGroupByCalculator = aggregate.timeSeriesGroupByCalculator
 

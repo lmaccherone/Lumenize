@@ -62,7 +62,7 @@ Then at the top of the javascript where you want to call it, put the following:
 
 Then to use it, you can either create local aliases like:
 
-`var ChartTime = lumenize.ChartTime;`
+`var Time = lumenize.Time;`
 
 or you can just use the lumenize namespace:
 
@@ -109,7 +109,7 @@ In November of 2012, Lumenize wanted to start keeping old versions around becaus
 * 0.4.2 - 2012-11-28 - Playing with using git tags for keeping old versions
 * 0.4.1 - 2012-11-28 - Playing with using git branches for keeping old versions
 * 0.4.0 - 2012-11-27
-  * **Backward breaking change** No longer required/allowed to call ChartTime.setTZPath()
+  * **Backward breaking change** No longer required/allowed to call Time.setTZPath()
   * Using JSDuck for documentation now
   * Build system now keeps old deploy versions
   * Pre-compiled directory removed
@@ -117,8 +117,8 @@ In November of 2012, Lumenize wanted to start keeping old versions around becaus
     propertly remove from later ticks any entity that falls out of scope. Previously, deletions were not registered correctly by
     snapshotArray_To_AtArray.
 * 0.3.0 - 2012-10-13
-  * Support for instantiating ChartTime objects relative to now using strings (e.g. 'this day in Pacific/Fiji')
-  * Added tests and fixed some bugs for rangeSpecs
+  * Support for instantiating Time objects relative to now using strings (e.g. 'this day in Pacific/Fiji')
+  * Added tests and fixed some bugs for timelineConfigs
 * 0.2.7 - 2012-10-10 - **Backward breaking change** to the structure of the data returned by groupBy() to match groupByAt()
 
 ## MIT License ##

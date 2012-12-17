@@ -19,19 +19,19 @@
 utils = require('./utils')
 timezoneJS = require('./timezone-js.js').timezoneJS
 
-class ChartTime  #
+class Time  #
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-constructor'><span id='Lumenize-ChartTime'>  /**
-</span></span>   * @class Lumenize.ChartTime
-   * # ChartTime #
+<span id='Lumenize-Time-method-constructor'><span id='Lumenize-Time'>  /**
+</span></span>   * @class Lumenize.Time
+   * # Time #
    * 
    * _Time axis creation/manipulation for charts_
    * 
    * ## Features ##
    * 
    * * Generate the values for time series chart axis
-   * * Knockout weekends and holidays (ChartTimeIterator)
-   * * Knockout non-work hours (ChartTimeIterator)
+   * * Knockout weekends and holidays (TimelineIterator)
+   * * Knockout non-work hours (TimelineIterator)
    * * Work with precision around timezone differences
    * * Month is 1-indexed (rather than 0-indexed like Javascript's Date object)
    * * Date/Time math (add 3 months, subtract 2 weeks, etc.)
@@ -44,12 +44,12 @@ class ChartTime  #
    * 
    * ## Granularity ##
    * 
-   * Each ChartTime object has a granularity. This means that you never have to
+   * Each Time object has a granularity. This means that you never have to
    * worry about any bits lower than your specified granularity. A day has only
    * year, month, and day segments. You are never tempted to specify 11:59pm
    * to specify the end of a day-long timebox.
    * 
-   * ChartTime supports the following granularities:
+   * Time supports the following granularities:
    * 
    * * `year`
    *     * `month`
@@ -85,20 +85,20 @@ class ChartTime  #
    * Do you know when Daylight Savings Time kicks in and New York is 4 hours shifted from GMT instead of 5? Will
    * you remember to do it perfectly every time it's needed in your code?
    * 
-   * If you need this precision, ChartTime helps by clearly delineating the moment when you need to do 
+   * If you need this precision, Time helps by clearly delineating the moment when you need to do
    * timezone manipulation... the moment you need to compare/query timestamped data. You can do all of your
    * holiday/weekend knockout manipulation without regard to timezone and only consider the timezone
    * upon query submission or comparison.
    * 
    * ## Month is 1-indexed as you would expect ##
    * 
-   * Javascript's date object uses 0 for January and 11 for December. ChartTime uses 1 for January and 12 for December...
+   * Javascript's date object uses 0 for January and 11 for December. Time uses 1 for January and 12 for December...
    * which is what ISO-8601 uses and what humans expect. Everyone who works with the javascript Date Object at one
    * point or another gets burned by this.
    * 
    * ## Week support ##
    * 
-   * ChartTime follows ISO-8601 week support where ever it makes sense. Implications of using this ISO format (paraphrased
+   * Time follows ISO-8601 week support where ever it makes sense. Implications of using this ISO format (paraphrased
    * info from wikipedia):
    * 
    * * All weeks have 7 days (i.e. there are no fractional weeks).
@@ -114,33 +114,33 @@ class ChartTime  #
    * **In general, it just greatly simplifies the use of week granularity in a chart situation.**
    * 
    * The only real downside to this approach is that USA folks expect the week to start on Sunday. However, the ISO-8601 spec starts
-   * each week on Monday. Following ISO-8601, ChartTime uses 1 for Monday and 7 for Sunday which aligns with
+   * each week on Monday. Following ISO-8601, Time uses 1 for Monday and 7 for Sunday which aligns with
    * the US standard for every day except Sunday. The US standard is to use 0 for Sunday.
    * 
    * ## Basic usage ##
    * 
-   *     {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
+   *     {TimelineIterator, Timeline, Time} = require('../')
    * 
-   * Get ChartTime objects relative to now.
+   * Get Time objects relative to now.
    * 
-   *     d = new ChartTime('this millisecond in Pacific/Fiji')
-   *     d = new ChartTime('previous week')
-   *     d = new ChartTime('next month')
+   *     d = new Time('this millisecond in Pacific/Fiji')
+   *     d = new Time('previous week')
+   *     d = new Time('next month')
    *     
    * Spell it all out with a JavaScript object
    * 
-   *     d1 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 2, day: 28})
+   *     d1 = new Time({granularity: Time.DAY, year: 2011, month: 2, day: 28})
    *     console.log(d1.toString())
    *     # 2011-02-28
    *     
    * You can use the string short-hand rather than spell out the segments separately. The granularity
    * is automatically inferred from how many segments you provide.
    * 
-   *     d2 = new ChartTime('2011-03-01')
+   *     d2 = new Time('2011-03-01')
    *     console.log(d2.toString())
    *     # 2011-03-01
    *     
-   * Increment/decrement and compare ChartTimes without regard to timezone
+   * Increment/decrement and compare Times without regard to timezone
    * 
    *     console.log(d1.greaterThanOrEqual(d2))
    *     d1.increment()
@@ -174,36 +174,36 @@ class ChartTime  #
    *     
    * Deals well with year-granularity math and leap year complexity.
    * 
-   *     d4 = new ChartTime('2004-02-29')  # leap day
+   *     d4 = new Time('2004-02-29')  # leap day
    *     d4.addInPlace(1, 'year')  # adding a year takes us to a non-leap year
    *     console.log(d4.toString())
    *     # 2005-02-28
    *     
    * Week granularity correctly wraps and deals with 53-week years.
    * 
-   *     w1 = new ChartTime('2004W53-6')
-   *     console.log(w1.inGranularity(ChartTime.DAY).toString())
+   *     w1 = new Time('2004W53-6')
+   *     console.log(w1.inGranularity(Time.DAY).toString())
    *     # 2005-01-01
    *     
    * Convert between any of the standard granularities. Also converts custom granularities (not shown) to
    * standard granularities if you provide a `rataDieNumber()` function with your custom granularities.
    * 
-   *     d5 = new ChartTime('2005-01-01')  # goes the other direction also
+   *     d5 = new Time('2005-01-01')  # goes the other direction also
    *     console.log(d5.inGranularity('week_day').toString())
    *     # 2004W53-6
    *     
-   *     q1 = new ChartTime('2011Q3')
-   *     console.log(q1.inGranularity(ChartTime.MILLISECOND).toString())
+   *     q1 = new Time('2011Q3')
+   *     console.log(q1.inGranularity(Time.MILLISECOND).toString())
    *     # 2011-07-01T00:00:00.000
    *     
    * ## Timezones ##
    * 
-   * ChartTime does timezone sensitive conversions. You must set the path to the tz files before doing any timezone sensitive comparisons.
+   * Time does timezone sensitive conversions. You must set the path to the tz files before doing any timezone sensitive comparisons.
    * Note, if you are using one of the pre-packaged Lumenize.js or Lumenize-min.js, then you can supply any string in this call. It will
    * ignore what you provide and load the time zone data from the files included in the package. We would like to remove the requirement
    * for this initialization when running one of these packages, but for now, you still need the dummy call.
    * 
-   *     console.log(new ChartTime('2011-01-01').getJSDate('America/Denver').toUTCString())
+   *     console.log(new Time('2011-01-01').getJSDate('America/Denver').toUTCString())
    *     # Sat, 01 Jan 2011 07:00:00 GMT
    * 
    * @constructor
@@ -211,7 +211,7 @@ class ChartTime  #
    * @param {String} [granularity]
    * @param {String} [tz]
    * 
-   * The constructor for ChartTime supports the passing in of a String, a rata die number (RDN), or a spec Object
+   * The constructor for Time supports the passing in of a String, a rata die number (RDN), or a spec Object
    * 
    * ## String ##
    * 
@@ -235,93 +235,93 @@ class ChartTime  #
    * 
    * ## ISO-8601 or custom masked ##
    * 
-   * When you pass in an ISO-8601 or custom mask string, ChartTime uses the masks that are defined for each granularity to figure out the granularity...
+   * When you pass in an ISO-8601 or custom mask string, Time uses the masks that are defined for each granularity to figure out the granularity...
    * unless you explicitly provide a granularity. This parser does not work on all valid ISO-8601 forms. Ordinal dates (`&quot;2012-288&quot;`)
    * are not supported but week number form (`&quot;2009W52-7&quot;`) is supported. The canonical form (`&quot;2009-01-01T12:34:56.789&quot;`) will 
    * work as will any shortened subset of it (`&quot;2009-01-01&quot;`, `&quot;2009-01-01T12:34&quot;`, etc.). We've added a form for Quarter
    * granularity (`&quot;2009Q4&quot;`). Plus it will even parse strings in whatever custom granularity you provide based
    * upon the mask that you provide for that granularity.
    * 
-   * If the granularity is specified but not all of the segments are provided, ChartTime will fill in the missing value 
+   * If the granularity is specified but not all of the segments are provided, Time will fill in the missing value
    * with the `lowest` value from _granularitySpecs.
    * 
    * The Lumenize hierarchy tools rely upon the property that a single character is used between segments so the ISO forms that 
    * omit the delimiters are not supported.
    * 
-   * If the string has a timezone indicator on the end (`...+05:00` or `...Z`), ChartTime will ignore it. Timezone information
+   * If the string has a timezone indicator on the end (`...+05:00` or `...Z`), Time will ignore it. Timezone information
    * is intended to only be used for comparison (see examples for timezone comparison).
    * 
    * There are two special Strings that are recognized: `BEFORE_FIRST` and `PAST_LAST`. You must provide a granularity if you
-   * are instantiating a ChartTime with these values. They are primarily used for custom granularities where your users
+   * are instantiating a Time with these values. They are primarily used for custom granularities where your users
    * may mistakenly request charts for iterations and releases that have not yet been defined. They are particularly useful when 
    * you want to iterate to the last defined iteration/release.
    * 
    * ## Rata Die Number ##
    * 
    * The **rata die number (RDN)** for a date is the number of days since 0001-01-01. You will probably never work
-   * directly with this number but it's what ChartTime uses to convert between granularities. When you are instantiating
-   * a ChartTime from an RDN, you must provide a granularity. Using RDN will work even for the granularities finer than day.
-   * ChartTime will populate the finer grained segments (hour, minute, etc.) with the approriate `lowest` value.
+   * directly with this number but it's what Time uses to convert between granularities. When you are instantiating
+   * a Time from an RDN, you must provide a granularity. Using RDN will work even for the granularities finer than day.
+   * Time will populate the finer grained segments (hour, minute, etc.) with the approriate `lowest` value.
    * 
    * ## Date ##
    * 
    * You can also pass in a JavaScript Date() Object. The passing in of a tz with this option doesn't make sense. You'll end
-   * up with the same ChartTime value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
-   * option is even really useful. In most cases, you are probably better off using ChartTime.getISOStringFromJSDate()
+   * up with the same Time value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
+   * option is even really useful. In most cases, you are probably better off using Time.getISOStringFromJSDate()
    * 
    * ## Spec ##
    * 
    * You can also explicitly spell out the segments in a **spec** Object in the form of 
-   * `{granularity: ChartTime.DAY, year: 2009, month: 1, day: 1}`. If the granularity is specified but not all of the segments are
-   * provided, ChartTime will fill in the missing value with the appropriate `lowest` value from _granularitySpecs.
+   * `{granularity: Time.DAY, year: 2009, month: 1, day: 1}`. If the granularity is specified but not all of the segments are
+   * provided, Time will fill in the missing value with the appropriate `lowest` value from _granularitySpecs.
    * 
    * ## granularity ##
    * 
    * If you provide a granularity it will take precedence over whatever fields you've provided in your spec or whatever segments
-   * you have provided in your string. ChartTime will leave off extra values and fill in missing ones with the appropriate `lowest`
+   * you have provided in your string. Time will leave off extra values and fill in missing ones with the appropriate `lowest`
    * value.
    * 
    * ## tz ##
    * 
-   * Most of the time, ChartTime assumes that any dates you pass in are timezone less. You'll specify Christmas as 12-25, then you'll
+   * Most of the time, Time assumes that any dates you pass in are timezone less. You'll specify Christmas as 12-25, then you'll
    * shift the boundaries of Christmas for a specific timezone for boundary comparison.
    * 
-   * However, if you provide a tz parameter to this constructor, ChartTime will assume you are passing in a true GMT date/time and shift into 
+   * However, if you provide a tz parameter to this constructor, Time will assume you are passing in a true GMT date/time and shift into
    * the provided timezone. So...
    * 
-   *     d = new ChartTime('2011-01-01T02:00:00:00.000Z', ChartTime.DAY, 'America/New_York')
+   *     d = new Time('2011-01-01T02:00:00:00.000Z', Time.DAY, 'America/New_York')
    *     console.log(d.toString())
    *     # 2010-12-31
    *     
    * Rule of thumb on when you want to use timezones:
    * 
-   * 1. If you have true GMT date/times and you want to create a ChartTime, provide the timezone to this constructor.
+   * 1. If you have true GMT date/times and you want to create a Time, provide the timezone to this constructor.
    * 2. If you have abstract days like Christmas or June 10th and you want to delay the timezone consideration, don't provide a timezone to this constructor.
-   * 3. In either case, if the dates you want to compare to are in GMT, but you've got ChartTimes or ChartTimeRanges, you'll have to provide a timezone on
-   *    the way back out of ChartTime/ChartTimeRange
+   * 3. In either case, if the dates you want to compare to are in GMT, but you've got Times or Timelines, you'll have to provide a timezone on
+   *    the way back out of Time/Timeline
    */
 /* &lt;CoffeeScript&gt;
-       the way back out of ChartTime/ChartTimeRange
+       the way back out of Time/Timeline
     @beforePastFlag = ''
     switch utils.type(value)
       when 'string'
         s = value
         if tz?
-          newCT = new ChartTime(s, 'millisecond')
+          newCT = new Time(s, 'millisecond')
           jsDate = newCT.getJSDateFromGMTInTZ(tz)
         else
           @_setFromString(s, granularity)
       when 'number'
         rdn = value
         if tz?
-          newCT = new ChartTime(rdn, 'millisecond')
+          newCT = new Time(rdn, 'millisecond')
           jsDate = newCT.getJSDateFromGMTInTZ(tz)
         else
           @_setFromRDN(rdn, granularity)
       when 'date'
         jsDate = value
         if tz?
-          newCT = new ChartTime(jsDate, 'millisecond')
+          newCT = new Time(jsDate, 'millisecond')
           jsDate = newCT.getJSDateFromGMTInTZ(tz)
         unless tz?
           tz = 'GMT'
@@ -329,7 +329,7 @@ class ChartTime  #
         spec = value
         if tz?
           spec.granularity = 'millisecond'
-          newCT = new ChartTime(spec)
+          newCT = new Time(spec)
           jsDate = newCT.getJSDateFromGMTInTZ(tz)
         else
           @_setFromSpec(spec)
@@ -352,16 +352,16 @@ class ChartTime  #
         millisecond: jsDate.getUTCMilliseconds()
         granularity: 'millisecond'
         
-      newCT = new ChartTime(newSpec).inGranularity(@granularity)
+      newCT = new Time(newSpec).inGranularity(@granularity)
       @_setFromSpec(newCT)
 
     @_inBoundsCheck()
     @_overUnderFlow()
 
   ###
-  `_granularitySpecs` is a static object that is used to tell ChartTime what to do with particular granularties. You can think of
-  each entry in it as a sort of sub-class of ChartTime. In that sense ChartTime is really a factory generating ChartTime objects
-  of type granularity. When custom timebox granularities are added to ChartTime by `ChartTime.addGranularity()`, it adds to this
+  `_granularitySpecs` is a static object that is used to tell Time what to do with particular granularties. You can think of
+  each entry in it as a sort of sub-class of Time. In that sense Time is really a factory generating Time objects
+  of type granularity. When custom timebox granularities are added to Time by `Time.addGranularity()`, it adds to this
   `_granularitySpecs` object.
 
   Each entry in `_granularitySpecs` has the following:
@@ -453,11 +453,11 @@ class ChartTime  #
       else  # 'PAST_LAST' and other specials will have no mask
         granularitySpec.regex = new RegExp(mask)
 
-  # The code below should run when ChartTime is loaded. It mutates the _granularitySpecs object by converting
+  # The code below should run when Time is loaded. It mutates the _granularitySpecs object by converting
   # the mask into segmentStart, segmentLength, and regex.
   for g, spec of @_granularitySpecs  # !TODO: Do consistency checks on _granularitySpecs in the loop below
-    ChartTime._expandMask(spec)
-    ChartTime[g.toUpperCase()] = g
+    Time._expandMask(spec)
+    Time[g.toUpperCase()] = g
 
   # It also preloads the tz files
   timezoneJS.timezone.zoneFileBasePath = '../files/tz'
@@ -465,9 +465,9 @@ class ChartTime  #
 
   _inBoundsCheck: () -&gt;
     if @beforePastFlag == '' or !@beforePastFlag?
-      segments = ChartTime._granularitySpecs[@granularity].segments
+      segments = Time._granularitySpecs[@granularity].segments
       for segment in segments
-        gs = ChartTime._granularitySpecs[segment]
+        gs = Time._granularitySpecs[segment]
         temp = this[segment]
         lowest = gs.lowest
         rolloverValue = gs.rolloverValue(this)
@@ -485,12 +485,12 @@ class ChartTime  #
     utils.assert(spec.granularity?, 'A granularity property must be part of the supplied spec.')
     @granularity = spec.granularity
     @beforePastFlag = if spec.beforePastFlag? then spec.beforePastFlag else ''
-    segments = ChartTime._granularitySpecs[@granularity].segments
+    segments = Time._granularitySpecs[@granularity].segments
     for segment in segments
       if spec[segment]?
         this[segment] = spec[segment]
       else
-        this[segment] = ChartTime._granularitySpecs[segment].lowest
+        this[segment] = Time._granularitySpecs[segment].lowest
         
   _setFromString: (s, granularity) -&gt;
     
@@ -516,7 +516,7 @@ class ChartTime  #
         tz = sSplit[3]
       else
         tz = undefined
-      zuluCT = new ChartTime(new Date(), sSplit[1], tz)
+      zuluCT = new Time(new Date(), sSplit[1], tz)
       @_setFromSpec(zuluCT)
       if sSplit[0] == 'next'
         @increment()
@@ -524,7 +524,7 @@ class ChartTime  #
         @decrement()
       return
       
-    for g, spec of ChartTime._granularitySpecs
+    for g, spec of Time._granularitySpecs
       if spec.segmentStart + spec.segmentLength == s.length or spec.mask.indexOf('#') &lt; 0  # for special granularities like 'PAST_LAST'
         if spec.regex.test(s)
           granularity = g
@@ -533,23 +533,23 @@ class ChartTime  #
       throw new Error(&quot;Error parsing string '#{s}'. Couldn't identify granularity.&quot;)
          
     @granularity = granularity
-    segments = ChartTime._granularitySpecs[@granularity].segments
+    segments = Time._granularitySpecs[@granularity].segments
     stillParsing = true
     for segment in segments
       if stillParsing
-        gs = ChartTime._granularitySpecs[segment]
+        gs = Time._granularitySpecs[segment]
         l = gs.segmentLength
-        sub = ChartTime._getStringPart(s, segment)
+        sub = Time._getStringPart(s, segment)
         if sub.length != l
           stillParsing = false
       
       if stillParsing
         this[segment] = Number(sub)
       else
-        this[segment] = ChartTime._granularitySpecs[segment].lowest  
+        this[segment] = Time._granularitySpecs[segment].lowest
         
   @_getStringPart = (s, segment) -&gt;
-    spec = ChartTime._granularitySpecs[segment]
+    spec = Time._granularitySpecs[segment]
     l = spec.segmentLength
     st = spec.segmentStart
     sub = s.substr(st, l)
@@ -595,12 +595,12 @@ class ChartTime  #
         spec['quarter'] = Math.floor((spec.month - 1) / 3) + 1
         @_setFromSpec(spec)
       else
-        granularitySpec = ChartTime._granularitySpecs[granularity]
+        granularitySpec = Time._granularitySpecs[granularity]
         # Build spec for lowest possible value
         specForLowest = {granularity: granularity}
         for segment in granularitySpec.segments
-          specForLowest[segment] = ChartTime._granularitySpecs[segment].lowest
-        beforeCT = new ChartTime(specForLowest)
+          specForLowest[segment] = Time._granularitySpecs[segment].lowest
+        beforeCT = new Time(specForLowest)
         beforeRDN = beforeCT.rataDieNumber()
         afterCT = beforeCT.add(1) 
         afterRDN = afterCT.rataDieNumber()
@@ -618,7 +618,7 @@ class ChartTime  #
           afterCT = beforeCT.add(1)
           afterRDN = afterCT.rataDieNumber()
           if afterCT.beforePastFlag == 'PAST_LAST'
-            if rdn &gt;= ChartTime._granularitySpecs[beforeCT.granularity].endBeforeDay.rataDieNumber()
+            if rdn &gt;= Time._granularitySpecs[beforeCT.granularity].endBeforeDay.rataDieNumber()
               @_setFromSpec(afterCT)
               @beforePastFlag == 'PAST_LAST'
               return
@@ -631,28 +631,28 @@ class ChartTime  #
 
   _isGranularityCoarserThanDay: () -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-granularityAboveDay'>    /**
+<span id='Lumenize-Time-method-granularityAboveDay'>    /**
 </span>     * @method granularityAboveDay
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @private
-     * @return {Boolean} true if the ChartTime Object's granularity is above (coarser than) &quot;day&quot; level
+     * @return {Boolean} true if the Time Object's granularity is above (coarser than) &quot;day&quot; level
      */
 /* &lt;CoffeeScript&gt;
-    for segment in ChartTime._granularitySpecs[@granularity].segments
+    for segment in Time._granularitySpecs[@granularity].segments
       if segment.indexOf('day') &gt;= 0
         return false
     return true
 
   getJSDate: (tz) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-getJSDate'>    /**
+<span id='Lumenize-Time-method-getJSDate'>    /**
 </span>     * @method getJSDate
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @param {String} tz
      * @return {Date}
      * 
      * Returns a JavaScript Date Object properly shifted. This Date Object can be compared to other Date Objects that you know
-     * are already in the desired timezone. If you have data that comes from an API in GMT. You can first create a ChartTime object from
+     * are already in the desired timezone. If you have data that comes from an API in GMT. You can first create a Time object from
      * it and then (using this getJSDate() function) you can compare it to JavaScript Date Objects created in local time.
      * 
      * The full name of this function should be getJSDateInGMTasummingThisCTDateIsInTimezone(tz). It converts **TO** GMT 
@@ -661,13 +661,13 @@ class ChartTime  #
      * 
      * ## Usage ##
      * 
-     *     ct = new ChartTime('2011-01-01')
+     *     ct = new Time('2011-01-01')
      *     d = new Date(Date.UTC(2011, 0, 1))
      *     
      *     console.log(ct.getJSDate('GMT').getTime() == d.getTime())
      *     # true
      *     
-     *     console.log(ct.inGranularity(ChartTime.HOUR).add(-5).getJSDate('America/New_York').getTime() == d.getTime())
+     *     console.log(ct.inGranularity(Time.HOUR).add(-5).getJSDate('America/New_York').getTime() == d.getTime())
      *     # true
      * 
      */
@@ -686,25 +686,25 @@ class ChartTime  #
   
   getISOStringInTZ: (tz) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-getShiftedISOString'>    /**
+<span id='Lumenize-Time-method-getShiftedISOString'>    /**
 </span>     * @method getShiftedISOString
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @param {String} tz
      * @return {String} The canonical ISO-8601 date in zulu representation but shifted to the specified tz
      * 
-     *     console.log(new ChartTime('2012-01-01').getISOStringInTZ('Europe/Berlin'))
+     *     console.log(new Time('2012-01-01').getISOStringInTZ('Europe/Berlin'))
      *     # 2011-12-31T23:00:00.000Z
      */
 /* &lt;CoffeeScript&gt;
     utils.assert(tz?, 'Must provide a timezone when calling getShiftedISOString')
     jsDate = @getJSDate(tz)
-    return ChartTime.getISOStringFromJSDate(jsDate)
+    return Time.getISOStringFromJSDate(jsDate)
   
   @getISOStringFromJSDate: (jsDate) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-static-method-getISOStringFromJSDate'>    /**
+<span id='Lumenize-Time-static-method-getISOStringFromJSDate'>    /**
 </span>     * @method getISOStringFromJSDate
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @static
      * @param {Date} jsDate
      * @return {String}
@@ -713,7 +713,7 @@ class ChartTime  #
      * 
      * If you don't provide any parameters, it will return now, like `new Date()` except this is a zulu string.
      * 
-     *     console.log(ChartTime.getISOStringFromJSDate(new Date(0)))
+     *     console.log(Time.getISOStringFromJSDate(new Date(0)))
      *     # 1970-01-01T00:00:00.000Z
      */
 /* &lt;CoffeeScript&gt;
@@ -726,27 +726,27 @@ class ChartTime  #
     minute = jsDate.getUTCMinutes()
     second = jsDate.getUTCSeconds()
     millisecond = jsDate.getUTCMilliseconds()
-    s = ChartTime._pad(year, 4) + '-' + ChartTime._pad(month, 2) + '-' + ChartTime._pad(day, 2) + 'T' + 
-        ChartTime._pad(hour, 2) + ':' + ChartTime._pad(minute, 2) + ':' + ChartTime._pad(second, 2) + '.' + 
-        ChartTime._pad(millisecond, 3) + 'Z'
+    s = Time._pad(year, 4) + '-' + Time._pad(month, 2) + '-' + Time._pad(day, 2) + 'T' +
+        Time._pad(hour, 2) + ':' + Time._pad(minute, 2) + ':' + Time._pad(second, 2) + '.' +
+        Time._pad(millisecond, 3) + 'Z'
     return s
     
   getJSDateFromGMTInTZ: (tz) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-getJSDateInTZfromGMT'>    /**
+<span id='Lumenize-Time-method-getJSDateInTZfromGMT'>    /**
 </span>     * @method getJSDateInTZfromGMT
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @param {String} tz
      * @return {Date}
      * 
-     * This assumes that the ChartTime is an actual GMT date/time as opposed to some abstract day like Christmas and shifts
+     * This assumes that the Time is an actual GMT date/time as opposed to some abstract day like Christmas and shifts
      * it into the specified timezone.
      * 
      * Note, this function will be off by an hour for the times near midnight on the days where there is a shift to/from daylight 
      * savings time. The tz rules engine is designed to go in the other direction so we're mis-using it. This means we are using the wrong
      * moment in rules-space for that hour. The cost of fixing this issue was deemed to high for chart applications.
      * 
-     *     console.log(new ChartTime('2012-01-01').getJSDateFromGMTInTZ('Europe/Berlin'))
+     *     console.log(new Time('2012-01-01').getJSDateFromGMTInTZ('Europe/Berlin'))
      *     # Sat Dec 31 2011 20:00:00 GMT-0500 (EST)
      */
 /* &lt;CoffeeScript&gt;
@@ -764,18 +764,18 @@ class ChartTime  #
     
   getSegmentsAsObject: () -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-getSegmentsAsObject'>    /**
+<span id='Lumenize-Time-method-getSegmentsAsObject'>    /**
 </span>     * @method getSegmentsAsObject
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @return {Object} Returns a simple JavaScript Object containing the segments. This is useful when using utils.match
      * for holiday comparison
      * 
-     *     t = new ChartTime('2011-01-10')
+     *     t = new Time('2011-01-10')
      *     console.log(t.getSegmentsAsObject())
      *     # { year: 2011, month: 1, day: 10 }
      */
 /* &lt;CoffeeScript&gt;
-    segments = ChartTime._granularitySpecs[@granularity].segments
+    segments = Time._granularitySpecs[@granularity].segments
     rawObject = {}
     for segment in segments
       rawObject[segment] = this[segment]
@@ -783,12 +783,12 @@ class ChartTime  #
   
   toString: () -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-toString'>    /**
+<span id='Lumenize-Time-method-toString'>    /**
 </span>     * @method toString
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @return {String} Uses granularity `mask` in _granularitySpecs to generate the string representation.
      * 
-     *     t = new ChartTime({year: 2012, month: 1, day: 1, granularity: ChartTime.MINUTE}).toString()
+     *     t = new Time({year: 2012, month: 1, day: 1, granularity: Time.MINUTE}).toString()
      *     console.log(t.toString())
      *     console.log(t)
      *     # 2012-01-01T00:00
@@ -798,15 +798,15 @@ class ChartTime  #
     if @beforePastFlag in ['BEFORE_FIRST', 'PAST_LAST']
       s = &quot;#{@beforePastFlag}&quot;
     else
-      s = ChartTime._granularitySpecs[@granularity].mask
-      segments = ChartTime._granularitySpecs[@granularity].segments
+      s = Time._granularitySpecs[@granularity].mask
+      segments = Time._granularitySpecs[@granularity].segments
       for segment in segments
-        granularitySpec = ChartTime._granularitySpecs[segment]
+        granularitySpec = Time._granularitySpecs[segment]
         l = granularitySpec.segmentLength
         start = granularitySpec.segmentStart
         before = s.slice(0, start)
         after = s.slice(start + l)
-        s = before + ChartTime._pad(this[segment], l) + after
+        s = before + Time._pad(this[segment], l) + after
     return s
 
   @_pad = (n, l) -&gt;
@@ -819,13 +819,13 @@ class ChartTime  #
   @DOW_MONTH_TABLE = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4]
   dowNumber: () -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-dowNumber'>    /**
+<span id='Lumenize-Time-method-dowNumber'>    /**
 </span>     * @method dowNumber
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @return {Number}
      * Returns the day of the week as a number. Monday = 1, Sunday = 7
      * 
-     *     console.log(new ChartTime('2012-01-01').dowNumber())
+     *     console.log(new Time('2012-01-01').dowNumber())
      *     # 7
      */
 /* &lt;CoffeeScript&gt;
@@ -835,7 +835,7 @@ class ChartTime  #
       y = @year
       if (@month &lt; 3) then y--
       dayNumber = (y + Math.floor(y/4) - Math.floor(y/100) + Math.floor(y/400) +
-        ChartTime.DOW_MONTH_TABLE[@month-1] + @day) % 7
+        Time.DOW_MONTH_TABLE[@month-1] + @day) % 7
       if dayNumber == 0
         return 7
       else
@@ -845,32 +845,32 @@ class ChartTime  #
 
   dowString: () -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-dowString'>    /**
+<span id='Lumenize-Time-method-dowString'>    /**
 </span>     * @method dowString
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @return {String} Returns the day of the week as a String (e.g. &quot;Monday&quot;)
      * 
-     *     console.log(new ChartTime('2012-01-01').dowString())
+     *     console.log(new Time('2012-01-01').dowString())
      *     # Sunday
      */
 /* &lt;CoffeeScript&gt;
-    return ChartTime.DOW_N_TO_S_MAP[@dowNumber()]
+    return Time.DOW_N_TO_S_MAP[@dowNumber()]
 
   rataDieNumber: () -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-rataDieNumber'>    /**
+<span id='Lumenize-Time-method-rataDieNumber'>    /**
 </span>     * @method rataDieNumber
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @return {Number} Returns the counting number for days starting with 0001-01-01 (i.e. 0 AD). Note, this differs
      * from the Uniz Epoch which starts on 1970-01-01. This function works for
      * granularities finer than day (hour, minute, second, millisecond) but ignores the segments of finer granularity than
      * day. Also called common era days.
      * 
-     *     console.log(new ChartTime('0001-01-01').rataDieNumber())
+     *     console.log(new Time('0001-01-01').rataDieNumber())
      *     # 1
      * 
-     *     rdn2012 = new ChartTime('2012-01-01').rataDieNumber()
-     *     rdn1970 = new ChartTime('1970-01-01').rataDieNumber()
+     *     rdn2012 = new Time('2012-01-01').rataDieNumber()
+     *     rdn1970 = new Time('1970-01-01').rataDieNumber()
      *     ms1970To2012 = (rdn2012 - rdn1970) * 24 * 60 * 60 * 1000
      *     msJSDate2012 = Number(new Date('2012-01-01'))
      *     console.log(ms1970To2012 == msJSDate2012)
@@ -881,8 +881,8 @@ class ChartTime  #
       return -1
     else if @beforePastFlag == 'PAST_LAST'
       return utils.MAX_INT
-    else if ChartTime._granularitySpecs[@granularity].rataDieNumber?
-      return ChartTime._granularitySpecs[@granularity].rataDieNumber(this)
+    else if Time._granularitySpecs[@granularity].rataDieNumber?
+      return Time._granularitySpecs[@granularity].rataDieNumber(this)
     else
       y = @year - 1
       yearDays = y*365 + Math.floor(y/4) - Math.floor(y/100) + Math.floor(y/400)
@@ -911,18 +911,18 @@ class ChartTime  #
 
   inGranularity: (granularity) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-inGranularity'>    /**
+<span id='Lumenize-Time-method-inGranularity'>    /**
 </span>     * @method inGranularity
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @param {String} granularity
-     * @return {ChartTime} Returns a new ChartTime object for the same date-time as this object but in the specified granularity.
+     * @return {Time} Returns a new Time object for the same date-time as this object but in the specified granularity.
      * Fills in missing finer granularity segments with `lowest` values. Drops segments when convernting to a coarser
      * granularity.
      * 
-     *     console.log(new ChartTime('2012W01-1').inGranularity(ChartTime.DAY).toString())
+     *     console.log(new Time('2012W01-1').inGranularity(Time.DAY).toString())
      *     # 2012-01-02
      * 
-     *     console.log(new ChartTime('2012Q3').inGranularity(ChartTime.MONTH).toString())
+     *     console.log(new Time('2012Q3').inGranularity(Time.MONTH).toString())
      *     # 2012-07
      */
 /* &lt;CoffeeScript&gt;
@@ -930,19 +930,19 @@ class ChartTime  #
       if granularity in ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond']
         tempGranularity = @granularity
         @granularity = granularity
-        newChartTime = new ChartTime(this)
+        newTime = new Time(this)
         @granularity = tempGranularity
-        return newChartTime
-    return new ChartTime(this.rataDieNumber(), granularity)
+        return newTime
+    return new Time(this.rataDieNumber(), granularity)
 
   daysInMonth: () -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-daysInMonth'>    /**
+<span id='Lumenize-Time-method-daysInMonth'>    /**
 </span>     * @method daysInMonth
-     * @member Lumenize.ChartTime
-     * @return {Number} Returns the number of days in the current month for this ChartTime
+     * @member Lumenize.Time
+     * @return {Number} Returns the number of days in the current month for this Time
      * 
-     *     console.log(new ChartTime('2012-02').daysInMonth())
+     *     console.log(new Time('2012-02').daysInMonth())
      *     # 29
      */
 /* &lt;CoffeeScript&gt;
@@ -960,12 +960,12 @@ class ChartTime  #
 
   isLeapYear: () -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-isLeapYear'>    /**
+<span id='Lumenize-Time-method-isLeapYear'>    /**
 </span>     * @method isLeapYear
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @return {Boolean} true if this is a leap year
      * 
-     *     console.log(new ChartTime('2012').isLeapYear())
+     *     console.log(new Time('2012').isLeapYear())
      *     # true
      */
 /* &lt;CoffeeScript&gt;
@@ -983,28 +983,28 @@ class ChartTime  #
   @YEARS_WITH_53_WEEKS =  [4, 9, 15, 20, 26, 32, 37, 43, 48, 54, 60, 65, 71, 76, 82, 88, 93, 99, 105, 111, 116, 122, 128, 133, 139, 144, 150, 156, 161, 167, 172, 178, 184, 189, 195, 201, 207, 212, 218, 224, 229, 235, 240, 246, 252, 257, 263, 268, 274, 280, 285, 291, 296, 303, 308, 314, 320, 325, 331, 336, 342, 348, 353, 359, 364, 370, 376, 381, 387, 392, 398]
   is53WeekYear: () -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-is53WeekYear'>    /**
+<span id='Lumenize-Time-method-is53WeekYear'>    /**
 </span>     * @method is53WeekYear
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @return {Boolean} true if this is a 53-week year
      * 
-     *     console.log(new ChartTime('2015').is53WeekYear())
+     *     console.log(new Time('2015').is53WeekYear())
      *     # true
      */
 /* &lt;CoffeeScript&gt;
     lookup = @year % 400
-    return lookup in ChartTime.YEARS_WITH_53_WEEKS
+    return lookup in Time.YEARS_WITH_53_WEEKS
 
   equal: (other) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-equal'>    /**
+<span id='Lumenize-Time-method-equal'>    /**
 </span>     * @method equal
-     * @member Lumenize.ChartTime
-     * @param {ChartTime} other
+     * @member Lumenize.Time
+     * @param {Time} other
      * @return {Boolean} Returns true if this equals other. Throws an error if the granularities don't match.
      * 
-     *     d3 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 12, day: 31})
-     *     d4 = new ChartTime('2012-01-01').add(-1)
+     *     d3 = new Time({granularity: Time.DAY, year: 2011, month: 12, day: 31})
+     *     d4 = new Time('2012-01-01').add(-1)
      *     console.log(d3.equal(d4))
      *     # true
      */
@@ -1024,7 +1024,7 @@ class ChartTime  #
     if other.beforePastFlag == 'BEFORE_FIRST' and @beforePastFlag != 'BEFORE_FIRST'
       return false    
       
-    segments = ChartTime._granularitySpecs[@granularity].segments
+    segments = Time._granularitySpecs[@granularity].segments
     for segment in segments
       if this[segment] != other[segment]
         return false
@@ -1032,14 +1032,14 @@ class ChartTime  #
 
   greaterThan: (other) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-greaterThan'>    /**
+<span id='Lumenize-Time-method-greaterThan'>    /**
 </span>     * @method greaterThan
-     * @member Lumenize.ChartTime
-     * @param {ChartTime} other
+     * @member Lumenize.Time
+     * @param {Time} other
      * @return {Boolean} Returns true if this is greater than other. Throws an error if the granularities don't match
      * 
-     *     d1 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 2, day: 28})
-     *     d2 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 3, day: 1})
+     *     d1 = new Time({granularity: Time.DAY, year: 2011, month: 2, day: 28})
+     *     d2 = new Time({granularity: Time.DAY, year: 2011, month: 3, day: 1})
      *     console.log(d1.greaterThan(d2))
      *     # false
      *     console.log(d2.greaterThan(d1))
@@ -1061,7 +1061,7 @@ class ChartTime  #
     if other.beforePastFlag == 'BEFORE_FIRST' and @beforePastFlag != 'BEFORE_FIRST'
       return true
     
-    segments = ChartTime._granularitySpecs[@granularity].segments
+    segments = Time._granularitySpecs[@granularity].segments
     for segment in segments
       if this[segment] &gt; other[segment]
         return true
@@ -1071,13 +1071,13 @@ class ChartTime  #
      
   greaterThanOrEqual: (other) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-greaterThanOrEqual'>    /**
+<span id='Lumenize-Time-method-greaterThanOrEqual'>    /**
 </span>     * @method greaterThanOrEqual
-     * @member Lumenize.ChartTime
-     * @param {ChartTime} other
+     * @member Lumenize.Time
+     * @param {Time} other
      * @return {Boolean} Returns true if this is greater than or equal to other
      * 
-     *     console.log(new ChartTime('2012').greaterThanOrEqual(new ChartTime('2012')))
+     *     console.log(new Time('2012').greaterThanOrEqual(new Time('2012')))
      *     # true
      */
 /* &lt;CoffeeScript&gt;
@@ -1088,13 +1088,13 @@ class ChartTime  #
 
   lessThan: (other) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-lessThan'>    /**
+<span id='Lumenize-Time-method-lessThan'>    /**
 </span>     * @method lessThan
-     * @member Lumenize.ChartTime
-     * @param {ChartTime} other
+     * @member Lumenize.Time
+     * @param {Time} other
      * @return {Boolean} Returns true if this is less than other
      * 
-     *     console.log(new ChartTime(1000, ChartTime.DAY).lessThan(new ChartTime(999, ChartTime.DAY)))  # Using RDN constructor
+     *     console.log(new Time(1000, Time.DAY).lessThan(new Time(999, Time.DAY)))  # Using RDN constructor
      *     # false
      */
 /* &lt;CoffeeScript&gt;
@@ -1102,13 +1102,13 @@ class ChartTime  #
 
   lessThanOrEqual: (other) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-lessThanOrEqual'>    /**
+<span id='Lumenize-Time-method-lessThanOrEqual'>    /**
 </span>     * @method lessThanOrEqual
-     * @member Lumenize.ChartTime
-     * @param {ChartTime} other
+     * @member Lumenize.Time
+     * @param {Time} other
      * @return {Boolean} Returns true if this is less than or equal to other
      * 
-     *     console.log(new ChartTime('this day').lessThanOrEqual(new ChartTime('next day')))  # Using relative constructor
+     *     console.log(new Time('this day').lessThanOrEqual(new Time('next day')))  # Using relative constructor
      *     # true
      */
 /* &lt;CoffeeScript&gt;
@@ -1118,9 +1118,9 @@ class ChartTime  #
     if @beforePastFlag in ['BEFORE_FIRST', 'PAST_LAST']
       return true
     else
-      granularitySpec = ChartTime._granularitySpecs[@granularity]
+      granularitySpec = Time._granularitySpecs[@granularity]
       highestLevel = granularitySpec.segments[0]
-      highestLevelSpec = ChartTime._granularitySpecs[highestLevel]
+      highestLevelSpec = Time._granularitySpecs[highestLevel]
       value = this[highestLevel]
       rolloverValue = highestLevelSpec.rolloverValue(this)
       lowest = highestLevelSpec.lowest
@@ -1135,30 +1135,30 @@ class ChartTime  #
         
   decrement: (granularity) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-decrement'>    /**
+<span id='Lumenize-Time-method-decrement'>    /**
 </span>     * @method decrement
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @param {String} [granularity]
      * @chainable
-     * @return {ChartTime}
-     * Decrements this by 1 in the granularity of the ChartTime or the granularity specified if it was specified
+     * @return {Time}
+     * Decrements this by 1 in the granularity of the Time or the granularity specified if it was specified
      * 
-     *     console.log(new ChartTime('2016W01').decrement().toString())
+     *     console.log(new Time('2016W01').decrement().toString())
      *     # 2015W53
      */
 /* &lt;CoffeeScript&gt;
 
     if @beforePastFlag == 'PAST_LAST'
       @beforePastFlag = ''
-      granularitySpec = ChartTime._granularitySpecs[@granularity]
+      granularitySpec = Time._granularitySpecs[@granularity]
       segments = granularitySpec.segments
       for segment in segments
-        gs = ChartTime._granularitySpecs[segment]
+        gs = Time._granularitySpecs[segment]
         this[segment] = gs.rolloverValue(this) - 1
     else
       lastDayInMonthFlag = (@day == @daysInMonth())
       granularity ?= @granularity
-      granularitySpec = ChartTime._granularitySpecs[granularity]
+      granularitySpec = Time._granularitySpecs[granularity]
       segments = granularitySpec.segments
       this[granularity]--
   
@@ -1169,13 +1169,13 @@ class ChartTime  #
       else
         i = segments.length - 1  # start just before the last one which should equal granularity
         segment = segments[i]
-        granularitySpec = ChartTime._granularitySpecs[segment]
+        granularitySpec = Time._granularitySpecs[segment]
         while (i &gt; 0) and (this[segment] &lt; granularitySpec.lowest) # stop before going back to year
           this[segments[i - 1]]--
           this[segment] = granularitySpec.rolloverValue(this) - 1
           i--
           segment = segments[i]
-          granularitySpec = ChartTime._granularitySpecs[segment]
+          granularitySpec = Time._granularitySpecs[segment]
     
         if granularity == 'month' and (@granularity != 'month')
           if lastDayInMonthFlag or (@day &gt; @daysInMonth())
@@ -1186,29 +1186,29 @@ class ChartTime  #
         
   increment: (granularity) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-increment'>    /**
+<span id='Lumenize-Time-method-increment'>    /**
 </span>     * @method increment
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @param {String} [granularity]
      * @chainable
-     * @return {ChartTime}
-     * Increments this by 1 in the granularity of the ChartTime or the granularity specified if it was specified
+     * @return {Time}
+     * Increments this by 1 in the granularity of the Time or the granularity specified if it was specified
      * 
-     *     console.log(new ChartTime('2012Q4').increment().toString())
+     *     console.log(new Time('2012Q4').increment().toString())
      *     # 2013Q1
      */
 /* &lt;CoffeeScript&gt;
     if @beforePastFlag == 'BEFORE_FIRST'
       @beforePastFlag = ''
-      granularitySpec = ChartTime._granularitySpecs[@granularity]
+      granularitySpec = Time._granularitySpecs[@granularity]
       segments = granularitySpec.segments
       for segment in segments
-        gs = ChartTime._granularitySpecs[segment]
+        gs = Time._granularitySpecs[segment]
         this[segment] = gs.lowest
     else 
       lastDayInMonthFlag = (@day == @daysInMonth())
       granularity ?= @granularity
-      granularitySpec = ChartTime._granularitySpecs[granularity]
+      granularitySpec = Time._granularitySpecs[granularity]
       segments = granularitySpec.segments
       this[granularity]++
   
@@ -1219,13 +1219,13 @@ class ChartTime  #
       else
         i = segments.length - 1  # start just before the last one which should equal granularity
         segment = segments[i]
-        granularitySpec = ChartTime._granularitySpecs[segment]
+        granularitySpec = Time._granularitySpecs[segment]
         while (i &gt; 0) and (this[segment] &gt;= granularitySpec.rolloverValue(this)) # stop before going back to year
           this[segment] = granularitySpec.lowest
           this[segments[i - 1]]++
           i--
           segment = segments[i]
-          granularitySpec = ChartTime._granularitySpecs[segment]
+          granularitySpec = Time._granularitySpecs[segment]
 
         if (granularity is 'month') and (@granularity isnt 'month')
           if lastDayInMonthFlag or (@day &gt; @daysInMonth())
@@ -1236,16 +1236,16 @@ class ChartTime  #
 
   addInPlace: (qty, granularity) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-addInPlace'>    /**
+<span id='Lumenize-Time-method-addInPlace'>    /**
 </span>     * @method addInPlace
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @chainable
      * @param {Number} qty Can be negative for subtraction
      * @param {String} [granularity]
-     * @return {ChartTime} Adds qty to the ChartTime object. It uses increment and decrement so it's not going to be efficient for large values
+     * @return {Time} Adds qty to the Time object. It uses increment and decrement so it's not going to be efficient for large values
      * of qty, but it should be fine for charts where we'll increment/decrement small values of qty.
      * 
-     *     console.log(new ChartTime('2011-11-01').addInPlace(3, ChartTime.MONTH).toString())
+     *     console.log(new Time('2011-11-01').addInPlace(3, Time.MONTH).toString())
      *     # 2012-02-01
      */
 /* &lt;CoffeeScript&gt;
@@ -1268,32 +1268,32 @@ class ChartTime  #
 
   add: (qty, granularity) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-method-add'>    /**
+<span id='Lumenize-Time-method-add'>    /**
 </span>     * @method add
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @param {Number} qty
      * @param {String} [granularity]
-     * @return {ChartTime}
-     * Adds (or subtracts) quantity (negative quantity) and returns a new ChartTime. Not efficient for large qty.
+     * @return {Time}
+     * Adds (or subtracts) quantity (negative quantity) and returns a new Time. Not efficient for large qty.
      * 
-     *    console.log(new ChartTime('2012-01-01').add(-10, ChartTime.MONTH))
+     *    console.log(new Time('2012-01-01').add(-10, Time.MONTH))
      *    # 2011-03-01
      */
 /* &lt;CoffeeScript&gt;
-    newChartTime = new ChartTime(this)
-    newChartTime.addInPlace(qty, granularity)
-    return newChartTime
+    newTime = new Time(this)
+    newTime.addInPlace(qty, granularity)
+    return newTime
     
   @addGranularity: (granularitySpec) -&gt; 
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-ChartTime-static-method-addGranularity'>    /**
+<span id='Lumenize-Time-static-method-addGranularity'>    /**
 </span>     * @method addGranularity
-     * @member Lumenize.ChartTime
+     * @member Lumenize.Time
      * @static
-     * @param {Object} granularitySpec see {@link ChartTime#_granularitySpecs} for existing _granularitySpecs
+     * @param {Object} granularitySpec see {@link Time#_granularitySpecs} for existing _granularitySpecs
      * 
-     * addGranularity allows you to add your own hierarchical granularities to ChartTime. Once you add a granularity to ChartTime
-     * you can then instantiate ChartTime objects in your newly specified granularity. You specify new granularities with 
+     * addGranularity allows you to add your own hierarchical granularities to Time. Once you add a granularity to Time
+     * you can then instantiate Time objects in your newly specified granularity. You specify new granularities with
      * granularitySpec object like this:
      *     
      *     granularitySpec = {
@@ -1301,64 +1301,64 @@ class ChartTime  #
      *         segments: ['release'],
      *         mask: 'R##',
      *         lowest: 1,
-     *         endBeforeDay: new ChartTime('2011-07-01')
+     *         endBeforeDay: new Time('2011-07-01')
      *         rolloverValue: (ct) -&gt;
-     *           return ChartTime._granularitySpecs.iteration.timeBoxes.length + 1  # Yes, it's correct to use the length of iteration.timeBoxes
+     *           return Time._granularitySpecs.iteration.timeBoxes.length + 1  # Yes, it's correct to use the length of iteration.timeBoxes
      *         rataDieNumber: (ct) -&gt;
-     *           return ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].startOn.rataDieNumber()
+     *           return Time._granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].startOn.rataDieNumber()
      *       },
      *       iteration: {
      *         segments: ['release', 'iteration'],
      *         mask: 'R##I##',
      *         lowest: 1,
-     *         endBeforeDay: new ChartTime('2011-07-01')        
+     *         endBeforeDay: new Time('2011-07-01')
      *         timeBoxes: [
      *           [
-     *             {startOn: new ChartTime('2011-01-01'), label: 'R1 Iteration 1'},
-     *             {startOn: new ChartTime('2011-02-01'), label: 'R1 Iteration 2'},
-     *             {startOn: new ChartTime('2011-03-01'), label: 'R1 Iteration 3'},
+     *             {startOn: new Time('2011-01-01'), label: 'R1 Iteration 1'},
+     *             {startOn: new Time('2011-02-01'), label: 'R1 Iteration 2'},
+     *             {startOn: new Time('2011-03-01'), label: 'R1 Iteration 3'},
      *           ],
      *           [
-     *             {startOn: new ChartTime('2011-04-01'), label: 'R2 Iteration 1'},
-     *             {startOn: new ChartTime('2011-05-01'), label: 'R2 Iteration 2'},
-     *             {startOn: new ChartTime('2011-06-01'), label: 'R2 Iteration 3'},
+     *             {startOn: new Time('2011-04-01'), label: 'R2 Iteration 1'},
+     *             {startOn: new Time('2011-05-01'), label: 'R2 Iteration 2'},
+     *             {startOn: new Time('2011-06-01'), label: 'R2 Iteration 3'},
      *           ]
      *         ]
      *         rolloverValue: (ct) -&gt;
-     *           temp = ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1]?.length + 1
+     *           temp = Time._granularitySpecs.iteration.timeBoxes[ct.release-1]?.length + 1
      *           if temp? and not isNaN(temp) and ct.beforePastFlag != 'PAST_LAST'
      *             return temp
      *           else
-     *             numberOfReleases = ChartTime._granularitySpecs.iteration.timeBoxes.length
-     *             return ChartTime._granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length + 1
+     *             numberOfReleases = Time._granularitySpecs.iteration.timeBoxes.length
+     *             return Time._granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length + 1
      * 
      *         rataDieNumber: (ct) -&gt;
-     *           return ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber()
+     *           return Time._granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber()
      *       },
      *       iteration_day: {  # By convention, it knows to use day functions on it. This is the lowest allowed custom granularity
      *         segments: ['release', 'iteration', 'iteration_day'],
      *         mask: 'R##I##-##',
      *         lowest: 1,
-     *         endBeforeDay: new ChartTime('2011-07-01'),
+     *         endBeforeDay: new Time('2011-07-01'),
      *         rolloverValue: (ct) -&gt;
-     *           iterationTimeBox = ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1]?[ct.iteration-1]
+     *           iterationTimeBox = Time._granularitySpecs.iteration.timeBoxes[ct.release-1]?[ct.iteration-1]
      *           if !iterationTimeBox? or ct.beforePastFlag == 'PAST_LAST'
-     *             numberOfReleases = ChartTime._granularitySpecs.iteration.timeBoxes.length
-     *             numberOfIterationsInLastRelease = ChartTime._granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length
-     *             iterationTimeBox = ChartTime._granularitySpecs.iteration.timeBoxes[numberOfReleases-1][numberOfIterationsInLastRelease-1]
+     *             numberOfReleases = Time._granularitySpecs.iteration.timeBoxes.length
+     *             numberOfIterationsInLastRelease = Time._granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length
+     *             iterationTimeBox = Time._granularitySpecs.iteration.timeBoxes[numberOfReleases-1][numberOfIterationsInLastRelease-1]
      *             
      *           thisIteration = iterationTimeBox.startOn.inGranularity('iteration')
      *           nextIteration = thisIteration.add(1)
      *           if nextIteration.beforePastFlag == 'PAST_LAST'
-     *             return ChartTime._granularitySpecs.iteration_day.endBeforeDay.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1
+     *             return Time._granularitySpecs.iteration_day.endBeforeDay.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1
      *           else
      *             return nextIteration.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1
      *            
      *         rataDieNumber: (ct) -&gt;
-     *           return ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber() + ct.iteration_day - 1
+     *           return Time._granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber() + ct.iteration_day - 1
      *       }
      *     }    
-     *     ChartTime.addGranularity(granularitySpec)
+     *     Time.addGranularity(granularitySpec)
      * 
      * 
      * The `mask` must cover all of the segments to get down to the granularity being specified. The digits of the granularity segments
@@ -1367,31 +1367,31 @@ class ChartTime  #
      * distinguish your custom granularity, your highest level must start with some number of digits other than 4 or a prefix letter 
      * (`R` in the example above).
      * 
-     * In order for the ChartTimeIterator to work, you must provide `rolloverValue` and `rataDieNumber` callback functions. You should
+     * In order for the TimelineIterator to work, you must provide `rolloverValue` and `rataDieNumber` callback functions. You should
      * be able to mimic (or use as-is) the example above for most use cases. Notice how the `rataDieNumber` function simply leverages
      * `rataDieNumber` functions for the standard granularities.
      * 
      * In order to convert into this granularity from some other granularity, you must provide an `inGranularity` callback [NOT YET IMPLEMENTED].
-     * But ChartTime will convert to any of the standard granularities from even custom granularities as long as a `rataDieNumber()` function
+     * But Time will convert to any of the standard granularities from even custom granularities as long as a `rataDieNumber()` function
      * is provided.
      * 
-     * **The `timeBoxes` propoerty in the `granularitySpec` Object above has no special meaning** to ChartTime or ChartTimeIterator. It's simply used
+     * **The `timeBoxes` propoerty in the `granularitySpec` Object above has no special meaning** to Time or TimelineIterator. It's simply used
      * by the `rolloverValue` and `rataDieNumber` functions. The boundaries could come from where ever you want and even have been encoded as
      * literals in the `rolloverValue` and `rataDieNumber` callback functions.
      * 
-     * The convention of naming the lowest order granularity with `_day` at the end IS signficant. ChartTime knows to treat that as a day-level
-     * granularity. If there is a use-case for it, ChartTime could be upgraded to allow you to drill down into hours, minutes, etc. from any
+     * The convention of naming the lowest order granularity with `_day` at the end IS signficant. Time knows to treat that as a day-level
+     * granularity. If there is a use-case for it, Time could be upgraded to allow you to drill down into hours, minutes, etc. from any
      * `_day` granularity but right now those lower order time granularities are only supported for the canonical ISO-6801 form.
      * 
      */
 /* &lt;CoffeeScript&gt;
     for g, spec of granularitySpec  # !TODO: Need a way for the user to provide a loose stream of timebox dates that are converted into this format. Would cleanup situations where the timeboxes overlapped and error out on impossible situations like nested timeboxes. Use the startOn.
-      ChartTime._expandMask(spec)  # !TODO: Add @label() and @end() methods.
+      Time._expandMask(spec)  # !TODO: Add @label() and @end() methods.
       @_granularitySpecs[g] = spec # !TODO: Assert that we don't have a conflict with existing granularities and that the granularity equals the last segment. Assert that the endBefore date of one equals the startOn date of the next.
-      ChartTime[g.toUpperCase()] = g
+      Time[g.toUpperCase()] = g
 
 
-exports.ChartTime = ChartTime
+exports.Time = Time
 &lt;/CoffeeScript&gt; */</pre>
 </body>
 </html>

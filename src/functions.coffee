@@ -67,24 +67,25 @@ functions.max = (values) ->
   return temp
 
 ###
-@method push
+@method values
 @static
 @param {Number[]} values
 @return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
 ###
-functions.push = (values) ->
-  temp = []
-  for v in values
-    temp.push(v)
-  return temp
+functions.values = (values) ->
+  return values
+#  temp = []
+#  for v in values
+#    temp.push(v)
+#  return temp
 
 ###
-@method addToSet
+@method uniqueValues
 @static
 @param {Number[]} values
 @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
 ###
-functions.addToSet = (values) ->
+functions.uniqueValues = (values) ->
   temp = {}
   temp2 = []
   for v in values
@@ -129,5 +130,36 @@ functions.variance = (values) ->
 ###
 functions.standardDeviation = (values) ->
   return Math.sqrt(functions.variance(values))
+
+###
+@method percentileCreator
+@static
+@param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
+@return {Function} A funtion to calculate the percentile
+
+When the user passes in `p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate
+percentile function. The returned function will find the `<n>`th percentile where `<n>` is some number in the form of
+`##[.##]`. (e.g. `p40`, `p99`, `p99.9`).
+
+Note: `median` is an alias for `p50`.
+
+There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
+use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
+recommendation and makes the most sense to me.
+###
+functions.percentileCreator = (p) ->
+  return (values) ->
+    sortfunc = (a, b) ->
+      return a - b
+    vLength = values.length
+    values.sort(sortfunc)
+    n = (p * (vLength - 1) / 100) + 1
+    k = Math.floor(n)
+    d = n - k
+    if n == 1
+      return values[1 - 1]
+    if n == vLength
+      return values[vLength - 1]
+    return values[k - 1] + d * (values[k] - values[k - 1])
 
 exports.functions = functions

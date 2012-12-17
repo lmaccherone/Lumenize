@@ -1,5 +1,5 @@
-charttime = require('../')
-{histogram} = charttime
+lumenize = require('../')
+{histogram} = lumenize
 utils = require('../src/utils')
 
 

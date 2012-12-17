@@ -1,6 +1,6 @@
-{ChartTime} = require('../')
+{Time} = require('../')
 
-thisDay = new ChartTime('this day')
-nextDay = new ChartTime('next day')
+thisDay = new Time('this day')
+nextDay = new Time('next day')
 
 console.log(thisDay.lessThanOrEqual(nextDay))

@@ -1,19 +1,19 @@
 utils = require('./utils')
 
-class ChartTimeInStateCalculator
+class TimeInStateCalculator
   ###
-  @class ChartTimeInStateCalculator
+  @class TimeInStateCalculator
 
   Used to calculate how much time each uniqueID spent "in-state". You use this by querying a temporal data
   model (like Rally's Lookback API) with a predicate indicating the "state" of interest. You'll then have a list of
   snapshots where that predicate was true. You pass this in to the timeInState method of this previously instantiated
-  ChartTimeInStateCalculator class to identify how many "ticks" of the timeline specified by the iterator you used
+  TimeInStateCalculator class to identify how many "ticks" of the timeline specified by the iterator you used
   to instantiate this class.
   
   Usage:
   
-      charttime = require('../')
-      {ChartTimeRange, ChartTime, ChartTimeIterator, ChartTimeInStateCalculator} = charttime
+      lumenize = require('../')
+      {Timeline, Time, TimelineIterator, TimeInStateCalculator} = lumenize
 
       snapshots = [ 
         { id: 1, from: '2011-01-06T15:10:00.000Z', to: '2011-01-06T15:30:00.000Z' }, # 20 minutes all within an hour
@@ -29,17 +29,16 @@ class ChartTimeInStateCalculator
       granularity = 'minute'
       timezone = 'America/Chicago'
       
-      rangeSpec = 
+      timelineConfig =
         granularity: granularity
-        startOn: new ChartTime(snapshots[0].from, granularity, timezone).decrement()
+        startOn: new Time(snapshots[0].from, granularity, timezone).decrement()
         endBefore: '2011-01-11T00:00:00.000'
         workDayStartOn: {hour: 9, minute: 0}  # 15:00 in Chicago
         workDayEndBefore: {hour: 11, minute: 0}  # 17:00 in Chicago.
       
-      r1 = new ChartTimeRange(rangeSpec)
-      i1 = r1.getIterator('ChartTime')
-      isc1 = i1.getChartTimeInStateCalculator(timezone)
-      timeInState = isc1.timeInState(snapshots, 'from', 'to', 'id')
+      tl1 = new Timeline(timelineConfig)
+      tisc1 = tl1.getTimeInStateCalculator(timezone)
+      timeInState = tisc1.timeInState(snapshots, 'from', 'to', 'id')
       console.log(timeInState)
 
       # [ { ticks: 20,
@@ -77,7 +76,7 @@ class ChartTimeInStateCalculator
   The default supresses the ones that are still open at the end, but we can override that
   
       snapshots = [snapshots[7]]
-      console.log(isc1.timeInState(snapshots, 'from', 'to', 'id', false))
+      console.log(tisc1.timeInState(snapshots, 'from', 'to', 'id', false))
       
       # [ { ticks: 260,
       #     finalState: true,
@@ -88,9 +87,9 @@ class ChartTimeInStateCalculator
       
   We can adjust the granularity
 
-      rangeSpec.granularity = 'hour'
-      isc2 = new ChartTimeRange(rangeSpec).getIterator().getChartTimeInStateCalculator(timezone)
-      timeInState = isc2.timeInState(snapshots, 'from', 'to', 'id', false)
+      timelineConfig.granularity = 'hour'
+      tisc2 = new Timeline(timelineConfig).getTimeInStateCalculator(timezone)
+      timeInState = tisc2.timeInState(snapshots, 'from', 'to', 'id', false)
       console.log(timeInState)
       
       # [ { ticks: 4,
@@ -100,26 +99,20 @@ class ChartTimeInStateCalculator
       #     id: '7' } ]
   ###
 
-  constructor: (@iterator, tz) ->
+  constructor: (@timeline, tz) ->
     ###
     @constructor
-    @param {ChartTimeIterator} iterator You must pass in a ChartTimeIterator in the correct granularity and wide enough to cover any snapshots that you will analyze with this ChartTimeInStateCalculator
+    @param {Timeline} timeline You must pass in a Timeline in the correct granularity and wide enough to cover any snapshots that you will analyze with this TimeInStateCalculator
     @param {String} tz The timezone for analysis
     ###
-    @granularity = @iterator.ctr.granularity
+    @granularity = @timeline.granularity
     # !TODO: If this approach of walking through each tick turns out to be slow, then refactor algorithm
     # if @granularity in ['minute', 'second', 'millisecond']
       # console.error('Warning: time-in-state calculations at granularities finer than hour can take a long time.')
     if tz?
       @tz = tz
-    else
-      @tz = @iterator.tz
-    utils.assert(@tz?, 'Must specify a timezone `tz` if none specified by the iterator.')
-    @iterator.emit = 'ChartTime'
-    utils.assert(@tz, 'Must provide a timezone to the ChartTimeIterator used for in-state calculation')
-    allCTs = @iterator.getAll()
-    if @iterator.skip < 0
-      allCTs.reverse()
+    utils.assert(@tz?, 'Must specify a timezone `tz`.')
+    allCTs = @timeline.getAll()
     @ticks = []
     previousState = false
     allCTsLength = allCTs.length
@@ -275,4 +268,4 @@ class ChartTimeInStateCalculator
     return finalOutput  
     
 
-exports.ChartTimeInStateCalculator = ChartTimeInStateCalculator
+exports.TimeInStateCalculator = TimeInStateCalculator

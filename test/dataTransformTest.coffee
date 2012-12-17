@@ -1,4 +1,4 @@
-{ChartTime, csvStyleArray_To_ArrayOfMaps, snapshotArray_To_AtArray} = require('../')
+{Time, csvStyleArray_To_ArrayOfMaps, snapshotArray_To_AtArray} = require('../')
 
 exports.dataTransformTest =
 
@@ -34,7 +34,7 @@ exports.dataTransformTest =
       {_ValidFrom: '2222-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 99, someColumn: 'some value'},
     ]
 
-    listOfAtCTs = [new ChartTime('2011-01-02'), new ChartTime('2011-01-03'), new ChartTime('2011-01-07')]
+    listOfAtCTs = [new Time('2011-01-02'), new Time('2011-01-03'), new Time('2011-01-07')]
     
     output = [ 
       [ # 2011-01-02

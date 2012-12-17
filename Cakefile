@@ -37,9 +37,14 @@ runAsync = (command, options, next) ->
         console.log("Stdout exec'ing command '#{command}'...\n" + stdout)
   )
 
-task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
+task('doctest', 'Test examples in documenation.', () ->
   process.chdir(__dirname)
   runSync('coffeedoctest', ['--readme', 'src', 'lumenize.coffee'])
+)
+
+task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
+  runSync('cake doctest')
+  process.chdir(__dirname)
   # create README.html
   readmeDotCSSString = fs.readFileSync('read-me.css', 'utf8')
   readmeDotMDString = fs.readFileSync('README.md', 'utf8')
@@ -164,8 +169,7 @@ task('test', 'Run the CoffeeScript test suite with nodeunit', () ->
   )
 )
 
-task('test-all', 'Run tests and coffeedoctest', () ->
-  process.chdir(__dirname)
-  runSync('cake test')  # Doing this exernally to make it synchrous
-  runSync('coffeedoctest', ['--readme', 'src', 'lumenize.coffee'])
+task('testall', 'Run tests and doctests', () ->
+  invoke('test')
+  invoke('doctest')
 )

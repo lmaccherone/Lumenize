@@ -1,5 +1,5 @@
 Lumenize = require('../')
-Lumenize.ChartTime.setTZPath('../files/tz')  # Note, you can use anything here when using the browserified package
+Lumenize.Time.setTZPath('../files/tz')  # Note, you can use anything here when using the browserified package
 
 snapshotsCSVStyle = [
   ["ObjectID", "_ValidFrom",           "_ValidTo",             "ScheduleState"  , "PlanEstimate"],
@@ -37,7 +37,7 @@ snapshotsCSVStyle = [
 
 snapshotArray = Lumenize.csvStyleArray_To_ArrayOfMaps(snapshotsCSVStyle)
 
-rangeSpec = {
+timelineConfig = {
   "start": "2011-01-02"
   "pastEnd": "2011-01-08",
   "workDays": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],  # Also supports "Monday, Tuesday, ..."
@@ -59,7 +59,7 @@ derivedFields = [
   }
 ]
 
-aggregationSpec = [  # Also, supports arbitrary functions like the derivedFieldSpec example above
+aggregationConifg = [  # Also, supports arbitrary functions like the derivedFieldSpec example above
   {"as": "scope", "f": "$count", "field": "ObjectID"},
   {"as": "accepted", "f": "$sum", "field": "accepted"}
 ]
@@ -69,9 +69,9 @@ config = {
   snapshotValidToField: '_ValidTo',
   snapshotUniqueID: 'ObjectID',
   timezone: 'America/New_York',
-  rangeSpec: rangeSpec,
+  timelineConfig: timelineConfig,
   derivedFields: derivedFields,
-  aggregationSpec: aggregationSpec
+  aggregationConfig: aggregationConfig
 }
 
 {listOfAtCTs, aggregationAtArray} = Lumenize.timeSeriesCalculator(snapshotArray, config)
@@ -95,7 +95,7 @@ config.derivedFields = [
   }
 ]
 
-config.aggregationSpec = [
+config.aggregationConfig = [
   {"as": "scope", "f": "$sum", "field": "PlanEstimate"},
   {"as": "accepted", "f": "$sum", "field": "accepted"}
 ]

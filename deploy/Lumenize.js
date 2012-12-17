@@ -4640,12 +4640,12 @@ However, Lumenize assumes the data is in the form of an "Array of Maps" like Ral
 
     snapshotArray = Lumenize.csvStyleArray_To_ArrayOfMaps(snapshotsCSVStyle)
 
-The `rangeSpec` defines the specification for the x-axis. Notice how you can exclude weekends and holidays. Here we
+The `timelineConfig` defines the specification for the x-axis. Notice how you can exclude weekends and holidays. Here we
 specify a `startOn` and a `endBefore`. However, it's fairly common in charts to specify `endBefore: "this day"` and
 `limit: 60` (no `startOn`). A number of human readable dates like `"next month"` or `"previous week"` are supported. You
 need to specify any 2 of startOn, endBefore, or limit.
 
-    rangeSpec = {
+    timelineConfig = {
       startOn: "2011-01-02"
       endBefore: "2011-01-08",
       workDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],  # Also supports "Monday, Tuesday, ..."
@@ -4670,11 +4670,11 @@ to the table. Simply specify a name and a callback function "f".
       }
     ]
 
-The `aggregationSpec` supports a number of functions including sum, count, addToSet, standardDeviation,
+The `aggregationConfig` supports a number of functions including sum, count, addToSet, standardDeviation,
 p50 (for median), and p?? (for any quartile/percentile). It will also allow you to specify a callback function
 like in derivedFields above if none of the built-in functions serves.
 
-    aggregationSpec = [
+    aggregationConfig = [
       {"as": "scope", "f": "count", "field": "ObjectID"},
       {"as": "accepted", "f": "sum", "field": "accepted"}
     ]
@@ -4690,13 +4690,13 @@ the timezone of your choosing.
       snapshotValidToField: '_ValidTo',
       snapshotUniqueID: 'ObjectID',
       timezone: 'America/New_York',
-      rangeSpec: rangeSpec,
+      timelineConfig: timelineConfig,
       derivedFields: derivedFields,
-      aggregationSpec: aggregationSpec
+      aggregationConfig: aggregationConfig
     }
 
 Next, we call `Lumenize.timeSeriesCalculator` with the snapshots as well as the config object that we just built.
-It will calculate the time-series data according to our specifications. It returns two values. A list of ChartTime
+It will calculate the time-series data according to our specifications. It returns two values. A list of Time
 objects specifying the x-axis (`listOfAtCTs`) and our calculations (`aggregationAtArray`).
 
     {listOfAtCTs, aggregationAtArray} = Lumenize.timeSeriesCalculator(snapshotArray, config)
@@ -4725,7 +4725,7 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
       }
     ]
 
-    config.aggregationSpec = [
+    config.aggregationConfig = [
       {"as": "scope", "f": "sum", "field": "PlanEstimate"},
       {"as": "accepted", "f": "sum", "field": "accepted"}
     ]
@@ -4743,17 +4743,17 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
 
 
 (function() {
-  var aggregate, chartTimeIteratorAndRange, datatransform, derive;
+  var Timeline, aggregate, datatransform, derive;
 
-  exports.ChartTime = require('./src/ChartTime').ChartTime;
+  exports.Time = require('./src/Time').Time;
 
-  chartTimeIteratorAndRange = require('./src/ChartTimeIteratorAndRange');
+  Timeline = require('./src/Timeline');
 
-  exports.ChartTimeIterator = chartTimeIteratorAndRange.ChartTimeIterator;
+  exports.TimelineIterator = Timeline.TimelineIterator;
 
-  exports.ChartTimeRange = chartTimeIteratorAndRange.ChartTimeRange;
+  exports.Timeline = Timeline.Timeline;
 
-  exports.ChartTimeInStateCalculator = require('./src/ChartTimeInStateCalculator').ChartTimeInStateCalculator;
+  exports.TimeInStateCalculator = require('./src/TimeInStateCalculator').TimeInStateCalculator;
 
   datatransform = require('./src/dataTransform');
 
@@ -4775,8 +4775,6 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
 
   exports.groupByAt = aggregate.groupByAt;
 
-  exports.percentileCreator = aggregate.percentileCreator;
-
   exports.timeSeriesCalculator = aggregate.timeSeriesCalculator;
 
   exports.timeSeriesGroupByCalculator = aggregate.timeSeriesGroupByCalculator;
@@ -4795,26 +4793,26 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
 
 });
 
-require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var ChartTime, timezoneJS, utils,
+require.define("/src/Time.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var Time, timezoneJS, utils,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   utils = require('./utils');
 
   timezoneJS = require('./timezone-js.js').timezoneJS;
 
-  ChartTime = (function() {
+  Time = (function() {
     /*
-      @class ChartTime
-      # ChartTime #
+      @class Time
+      # Time #
       
       _Time axis creation/manipulation for charts_
       
       ## Features ##
       
       * Generate the values for time series chart axis
-      * Knockout weekends and holidays (ChartTimeIterator)
-      * Knockout non-work hours (ChartTimeIterator)
+      * Knockout weekends and holidays (TimelineIterator)
+      * Knockout non-work hours (TimelineIterator)
       * Work with precision around timezone differences
       * Month is 1-indexed (rather than 0-indexed like Javascript's Date object)
       * Date/Time math (add 3 months, subtract 2 weeks, etc.)
@@ -4827,12 +4825,12 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       
       ## Granularity ##
       
-      Each ChartTime object has a granularity. This means that you never have to
+      Each Time object has a granularity. This means that you never have to
       worry about any bits lower than your specified granularity. A day has only
       year, month, and day segments. You are never tempted to specify 11:59pm
       to specify the end of a day-long timebox.
       
-      ChartTime supports the following granularities:
+      Time supports the following granularities:
       
       * `year`
           * `month`
@@ -4868,20 +4866,20 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       Do you know when Daylight Savings Time kicks in and New York is 4 hours shifted from GMT instead of 5? Will
       you remember to do it perfectly every time it's needed in your code?
       
-      If you need this precision, ChartTime helps by clearly delineating the moment when you need to do 
+      If you need this precision, Time helps by clearly delineating the moment when you need to do
       timezone manipulation... the moment you need to compare/query timestamped data. You can do all of your
       holiday/weekend knockout manipulation without regard to timezone and only consider the timezone
       upon query submission or comparison.
       
       ## Month is 1-indexed as you would expect ##
       
-      Javascript's date object uses 0 for January and 11 for December. ChartTime uses 1 for January and 12 for December...
+      Javascript's date object uses 0 for January and 11 for December. Time uses 1 for January and 12 for December...
       which is what ISO-8601 uses and what humans expect. Everyone who works with the javascript Date Object at one
       point or another gets burned by this.
       
       ## Week support ##
       
-      ChartTime follows ISO-8601 week support where ever it makes sense. Implications of using this ISO format (paraphrased
+      Time follows ISO-8601 week support where ever it makes sense. Implications of using this ISO format (paraphrased
       info from wikipedia):
       
       * All weeks have 7 days (i.e. there are no fractional weeks).
@@ -4897,33 +4895,33 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       **In general, it just greatly simplifies the use of week granularity in a chart situation.**
       
       The only real downside to this approach is that USA folks expect the week to start on Sunday. However, the ISO-8601 spec starts
-      each week on Monday. Following ISO-8601, ChartTime uses 1 for Monday and 7 for Sunday which aligns with
+      each week on Monday. Following ISO-8601, Time uses 1 for Monday and 7 for Sunday which aligns with
       the US standard for every day except Sunday. The US standard is to use 0 for Sunday.
       
       ## Basic usage ##
       
-          {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
+          {TimelineIterator, Timeline, Time} = require('../')
     
-      Get ChartTime objects relative to now.
+      Get Time objects relative to now.
       
-          d = new ChartTime('this millisecond in Pacific/Fiji')
-          d = new ChartTime('previous week')
-          d = new ChartTime('next month')
+          d = new Time('this millisecond in Pacific/Fiji')
+          d = new Time('previous week')
+          d = new Time('next month')
           
       Spell it all out with a JavaScript object
     
-          d1 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 2, day: 28})
+          d1 = new Time({granularity: Time.DAY, year: 2011, month: 2, day: 28})
           console.log(d1.toString())
           # 2011-02-28
           
       You can use the string short-hand rather than spell out the segments separately. The granularity
       is automatically inferred from how many segments you provide.
       
-          d2 = new ChartTime('2011-03-01')
+          d2 = new Time('2011-03-01')
           console.log(d2.toString())
           # 2011-03-01
           
-      Increment/decrement and compare ChartTimes without regard to timezone
+      Increment/decrement and compare Times without regard to timezone
       
           console.log(d1.greaterThanOrEqual(d2))
           d1.increment()
@@ -4957,49 +4955,49 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           
       Deals well with year-granularity math and leap year complexity.
       
-          d4 = new ChartTime('2004-02-29')  # leap day
+          d4 = new Time('2004-02-29')  # leap day
           d4.addInPlace(1, 'year')  # adding a year takes us to a non-leap year
           console.log(d4.toString())
           # 2005-02-28
           
       Week granularity correctly wraps and deals with 53-week years.
       
-          w1 = new ChartTime('2004W53-6')
-          console.log(w1.inGranularity(ChartTime.DAY).toString())
+          w1 = new Time('2004W53-6')
+          console.log(w1.inGranularity(Time.DAY).toString())
           # 2005-01-01
           
       Convert between any of the standard granularities. Also converts custom granularities (not shown) to
       standard granularities if you provide a `rataDieNumber()` function with your custom granularities.
       
-          d5 = new ChartTime('2005-01-01')  # goes the other direction also
+          d5 = new Time('2005-01-01')  # goes the other direction also
           console.log(d5.inGranularity('week_day').toString())
           # 2004W53-6
           
-          q1 = new ChartTime('2011Q3')
-          console.log(q1.inGranularity(ChartTime.MILLISECOND).toString())
+          q1 = new Time('2011Q3')
+          console.log(q1.inGranularity(Time.MILLISECOND).toString())
           # 2011-07-01T00:00:00.000
           
       ## Timezones ##
       
-      ChartTime does timezone sensitive conversions. You must set the path to the tz files before doing any timezone sensitive comparisons.
+      Time does timezone sensitive conversions. You must set the path to the tz files before doing any timezone sensitive comparisons.
       Note, if you are using one of the pre-packaged Lumenize.js or Lumenize-min.js, then you can supply any string in this call. It will
       ignore what you provide and load the time zone data from the files included in the package. We would like to remove the requirement
       for this initialization when running one of these packages, but for now, you still need the dummy call.
       
-          console.log(new ChartTime('2011-01-01').getJSDate('America/Denver').toUTCString())
+          console.log(new Time('2011-01-01').getJSDate('America/Denver').toUTCString())
           # Sat, 01 Jan 2011 07:00:00 GMT
     */
 
     var g, spec, _ref;
 
-    function ChartTime(value, granularity, tz) {
+    function Time(value, granularity, tz) {
       /*
           @constructor
           @param {Object/Number/Date/String} value
           @param {String} [granularity]
           @param {String} [tz]
       
-          The constructor for ChartTime supports the passing in of a String, a rata die number (RDN), or a spec Object
+          The constructor for Time supports the passing in of a String, a rata die number (RDN), or a config Object
           
           ## String ##
           
@@ -5023,79 +5021,79 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           
           ## ISO-8601 or custom masked ##
           
-          When you pass in an ISO-8601 or custom mask string, ChartTime uses the masks that are defined for each granularity to figure out the granularity...
+          When you pass in an ISO-8601 or custom mask string, Time uses the masks that are defined for each granularity to figure out the granularity...
           unless you explicitly provide a granularity. This parser does not work on all valid ISO-8601 forms. Ordinal dates (`"2012-288"`)
           are not supported but week number form (`"2009W52-7"`) is supported. The canonical form (`"2009-01-01T12:34:56.789"`) will 
           work as will any shortened subset of it (`"2009-01-01"`, `"2009-01-01T12:34"`, etc.). We've added a form for Quarter
           granularity (`"2009Q4"`). Plus it will even parse strings in whatever custom granularity you provide based
           upon the mask that you provide for that granularity.
           
-          If the granularity is specified but not all of the segments are provided, ChartTime will fill in the missing value 
+          If the granularity is specified but not all of the segments are provided, Time will fill in the missing value
           with the `lowest` value from _granularitySpecs.
           
           The Lumenize hierarchy tools rely upon the property that a single character is used between segments so the ISO forms that 
           omit the delimiters are not supported.
           
-          If the string has a timezone indicator on the end (`...+05:00` or `...Z`), ChartTime will ignore it. Timezone information
+          If the string has a timezone indicator on the end (`...+05:00` or `...Z`), Time will ignore it. Timezone information
           is intended to only be used for comparison (see examples for timezone comparison).
           
           There are two special Strings that are recognized: `BEFORE_FIRST` and `PAST_LAST`. You must provide a granularity if you
-          are instantiating a ChartTime with these values. They are primarily used for custom granularities where your users
+          are instantiating a Time with these values. They are primarily used for custom granularities where your users
           may mistakenly request charts for iterations and releases that have not yet been defined. They are particularly useful when 
           you want to iterate to the last defined iteration/release.
       
           ## Rata Die Number ##
           
           The **rata die number (RDN)** for a date is the number of days since 0001-01-01. You will probably never work
-          directly with this number but it's what ChartTime uses to convert between granularities. When you are instantiating
-          a ChartTime from an RDN, you must provide a granularity. Using RDN will work even for the granularities finer than day.
-          ChartTime will populate the finer grained segments (hour, minute, etc.) with the approriate `lowest` value.
+          directly with this number but it's what Time uses to convert between granularities. When you are instantiating
+          a Time from an RDN, you must provide a granularity. Using RDN will work even for the granularities finer than day.
+          Time will populate the finer grained segments (hour, minute, etc.) with the approriate `lowest` value.
       
           ## Date ##
           
           You can also pass in a JavaScript Date() Object. The passing in of a tz with this option doesn't make sense. You'll end
-          up with the same ChartTime value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
-          option is even really useful. In most cases, you are probably better off using ChartTime.getISOStringFromJSDate()
+          up with the same Time value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
+          option is even really useful. In most cases, you are probably better off using Time.getISOStringFromJSDate()
           
-          ## Spec ##
+          ## Config ##
           
-          You can also explicitly spell out the segments in a **spec** Object in the form of 
-          `{granularity: ChartTime.DAY, year: 2009, month: 1, day: 1}`. If the granularity is specified but not all of the segments are
-          provided, ChartTime will fill in the missing value with the appropriate `lowest` value from _granularitySpecs.
+          You can also explicitly spell out the segments in a **config** Object in the form of
+          `{granularity: Time.DAY, year: 2009, month: 1, day: 1}`. If the granularity is specified but not all of the segments are
+          provided, Time will fill in the missing value with the appropriate `lowest` value from _granularitySpecs.
           
           ## granularity ##
           
-          If you provide a granularity it will take precedence over whatever fields you've provided in your spec or whatever segments
-          you have provided in your string. ChartTime will leave off extra values and fill in missing ones with the appropriate `lowest`
+          If you provide a granularity it will take precedence over whatever fields you've provided in your config or whatever segments
+          you have provided in your string. Time will leave off extra values and fill in missing ones with the appropriate `lowest`
           value.
           
           ## tz ##
           
-          Most of the time, ChartTime assumes that any dates you pass in are timezone less. You'll specify Christmas as 12-25, then you'll
+          Most of the time, Time assumes that any dates you pass in are timezone less. You'll specify Christmas as 12-25, then you'll
           shift the boundaries of Christmas for a specific timezone for boundary comparison.
           
-          However, if you provide a tz parameter to this constructor, ChartTime will assume you are passing in a true GMT date/time and shift into 
+          However, if you provide a tz parameter to this constructor, Time will assume you are passing in a true GMT date/time and shift into
           the provided timezone. So...
           
-              d = new ChartTime('2011-01-01T02:00:00:00.000Z', ChartTime.DAY, 'America/New_York')
+              d = new Time('2011-01-01T02:00:00:00.000Z', Time.DAY, 'America/New_York')
               console.log(d.toString())
               # 2010-12-31
               
           Rule of thumb on when you want to use timezones:
           
-          1. If you have true GMT date/times and you want to create a ChartTime, provide the timezone to this constructor.
+          1. If you have true GMT date/times and you want to create a Time, provide the timezone to this constructor.
           2. If you have abstract days like Christmas or June 10th and you want to delay the timezone consideration, don't provide a timezone to this constructor.
-          3. In either case, if the dates you want to compare to are in GMT, but you've got ChartTimes or ChartTimeRanges, you'll have to provide a timezone on
-             the way back out of ChartTime/ChartTimeRange
+          3. In either case, if the dates you want to compare to are in GMT, but you've got Times or Timelines, you'll have to provide a timezone on
+             the way back out of Time/Timeline
       */
 
-      var jsDate, newCT, newSpec, rdn, s, spec, _ref;
+      var config, jsDate, newCT, newConfig, rdn, s, _ref;
       this.beforePastFlag = '';
       switch (utils.type(value)) {
         case 'string':
           s = value;
           if (tz != null) {
-            newCT = new ChartTime(s, 'millisecond');
+            newCT = new Time(s, 'millisecond');
             jsDate = newCT.getJSDateFromGMTInTZ(tz);
           } else {
             this._setFromString(s, granularity);
@@ -5104,7 +5102,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         case 'number':
           rdn = value;
           if (tz != null) {
-            newCT = new ChartTime(rdn, 'millisecond');
+            newCT = new Time(rdn, 'millisecond');
             jsDate = newCT.getJSDateFromGMTInTZ(tz);
           } else {
             this._setFromRDN(rdn, granularity);
@@ -5113,7 +5111,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         case 'date':
           jsDate = value;
           if (tz != null) {
-            newCT = new ChartTime(jsDate, 'millisecond');
+            newCT = new Time(jsDate, 'millisecond');
             jsDate = newCT.getJSDateFromGMTInTZ(tz);
           }
           if (tz == null) {
@@ -5121,13 +5119,13 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           }
           break;
         case 'object':
-          spec = value;
+          config = value;
           if (tz != null) {
-            spec.granularity = 'millisecond';
-            newCT = new ChartTime(spec);
+            config.granularity = 'millisecond';
+            newCT = new Time(config);
             jsDate = newCT.getJSDateFromGMTInTZ(tz);
           } else {
-            this._setFromSpec(spec);
+            this._setFromConfig(config);
           }
       }
       if (tz != null) {
@@ -5140,7 +5138,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         if (this.granularity == null) {
           this.granularity = 'millisecond';
         }
-        newSpec = {
+        newConfig = {
           year: jsDate.getUTCFullYear(),
           month: jsDate.getUTCMonth() + 1,
           day: jsDate.getUTCDate(),
@@ -5150,17 +5148,17 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           millisecond: jsDate.getUTCMilliseconds(),
           granularity: 'millisecond'
         };
-        newCT = new ChartTime(newSpec).inGranularity(this.granularity);
-        this._setFromSpec(newCT);
+        newCT = new Time(newConfig).inGranularity(this.granularity);
+        this._setFromConfig(newCT);
       }
       this._inBoundsCheck();
       this._overUnderFlow();
     }
 
     /*
-      `_granularitySpecs` is a static object that is used to tell ChartTime what to do with particular granularties. You can think of
-      each entry in it as a sort of sub-class of ChartTime. In that sense ChartTime is really a factory generating ChartTime objects
-      of type granularity. When custom timebox granularities are added to ChartTime by `ChartTime.addGranularity()`, it adds to this
+      `_granularitySpecs` is a static object that is used to tell Time what to do with particular granularties. You can think of
+      each entry in it as a sort of sub-class of Time. In that sense Time is really a factory generating Time objects
+      of type granularity. When custom timebox granularities are added to Time by `Time.addGranularity()`, it adds to this
       `_granularitySpecs` object.
     
       Each entry in `_granularitySpecs` has the following:
@@ -5172,9 +5170,9 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
     */
 
 
-    ChartTime._granularitySpecs = {};
+    Time._granularitySpecs = {};
 
-    ChartTime._granularitySpecs['millisecond'] = {
+    Time._granularitySpecs['millisecond'] = {
       segments: ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'],
       mask: '####-##-##T##:##:##.###',
       lowest: 0,
@@ -5183,7 +5181,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime._granularitySpecs['second'] = {
+    Time._granularitySpecs['second'] = {
       segments: ['year', 'month', 'day', 'hour', 'minute', 'second'],
       mask: '####-##-##T##:##:##',
       lowest: 0,
@@ -5192,7 +5190,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime._granularitySpecs['minute'] = {
+    Time._granularitySpecs['minute'] = {
       segments: ['year', 'month', 'day', 'hour', 'minute'],
       mask: '####-##-##T##:##',
       lowest: 0,
@@ -5201,7 +5199,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime._granularitySpecs['hour'] = {
+    Time._granularitySpecs['hour'] = {
       segments: ['year', 'month', 'day', 'hour'],
       mask: '####-##-##T##',
       lowest: 0,
@@ -5210,7 +5208,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime._granularitySpecs['day'] = {
+    Time._granularitySpecs['day'] = {
       segments: ['year', 'month', 'day'],
       mask: '####-##-##',
       lowest: 1,
@@ -5219,7 +5217,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime._granularitySpecs['month'] = {
+    Time._granularitySpecs['month'] = {
       segments: ['year', 'month'],
       mask: '####-##',
       lowest: 1,
@@ -5228,7 +5226,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime._granularitySpecs['year'] = {
+    Time._granularitySpecs['year'] = {
       segments: ['year'],
       mask: '####',
       lowest: 1,
@@ -5237,7 +5235,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime._granularitySpecs['week'] = {
+    Time._granularitySpecs['week'] = {
       segments: ['year', 'week'],
       mask: '####W##',
       lowest: 1,
@@ -5250,7 +5248,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime._granularitySpecs['week_day'] = {
+    Time._granularitySpecs['week_day'] = {
       segments: ['year', 'week', 'week_day'],
       mask: '####W##-#',
       lowest: 1,
@@ -5259,7 +5257,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime._granularitySpecs['quarter'] = {
+    Time._granularitySpecs['quarter'] = {
       segments: ['year', 'quarter'],
       mask: '####Q#',
       lowest: 1,
@@ -5268,7 +5266,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime._expandMask = function(granularitySpec) {
+    Time._expandMask = function(granularitySpec) {
       var character, i, mask, segmentEnd;
       mask = granularitySpec.mask;
       if (mask != null) {
@@ -5299,25 +5297,25 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    _ref = ChartTime._granularitySpecs;
+    _ref = Time._granularitySpecs;
     for (g in _ref) {
       spec = _ref[g];
-      ChartTime._expandMask(spec);
-      ChartTime[g.toUpperCase()] = g;
+      Time._expandMask(spec);
+      Time[g.toUpperCase()] = g;
     }
 
     timezoneJS.timezone.zoneFileBasePath = '../files/tz';
 
     timezoneJS.timezone.init();
 
-    ChartTime.prototype._inBoundsCheck = function() {
+    Time.prototype._inBoundsCheck = function() {
       var gs, lowest, rolloverValue, segment, segments, temp, _i, _len, _results;
       if (this.beforePastFlag === '' || !(this.beforePastFlag != null)) {
-        segments = ChartTime._granularitySpecs[this.granularity].segments;
+        segments = Time._granularitySpecs[this.granularity].segments;
         _results = [];
         for (_i = 0, _len = segments.length; _i < _len; _i++) {
           segment = segments[_i];
-          gs = ChartTime._granularitySpecs[segment];
+          gs = Time._granularitySpecs[segment];
           temp = this[segment];
           lowest = gs.lowest;
           rolloverValue = gs.rolloverValue(this);
@@ -5339,25 +5337,25 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype._setFromSpec = function(spec) {
+    Time.prototype._setFromConfig = function(config) {
       var segment, segments, _i, _len, _results;
-      utils.assert(spec.granularity != null, 'A granularity property must be part of the supplied spec.');
-      this.granularity = spec.granularity;
-      this.beforePastFlag = spec.beforePastFlag != null ? spec.beforePastFlag : '';
-      segments = ChartTime._granularitySpecs[this.granularity].segments;
+      utils.assert(config.granularity != null, 'A granularity property must be part of the supplied config.');
+      this.granularity = config.granularity;
+      this.beforePastFlag = config.beforePastFlag != null ? config.beforePastFlag : '';
+      segments = Time._granularitySpecs[this.granularity].segments;
       _results = [];
       for (_i = 0, _len = segments.length; _i < _len; _i++) {
         segment = segments[_i];
-        if (spec[segment] != null) {
-          _results.push(this[segment] = spec[segment]);
+        if (config[segment] != null) {
+          _results.push(this[segment] = config[segment]);
         } else {
-          _results.push(this[segment] = ChartTime._granularitySpecs[segment].lowest);
+          _results.push(this[segment] = Time._granularitySpecs[segment].lowest);
         }
       }
       return _results;
     };
 
-    ChartTime.prototype._setFromString = function(s, granularity) {
+    Time.prototype._setFromString = function(s, granularity) {
       var gs, l, sSplit, segment, segments, stillParsing, sub, tz, zuluCT, _i, _len, _ref1, _ref2, _ref3, _results;
       if (s.slice(-3, -2) === ':' && (_ref1 = s.slice(-6, -5), __indexOf.call('+-', _ref1) >= 0)) {
         s = s.slice(0, -6);
@@ -5381,8 +5379,8 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         } else {
           tz = void 0;
         }
-        zuluCT = new ChartTime(new Date(), sSplit[1], tz);
-        this._setFromSpec(zuluCT);
+        zuluCT = new Time(new Date(), sSplit[1], tz);
+        this._setFromConfig(zuluCT);
         if (sSplit[0] === 'next') {
           this.increment();
         } else if (sSplit[0] === 'previous') {
@@ -5390,7 +5388,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         }
         return;
       }
-      _ref3 = ChartTime._granularitySpecs;
+      _ref3 = Time._granularitySpecs;
       for (g in _ref3) {
         spec = _ref3[g];
         if (spec.segmentStart + spec.segmentLength === s.length || spec.mask.indexOf('#') < 0) {
@@ -5404,15 +5402,15 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         throw new Error("Error parsing string '" + s + "'. Couldn't identify granularity.");
       }
       this.granularity = granularity;
-      segments = ChartTime._granularitySpecs[this.granularity].segments;
+      segments = Time._granularitySpecs[this.granularity].segments;
       stillParsing = true;
       _results = [];
       for (_i = 0, _len = segments.length; _i < _len; _i++) {
         segment = segments[_i];
         if (stillParsing) {
-          gs = ChartTime._granularitySpecs[segment];
+          gs = Time._granularitySpecs[segment];
           l = gs.segmentLength;
-          sub = ChartTime._getStringPart(s, segment);
+          sub = Time._getStringPart(s, segment);
           if (sub.length !== l) {
             stillParsing = false;
           }
@@ -5420,24 +5418,24 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         if (stillParsing) {
           _results.push(this[segment] = Number(sub));
         } else {
-          _results.push(this[segment] = ChartTime._granularitySpecs[segment].lowest);
+          _results.push(this[segment] = Time._granularitySpecs[segment].lowest);
         }
       }
       return _results;
     };
 
-    ChartTime._getStringPart = function(s, segment) {
+    Time._getStringPart = function(s, segment) {
       var l, st, sub;
-      spec = ChartTime._granularitySpecs[segment];
+      spec = Time._granularitySpecs[segment];
       l = spec.segmentLength;
       st = spec.segmentStart;
       sub = s.substr(st, l);
       return sub;
     };
 
-    ChartTime.prototype._setFromRDN = function(rdn, granularity) {
-      var J, a, afterCT, afterRDN, b, beforeCT, beforeRDN, c, d, da, db, dc, dg, granularitySpec, j, m, n, segment, specForLowest, w, x, y, z, _i, _len, _ref1;
-      spec = {
+    Time.prototype._setFromRDN = function(rdn, granularity) {
+      var J, a, afterCT, afterRDN, b, beforeCT, beforeRDN, c, config, d, da, db, dc, dg, granularitySpec, j, m, n, segment, specForLowest, w, x, y, z, _i, _len, _ref1;
+      config = {
         granularity: granularity
       };
       utils.assert(granularity != null, "Must provide a granularity when constructing with a Rata Die Number.");
@@ -5454,10 +5452,10 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           x = w * 28 + [15, 23, 3, 11][c];
           y = Math.floor(x / 1461);
           w = x % 1461;
-          spec['year'] = y + n * 400 + c * 100 + 1;
-          spec['week'] = Math.floor(w / 28) + 1;
-          spec['week_day'] = d + 1;
-          return this._setFromSpec(spec);
+          config['year'] = y + n * 400 + c * 100 + 1;
+          config['week'] = Math.floor(w / 28) + 1;
+          config['week_day'] = d + 1;
+          return this._setFromConfig(config);
         case 'year':
         case 'month':
         case 'day':
@@ -5479,22 +5477,22 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           y = g * 400 + c * 100 + b * 4 + a;
           m = Math.floor((da * 5 + 308) / 153) - 2;
           d = da - Math.floor((m + 4) * 153 / 5) + 122;
-          spec['year'] = y - 4800 + Math.floor((m + 2) / 12);
-          spec['month'] = (m + 2) % 12 + 1;
-          spec['day'] = Math.floor(d) + 1;
-          spec['quarter'] = Math.floor((spec.month - 1) / 3) + 1;
-          return this._setFromSpec(spec);
+          config['year'] = y - 4800 + Math.floor((m + 2) / 12);
+          config['month'] = (m + 2) % 12 + 1;
+          config['day'] = Math.floor(d) + 1;
+          config['quarter'] = Math.floor((config.month - 1) / 3) + 1;
+          return this._setFromConfig(config);
         default:
-          granularitySpec = ChartTime._granularitySpecs[granularity];
+          granularitySpec = Time._granularitySpecs[granularity];
           specForLowest = {
             granularity: granularity
           };
           _ref1 = granularitySpec.segments;
           for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
             segment = _ref1[_i];
-            specForLowest[segment] = ChartTime._granularitySpecs[segment].lowest;
+            specForLowest[segment] = Time._granularitySpecs[segment].lowest;
           }
-          beforeCT = new ChartTime(specForLowest);
+          beforeCT = new Time(specForLowest);
           beforeRDN = beforeCT.rataDieNumber();
           afterCT = beforeCT.add(1);
           afterRDN = afterCT.rataDieNumber();
@@ -5504,7 +5502,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           }
           while (true) {
             if (rdn < afterRDN && rdn >= beforeRDN) {
-              this._setFromSpec(beforeCT);
+              this._setFromConfig(beforeCT);
               return;
             }
             beforeCT = afterCT;
@@ -5512,12 +5510,12 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
             afterCT = beforeCT.add(1);
             afterRDN = afterCT.rataDieNumber();
             if (afterCT.beforePastFlag === 'PAST_LAST') {
-              if (rdn >= ChartTime._granularitySpecs[beforeCT.granularity].endBeforeDay.rataDieNumber()) {
-                this._setFromSpec(afterCT);
+              if (rdn >= Time._granularitySpecs[beforeCT.granularity].endBeforeDay.rataDieNumber()) {
+                this._setFromConfig(afterCT);
                 this.beforePastFlag === 'PAST_LAST';
                 return;
               } else if (rdn >= beforeRDN) {
-                this._setFromSpec(beforeCT);
+                this._setFromConfig(beforeCT);
                 return;
               } else {
                 throw new Error("RDN: " + rdn + " seems to be out of range for " + granularity);
@@ -5528,15 +5526,15 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype._isGranularityCoarserThanDay = function() {
+    Time.prototype._isGranularityCoarserThanDay = function() {
       /*
           @method granularityAboveDay
           @private
-          @return {Boolean} true if the ChartTime Object's granularity is above (coarser than) "day" level
+          @return {Boolean} true if the Time Object's granularity is above (coarser than) "day" level
       */
 
       var segment, _i, _len, _ref1;
-      _ref1 = ChartTime._granularitySpecs[this.granularity].segments;
+      _ref1 = Time._granularitySpecs[this.granularity].segments;
       for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
         segment = _ref1[_i];
         if (segment.indexOf('day') >= 0) {
@@ -5546,14 +5544,14 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return true;
     };
 
-    ChartTime.prototype.getJSDate = function(tz) {
+    Time.prototype.getJSDate = function(tz) {
       /*
           @method getJSDate
           @param {String} tz
           @return {Date}
       
           Returns a JavaScript Date Object properly shifted. This Date Object can be compared to other Date Objects that you know
-          are already in the desired timezone. If you have data that comes from an API in GMT. You can first create a ChartTime object from
+          are already in the desired timezone. If you have data that comes from an API in GMT. You can first create a Time object from
           it and then (using this getJSDate() function) you can compare it to JavaScript Date Objects created in local time.
           
           The full name of this function should be getJSDateInGMTasummingThisCTDateIsInTimezone(tz). It converts **TO** GMT 
@@ -5562,13 +5560,13 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         
           ## Usage ##
           
-              ct = new ChartTime('2011-01-01')
+              ct = new Time('2011-01-01')
               d = new Date(Date.UTC(2011, 0, 1))
               
               console.log(ct.getJSDate('GMT').getTime() == d.getTime())
               # true
               
-              console.log(ct.inGranularity(ChartTime.HOUR).add(-5).getJSDate('America/New_York').getTime() == d.getTime())
+              console.log(ct.inGranularity(Time.HOUR).add(-5).getJSDate('America/New_York').getTime() == d.getTime())
               # true
       */
 
@@ -5588,23 +5586,23 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return newDate;
     };
 
-    ChartTime.prototype.getISOStringInTZ = function(tz) {
+    Time.prototype.getISOStringInTZ = function(tz) {
       /*
           @method getShiftedISOString
           @param {String} tz
           @return {String} The canonical ISO-8601 date in zulu representation but shifted to the specified tz
       
-              console.log(new ChartTime('2012-01-01').getISOStringInTZ('Europe/Berlin'))
+              console.log(new Time('2012-01-01').getISOStringInTZ('Europe/Berlin'))
               # 2011-12-31T23:00:00.000Z
       */
 
       var jsDate;
       utils.assert(tz != null, 'Must provide a timezone when calling getShiftedISOString');
       jsDate = this.getJSDate(tz);
-      return ChartTime.getISOStringFromJSDate(jsDate);
+      return Time.getISOStringFromJSDate(jsDate);
     };
 
-    ChartTime.getISOStringFromJSDate = function(jsDate) {
+    Time.getISOStringFromJSDate = function(jsDate) {
       /*
           @method getISOStringFromJSDate
           @static
@@ -5615,7 +5613,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           
           If you don't provide any parameters, it will return now, like `new Date()` except this is a zulu string.
       
-              console.log(ChartTime.getISOStringFromJSDate(new Date(0)))
+              console.log(Time.getISOStringFromJSDate(new Date(0)))
               # 1970-01-01T00:00:00.000Z
       */
 
@@ -5630,24 +5628,24 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       minute = jsDate.getUTCMinutes();
       second = jsDate.getUTCSeconds();
       millisecond = jsDate.getUTCMilliseconds();
-      s = ChartTime._pad(year, 4) + '-' + ChartTime._pad(month, 2) + '-' + ChartTime._pad(day, 2) + 'T' + ChartTime._pad(hour, 2) + ':' + ChartTime._pad(minute, 2) + ':' + ChartTime._pad(second, 2) + '.' + ChartTime._pad(millisecond, 3) + 'Z';
+      s = Time._pad(year, 4) + '-' + Time._pad(month, 2) + '-' + Time._pad(day, 2) + 'T' + Time._pad(hour, 2) + ':' + Time._pad(minute, 2) + ':' + Time._pad(second, 2) + '.' + Time._pad(millisecond, 3) + 'Z';
       return s;
     };
 
-    ChartTime.prototype.getJSDateFromGMTInTZ = function(tz) {
+    Time.prototype.getJSDateFromGMTInTZ = function(tz) {
       /*
           @method getJSDateInTZfromGMT
           @param {String} tz
           @return {Date}
       
-          This assumes that the ChartTime is an actual GMT date/time as opposed to some abstract day like Christmas and shifts
+          This assumes that the Time is an actual GMT date/time as opposed to some abstract day like Christmas and shifts
           it into the specified timezone.
           
           Note, this function will be off by an hour for the times near midnight on the days where there is a shift to/from daylight 
           savings time. The tz rules engine is designed to go in the other direction so we're mis-using it. This means we are using the wrong
           moment in rules-space for that hour. The cost of fixing this issue was deemed to high for chart applications.
       
-              console.log(new ChartTime('2012-01-01').getJSDateFromGMTInTZ('Europe/Berlin'))
+              console.log(new Time('2012-01-01').getJSDateFromGMTInTZ('Europe/Berlin'))
               # Sat Dec 31 2011 20:00:00 GMT-0500 (EST)
       */
 
@@ -5667,19 +5665,19 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return newDate;
     };
 
-    ChartTime.prototype.getSegmentsAsObject = function() {
+    Time.prototype.getSegmentsAsObject = function() {
       /*
           @method getSegmentsAsObject
           @return {Object} Returns a simple JavaScript Object containing the segments. This is useful when using utils.match
           for holiday comparison
       
-              t = new ChartTime('2011-01-10')
+              t = new Time('2011-01-10')
               console.log(t.getSegmentsAsObject())
               # { year: 2011, month: 1, day: 10 }
       */
 
       var rawObject, segment, segments, _i, _len;
-      segments = ChartTime._granularitySpecs[this.granularity].segments;
+      segments = Time._granularitySpecs[this.granularity].segments;
       rawObject = {};
       for (_i = 0, _len = segments.length; _i < _len; _i++) {
         segment = segments[_i];
@@ -5688,12 +5686,12 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return rawObject;
     };
 
-    ChartTime.prototype.toString = function() {
+    Time.prototype.toString = function() {
       /*
           @method toString
           @return {String} Uses granularity `mask` in _granularitySpecs to generate the string representation.
       
-              t = new ChartTime({year: 2012, month: 1, day: 1, granularity: ChartTime.MINUTE}).toString()
+              t = new Time({year: 2012, month: 1, day: 1, granularity: Time.MINUTE}).toString()
               console.log(t.toString())
               console.log(t)
               # 2012-01-01T00:00
@@ -5704,22 +5702,22 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       if ((_ref1 = this.beforePastFlag) === 'BEFORE_FIRST' || _ref1 === 'PAST_LAST') {
         s = "" + this.beforePastFlag;
       } else {
-        s = ChartTime._granularitySpecs[this.granularity].mask;
-        segments = ChartTime._granularitySpecs[this.granularity].segments;
+        s = Time._granularitySpecs[this.granularity].mask;
+        segments = Time._granularitySpecs[this.granularity].segments;
         for (_i = 0, _len = segments.length; _i < _len; _i++) {
           segment = segments[_i];
-          granularitySpec = ChartTime._granularitySpecs[segment];
+          granularitySpec = Time._granularitySpecs[segment];
           l = granularitySpec.segmentLength;
           start = granularitySpec.segmentStart;
           before = s.slice(0, start);
           after = s.slice(start + l);
-          s = before + ChartTime._pad(this[segment], l) + after;
+          s = before + Time._pad(this[segment], l) + after;
         }
       }
       return s;
     };
 
-    ChartTime._pad = function(n, l) {
+    Time._pad = function(n, l) {
       var result;
       result = n.toString();
       while (result.length < l) {
@@ -5728,7 +5726,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return result;
     };
 
-    ChartTime.DOW_N_TO_S_MAP = {
+    Time.DOW_N_TO_S_MAP = {
       0: 'Sunday',
       1: 'Monday',
       2: 'Tuesday',
@@ -5739,15 +5737,15 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       7: 'Sunday'
     };
 
-    ChartTime.DOW_MONTH_TABLE = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
+    Time.DOW_MONTH_TABLE = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
 
-    ChartTime.prototype.dowNumber = function() {
+    Time.prototype.dowNumber = function() {
       /*
           @method dowNumber
           @return {Number}
           Returns the day of the week as a number. Monday = 1, Sunday = 7
       
-              console.log(new ChartTime('2012-01-01').dowNumber())
+              console.log(new Time('2012-01-01').dowNumber())
               # 7
       */
 
@@ -5760,7 +5758,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         if (this.month < 3) {
           y--;
         }
-        dayNumber = (y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) + ChartTime.DOW_MONTH_TABLE[this.month - 1] + this.day) % 7;
+        dayNumber = (y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) + Time.DOW_MONTH_TABLE[this.month - 1] + this.day) % 7;
         if (dayNumber === 0) {
           return 7;
         } else {
@@ -5771,18 +5769,18 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype.dowString = function() {
+    Time.prototype.dowString = function() {
       /*
           @method dowString
           @return {String} Returns the day of the week as a String (e.g. "Monday")
       
-              console.log(new ChartTime('2012-01-01').dowString())
+              console.log(new Time('2012-01-01').dowString())
               # Sunday
       */
-      return ChartTime.DOW_N_TO_S_MAP[this.dowNumber()];
+      return Time.DOW_N_TO_S_MAP[this.dowNumber()];
     };
 
-    ChartTime.prototype.rataDieNumber = function() {
+    Time.prototype.rataDieNumber = function() {
       /*
           @method rataDieNumber
           @return {Number} Returns the counting number for days starting with 0001-01-01 (i.e. 0 AD). Note, this differs
@@ -5790,11 +5788,11 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           granularities finer than day (hour, minute, second, millisecond) but ignores the segments of finer granularity than
           day. Also called common era days.
       
-              console.log(new ChartTime('0001-01-01').rataDieNumber())
+              console.log(new Time('0001-01-01').rataDieNumber())
               # 1
       
-              rdn2012 = new ChartTime('2012-01-01').rataDieNumber()
-              rdn1970 = new ChartTime('1970-01-01').rataDieNumber()
+              rdn2012 = new Time('2012-01-01').rataDieNumber()
+              rdn1970 = new Time('1970-01-01').rataDieNumber()
               ms1970To2012 = (rdn2012 - rdn1970) * 24 * 60 * 60 * 1000
               msJSDate2012 = Number(new Date('2012-01-01'))
               console.log(ms1970To2012 == msJSDate2012)
@@ -5806,8 +5804,8 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         return -1;
       } else if (this.beforePastFlag === 'PAST_LAST') {
         return utils.MAX_INT;
-      } else if (ChartTime._granularitySpecs[this.granularity].rataDieNumber != null) {
-        return ChartTime._granularitySpecs[this.granularity].rataDieNumber(this);
+      } else if (Time._granularitySpecs[this.granularity].rataDieNumber != null) {
+        return Time._granularitySpecs[this.granularity].rataDieNumber(this);
       } else {
         y = this.year - 1;
         yearDays = y * 365 + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400);
@@ -5845,40 +5843,40 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype.inGranularity = function(granularity) {
+    Time.prototype.inGranularity = function(granularity) {
       /*
           @method inGranularity
           @param {String} granularity
-          @return {ChartTime} Returns a new ChartTime object for the same date-time as this object but in the specified granularity.
+          @return {Time} Returns a new Time object for the same date-time as this object but in the specified granularity.
           Fills in missing finer granularity segments with `lowest` values. Drops segments when convernting to a coarser
           granularity.
       
-              console.log(new ChartTime('2012W01-1').inGranularity(ChartTime.DAY).toString())
+              console.log(new Time('2012W01-1').inGranularity(Time.DAY).toString())
               # 2012-01-02
       
-              console.log(new ChartTime('2012Q3').inGranularity(ChartTime.MONTH).toString())
+              console.log(new Time('2012Q3').inGranularity(Time.MONTH).toString())
               # 2012-07
       */
 
-      var newChartTime, tempGranularity, _ref1;
+      var newTime, tempGranularity, _ref1;
       if ((_ref1 = this.granularity) === 'year' || _ref1 === 'month' || _ref1 === 'day' || _ref1 === 'hour' || _ref1 === 'minute' || _ref1 === 'second' || _ref1 === 'millisecond') {
         if (granularity === 'year' || granularity === 'month' || granularity === 'day' || granularity === 'hour' || granularity === 'minute' || granularity === 'second' || granularity === 'millisecond') {
           tempGranularity = this.granularity;
           this.granularity = granularity;
-          newChartTime = new ChartTime(this);
+          newTime = new Time(this);
           this.granularity = tempGranularity;
-          return newChartTime;
+          return newTime;
         }
       }
-      return new ChartTime(this.rataDieNumber(), granularity);
+      return new Time(this.rataDieNumber(), granularity);
     };
 
-    ChartTime.prototype.daysInMonth = function() {
+    Time.prototype.daysInMonth = function() {
       /*
           @method daysInMonth
-          @return {Number} Returns the number of days in the current month for this ChartTime
+          @return {Number} Returns the number of days in the current month for this Time
       
-              console.log(new ChartTime('2012-02').daysInMonth())
+              console.log(new Time('2012-02').daysInMonth())
               # 29
       */
       switch (this.month) {
@@ -5905,12 +5903,12 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype.isLeapYear = function() {
+    Time.prototype.isLeapYear = function() {
       /*
           @method isLeapYear
           @return {Boolean} true if this is a leap year
       
-              console.log(new ChartTime('2012').isLeapYear())
+              console.log(new Time('2012').isLeapYear())
               # true
       */
       if (this.year % 4 === 0) {
@@ -5928,30 +5926,30 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.YEARS_WITH_53_WEEKS = [4, 9, 15, 20, 26, 32, 37, 43, 48, 54, 60, 65, 71, 76, 82, 88, 93, 99, 105, 111, 116, 122, 128, 133, 139, 144, 150, 156, 161, 167, 172, 178, 184, 189, 195, 201, 207, 212, 218, 224, 229, 235, 240, 246, 252, 257, 263, 268, 274, 280, 285, 291, 296, 303, 308, 314, 320, 325, 331, 336, 342, 348, 353, 359, 364, 370, 376, 381, 387, 392, 398];
+    Time.YEARS_WITH_53_WEEKS = [4, 9, 15, 20, 26, 32, 37, 43, 48, 54, 60, 65, 71, 76, 82, 88, 93, 99, 105, 111, 116, 122, 128, 133, 139, 144, 150, 156, 161, 167, 172, 178, 184, 189, 195, 201, 207, 212, 218, 224, 229, 235, 240, 246, 252, 257, 263, 268, 274, 280, 285, 291, 296, 303, 308, 314, 320, 325, 331, 336, 342, 348, 353, 359, 364, 370, 376, 381, 387, 392, 398];
 
-    ChartTime.prototype.is53WeekYear = function() {
+    Time.prototype.is53WeekYear = function() {
       /*
           @method is53WeekYear
           @return {Boolean} true if this is a 53-week year
       
-              console.log(new ChartTime('2015').is53WeekYear())
+              console.log(new Time('2015').is53WeekYear())
               # true
       */
 
       var lookup;
       lookup = this.year % 400;
-      return __indexOf.call(ChartTime.YEARS_WITH_53_WEEKS, lookup) >= 0;
+      return __indexOf.call(Time.YEARS_WITH_53_WEEKS, lookup) >= 0;
     };
 
-    ChartTime.prototype.equal = function(other) {
+    Time.prototype.equal = function(other) {
       /*
           @method equal
-          @param {ChartTime} other
+          @param {Time} other
           @return {Boolean} Returns true if this equals other. Throws an error if the granularities don't match.
       
-              d3 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 12, day: 31})
-              d4 = new ChartTime('2012-01-01').add(-1)
+              d3 = new Time({granularity: Time.DAY, year: 2011, month: 12, day: 31})
+              d4 = new Time('2012-01-01').add(-1)
               console.log(d3.equal(d4))
               # true
       */
@@ -5976,7 +5974,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       if (other.beforePastFlag === 'BEFORE_FIRST' && this.beforePastFlag !== 'BEFORE_FIRST') {
         return false;
       }
-      segments = ChartTime._granularitySpecs[this.granularity].segments;
+      segments = Time._granularitySpecs[this.granularity].segments;
       for (_i = 0, _len = segments.length; _i < _len; _i++) {
         segment = segments[_i];
         if (this[segment] !== other[segment]) {
@@ -5986,14 +5984,14 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return true;
     };
 
-    ChartTime.prototype.greaterThan = function(other) {
+    Time.prototype.greaterThan = function(other) {
       /*
           @method greaterThan
-          @param {ChartTime} other
+          @param {Time} other
           @return {Boolean} Returns true if this is greater than other. Throws an error if the granularities don't match
       
-              d1 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 2, day: 28})
-              d2 = new ChartTime({granularity: ChartTime.DAY, year: 2011, month: 3, day: 1})
+              d1 = new Time({granularity: Time.DAY, year: 2011, month: 2, day: 28})
+              d2 = new Time({granularity: Time.DAY, year: 2011, month: 3, day: 1})
               console.log(d1.greaterThan(d2))
               # false
               console.log(d2.greaterThan(d1))
@@ -6020,7 +6018,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       if (other.beforePastFlag === 'BEFORE_FIRST' && this.beforePastFlag !== 'BEFORE_FIRST') {
         return true;
       }
-      segments = ChartTime._granularitySpecs[this.granularity].segments;
+      segments = Time._granularitySpecs[this.granularity].segments;
       for (_i = 0, _len = segments.length; _i < _len; _i++) {
         segment = segments[_i];
         if (this[segment] > other[segment]) {
@@ -6033,13 +6031,13 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return false;
     };
 
-    ChartTime.prototype.greaterThanOrEqual = function(other) {
+    Time.prototype.greaterThanOrEqual = function(other) {
       /*
           @method greaterThanOrEqual
-          @param {ChartTime} other
+          @param {Time} other
           @return {Boolean} Returns true if this is greater than or equal to other
       
-              console.log(new ChartTime('2012').greaterThanOrEqual(new ChartTime('2012')))
+              console.log(new Time('2012').greaterThanOrEqual(new Time('2012')))
               # true
       */
 
@@ -6051,38 +6049,38 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return this.equal(other);
     };
 
-    ChartTime.prototype.lessThan = function(other) {
+    Time.prototype.lessThan = function(other) {
       /*
           @method lessThan
-          @param {ChartTime} other
+          @param {Time} other
           @return {Boolean} Returns true if this is less than other
       
-              console.log(new ChartTime(1000, ChartTime.DAY).lessThan(new ChartTime(999, ChartTime.DAY)))  # Using RDN constructor
+              console.log(new Time(1000, Time.DAY).lessThan(new Time(999, Time.DAY)))  # Using RDN constructor
               # false
       */
       return other.greaterThan(this);
     };
 
-    ChartTime.prototype.lessThanOrEqual = function(other) {
+    Time.prototype.lessThanOrEqual = function(other) {
       /*
           @method lessThanOrEqual
-          @param {ChartTime} other
+          @param {Time} other
           @return {Boolean} Returns true if this is less than or equal to other
       
-              console.log(new ChartTime('this day').lessThanOrEqual(new ChartTime('next day')))  # Using relative constructor
+              console.log(new Time('this day').lessThanOrEqual(new Time('next day')))  # Using relative constructor
               # true
       */
       return other.greaterThanOrEqual(this);
     };
 
-    ChartTime.prototype._overUnderFlow = function() {
+    Time.prototype._overUnderFlow = function() {
       var granularitySpec, highestLevel, highestLevelSpec, lowest, rolloverValue, value, _ref1;
       if ((_ref1 = this.beforePastFlag) === 'BEFORE_FIRST' || _ref1 === 'PAST_LAST') {
         return true;
       } else {
-        granularitySpec = ChartTime._granularitySpecs[this.granularity];
+        granularitySpec = Time._granularitySpecs[this.granularity];
         highestLevel = granularitySpec.segments[0];
-        highestLevelSpec = ChartTime._granularitySpecs[highestLevel];
+        highestLevelSpec = Time._granularitySpecs[highestLevel];
         value = this[highestLevel];
         rolloverValue = highestLevelSpec.rolloverValue(this);
         lowest = highestLevelSpec.lowest;
@@ -6098,27 +6096,27 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype.decrement = function(granularity) {
+    Time.prototype.decrement = function(granularity) {
       /*
           @method decrement
           @param {String} [granularity]
           @chainable
-          @return {ChartTime}
-          Decrements this by 1 in the granularity of the ChartTime or the granularity specified if it was specified
+          @return {Time}
+          Decrements this by 1 in the granularity of the Time or the granularity specified if it was specified
       
-              console.log(new ChartTime('2016W01').decrement().toString())
+              console.log(new Time('2016W01').decrement().toString())
               # 2015W53
       */
 
       var granularitySpec, gs, i, lastDayInMonthFlag, segment, segments, _i, _len, _results;
       if (this.beforePastFlag === 'PAST_LAST') {
         this.beforePastFlag = '';
-        granularitySpec = ChartTime._granularitySpecs[this.granularity];
+        granularitySpec = Time._granularitySpecs[this.granularity];
         segments = granularitySpec.segments;
         _results = [];
         for (_i = 0, _len = segments.length; _i < _len; _i++) {
           segment = segments[_i];
-          gs = ChartTime._granularitySpecs[segment];
+          gs = Time._granularitySpecs[segment];
           _results.push(this[segment] = gs.rolloverValue(this) - 1);
         }
         return _results;
@@ -6127,7 +6125,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         if (granularity == null) {
           granularity = this.granularity;
         }
-        granularitySpec = ChartTime._granularitySpecs[granularity];
+        granularitySpec = Time._granularitySpecs[granularity];
         segments = granularitySpec.segments;
         this[granularity]--;
         if (granularity === 'year') {
@@ -6137,13 +6135,13 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         } else {
           i = segments.length - 1;
           segment = segments[i];
-          granularitySpec = ChartTime._granularitySpecs[segment];
+          granularitySpec = Time._granularitySpecs[segment];
           while ((i > 0) && (this[segment] < granularitySpec.lowest)) {
             this[segments[i - 1]]--;
             this[segment] = granularitySpec.rolloverValue(this) - 1;
             i--;
             segment = segments[i];
-            granularitySpec = ChartTime._granularitySpecs[segment];
+            granularitySpec = Time._granularitySpecs[segment];
           }
           if (granularity === 'month' && (this.granularity !== 'month')) {
             if (lastDayInMonthFlag || (this.day > this.daysInMonth())) {
@@ -6156,27 +6154,27 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype.increment = function(granularity) {
+    Time.prototype.increment = function(granularity) {
       /*
           @method increment
           @param {String} [granularity]
           @chainable
-          @return {ChartTime}
-          Increments this by 1 in the granularity of the ChartTime or the granularity specified if it was specified
+          @return {Time}
+          Increments this by 1 in the granularity of the Time or the granularity specified if it was specified
       
-              console.log(new ChartTime('2012Q4').increment().toString())
+              console.log(new Time('2012Q4').increment().toString())
               # 2013Q1
       */
 
       var granularitySpec, gs, i, lastDayInMonthFlag, segment, segments, _i, _len, _results;
       if (this.beforePastFlag === 'BEFORE_FIRST') {
         this.beforePastFlag = '';
-        granularitySpec = ChartTime._granularitySpecs[this.granularity];
+        granularitySpec = Time._granularitySpecs[this.granularity];
         segments = granularitySpec.segments;
         _results = [];
         for (_i = 0, _len = segments.length; _i < _len; _i++) {
           segment = segments[_i];
-          gs = ChartTime._granularitySpecs[segment];
+          gs = Time._granularitySpecs[segment];
           _results.push(this[segment] = gs.lowest);
         }
         return _results;
@@ -6185,7 +6183,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         if (granularity == null) {
           granularity = this.granularity;
         }
-        granularitySpec = ChartTime._granularitySpecs[granularity];
+        granularitySpec = Time._granularitySpecs[granularity];
         segments = granularitySpec.segments;
         this[granularity]++;
         if (granularity === 'year') {
@@ -6195,13 +6193,13 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         } else {
           i = segments.length - 1;
           segment = segments[i];
-          granularitySpec = ChartTime._granularitySpecs[segment];
+          granularitySpec = Time._granularitySpecs[segment];
           while ((i > 0) && (this[segment] >= granularitySpec.rolloverValue(this))) {
             this[segment] = granularitySpec.lowest;
             this[segments[i - 1]]++;
             i--;
             segment = segments[i];
-            granularitySpec = ChartTime._granularitySpecs[segment];
+            granularitySpec = Time._granularitySpecs[segment];
           }
           if ((granularity === 'month') && (this.granularity !== 'month')) {
             if (lastDayInMonthFlag || (this.day > this.daysInMonth())) {
@@ -6214,16 +6212,16 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype.addInPlace = function(qty, granularity) {
+    Time.prototype.addInPlace = function(qty, granularity) {
       /*
           @method addInPlace
           @chainable
           @param {Number} qty Can be negative for subtraction
           @param {String} [granularity]
-          @return {ChartTime} Adds qty to the ChartTime object. It uses increment and decrement so it's not going to be efficient for large values
+          @return {Time} Adds qty to the Time object. It uses increment and decrement so it's not going to be efficient for large values
           of qty, but it should be fine for charts where we'll increment/decrement small values of qty.
       
-              console.log(new ChartTime('2011-11-01').addInPlace(3, ChartTime.MONTH).toString())
+              console.log(new Time('2011-11-01').addInPlace(3, Time.MONTH).toString())
               # 2012-02-01
       */
       if (granularity == null) {
@@ -6246,32 +6244,32 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return this;
     };
 
-    ChartTime.prototype.add = function(qty, granularity) {
+    Time.prototype.add = function(qty, granularity) {
       /*
           @method add
           @param {Number} qty
           @param {String} [granularity]
-          @return {ChartTime}
-          Adds (or subtracts) quantity (negative quantity) and returns a new ChartTime. Not efficient for large qty.
+          @return {Time}
+          Adds (or subtracts) quantity (negative quantity) and returns a new Time. Not efficient for large qty.
       
-             console.log(new ChartTime('2012-01-01').add(-10, ChartTime.MONTH))
+             console.log(new Time('2012-01-01').add(-10, Time.MONTH))
              # 2011-03-01
       */
 
-      var newChartTime;
-      newChartTime = new ChartTime(this);
-      newChartTime.addInPlace(qty, granularity);
-      return newChartTime;
+      var newTime;
+      newTime = new Time(this);
+      newTime.addInPlace(qty, granularity);
+      return newTime;
     };
 
-    ChartTime.addGranularity = function(granularitySpec) {
+    Time.addGranularity = function(granularitySpec) {
       /*
           @method addGranularity
           @static
-          @param {Object} granularitySpec see {@link ChartTime#_granularitySpecs} for existing _granularitySpecs
+          @param {Object} granularitySpec see {@link Time#_granularitySpecs} for existing _granularitySpecs
       
-          addGranularity allows you to add your own hierarchical granularities to ChartTime. Once you add a granularity to ChartTime
-          you can then instantiate ChartTime objects in your newly specified granularity. You specify new granularities with 
+          addGranularity allows you to add your own hierarchical granularities to Time. Once you add a granularity to Time
+          you can then instantiate Time objects in your newly specified granularity. You specify new granularities with
           granularitySpec object like this:
               
               granularitySpec = {
@@ -6279,64 +6277,64 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
                   segments: ['release'],
                   mask: 'R##',
                   lowest: 1,
-                  endBeforeDay: new ChartTime('2011-07-01')
+                  endBeforeDay: new Time('2011-07-01')
                   rolloverValue: (ct) ->
-                    return ChartTime._granularitySpecs.iteration.timeBoxes.length + 1  # Yes, it's correct to use the length of iteration.timeBoxes
+                    return Time._granularitySpecs.iteration.timeBoxes.length + 1  # Yes, it's correct to use the length of iteration.timeBoxes
                   rataDieNumber: (ct) ->
-                    return ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].startOn.rataDieNumber()
+                    return Time._granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].startOn.rataDieNumber()
                 },
                 iteration: {
                   segments: ['release', 'iteration'],
                   mask: 'R##I##',
                   lowest: 1,
-                  endBeforeDay: new ChartTime('2011-07-01')        
+                  endBeforeDay: new Time('2011-07-01')
                   timeBoxes: [
                     [
-                      {startOn: new ChartTime('2011-01-01'), label: 'R1 Iteration 1'},
-                      {startOn: new ChartTime('2011-02-01'), label: 'R1 Iteration 2'},
-                      {startOn: new ChartTime('2011-03-01'), label: 'R1 Iteration 3'},
+                      {startOn: new Time('2011-01-01'), label: 'R1 Iteration 1'},
+                      {startOn: new Time('2011-02-01'), label: 'R1 Iteration 2'},
+                      {startOn: new Time('2011-03-01'), label: 'R1 Iteration 3'},
                     ],
                     [
-                      {startOn: new ChartTime('2011-04-01'), label: 'R2 Iteration 1'},
-                      {startOn: new ChartTime('2011-05-01'), label: 'R2 Iteration 2'},
-                      {startOn: new ChartTime('2011-06-01'), label: 'R2 Iteration 3'},
+                      {startOn: new Time('2011-04-01'), label: 'R2 Iteration 1'},
+                      {startOn: new Time('2011-05-01'), label: 'R2 Iteration 2'},
+                      {startOn: new Time('2011-06-01'), label: 'R2 Iteration 3'},
                     ]
                   ]
                   rolloverValue: (ct) ->
-                    temp = ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1]?.length + 1
+                    temp = Time._granularitySpecs.iteration.timeBoxes[ct.release-1]?.length + 1
                     if temp? and not isNaN(temp) and ct.beforePastFlag != 'PAST_LAST'
                       return temp
                     else
-                      numberOfReleases = ChartTime._granularitySpecs.iteration.timeBoxes.length
-                      return ChartTime._granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length + 1
+                      numberOfReleases = Time._granularitySpecs.iteration.timeBoxes.length
+                      return Time._granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length + 1
           
                   rataDieNumber: (ct) ->
-                    return ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber()
+                    return Time._granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber()
                 },
                 iteration_day: {  # By convention, it knows to use day functions on it. This is the lowest allowed custom granularity
                   segments: ['release', 'iteration', 'iteration_day'],
                   mask: 'R##I##-##',
                   lowest: 1,
-                  endBeforeDay: new ChartTime('2011-07-01'),
+                  endBeforeDay: new Time('2011-07-01'),
                   rolloverValue: (ct) ->
-                    iterationTimeBox = ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1]?[ct.iteration-1]
+                    iterationTimeBox = Time._granularitySpecs.iteration.timeBoxes[ct.release-1]?[ct.iteration-1]
                     if !iterationTimeBox? or ct.beforePastFlag == 'PAST_LAST'
-                      numberOfReleases = ChartTime._granularitySpecs.iteration.timeBoxes.length
-                      numberOfIterationsInLastRelease = ChartTime._granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length
-                      iterationTimeBox = ChartTime._granularitySpecs.iteration.timeBoxes[numberOfReleases-1][numberOfIterationsInLastRelease-1]
+                      numberOfReleases = Time._granularitySpecs.iteration.timeBoxes.length
+                      numberOfIterationsInLastRelease = Time._granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length
+                      iterationTimeBox = Time._granularitySpecs.iteration.timeBoxes[numberOfReleases-1][numberOfIterationsInLastRelease-1]
                       
                     thisIteration = iterationTimeBox.startOn.inGranularity('iteration')
                     nextIteration = thisIteration.add(1)
                     if nextIteration.beforePastFlag == 'PAST_LAST'
-                      return ChartTime._granularitySpecs.iteration_day.endBeforeDay.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1
+                      return Time._granularitySpecs.iteration_day.endBeforeDay.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1
                     else
                       return nextIteration.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1
                      
                   rataDieNumber: (ct) ->
-                    return ChartTime._granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber() + ct.iteration_day - 1
+                    return Time._granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber() + ct.iteration_day - 1
                 }
               }    
-              ChartTime.addGranularity(granularitySpec)
+              Time.addGranularity(granularitySpec)
       
           
           The `mask` must cover all of the segments to get down to the granularity being specified. The digits of the granularity segments
@@ -6345,20 +6343,20 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           distinguish your custom granularity, your highest level must start with some number of digits other than 4 or a prefix letter 
           (`R` in the example above).
           
-          In order for the ChartTimeIterator to work, you must provide `rolloverValue` and `rataDieNumber` callback functions. You should
+          In order for the TimelineIterator to work, you must provide `rolloverValue` and `rataDieNumber` callback functions. You should
           be able to mimic (or use as-is) the example above for most use cases. Notice how the `rataDieNumber` function simply leverages
           `rataDieNumber` functions for the standard granularities.
           
           In order to convert into this granularity from some other granularity, you must provide an `inGranularity` callback [NOT YET IMPLEMENTED].
-          But ChartTime will convert to any of the standard granularities from even custom granularities as long as a `rataDieNumber()` function
+          But Time will convert to any of the standard granularities from even custom granularities as long as a `rataDieNumber()` function
           is provided.
           
-          **The `timeBoxes` propoerty in the `granularitySpec` Object above has no special meaning** to ChartTime or ChartTimeIterator. It's simply used
+          **The `timeBoxes` propoerty in the `granularitySpec` Object above has no special meaning** to Time or TimelineIterator. It's simply used
           by the `rolloverValue` and `rataDieNumber` functions. The boundaries could come from where ever you want and even have been encoded as
           literals in the `rolloverValue` and `rataDieNumber` callback functions.
           
-          The convention of naming the lowest order granularity with `_day` at the end IS signficant. ChartTime knows to treat that as a day-level
-          granularity. If there is a use-case for it, ChartTime could be upgraded to allow you to drill down into hours, minutes, etc. from any
+          The convention of naming the lowest order granularity with `_day` at the end IS signficant. Time knows to treat that as a day-level
+          granularity. If there is a use-case for it, Time could be upgraded to allow you to drill down into hours, minutes, etc. from any
           `_day` granularity but right now those lower order time granularities are only supported for the canonical ISO-6801 form.
       */
 
@@ -6366,18 +6364,18 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       _results = [];
       for (g in granularitySpec) {
         spec = granularitySpec[g];
-        ChartTime._expandMask(spec);
+        Time._expandMask(spec);
         this._granularitySpecs[g] = spec;
-        _results.push(ChartTime[g.toUpperCase()] = g);
+        _results.push(Time[g.toUpperCase()] = g);
       }
       return _results;
     };
 
-    return ChartTime;
+    return Time;
 
   })();
 
-  exports.ChartTime = ChartTime;
+  exports.Time = Time;
 
 }).call(this);
 
@@ -7114,259 +7112,50 @@ require.define("fs",function(require,module,exports,__dirname,__filename,process
 
 });
 
-require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var ChartTime, ChartTimeInStateCalculator, ChartTimeIterator, ChartTimeRange, timezoneJS, utils,
+require.define("/src/Timeline.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var Time, TimeInStateCalculator, Timeline, TimelineIterator, timezoneJS, utils,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  ChartTime = require('./ChartTime').ChartTime;
+  Time = require('./Time').Time;
 
-  ChartTimeInStateCalculator = require('./ChartTimeInStateCalculator').ChartTimeInStateCalculator;
+  TimeInStateCalculator = require('./TimeInStateCalculator').TimeInStateCalculator;
 
   timezoneJS = require('./timezone-js.js').timezoneJS;
 
   utils = require('./utils');
 
-  ChartTimeIterator = (function() {
+  Timeline = (function() {
     /*
-      @class ChartTimeIterator
+      @class Timeline
     
-      # ChartTimeIterator #
-      
-      Iterate through days, months, years, etc. skipping weekends and holidays that you 
-      specify. It will also iterate over hours, minutes, seconds, etc. and skip times that are not
-      between the specified work hours.
-      
-      ## Usage ##
-      
-          {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
-          
-          cti = new ChartTimeIterator({
-            startOn:new ChartTime({granularity: 'day', year: 2009, month:1, day: 1}),
-            endBefore:new ChartTime({granularity: 'day', year: 2009, month:1, day: 8}),
-            workDays: 'Monday, Tuesday, Wednesday, Thursday, Friday',
-            holidays: [
-              {month: 1, day: 1},  # New Years day was a Thursday in 2009
-              {year: 2009, month: 1, day: 2}  # Also got Friday off in 2009
-            ]
-          })
-      
-          while (cti.hasNext())
-            console.log(cti.next().toString())
-      
-          # 2009-01-05
-          # 2009-01-06
-          # 2009-01-07
-    */
-
-    var StopIteration;
-
-    function ChartTimeIterator(ctr, emit, childGranularity, tz) {
-      var _ref, _ref1;
-      this.emit = emit != null ? emit : 'ChartTime';
-      this.childGranularity = childGranularity != null ? childGranularity : 'day';
-      /*
-          @constructor
-          @param {ChartTimeRange} ctr A ChartTimeRange or a raw Object with all the necessary properties to be a spec for a new ChartTimeRange.
-             Using a ChartTimeRange is now the preferred method. The raw Object is supported for backward compatibility.
-          @param {String} [emit] An optional String that specifies what should be emitted. Possible values are 'ChartTime' (default),
-             'ChartTimeRange', and 'Date' (javascript Date Object). Note, to maintain backward compatibility with the time
-             before ChartTimeRange existed, the default for emit when instantiating a new ChartTimeIterator directly is 
-             'ChartTime'. However, if you request a new ChartTimeIterator from a ChartTimeRange object using getIterator(),
-             the default is 'ChartTimeRange'.
-          @param {String} [childGranularity] When emit is 'ChartTimeRange', this is the granularity for the startOn and endBefore of the
-             ChartTimeRange that is emitted.
-          @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example.
-      */
-
-      utils.assert((_ref = this.emit) === 'ChartTime' || _ref === 'ChartTimeRange' || _ref === 'Date', "emit must be 'ChartTime', 'ChartTimeRange', or 'Date'. You provided " + this.emit + ".");
-      utils.assert(this.emit !== 'Date' || (tz != null), 'Must provide a tz (timezone) parameter when emitting Dates.');
-      if ((_ref1 = this.tz) == null) {
-        this.tz = tz;
-      }
-      if (ctr instanceof ChartTimeRange) {
-        this.ctr = ctr;
-      } else {
-        this.ctr = new ChartTimeRange(ctr);
-      }
-      this.startOver();
-    }
-
-    StopIteration = typeof StopIteration === 'undefined' ? utils.StopIteration : StopIteration;
-
-    ChartTimeIterator.prototype.startOver = function() {
-      /*
-          @method startOver
-      
-          Will go back to the where the iterator started.
-      */
-      if (this.ctr.step > 0) {
-        this.current = new ChartTime(this.ctr.startOn);
-      } else {
-        this.current = new ChartTime(this.ctr.endBefore);
-        this.current.decrement();
-      }
-      this.count = 0;
-      return this._proceedToNextValid();
-    };
-
-    ChartTimeIterator.prototype.hasNext = function() {
-      /*
-          @method hasNext
-          @return {Boolean} Returns true if there are still things left to iterator over. Note that if there are holidays,
-             weekends or non-workhours to skip, then hasNext() will take that into account. For example if the endBefore is a
-             Sunday, hasNext() will return true the next time it is called after the Friday is emitted.
-      */
-      return this.ctr.contains(this.current) && (this.count < this.ctr.limit);
-    };
-
-    ChartTimeIterator.prototype._shouldBeExcluded = function() {
-      var currentInDay, currentMinutes, holiday, _i, _len, _ref, _ref1, _ref2;
-      if (this.current._isGranularityCoarserThanDay()) {
-        return false;
-      }
-      currentInDay = this.current.inGranularity('day');
-      if (_ref = this.current.dowString(), __indexOf.call(this.ctr.workDays, _ref) < 0) {
-        return true;
-      }
-      _ref1 = this.ctr.holidays;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        holiday = _ref1[_i];
-        if (utils.match(holiday, currentInDay)) {
-          return true;
-        }
-      }
-      if ((_ref2 = this.ctr.granularity) === 'hour' || _ref2 === 'minute' || _ref2 === ' second' || _ref2 === 'millisecond') {
-        currentMinutes = this.current.hour * 60;
-        if (this.current.minute != null) {
-          currentMinutes += this.current.minute;
-        }
-        if (this.ctr.startOnWorkMinutes <= this.ctr.endBeforeWorkMinutes) {
-          if ((currentMinutes < this.ctr.startOnWorkMinutes) || (currentMinutes >= this.ctr.endBeforeWorkMinutes)) {
-            return true;
-          }
-        } else {
-          if ((this.ctr.startOnWorkMinutes >= currentMinutes && currentMinutes > this.ctr.endBeforeWorkMinutes)) {
-            return true;
-          }
-        }
-      }
-      return false;
-    };
-
-    ChartTimeIterator.prototype._proceedToNextValid = function() {
-      var _results;
-      _results = [];
-      while (this.hasNext() && this._shouldBeExcluded()) {
-        if (this.ctr.step > 0) {
-          _results.push(this.current.increment());
-        } else {
-          _results.push(this.current.decrement());
-        }
-      }
-      return _results;
-    };
-
-    ChartTimeIterator.prototype.next = function() {
-      /*
-          @method next
-          @return {ChartTime/Date/ChartTimeRange} Returns the next value of the iterator. The start will be the first value emitted unless it should
-             be skipped due to holiday, weekend, or workhour knockouts.
-      */
-
-      var childCTR, currentCopy, i, spec, _i, _ref;
-      if (!this.hasNext()) {
-        throw new StopIteration('Cannot call next() past end.');
-      }
-      currentCopy = new ChartTime(this.current);
-      this.count++;
-      for (i = _i = _ref = Math.abs(this.ctr.step); _ref <= 1 ? _i <= 1 : _i >= 1; i = _ref <= 1 ? ++_i : --_i) {
-        if (this.ctr.step > 0) {
-          this.current.increment();
-        } else {
-          this.current.decrement();
-        }
-        this._proceedToNextValid();
-      }
-      switch (this.emit) {
-        case 'ChartTime':
-          return currentCopy;
-        case 'Date':
-          return currentCopy.getJSDate(this.tz);
-        case 'ChartTimeRange':
-          spec = {
-            startOn: currentCopy.inGranularity(this.childGranularity),
-            endBefore: this.current.inGranularity(this.childGranularity),
-            workDays: this.ctr.workDays,
-            holidays: this.ctr.holidays,
-            workDayStartOn: this.ctr.workDayStartOn,
-            workDayEndBefore: this.ctr.workDayEndBefore
-          };
-          childCTR = new ChartTimeRange(spec);
-          return childCTR;
-      }
-    };
-
-    ChartTimeIterator.prototype.getAll = function() {
-      /*
-          @method getAll
-          @return {ChartTime[]/Date[]/ChartTimeRange[]}
-          Returns all values as an array.
-      */
-
-      var temp;
-      this.startOver();
-      temp = [];
-      while (this.hasNext()) {
-        temp.push(this.next());
-      }
-      return temp;
-    };
-
-    ChartTimeIterator.prototype.getChartTimeInStateCalculator = function(tz) {
-      var ctrisc;
-      ctrisc = new ChartTimeInStateCalculator(this, tz);
-      return ctrisc;
-    };
-
-    return ChartTimeIterator;
-
-  })();
-
-  ChartTimeRange = (function() {
-    /*
-      @class ChartTimeRange
-    
-      # ChartTimeRange #
-      
-      Allows you to specify a range for iterating over or identifying if it `contains()` some other date.
-      This `contains()` comparision can be done in a timezone sensitive way.
+      Allows you to specify a timeline with weekend, holiday and non-work hours knocked out and timezone precision.
       
       ## Usage ##
      
-      Let's create the `spec` for our ChartTimeRange
+      Let's create a Timeline
       
-          {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
+          {TimelineIterator, Timeline, Time} = require('../')
           
-          r = new ChartTimeRange({
-            startOn:new ChartTime('2011-01-02'),
-            endBefore:new ChartTime('2011-01-07'),
+          tl = new Timeline({
+            startOn: '2011-01-02',
+            endBefore: '2011-01-07',
             holidays: [
               {month: 1, day: 1},  # Notice the lack of a year specification
-              {year: 2011, month: 1, day: 2}  # Got January 2 off also in 2011
+              '2011-01-02'  # Got January 2 off also in 2011. Allows ISO strings.
             ]
           })
           
       `workDays` is already defaulted but you could have overridden it.
       
-          console.log(r.workDays)
+          console.log(tl.workDays)
           # [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday' ]
           
-      Now let's get an iterator over this range.
+      Now let's get an TimelineIterator over this Timeline.
           
-          i = r.getIterator('ChartTime')
+          tli = tl.getIterator('Time')
           
-          while i.hasNext()
-            console.log(i.next().toString()) 
+          while tli.hasNext()
+            console.log(tli.next().toString())
                  
           # 2011-01-03
           # 2011-01-04
@@ -7374,33 +7163,30 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
           # 2011-01-06
       
       Notice how 2011-01-02 was skipped because it was a holiday. Also notice how the endBefore is not included.
-      Ranges are inclusive of the startOn and exclusive of the endBefore. This allows the endBefore of one to be
-      the startOn of the next with no overlap or gap. This focus on precision pervades the design of the ChartTime library.
+      Timelines are inclusive of the startOn and exclusive of the endBefore. This allows the endBefore to be
+      the startOn of the next with no overlap or gap. This focus on precision pervades the design of the Time library.
       
-      Now, let's create a ChartTimeRange with `hour` granularity to elaborate on this inclusive/exclusive behavior.
+      Now, let's create a Timeline with `hour` granularity to elaborate on this inclusive/exclusive behavior.
           
-          r2 = new ChartTimeRange({
-            startOn:new ChartTime('2011-01-02T00'),
-            endBefore:new ChartTime('2011-01-07T00'),
+          tl2 = new Timeline({
+            startOn: '2011-01-02T00',
+            endBefore: '2011-01-07T00',
           })
           
       `startOn` is inclusive.
       
-          console.log(r2.contains(new ChartTime('2011-01-02T00')))
+          console.log(tl2.contains('2011-01-02T00'))
           # true
           
       But `endBefore` is exclusive
       
-          console.log(r2.contains(new ChartTime('2011-01-07T00')))
+          console.log(tl2.contains('2011-01-07T00'))
           # false
       
       But just before `endBefore` is OK
       
-          console.log(r2.contains('2011-01-06T23'))
+          console.log(tl2.contains('2011-01-06T23'))
           # true
-          
-      In the above line, notice how we omitted the `new ChartTime(...)`. If you pass in a string without a timezone, 
-      it will automatically create the ChartTime to do the comparison.
       
       All of the above comparisons assume that the `startOn`/`endBefore` boundaries are in the same timezone as the contains date.
       
@@ -7408,7 +7194,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
       
       Now, let's look at how you do timezone sensitive comparisions.
       
-      If you pass in a timezone, then it will shift the CharTimeRange boundaries to that timezone to compare to the 
+      If you pass in a timezone, then it will shift the Timeline boundaries to that timezone to compare to the 
       date/timestamp that you pass in. This system is optimized to the pattern where you first define your boundaries without regard 
       to timezone. Christmas day is a holiday in any timezone. Saturday and Sunday are non work days in any timezone. The iteration
       starts on July 10th; etc. THEN you have a bunch of data that you have stored in a database in GMT. Maybe you've pulled
@@ -7418,96 +7204,94 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
       in time July 10th starts on in a particular timezone and internally represents that in a way that can be compared to a GMT
       date/timestamp.
       
-      So, when it's 3am in GMT on 2011-01-02, it's still 2011-01-01 in New York. Using the above `r2` range, we say:
+      So, when it's 3am in GMT on 2011-01-02, it's still 2011-01-01 in New York. Using the above `tl2` timeline, we say:
       
-          console.log(r2.contains('2011-01-02T03:00:00.000Z', 'America/New_York'))
+          console.log(tl2.contains('2011-01-02T03:00:00.000Z', 'America/New_York'))
           # false
           
       But it's still 2011-01-06 in New York, when it's 3am in GMT on 2011-01-07
           
-          console.log(r2.contains('2011-01-07T03:00:00.000Z', 'America/New_York'))
+          console.log(tl2.contains('2011-01-07T03:00:00.000Z', 'America/New_York'))
           # true
           
-      Now, let's explore how ChartTimeRanges and ChartTimeIterators are used together. Here is a range spec.
+      Now, let's explore how Timelines and TimelineIterators are used together.
     
-          r3 = new ChartTimeRange({
-            startOn:new ChartTime('2011-01-06'),
-            endBefore:new ChartTime('2011-01-11'),
+          tl3 = new Timeline({
+            startOn:new Time('2011-01-06'),
+            endBefore:new Time('2011-01-11'),
             workDayStartOn: {hour: 9, minute: 0},
             workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes
           })
               
-      You can ask for an iterator to emit ChartTimeRanges rather than ChartTime values. On each call to `next()`, the
-      iterator will give you a new ChartTimeRange with the `startOn` value set to what you would have gotten had you
-      requested that it emit ChartTimes. The `endBefore' of the emitted ChartTimeRange will be set to the following value.
+      You can ask for an iterator to emit Timelines rather than Time values. On each call to `next()`, the
+      iterator will give you a new Timeline with the `startOn` value set to what you would have gotten had you
+      requested that it emit Times. The `endBefore' of the emitted Timeline will be set to the following value.
       This is how you drill-down from one granularity into a lower granularity.
       
-      By default, the granularity of the iterator will equal the `startOn`/`endBefore` of the original ChartTimeRange.
+      By default, the granularity of the iterator will equal the `startOn`/`endBefore` of the original Timeline.
       However, you can provide a different granularity (`hour` in the example below) for the iterator if you want 
       to drill-down at a lower granularity.
       
-          i3 = r3.getIterator('ChartTimeRange', 'hour')
+          tli3 = tl3.getIterator('Timeline', undefined, 'hour')
           
-          while i3.hasNext()
-            subRange = i3.next()
-            console.log("Sub range goes from #{subRange.startOn.toString()} to #{subRange.endBefore.toString()}")
-            subIterator = subRange.getIterator('ChartTime')
+          while tli3.hasNext()
+            subTimeline = tli3.next()
+            console.log("Sub Timeline goes from #{subTimeline.startOn.toString()} to #{subTimeline.endBefore.toString()}")
+            subIterator = subTimeline.getIterator('Time')
             while subIterator.hasNext()
               console.log('    Hour: ' + subIterator.next().hour)
               
-          # Sub range goes from 2011-01-06T00 to 2011-01-07T00
+          # Sub Timeline goes from 2011-01-06T00 to 2011-01-07T00
           #     Hour: 9
           #     Hour: 10
-          # Sub range goes from 2011-01-07T00 to 2011-01-10T00
+          # Sub Timeline goes from 2011-01-07T00 to 2011-01-10T00
           #     Hour: 9
           #     Hour: 10
-          # Sub range goes from 2011-01-10T00 to 2011-01-11T00
+          # Sub Timeline goes from 2011-01-10T00 to 2011-01-11T00
           #     Hour: 9
           #     Hour: 10
               
-      There is a lot going on here, so let's poke at it a bit. First, notice how the second sub-range goes from the 7th to the
+      There is a lot going on here, so let's poke at it a bit. First, notice how the second sub-Timeline goes from the 7th to the
       10th. That's because there was a weekend in there. We didn't get hours for the Saturday and Sunday.
           
-      The above approach (`r3`/`i3`) is useful for some forms of hand generated analysis, but if you are using ChartTime with 
+      The above approach (`tl3`/`tli3`) is useful for some forms of hand generated analysis, but if you are using Time with
       Lumenize, it's overkill because Lumenize is smart enough to do rollups based upon the segments that are emitted from the
-      lowest granularity ChartTime. So you can just iterate over the lower granularity and Lumenize will automatically manage 
+      lowest granularity Time. So you can just iterate over the lower granularity and Lumenize will automatically manage
       the drill up/down to day/month/year levels automatically.
       
-          r4 = new ChartTimeRange({
+          tl4 = new Timeline({
             startOn:'2011-01-06T00',  # Notice how we include the hour now
             endBefore:'2011-01-11T00',
             workDayStartOn: {hour: 9, minute: 0},
             workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes
           })
-              
-      Notice how we are able to simply use strings to represent the startOn/endBefore dates. ChartTimeRange automatically constructs
-      ChartTime objects from those strings. We could have done that in the earlier examples. I chose not to do so to illustrate
-      how ChartTimes are used under the covers.
     
-          i4 = r4.getIterator('ChartTime')
+          tli4 = tl4.getIterator('ISOString', 'GMT')
           
-          while i4.hasNext()
-            console.log(i4.next().toString())
+          while tli4.hasNext()
+            console.log(tli4.next())
             
-          # 2011-01-06T09
-          # 2011-01-06T10
-          # 2011-01-07T09
-          # 2011-01-07T10
-          # 2011-01-10T09
-          # 2011-01-10T10
+          # 2011-01-06T09:00:00.000Z
+          # 2011-01-06T10:00:00.000Z
+          # 2011-01-07T09:00:00.000Z
+          # 2011-01-07T10:00:00.000Z
+          # 2011-01-10T09:00:00.000Z
+          # 2011-01-10T10:00:00.000Z
           
-      `r4`/`i4` covers the same ground as `r3`/`i3` but without the explicit nesting.
+      `tl4`/`tli4` covers the same ground as `tl3`/`tli3` but without the explicit nesting.
     */
 
-    function ChartTimeRange(spec) {
+    function Timeline(config) {
       /*
           @constructor
-          @param {Object} spec
+          @param {Object} config
       
-          spec can have the following properties:
+          config can have the following properties:
       
-          * **startOn** is a ChartTime object or a string. The first value that next() returns.
-          * **endBefore** is a ChartTime object or string. Must match granularity. hasNext() returns false when current is here or later.
+          * **startOn** is a Time object or a string. The first value that next() returns. Must specify 2 out of
+             3 of startOn, endBefore, and limit.
+          * **endBefore** is a Time object or string. Must match granularity. hasNext() returns false when current is here or
+             later. Must specify 2 out of 3 of startOn, endBefore, and limit.
           * **limit** you can specify limit and either startOn or endBefore and only get back this many. Must specify 2 out of
              3 of startOn, endBefore, and limit.
           * **step** is an optional parameter. Defaults to 1 or -1. Use -1 to march backwards from endBefore - 1. Currently any
@@ -7518,7 +7302,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
       
                  {startOn: '2012-01', # Month Granularity
                   endBefore: '2012-02', # Month Granularity
-                  granularity: ChartTime.DAY} # Day granularity}
+                  granularity: Time.DAY} # Day granularity}
       
           * **workDays** list of days of the week that you work on. You can specify this as an Array of Strings
              (['Monday', 'Tuesday', ...]) or a single comma seperated String ("Monday,Tuesday,...").
@@ -7539,26 +7323,26 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
       */
 
       var h, holiday, idx, m, s, _i, _len, _ref, _ref1;
-      if (spec.endBefore != null) {
-        this.endBefore = spec.endBefore;
+      if (config.endBefore != null) {
+        this.endBefore = config.endBefore;
         if (this.endBefore !== 'PAST_LAST') {
           if (utils.type(this.endBefore) === 'string') {
-            this.endBefore = new ChartTime(this.endBefore);
+            this.endBefore = new Time(this.endBefore);
           }
           this.granularity = this.endBefore.granularity;
         }
       }
-      if (spec.startOn != null) {
-        this.startOn = spec.startOn;
+      if (config.startOn != null) {
+        this.startOn = config.startOn;
         if (this.startOn !== 'BEFORE_FIRST') {
           if (utils.type(this.startOn) === 'string') {
-            this.startOn = new ChartTime(this.startOn);
+            this.startOn = new Time(this.startOn);
           }
           this.granularity = this.startOn.granularity;
         }
       }
-      if (spec.granularity != null) {
-        this.granularity = spec.granularity;
+      if (config.granularity != null) {
+        this.granularity = config.granularity;
         if (this.startOn != null) {
           this.startOn = this.startOn.inGranularity(this.granularity);
         }
@@ -7567,25 +7351,25 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
         }
       }
       if (!this.granularity) {
-        throw new Error('Cannot determine granularity for ChartTimeRange.');
+        throw new Error('Cannot determine granularity for Timeline.');
       }
       if (this.startOn === 'BEFORE_FIRST') {
-        this.startOn = new ChartTime(this.startOn, this.granularity);
+        this.startOn = new Time(this.startOn, this.granularity);
       }
       if (this.endBefore === 'PAST_LAST') {
-        this.endBefore === new ChartTime(this.endBefore, this.granularity);
+        this.endBefore === new Time(this.endBefore, this.granularity);
       }
       if (!this.endBefore) {
-        this.endBefore = new ChartTime('PAST_LAST', this.granularity);
+        this.endBefore = new Time('PAST_LAST', this.granularity);
       }
       if (!this.startOn) {
-        this.startOn = new ChartTime('BEFORE_FIRST', this.granularity);
+        this.startOn = new Time('BEFORE_FIRST', this.granularity);
       }
-      this.limit = spec.limit != null ? spec.limit : utils.MAX_INT;
-      if (spec.workDays != null) {
-        this.workDays = spec.workDays;
-      } else if (spec.workdays != null) {
-        this.workDays = spec.workdays;
+      this.limit = config.limit != null ? config.limit : utils.MAX_INT;
+      if (config.workDays != null) {
+        this.workDays = config.workDays;
+      } else if (config.workdays != null) {
+        this.workDays = config.workdays;
       } else {
         this.workDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
       }
@@ -7601,15 +7385,15 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
           return _results;
         }).call(this);
       }
-      this.holidays = spec.holidays != null ? spec.holidays : [];
+      this.holidays = config.holidays != null ? config.holidays : [];
       _ref = this.holidays;
       for (idx = _i = 0, _len = _ref.length; _i < _len; idx = ++_i) {
         holiday = _ref[idx];
         if (utils.type(holiday) === 'string') {
-          this.holidays[idx] = new ChartTime(holiday).getSegmentsAsObject();
+          this.holidays[idx] = new Time(holiday).getSegmentsAsObject();
         }
       }
-      this.workDayStartOn = spec.workDayStartOn != null ? spec.workDayStartOn : void 0;
+      this.workDayStartOn = config.workDayStartOn != null ? config.workDayStartOn : void 0;
       if (this.workDayStartOn != null) {
         h = this.workDayStartOn.hour != null ? this.workDayStartOn.hour : 0;
         m = this.workDayStartOn.minute != null ? this.workDayStartOn.minute : 0;
@@ -7620,7 +7404,7 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
       } else {
         this.startOnWorkMinutes = 0;
       }
-      this.workDayEndBefore = spec.workDayEndBefore != null ? spec.workDayEndBefore : void 0;
+      this.workDayEndBefore = config.workDayEndBefore != null ? config.workDayEndBefore : void 0;
       if (this.workDayEndBefore != null) {
         h = this.workDayEndBefore.hour != null ? this.workDayEndBefore.hour : 24;
         m = this.workDayEndBefore.minute != null ? this.workDayEndBefore.minute : 0;
@@ -7631,114 +7415,123 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
       } else {
         this.endBeforeWorkMinutes = 24 * 60;
       }
-      if (spec.step != null) {
-        this.step = spec.step;
-      } else if ((spec.endBefore != null) && ((_ref1 = this.startOn) != null ? _ref1.greaterThan(this.endBefore) : void 0)) {
+      if (config.step != null) {
+        this.step = config.step;
+      } else if ((config.endBefore != null) && ((_ref1 = this.startOn) != null ? _ref1.greaterThan(this.endBefore) : void 0)) {
         this.step = -1;
-      } else if ((spec.endBefore != null) && !(spec.startOn != null) && (spec.limit != null)) {
+      } else if ((config.endBefore != null) && !(config.startOn != null) && (config.limit != null)) {
         this.step = -1;
       } else {
         this.step = 1;
       }
-      utils.assert(((spec.startOn != null) && (spec.endBefore != null)) || ((spec.startOn != null) && (spec.limit != null) && this.step > 0) || ((spec.endBefore != null) && (spec.limit != null) && this.step < 0), 'Must provide two out of "startOn", "endBefore", or "limit" and the sign of step must match.');
+      utils.assert(((config.startOn != null) && (config.endBefore != null)) || ((config.startOn != null) && (config.limit != null) && this.step > 0) || ((config.endBefore != null) && (config.limit != null) && this.step < 0), 'Must provide two out of "startOn", "endBefore", or "limit" and the sign of step must match.');
     }
 
-    ChartTimeRange.prototype.getIterator = function(emit, childGranularity, tz) {
+    Timeline.prototype.getIterator = function(emit, tz, childGranularity) {
       if (emit == null) {
-        emit = 'ChartTimeRange';
-      }
-      if (childGranularity == null) {
-        childGranularity = 'day';
+        emit = 'Time';
       }
       /*
           @method getIterator
-          @param {String} [emit]
-          @param {String} [childGranularity]
-          @param {String} [tz]
-          @return {ChartTimeIterator}
+          @param {String} [emit] An optional String that specifies what should be emitted. Possible values are 'Time' (default),
+             'Timeline', 'Date' (javascript Date Object), and 'ISOString'.
+          @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
+             required if `emit` is 'Date' or 'ISOString'.
+          @param {String} [childGranularity] When emit is 'Timeline', this is the granularity for the startOn and endBefore of the
+             Timeline that is emitted.
+          @return {TimelineIterator}
       
-          Returns a new ChartTimeIterator using this ChartTimeRange as the boundaries.
-          
-          Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
-          instantiating a new ChartTimeIterator directly is 'ChartTime'. However, if you request a new ChartTimeIterator 
-          from a ChartTimeRange object using getIterator(), the default is 'ChartTimeRange'.
+          Returns a new TimelineIterator using this Timeline as the boundaries.
       */
 
-      return new ChartTimeIterator(this, emit, childGranularity, tz);
+      return new TimelineIterator(this, emit, tz, childGranularity);
     };
 
-    ChartTimeRange.prototype.getAll = function(emit, childGranularity, tz) {
+    Timeline.prototype.getAllRaw = function(emit, tz, childGranularity) {
+      var temp, tli;
       if (emit == null) {
-        emit = 'ChartTimeRange';
+        emit = 'Time';
       }
-      if (childGranularity == null) {
-        childGranularity = 'day';
+      /*
+          @method getAllRaw
+          @param {String} [emit] An optional String that specifies what should be emitted. Possible values are 'Time' (default),
+             'Timeline', 'Date' (javascript Date Object), and 'ISOString'.
+          @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
+             required if `emit` is 'Date' or 'ISOString'.
+          @param {String} [childGranularity] When emit is 'Timeline', this is the granularity for the startOn and endBefore of the
+             Timeline that is emitted.
+          @return {Time[]/Date[]/Timeline[]/String[]}
+      
+          Returns all of the points in the timeline. Note, this will come back in the order specified
+          by step so they could be out of chronological order. Use getAll() if they must be in chronological order.
+      */
+
+      tli = this.getIterator(emit, tz, childGranularity);
+      temp = [];
+      while (tli.hasNext()) {
+        temp.push(tli.next());
+      }
+      return temp;
+    };
+
+    Timeline.prototype.getAll = function(emit, tz, childGranularity) {
+      var timeline;
+      if (emit == null) {
+        emit = 'Time';
       }
       /*
           @method getAll
-          @param {String} [emit]
-          @param {String} [childGranularity]
-          @param {String} [tz]
-          @return {ChartTime[]/Date[]/ChartTimeRange[]}
+          @param {String} [emit] An optional String that specifies what should be emitted. Possible values are 'Time' (default),
+             'Timeline', 'Date' (javascript Date Object), and 'ISOString'.
+          @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
+             required if `emit` is 'Date' or 'ISOString'.
+          @param {String} [childGranularity] When emit is 'Timeline', this is the granularity for the startOn and endBefore of the
+             Timeline that is emitted.
+          @return {Time[]/Date[]/Timeline[]/String[]}
       
-          Returns all of the points in the timeline specified by this ChartTimeRange.
-          
-          Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
-          instantiating a new ChartTimeIterator directly is 'ChartTime'. However, if you request a new ChartTimeIterator 
-          from a ChartTimeRange object using getIterator(), the default is 'ChartTimeRange'.
+          Returns all of the points in the timeline in chronological order. If you want them in the order specified by `step`
+          then use getAllRaw().
       */
 
-      return new ChartTimeIterator(this, emit, childGranularity, tz).getAll();
-    };
-
-    ChartTimeRange.prototype.getTimeline = function() {
-      /*
-          @method getTimeline
-          @return {ChartTime[]}
-      
-          Returns all of the points in the timeline specified by this ChartTimeRange as ChartTime objects. This method also
-          makes sure that the array that is returned is sorted chrologically.
-      */
-
-      var timeline;
-      timeline = new ChartTimeIterator(this, 'ChartTime', this.granularity).getAll();
+      timeline = this.getAllRaw(emit, tz, childGranularity);
       if (timeline.length > 1 && timeline[0].greaterThan(timeline[1])) {
         timeline.reverse();
       }
       return timeline;
     };
 
-    ChartTimeRange.prototype.contains = function(date, tz) {
+    Timeline.prototype.contains = function(date, tz) {
       /*
           @method contains
-          @param {ChartTime/Date/String} date can be either a JavaScript date object or an ISO-8601 formatted string
+          @param {Time/Date/String} date can be either a JavaScript date object or an ISO-8601 formatted string
           @param {String} [tz]
-          @return {Boolean} true if the date provided is within this ChartTimeRange.
+          @return {Boolean} true if the date provided is within this Timeline.
       
           ## Usage: ##
-          
-          We can create a range from May to July.
-          
-              r = new ChartTimeRange({
+      
+          We can create a Timeline from May to just before July.
+      
+              tl = new Timeline({
                 startOn: '2011-05',
                 endBefore: '2011-07'
               })
-              
-              console.log(r.contains('2011-06-15T12:00:00.000Z', 'America/New_York'))
+      
+              console.log(tl.contains('2011-06-15T12:00:00.000Z', 'America/New_York'))
               # true
       */
 
       var endBefore, startOn, target;
-      if (date instanceof ChartTime) {
+      utils.assert(this.limit === utils.MAX_INT, 'Cannot call `contains()` on Timelines specified with `limit`.');
+      if (date instanceof Time) {
         return date.lessThan(this.endBefore) && date.greaterThanOrEqual(this.startOn);
       }
-      utils.assert((tz != null) || utils.type(date) !== 'date', 'ChartTimeRange.contains() requires a second parameter (timezone) when the first parameter is a Date()');
+      utils.assert((tz != null) || utils.type(date) !== 'date', 'Timeline.contains() requires a second parameter (timezone) when the first parameter is a Date()');
       switch (utils.type(date)) {
         case 'string':
           if (tz != null) {
             target = timezoneJS.parseISO(date);
           } else {
-            target = new ChartTime(date);
+            target = new Time(date);
             return target.lessThan(this.endBefore) && target.greaterThanOrEqual(this.startOn);
           }
           break;
@@ -7746,44 +7539,245 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
           target = date.getTime();
           break;
         default:
-          throw new Error('ChartTimeRange.contains() requires that the first parameter be of type ChartTime, String, or Date');
+          throw new Error('Timeline.contains() requires that the first parameter be of type Time, String, or Date');
       }
       startOn = this.startOn.getJSDate(tz);
       endBefore = this.endBefore.getJSDate(tz);
       return target < endBefore && target >= startOn;
     };
 
-    return ChartTimeRange;
+    Timeline.prototype.getTimeInStateCalculator = function(tz) {
+      var timelineisc;
+      timelineisc = new TimeInStateCalculator(this, tz);
+      return timelineisc;
+    };
+
+    return Timeline;
 
   })();
 
-  exports.ChartTimeRange = ChartTimeRange;
+  TimelineIterator = (function() {
+    /*
+      @class TimelineIterator
+    
+      In most cases you'll want to call getAll() on Timeline. TimelineIterator is for use cases where you want to get the
+      values in the Timeline one at a time.
+    
+      You usually get a TimelineIterator by calling getIterator() on a Timeline object.
+    
+      Iterate through days, months, years, etc. skipping weekends and holidays that you
+      specify. It will also iterate over hours, minutes, seconds, etc. and skip times that are not
+      between the specified work hours.
+    
+      ## Usage ##
+    
+          {TimelineIterator, Timeline, Time} = require('../')
+    
+          tl = new Timeline({
+            startOn:new Time({granularity: 'day', year: 2009, month:1, day: 1}),
+            endBefore:new Time({granularity: 'day', year: 2009, month:1, day: 8}),
+            workDays: 'Monday, Tuesday, Wednesday, Thursday, Friday',
+            holidays: [
+              {month: 1, day: 1},  # New Years day was a Thursday in 2009
+              {year: 2009, month: 1, day: 2}  # Also got Friday off in 2009
+            ]
+          })
+    
+          tli = tl.getIterator()
+    
+          while (tli.hasNext())
+            console.log(tli.next().toString())
+    
+          # 2009-01-05
+          # 2009-01-06
+          # 2009-01-07
+    */
 
-  exports.ChartTimeIterator = ChartTimeIterator;
+    var StopIteration, _contains;
+
+    function TimelineIterator(timeline, emit, tz, childGranularity) {
+      var _ref, _ref1;
+      this.emit = emit != null ? emit : 'Time';
+      this.childGranularity = childGranularity != null ? childGranularity : 'day';
+      /*
+          @constructor
+          @param {Timeline} timeline A Timeline object
+          @param {String} [emit] An optional String that specifies what should be emitted. Possible values are 'Time' (default),
+             'Timeline', 'Date' (javascript Date Object), and 'ISOString'.
+          @param {String} [childGranularity] When emit is 'Timeline', this is the granularity for the startOn and endBefore of the
+             Timeline that is emitted.
+          @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
+             required if `emit` is 'Date' or 'ISOString'.
+      */
+
+      utils.assert((_ref = this.emit) === 'Time' || _ref === 'Timeline' || _ref === 'Date' || _ref === 'ISOString', "emit must be 'Time', 'Timeline', 'Date', or 'ISOString'. You provided " + this.emit + ".");
+      utils.assert(this.emit !== 'Date' || (tz != null), 'Must provide a tz (timezone) parameter when emitting Dates.');
+      utils.assert(this.emit !== 'ISOString' || (tz != null), 'Must provide a tz (timezone) parameter when emitting ISOStrings.');
+      if ((_ref1 = this.tz) == null) {
+        this.tz = tz;
+      }
+      if (timeline instanceof Timeline) {
+        this.timeline = timeline;
+      } else {
+        this.timeline = new Timeline(timeline);
+      }
+      this.reset();
+    }
+
+    StopIteration = typeof StopIteration === 'undefined' ? utils.StopIteration : StopIteration;
+
+    TimelineIterator.prototype.reset = function() {
+      /*
+          @method reset
+      
+          Will go back to the where the iterator started.
+      */
+      if (this.timeline.step > 0) {
+        this.current = new Time(this.timeline.startOn);
+      } else {
+        this.current = new Time(this.timeline.endBefore);
+        this.current.decrement();
+      }
+      this.count = 0;
+      return this._proceedToNextValid();
+    };
+
+    _contains = function(t, startOn, endBefore) {
+      return t.lessThan(endBefore) && t.greaterThanOrEqual(startOn);
+    };
+
+    TimelineIterator.prototype.hasNext = function() {
+      /*
+          @method hasNext
+          @return {Boolean} Returns true if there are still things left to iterator over. Note that if there are holidays,
+             weekends or non-workhours to skip, then hasNext() will take that into account. For example if the endBefore is a
+             Sunday, hasNext() will return true the next time it is called after the Friday is emitted.
+      */
+      return _contains(this.current, this.timeline.startOn, this.timeline.endBefore) && (this.count < this.timeline.limit);
+    };
+
+    TimelineIterator.prototype._shouldBeExcluded = function() {
+      var currentInDay, currentMinutes, holiday, _i, _len, _ref, _ref1, _ref2;
+      if (this.current._isGranularityCoarserThanDay()) {
+        return false;
+      }
+      currentInDay = this.current.inGranularity('day');
+      if (_ref = this.current.dowString(), __indexOf.call(this.timeline.workDays, _ref) < 0) {
+        return true;
+      }
+      _ref1 = this.timeline.holidays;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        holiday = _ref1[_i];
+        if (utils.match(holiday, currentInDay)) {
+          return true;
+        }
+      }
+      if ((_ref2 = this.timeline.granularity) === 'hour' || _ref2 === 'minute' || _ref2 === ' second' || _ref2 === 'millisecond') {
+        currentMinutes = this.current.hour * 60;
+        if (this.current.minute != null) {
+          currentMinutes += this.current.minute;
+        }
+        if (this.timeline.startOnWorkMinutes <= this.timeline.endBeforeWorkMinutes) {
+          if ((currentMinutes < this.timeline.startOnWorkMinutes) || (currentMinutes >= this.timeline.endBeforeWorkMinutes)) {
+            return true;
+          }
+        } else {
+          if ((this.timeline.startOnWorkMinutes >= currentMinutes && currentMinutes > this.timeline.endBeforeWorkMinutes)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    TimelineIterator.prototype._proceedToNextValid = function() {
+      var _results;
+      _results = [];
+      while (this.hasNext() && this._shouldBeExcluded()) {
+        if (this.timeline.step > 0) {
+          _results.push(this.current.increment());
+        } else {
+          _results.push(this.current.decrement());
+        }
+      }
+      return _results;
+    };
+
+    TimelineIterator.prototype.next = function() {
+      /*
+          @method next
+          @return {Time/Timeline/Date/String} Returns the next value of the iterator. The start will be the first value emitted unless it should
+             be skipped due to holiday, weekend, or workhour knockouts.
+      */
+
+      var childtimeline, config, currentCopy, i, _i, _ref;
+      if (!this.hasNext()) {
+        throw new StopIteration('Cannot call next() past end.');
+      }
+      currentCopy = new Time(this.current);
+      this.count++;
+      for (i = _i = _ref = Math.abs(this.timeline.step); _ref <= 1 ? _i <= 1 : _i >= 1; i = _ref <= 1 ? ++_i : --_i) {
+        if (this.timeline.step > 0) {
+          this.current.increment();
+        } else {
+          this.current.decrement();
+        }
+        this._proceedToNextValid();
+      }
+      switch (this.emit) {
+        case 'Time':
+          return currentCopy;
+        case 'Date':
+          return currentCopy.getJSDate(this.tz);
+        case 'ISOString':
+          return currentCopy.getISOStringInTZ(this.tz);
+        case 'Timeline':
+          config = {
+            startOn: currentCopy.inGranularity(this.childGranularity),
+            endBefore: this.current.inGranularity(this.childGranularity),
+            workDays: this.timeline.workDays,
+            holidays: this.timeline.holidays,
+            workDayStartOn: this.timeline.workDayStartOn,
+            workDayEndBefore: this.timeline.workDayEndBefore
+          };
+          childtimeline = new Timeline(config);
+          return childtimeline;
+        default:
+          throw new Error("You asked for type " + this.emit + ". Only 'Time', 'Date', 'ISOString', and 'Timeline' are allowed.");
+      }
+    };
+
+    return TimelineIterator;
+
+  })();
+
+  exports.Timeline = Timeline;
+
+  exports.TimelineIterator = TimelineIterator;
 
 }).call(this);
 
 });
 
-require.define("/src/ChartTimeInStateCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var ChartTimeInStateCalculator, utils;
+require.define("/src/TimeInStateCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var TimeInStateCalculator, utils;
 
   utils = require('./utils');
 
-  ChartTimeInStateCalculator = (function() {
+  TimeInStateCalculator = (function() {
     /*
-      @class ChartTimeInStateCalculator
+      @class TimeInStateCalculator
     
       Used to calculate how much time each uniqueID spent "in-state". You use this by querying a temporal data
       model (like Rally's Lookback API) with a predicate indicating the "state" of interest. You'll then have a list of
       snapshots where that predicate was true. You pass this in to the timeInState method of this previously instantiated
-      ChartTimeInStateCalculator class to identify how many "ticks" of the timeline specified by the iterator you used
+      TimeInStateCalculator class to identify how many "ticks" of the timeline specified by the iterator you used
       to instantiate this class.
       
       Usage:
       
-          charttime = require('../')
-          {ChartTimeRange, ChartTime, ChartTimeIterator, ChartTimeInStateCalculator} = charttime
+          lumenize = require('../')
+          {Timeline, Time, TimelineIterator, TimeInStateCalculator} = lumenize
     
           snapshots = [ 
             { id: 1, from: '2011-01-06T15:10:00.000Z', to: '2011-01-06T15:30:00.000Z' }, # 20 minutes all within an hour
@@ -7799,17 +7793,16 @@ require.define("/src/ChartTimeInStateCalculator.coffee",function(require,module,
           granularity = 'minute'
           timezone = 'America/Chicago'
           
-          rangeSpec = 
+          timelineConfig =
             granularity: granularity
-            startOn: new ChartTime(snapshots[0].from, granularity, timezone).decrement()
+            startOn: new Time(snapshots[0].from, granularity, timezone).decrement()
             endBefore: '2011-01-11T00:00:00.000'
             workDayStartOn: {hour: 9, minute: 0}  # 15:00 in Chicago
             workDayEndBefore: {hour: 11, minute: 0}  # 17:00 in Chicago.
           
-          r1 = new ChartTimeRange(rangeSpec)
-          i1 = r1.getIterator('ChartTime')
-          isc1 = i1.getChartTimeInStateCalculator(timezone)
-          timeInState = isc1.timeInState(snapshots, 'from', 'to', 'id')
+          tl1 = new Timeline(timelineConfig)
+          tisc1 = tl1.getTimeInStateCalculator(timezone)
+          timeInState = tisc1.timeInState(snapshots, 'from', 'to', 'id')
           console.log(timeInState)
     
           # [ { ticks: 20,
@@ -7847,7 +7840,7 @@ require.define("/src/ChartTimeInStateCalculator.coffee",function(require,module,
       The default supresses the ones that are still open at the end, but we can override that
       
           snapshots = [snapshots[7]]
-          console.log(isc1.timeInState(snapshots, 'from', 'to', 'id', false))
+          console.log(tisc1.timeInState(snapshots, 'from', 'to', 'id', false))
           
           # [ { ticks: 260,
           #     finalState: true,
@@ -7858,9 +7851,9 @@ require.define("/src/ChartTimeInStateCalculator.coffee",function(require,module,
           
       We can adjust the granularity
     
-          rangeSpec.granularity = 'hour'
-          isc2 = new ChartTimeRange(rangeSpec).getIterator().getChartTimeInStateCalculator(timezone)
-          timeInState = isc2.timeInState(snapshots, 'from', 'to', 'id', false)
+          timelineConfig.granularity = 'hour'
+          tisc2 = new Timeline(timelineConfig).getTimeInStateCalculator(timezone)
+          timeInState = tisc2.timeInState(snapshots, 'from', 'to', 'id', false)
           console.log(timeInState)
           
           # [ { ticks: 4,
@@ -7870,28 +7863,21 @@ require.define("/src/ChartTimeInStateCalculator.coffee",function(require,module,
           #     id: '7' } ]
     */
 
-    function ChartTimeInStateCalculator(iterator, tz) {
+    function TimeInStateCalculator(timeline, tz) {
       var allCTs, allCTsLength, ct, ctPlus1, idx, previousState, _i, _len;
-      this.iterator = iterator;
+      this.timeline = timeline;
       /*
           @constructor
-          @param {ChartTimeIterator} iterator You must pass in a ChartTimeIterator in the correct granularity and wide enough to cover any snapshots that you will analyze with this ChartTimeInStateCalculator
+          @param {Timeline} timeline You must pass in a Timeline in the correct granularity and wide enough to cover any snapshots that you will analyze with this TimeInStateCalculator
           @param {String} tz The timezone for analysis
       */
 
-      this.granularity = this.iterator.ctr.granularity;
+      this.granularity = this.timeline.granularity;
       if (tz != null) {
         this.tz = tz;
-      } else {
-        this.tz = this.iterator.tz;
       }
-      utils.assert(this.tz != null, 'Must specify a timezone `tz` if none specified by the iterator.');
-      this.iterator.emit = 'ChartTime';
-      utils.assert(this.tz, 'Must provide a timezone to the ChartTimeIterator used for in-state calculation');
-      allCTs = this.iterator.getAll();
-      if (this.iterator.skip < 0) {
-        allCTs.reverse();
-      }
+      utils.assert(this.tz != null, 'Must specify a timezone `tz`.');
+      allCTs = this.timeline.getAll();
       this.ticks = [];
       previousState = false;
       allCTsLength = allCTs.length;
@@ -7929,7 +7915,7 @@ require.define("/src/ChartTimeInStateCalculator.coffee",function(require,module,
       }
     }
 
-    ChartTimeInStateCalculator.prototype.timeInState = function(snapshotArray, validFromField, validToField, uniqueIDField, excludeStillInState) {
+    TimeInStateCalculator.prototype.timeInState = function(snapshotArray, validFromField, validToField, uniqueIDField, excludeStillInState) {
       var currentSnapshotEvent, currentTick, currentTickState, d, eventRow, finalOutput, lastTickAt, output, outputRow, row, s, snapshotEvents, snapshotIndex, snapshotLength, tickIndex, tickLength, toDelete, uniqueID, _i, _j, _len, _len1;
       if (excludeStillInState == null) {
         excludeStillInState = true;
@@ -8078,20 +8064,20 @@ require.define("/src/ChartTimeInStateCalculator.coffee",function(require,module,
       return finalOutput;
     };
 
-    return ChartTimeInStateCalculator;
+    return TimeInStateCalculator;
 
   })();
 
-  exports.ChartTimeInStateCalculator = ChartTimeInStateCalculator;
+  exports.TimeInStateCalculator = TimeInStateCalculator;
 
 }).call(this);
 
 });
 
 require.define("/src/dataTransform.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var ChartTime, aggregationAtArray_To_HighChartsSeries, csvStyleArray_To_ArrayOfMaps, groupByAtArray_To_HighChartsSeries, snapshotArray_To_AtArray, utils;
+  var Time, aggregationAtArray_To_HighChartsSeries, csvStyleArray_To_ArrayOfMaps, groupByAtArray_To_HighChartsSeries, snapshotArray_To_AtArray, utils;
 
-  ChartTime = require('./ChartTime').ChartTime;
+  Time = require('./Time').Time;
 
   utils = require('./utils');
 
@@ -8151,7 +8137,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     /*
       @method snapshotArray_To_AtArray
       @param {Object[]} snapshotArray Array of snapshots
-      @param {Array[]} atArray Array of ChartTime objects representing the moments we want the snapshots at
+      @param {Array[]} atArray Array of Time objects representing the moments we want the snapshots at
       @param {String} validFromField Specifies the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
       @param {String} validToField Same except for the end of the snapshot's active time.
         Defaults to '_ValidTo' for backward compatibility reasons.
@@ -8164,11 +8150,11 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
       each item at each moments of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
       the values at particular moments in time (the times in listOfAtCTs).
       
-      Since this transformation is timezone dependent, you'll need to initialize ChartTime with the path to the tz files.
+      Since this transformation is timezone dependent, you'll need to initialize Time with the path to the tz files.
       Note, that if you use the browserified version of Lumenize, you still need to call setTZPath with some dummy path.
       I'm hoping to fix this at some point.
     
-          {snapshotArray_To_AtArray, ChartTime} = require('../')
+          {snapshotArray_To_AtArray, Time} = require('../')
     
       It will convert an snapshotArray like:
     
@@ -8183,7 +8169,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
           
       And a listOfAtCTs like:
       
-          listOfAtCTs = [new ChartTime('2011-01-02'), new ChartTime('2011-01-03'), new ChartTime('2011-01-07')]
+          listOfAtCTs = [new Time('2011-01-02'), new Time('2011-01-03'), new Time('2011-01-07')]
           
       To an atArray with the value of each ObjectID at each of the points in the listOfAtCTs like:
       
@@ -8380,12 +8366,12 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     return output;
   };
 
-  aggregationAtArray_To_HighChartsSeries = function(aggregationAtArray, aggregationSpec) {
+  aggregationAtArray_To_HighChartsSeries = function(aggregationAtArray, config) {
     /*
       @method aggregationAtArray_To_HighChartsSeries
       @param {Array[]} aggregationAtArray
-      @param {Object} aggregationSpec You can use the same spec you useed to call aggregateAt() as long as it includes
-        any yAxis specifications
+      @param {Object} config You can use the same config you used to call aggregateAt() as long as it includes
+        your yAxis specifications
       @return {Object[]} in HighCharts form
     
       Takes an array of arrays that came from a call to aggregateAt() and looks like this:
@@ -8399,14 +8385,14 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
       
       and a list of series configurations
       
-          aggregationSpec = [
+          config = [
             {name: "Series 1", yAxis: 1},
             {name: "Series 2"}
           ]
           
       and extracts the data into seperate series
       
-          console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregationSpec))
+          console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, config))
           # [ { name: 'Series 1', data: [ 8, 2 ], yAxis: 1 },
           #   { name: 'Series 2', data: [ 5, 3 ] } ]
           
@@ -8416,8 +8402,8 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     var a, aggregationRow, idx, key, output, outputRow, preOutput, s, seriesNames, seriesRow, value, _i, _j, _k, _l, _len, _len1, _len2, _len3;
     preOutput = {};
     seriesNames = [];
-    for (_i = 0, _len = aggregationSpec.length; _i < _len; _i++) {
-      a = aggregationSpec[_i];
+    for (_i = 0, _len = config.length; _i < _len; _i++) {
+      a = config[_i];
       seriesNames.push(a.name);
     }
     for (_j = 0, _len1 = aggregationAtArray.length; _j < _len1; _j++) {
@@ -8437,7 +8423,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
         name: s,
         data: preOutput[s]
       };
-      seriesRow = aggregationSpec[idx];
+      seriesRow = config[idx];
       for (key in seriesRow) {
         value = seriesRow[key];
         if (key !== 'name' && key !== 'data') {
@@ -8462,59 +8448,20 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
 });
 
 require.define("/src/aggregate.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var ChartTime, ChartTimeIterator, ChartTimeRange, aggregate, aggregateAt, deriveFieldsAt, functions, groupBy, groupByAt, percentileCreator, snapshotArray_To_AtArray, timeSeriesCalculator, timeSeriesGroupByCalculator, utils, _extractFandAs, _ref,
+  var Time, Timeline, TimelineIterator, aggregate, aggregateAt, deriveFieldsAt, functions, groupBy, groupByAt, snapshotArray_To_AtArray, timeSeriesCalculator, timeSeriesGroupByCalculator, utils, _extractFandAs, _ref,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   utils = require('./utils');
 
-  ChartTime = require('./ChartTime').ChartTime;
+  Time = require('./Time').Time;
 
-  _ref = require('./ChartTimeIteratorAndRange'), ChartTimeRange = _ref.ChartTimeRange, ChartTimeIterator = _ref.ChartTimeIterator;
+  _ref = require('./Timeline'), Timeline = _ref.Timeline, TimelineIterator = _ref.TimelineIterator;
 
   deriveFieldsAt = require('./derive').deriveFieldsAt;
 
   snapshotArray_To_AtArray = require('./dataTransform').snapshotArray_To_AtArray;
 
   functions = require('./functions').functions;
-
-  /*
-  @method percentileCreator
-  @static
-  @param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
-  @return {Function} A funtion to calculate the percentile
-  
-  When the user passes in `p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate
-  percentile function. The returned function will find the `<n>`th percentile where `<n>` is some number in the form of
-  `##[.##]`. (e.g. `p40`, `p99`, `p99.9`).
-  
-  Note: `median` is an alias for `p50`.
-  
-  There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
-  use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
-  recommendation and makes the most sense to me.
-  */
-
-
-  percentileCreator = function(p) {
-    return function(values) {
-      var d, k, n, sortfunc, vLength;
-      sortfunc = function(a, b) {
-        return a - b;
-      };
-      vLength = values.length;
-      values.sort(sortfunc);
-      n = (p * (vLength - 1) / 100) + 1;
-      k = Math.floor(n);
-      d = n - k;
-      if (n === 1) {
-        return values[1 - 1];
-      }
-      if (n === vLength) {
-        return values[vLength - 1];
-      }
-      return values[k - 1] + d * (values[k] - values[k - 1]);
-    };
-  };
 
   _extractFandAs = function(a) {
     var as, f, p;
@@ -8529,10 +8476,10 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     } else if (functions[a.f] != null) {
       f = functions[a.f];
     } else if (a.f === 'median') {
-      f = percentileCreator(50);
+      f = functions.percentileCreator(50);
     } else if (a.f.substr(0, 2) === 'p') {
       p = /\p(\d+(.\d+)?)/.exec(a.f)[1];
-      f = percentileCreator(Number(p));
+      f = functions.percentileCreator(Number(p));
     } else {
       throw new Error("" + a.f + " is not a recognized built-in function");
     }
@@ -8542,11 +8489,11 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     };
   };
 
-  aggregate = function(list, aggregationSpec) {
+  aggregate = function(list, config) {
     /*
       @method aggregate
       @param {Object[]} list An Array or arbitrary rows
-      @param {Object} aggregationSpec
+      @param {Object} config
       @return {Object}
     
       Takes a list like this:
@@ -8559,9 +8506,9 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
             { ObjectID: '3', KanbanState: 'Ready to pull', PlanEstimate: 5, TaskRemainingTotal: 12 }
           ]
           
-      and a list of aggregationSpec like this:
+      and a list of config like this:
     
-          aggregationSpec = [
+          config = [
             {field: 'ObjectID', f: 'count'}
             {as: 'Drill-down', field:'ObjectID', f:'push'}
             {field: 'PlanEstimate', f: 'sum'}
@@ -8575,7 +8522,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
           
       and returns the aggregations like this:
         
-          a = aggregate(list, aggregationSpec)
+          a = aggregate(list, config)
           console.log(a)
      
           #   { ObjectID_count: 3,
@@ -8584,17 +8531,16 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
           #     mySum: 13 } 
           
       For each aggregation, you must provide a `field` and `f` (function) value. You can optionally 
-      provide an alias for the aggregation with the 'as` field. There are a number of built in functions 
-      documented above.
+      provide an alias for the aggregation with the 'as` field. There are a number of built in functions.
       
       Alternatively, you can provide your own function (it takes one parameter, which is an
-      Array of values to aggregate) like the `mySum` example in our `aggregationSpec` list above.
+      Array of values to aggregate) like the `mySum` example in our `config` list above.
     */
 
     var a, as, f, output, row, valuesArray, _i, _j, _len, _len1, _ref1;
     output = {};
-    for (_i = 0, _len = aggregationSpec.length; _i < _len; _i++) {
-      a = aggregationSpec[_i];
+    for (_i = 0, _len = config.length; _i < _len; _i++) {
+      a = config[_i];
       valuesArray = [];
       for (_j = 0, _len1 = list.length; _j < _len1; _j++) {
         row = list[_j];
@@ -8606,15 +8552,15 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     return output;
   };
 
-  aggregateAt = function(atArray, aggregationSpec) {
+  aggregateAt = function(atArray, config) {
     /*
       @method aggregateAt
       @param {Array[]} atArray
-      @param {Object[]} aggregationSpec
+      @param {Object[]} config
       @return {Object[]}
     
       Each sub-Array in atArray is passed to the `aggregate` function and the results are collected into a single array output.
-      This is essentially a wrapper around the aggregate function so the spec parameter is the same. You can think of
+      This is essentially a wrapper around the aggregate function so the config parameter is the same. You can think of
       it as using a `map`.
     */
 
@@ -8622,17 +8568,17 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     output = [];
     for (idx = _i = 0, _len = atArray.length; _i < _len; idx = ++_i) {
       row = atArray[idx];
-      a = aggregate(row, aggregationSpec);
+      a = aggregate(row, config);
       output.push(a);
     }
     return output;
   };
 
-  groupBy = function(list, spec) {
+  groupBy = function(list, config) {
     /*
       @method groupBy
       @param {Object[]} list An Array of rows
-      @param {Object} spec
+      @param {Object} config
       @return {Object[]}
     
       Takes a list like this:
@@ -8645,11 +8591,11 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
             { ObjectID: '3', KanbanState: 'Ready to pull', PlanEstimate: 5, TaskRemainingTotal: 12 }
           ]
           
-      and a spec like this:
+      and a config like this:
     
-          spec = {
+          config = {
             groupBy: 'KanbanState',
-            aggregationSpec: [
+            aggregationConfig: [
               {field: 'ObjectID', f: 'count'}
               {as: 'Drill-down', field:'ObjectID', f:'push'}
               {field: 'PlanEstimate', f: 'sum'}
@@ -8664,7 +8610,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
             
       Returns the aggregations like this:
         
-          a = groupBy(list, spec)
+          a = groupBy(list, config)
           console.log(a)
     
           #   [ { KanbanState: 'In progress',
@@ -8688,17 +8634,17 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     grouped = {};
     for (_i = 0, _len = list.length; _i < _len; _i++) {
       row = list[_i];
-      if (grouped[row[spec.groupBy]] == null) {
-        grouped[row[spec.groupBy]] = [];
+      if (grouped[row[config.groupBy]] == null) {
+        grouped[row[config.groupBy]] = [];
       }
-      grouped[row[spec.groupBy]].push(row);
+      grouped[row[config.groupBy]].push(row);
     }
     output = [];
     for (groupByValue in grouped) {
       valuesForThisGroup = grouped[groupByValue];
       outputRow = {};
-      outputRow[spec.groupBy] = groupByValue;
-      _ref1 = spec.aggregationSpec;
+      outputRow[config.groupBy] = groupByValue;
+      _ref1 = config.aggregationConfig;
       for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
         a = _ref1[_j];
         valuesArray = [];
@@ -8714,11 +8660,11 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     return output;
   };
 
-  groupByAt = function(atArray, spec) {
+  groupByAt = function(atArray, config) {
     /*
       @method groupByAt
       @param {Array[]} atArray
-      @param {Object} spec
+      @param {Object} config
       @return {Array[]}
     
       Each row in atArray is passed to the `groupBy` function and the results are collected into a single output.
@@ -8726,12 +8672,12 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       This function also finds all the unique groupBy values in all rows of the output and pads the output with blank/zero rows to cover
       each unique groupBy value.
       
-      This is essentially a wrapper around the groupBy function so the spec parameter is the same with the addition of the `uniqueValues` field.
-      The ordering specified in `spec.uniqueValues` (optional) will be honored. Any additional unique values that aggregateAt finds will be added to
+      This is essentially a wrapper around the groupBy function so the config parameter is the same with the addition of the `uniqueValues` field.
+      The ordering specified in `config.uniqueValues` (optional) will be honored. Any additional unique values that aggregateAt finds will be added to
       the uniqueValues list at the end. This gives you the best of both worlds. The ability to specify the order without the risk of the
-      data containing more values than you originally thought when you created spec.uniqueValues.
+      data containing more values than you originally thought when you created config.uniqueValues.
       
-      Note: `groupByAt` has the side-effect that `spec.uniqueValues` are upgraded with the missing values.
+      Note: `groupByAt` has the side-effect that `config.uniqueValues` are upgraded with the missing values.
       You can use this if you want to do more calculations at the calling site.
     */
 
@@ -8739,18 +8685,18 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     temp = [];
     for (idx = _i = 0, _len = atArray.length; _i < _len; idx = ++_i) {
       row = atArray[idx];
-      tempGroupBy = groupBy(row, spec);
+      tempGroupBy = groupBy(row, config);
       tempRow = {};
       for (_j = 0, _len1 = tempGroupBy.length; _j < _len1; _j++) {
         tgb = tempGroupBy[_j];
-        tempKey = tgb[spec.groupBy];
-        delete tgb[spec.groupBy];
+        tempKey = tgb[config.groupBy];
+        delete tgb[config.groupBy];
         tempRow[tempKey] = tgb;
       }
       temp.push(tempRow);
     }
-    if (spec.uniqueValues != null) {
-      uniqueValues = spec.uniqueValues;
+    if (config.uniqueValues != null) {
+      uniqueValues = config.uniqueValues;
     } else {
       uniqueValues = [];
     }
@@ -8764,7 +8710,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       }
     }
     blank = {};
-    _ref1 = spec.aggregationSpec;
+    _ref1 = config.aggregationConfig;
     for (_l = 0, _len3 = _ref1.length; _l < _len3; _l++) {
       a = _ref1[_l];
       _ref2 = _extractFandAs(a), f = _ref2.f, as = _ref2.as;
@@ -8777,11 +8723,11 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       for (_n = 0, _len5 = uniqueValues.length; _n < _len5; _n++) {
         u = uniqueValues[_n];
         if (t[u] != null) {
-          t[u][spec.groupBy] = u;
+          t[u][config.groupBy] = u;
           row.push(t[u]);
         } else {
           newRow = utils.clone(blank);
-          newRow[spec.groupBy] = u;
+          newRow[config.groupBy] = u;
           row.push(newRow);
         }
       }
@@ -8798,12 +8744,12 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       @return {Object} Returns an Object {listOfAtCTs, aggregationAtArray}
     
       Takes an MVCC style `snapshotArray` array and returns the time series calculations `At` each moment specified by
-      the ChartTimeRange spec (`rangeSpec`) within the config object.
+      the Timeline config (`timelineConfig`) within the config object.
       
       This is really just a thin wrapper around various other calculations, so look at the documentation for each of
       those to get the detail picture of what this timeSeriesCalculator does. The general flow is:
       
-      1. Use `ChartTimeRange.getTimeline()` against `config.rangeSpec` to find the points for the x-axis.
+      1. Use `Timeline.getTimeline()` against `config.timelineConfig` to find the points for the x-axis.
          The output of this work is a `listOfAtCTs` array.
       2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
          The output of this operation is called an `atArray`
@@ -8812,11 +8758,11 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     */
 
     var aggregationAtArray, atArray, listOfAtCTs;
-    listOfAtCTs = new ChartTimeRange(config.rangeSpec).getTimeline();
+    listOfAtCTs = new Timeline(config.timelineConfig).getAll();
     utils.assert(listOfAtCTs.length > 0, "Timeline has no data points.");
     atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField);
     deriveFieldsAt(atArray, config.derivedFields);
-    aggregationAtArray = aggregateAt(atArray, config.aggregationSpec);
+    aggregationAtArray = aggregateAt(atArray, config.aggregationConfig);
     return {
       listOfAtCTs: listOfAtCTs,
       aggregationAtArray: aggregationAtArray
@@ -8831,26 +8777,26 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       @return {Object} Returns an Object {listOfAtCTs, groupByAtArray, uniqueValues}
     
       Takes an MVCC style `snapshotArray` array and returns the data groupedBy a particular field `At` each moment specified by
-      the ChartTimeRange spec (`rangeSpec`) within the config object. 
+      the Timeline config (`timelineConfig`) within the config object.
       
       This is really just a thin wrapper around various other calculations, so look at the documentation for each of
       those to get the detail picture of what this timeSeriesGroupByCalculator does. The general flow is:
       
-      1. Use `ChartTimeRange` and `ChartTimeIterator` against `config.rangeSpec` to find the points for the x-axis.
+      1. Use `Timeline` and `TimelineIterator` against `config.timelineConfig` to find the points for the x-axis.
          The output of this work is a `listOfAtCTs` array.
       2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
          The output of this operation is called an `atArray`
       3. Use `groupByAt` to create a `groupByAtArray` of grouped aggregations to chart
     */
 
-    var aggregationSpec, atArray, groupByAtArray, listOfAtCTs;
-    listOfAtCTs = new ChartTimeRange(config.rangeSpec).getTimeline();
+    var aggregationConfig, atArray, groupByAtArray, listOfAtCTs;
+    listOfAtCTs = new Timeline(config.timelineConfig).getAll();
     utils.assert(listOfAtCTs.length > 0, "Timeline has no data points.");
     atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField);
-    aggregationSpec = {
+    aggregationConfig = {
       groupBy: config.groupByField,
       uniqueValues: utils.clone(config.groupByFieldValues),
-      aggregationSpec: [
+      aggregationConfig: [
         {
           as: 'GroupBy',
           field: config.aggregationField,
@@ -8866,15 +8812,13 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
         }
       ]
     };
-    groupByAtArray = groupByAt(atArray, aggregationSpec);
+    groupByAtArray = groupByAt(atArray, aggregationConfig);
     return {
       listOfAtCTs: listOfAtCTs,
       groupByAtArray: groupByAtArray,
-      uniqueValues: utils.clone(aggregationSpec.uniqueValues)
+      uniqueValues: utils.clone(aggregationConfig.uniqueValues)
     };
   };
-
-  exports.percentileCreator = percentileCreator;
 
   exports.aggregate = aggregate;
 
@@ -8895,11 +8839,11 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
 require.define("/src/derive.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
   var deriveFields, deriveFieldsAt;
 
-  deriveFields = function(list, derivedFieldsSpec) {
+  deriveFields = function(list, config) {
     /*
       @method deriveFields
       @param {Object[]} list
-      @param {Object[]} derivedFieldsSpec
+      @param {Object[]} config
     
       This function works on the list in place meaning that it's all side effect.
     
@@ -8928,7 +8872,7 @@ require.define("/src/derive.coffee",function(require,module,exports,__dirname,__
           # [ { a: 1, b: 2, sum: 3 }, { a: 3, b: 4, sum: 7 } ]
     
       Note: the derivations are calculated in order so you can use the output of one derivation as the input to one
-      that appears later in the derivedFieldsSpec list.
+      that appears later in the config list.
     */
 
     var d, row, _i, _len, _results;
@@ -8938,8 +8882,8 @@ require.define("/src/derive.coffee",function(require,module,exports,__dirname,__
       _results.push((function() {
         var _j, _len1, _results1;
         _results1 = [];
-        for (_j = 0, _len1 = derivedFieldsSpec.length; _j < _len1; _j++) {
-          d = derivedFieldsSpec[_j];
+        for (_j = 0, _len1 = config.length; _j < _len1; _j++) {
+          d = config[_j];
           _results1.push(row[d.name] = d.f(row));
         }
         return _results1;
@@ -8948,11 +8892,11 @@ require.define("/src/derive.coffee",function(require,module,exports,__dirname,__
     return _results;
   };
 
-  deriveFieldsAt = function(atArray, derivedFieldsSpec) {
+  deriveFieldsAt = function(atArray, config) {
     /*
       @method deriveFieldsAt
       @param {Array[]} atArray
-      @param {Object[]} derivedFieldsSpec
+      @param {Object[]} config
       @return {Array[]}
       Sends every sub-array in atArray to deriveFields upgrading the atArray in place.
     */
@@ -8961,7 +8905,7 @@ require.define("/src/derive.coffee",function(require,module,exports,__dirname,__
     _results = [];
     for (_i = 0, _len = atArray.length; _i < _len; _i++) {
       a = atArray[_i];
-      _results.push(deriveFields(a, derivedFieldsSpec));
+      _results.push(deriveFields(a, config));
     }
     return _results;
   };
@@ -9080,32 +9024,26 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   };
 
   /*
-  @method push
+  @method values
   @static
   @param {Number[]} values
   @return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
   */
 
 
-  functions.push = function(values) {
-    var temp, v, _i, _len;
-    temp = [];
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      temp.push(v);
-    }
-    return temp;
+  functions.values = function(values) {
+    return values;
   };
 
   /*
-  @method addToSet
+  @method uniqueValues
   @static
   @param {Number[]} values
   @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
   */
 
 
-  functions.addToSet = function(values) {
+  functions.uniqueValues = function(values) {
     var key, temp, temp2, v, value, _i, _len;
     temp = {};
     temp2 = [];
@@ -9170,6 +9108,45 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
 
   functions.standardDeviation = function(values) {
     return Math.sqrt(functions.variance(values));
+  };
+
+  /*
+  @method percentileCreator
+  @static
+  @param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
+  @return {Function} A funtion to calculate the percentile
+  
+  When the user passes in `p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate
+  percentile function. The returned function will find the `<n>`th percentile where `<n>` is some number in the form of
+  `##[.##]`. (e.g. `p40`, `p99`, `p99.9`).
+  
+  Note: `median` is an alias for `p50`.
+  
+  There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
+  use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
+  recommendation and makes the most sense to me.
+  */
+
+
+  functions.percentileCreator = function(p) {
+    return function(values) {
+      var d, k, n, sortfunc, vLength;
+      sortfunc = function(a, b) {
+        return a - b;
+      };
+      vLength = values.length;
+      values.sort(sortfunc);
+      n = (p * (vLength - 1) / 100) + 1;
+      k = Math.floor(n);
+      d = n - k;
+      if (n === 1) {
+        return values[1 - 1];
+      }
+      if (n === vLength) {
+        return values[vLength - 1];
+      }
+      return values[k - 1] + d * (values[k] - values[k - 1]);
+    };
   };
 
   exports.functions = functions;

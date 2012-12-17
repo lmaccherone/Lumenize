@@ -16,7 +16,7 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
-ChartTime = require('./ChartTime').ChartTime
+Time = require('./Time').Time
 utils = require('./utils')
     
 csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) -&gt;
@@ -73,7 +73,7 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
 </span>   * @method snapshotArray_To_AtArray
    * @member Lumenize
    * @param {Object[]} snapshotArray Array of snapshots
-   * @param {Array[]} atArray Array of ChartTime objects representing the moments we want the snapshots at
+   * @param {Array[]} atArray Array of Time objects representing the moments we want the snapshots at
    * @param {String} validFromField Specifies the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
    * @param {String} validToField Same except for the end of the snapshot's active time.
    *   Defaults to '_ValidTo' for backward compatibility reasons.
@@ -86,11 +86,11 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
    * each item at each moments of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
    * the values at particular moments in time (the times in listOfAtCTs).
    * 
-   * Since this transformation is timezone dependent, you'll need to initialize ChartTime with the path to the tz files.
+   * Since this transformation is timezone dependent, you'll need to initialize Time with the path to the tz files.
    * Note, that if you use the browserified version of Lumenize, you still need to call setTZPath with some dummy path.
    * I'm hoping to fix this at some point.
    * 
-   *     {snapshotArray_To_AtArray, ChartTime} = require('../')
+   *     {snapshotArray_To_AtArray, Time} = require('../')
    * 
    * It will convert an snapshotArray like:
    * 
@@ -105,7 +105,7 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
    *     
    * And a listOfAtCTs like:
    * 
-   *     listOfAtCTs = [new ChartTime('2011-01-02'), new ChartTime('2011-01-03'), new ChartTime('2011-01-07')]
+   *     listOfAtCTs = [new Time('2011-01-02'), new Time('2011-01-03'), new Time('2011-01-07')]
    *     
    * To an atArray with the value of each ObjectID at each of the points in the listOfAtCTs like:
    * 

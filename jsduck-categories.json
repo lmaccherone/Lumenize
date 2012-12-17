@@ -17,10 +17,10 @@
             {
                 "name": "Supporting Classes",
                 "classes": [
-                    "*.ChartTime",
-                    "*.ChartTimeRange",
-                    "*.ChartTimeIterator",
-                    "*.ChartTimeInStateCalculator"
+                    "*.Time",
+                    "*.Timeline",
+                    "*.TimelineIterator",
+                    "*.TimeInStateCalculator"
                 ]
             }
         ]

@@ -17,45 +17,11 @@
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
 utils = require('./utils')
-{ChartTime} = require('./ChartTime')
-{ChartTimeRange, ChartTimeIterator} = require('./ChartTimeIteratorAndRange')
+{Time} = require('./Time')
+{Timeline, TimelineIterator} = require('./Timeline')
 {deriveFieldsAt} = require('./derive')
 {snapshotArray_To_AtArray} = require('./dataTransform')
 {functions} = require('./functions')
-
-&lt;/CoffeeScript&gt; */
-<span id='Lumenize-static-method-percentileCreator'>/**
-</span> * @method percentileCreator
- * @member Lumenize
- * @static
- * @param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
- * @return {Function} A funtion to calculate the percentile
- * 
- * When the user passes in `p&lt;n&gt;` as an aggregation function, this `percentileCreator` is called to return the appropriate
- * percentile function. The returned function will find the `&lt;n&gt;`th percentile where `&lt;n&gt;` is some number in the form of
- * `##[.##]`. (e.g. `p40`, `p99`, `p99.9`).
- * 
- * Note: `median` is an alias for `p50`.
- * 
- * There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
- * use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
- * recommendation and makes the most sense to me.
- */
-/* &lt;CoffeeScript&gt;
-percentileCreator = (p) -&gt;
-  return (values) -&gt;
-    sortfunc = (a, b) -&gt;
-      return a - b
-    vLength = values.length
-    values.sort(sortfunc)
-    n = (p * (vLength - 1) / 100) + 1
-    k = Math.floor(n)
-    d = n - k
-    if n == 1
-      return values[1 - 1]
-    if n == vLength
-      return values[vLength - 1]
-    return values[k - 1] + d * (values[k] - values[k - 1])
 
 _extractFandAs = (a) -&gt;
   if a.as?
@@ -68,10 +34,10 @@ _extractFandAs = (a) -&gt;
   else if functions[a.f]?
     f = functions[a.f]
   else if a.f == 'median'
-    f = percentileCreator(50)
+    f = functions.percentileCreator(50)
   else if a.f.substr(0, 2) == 'p'
     p = /\p(\d+(.\d+)?)/.exec(a.f)[1]
-    f = percentileCreator(Number(p))
+    f = functions.percentileCreator(Number(p))
   else
     throw new Error(&quot;#{a.f} is not a recognized built-in function&quot;)
   return {f, as}
@@ -315,12 +281,12 @@ timeSeriesCalculator = (snapshotArray, config) -&gt;
    * @return {Object} Returns an Object {listOfAtCTs, aggregationAtArray}
    * 
    * Takes an MVCC style `snapshotArray` array and returns the time series calculations `At` each moment specified by
-   * the ChartTimeRange spec (`rangeSpec`) within the config object.
+   * the Timeline spec (`timelineConfig`) within the config object.
    * 
    * This is really just a thin wrapper around various other calculations, so look at the documentation for each of
    * those to get the detail picture of what this timeSeriesCalculator does. The general flow is:
    * 
-   * 1. Use `ChartTimeRange.getTimeline()` against `config.rangeSpec` to find the points for the x-axis.
+   * 1. Use `Timeline.getTimeline()` against `config.timelineConfig` to find the points for the x-axis.
    *    The output of this work is a `listOfAtCTs` array.
    * 2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
    *    The output of this operation is called an `atArray`
@@ -331,7 +297,7 @@ timeSeriesCalculator = (snapshotArray, config) -&gt;
 /* &lt;CoffeeScript&gt;
   
   # 1. Figuring out the points for the x-axis (listOfAtCTs) 
-  listOfAtCTs = new ChartTimeRange(config.rangeSpec).getTimeline()
+  listOfAtCTs = new Timeline(config.timelineConfig).getAll()
   utils.assert(listOfAtCTs.length &gt; 0, &quot;Timeline has no data points.&quot;)
 
   # 2. Finding the state of each object **AT** each point in the listOfAtCTs array.
@@ -356,12 +322,12 @@ timeSeriesGroupByCalculator = (snapshotArray, config) -&gt;
    * @return {Object} Returns an Object {listOfAtCTs, groupByAtArray, uniqueValues}
    * 
    * Takes an MVCC style `snapshotArray` array and returns the data groupedBy a particular field `At` each moment specified by
-   * the ChartTimeRange spec (`rangeSpec`) within the config object. 
+   * the Timeline spec (`timelineConfig`) within the config object.
    * 
    * This is really just a thin wrapper around various other calculations, so look at the documentation for each of
    * those to get the detail picture of what this timeSeriesGroupByCalculator does. The general flow is:
    * 
-   * 1. Use `ChartTimeRange` and `ChartTimeIterator` against `config.rangeSpec` to find the points for the x-axis.
+   * 1. Use `Timeline` and `TimelineIterator` against `config.timelineConfig` to find the points for the x-axis.
    *    The output of this work is a `listOfAtCTs` array.
    * 2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
    *    The output of this operation is called an `atArray`
@@ -371,7 +337,7 @@ timeSeriesGroupByCalculator = (snapshotArray, config) -&gt;
 /* &lt;CoffeeScript&gt;
 
   # 1. Figuring out the points for the x-axis (listOfAtCTs)
-  listOfAtCTs = new ChartTimeRange(config.rangeSpec).getTimeline()
+  listOfAtCTs = new Timeline(config.timelineConfig).getAll()
   utils.assert(listOfAtCTs.length &gt; 0, &quot;Timeline has no data points.&quot;)
   
   # 2. Finding the state of each object **AT** each point in the listOfAtCTs array.
@@ -398,7 +364,6 @@ timeSeriesGroupByCalculator = (snapshotArray, config) -&gt;
         
   return {listOfAtCTs, groupByAtArray, uniqueValues: utils.clone(aggregationSpec.uniqueValues)}
 
-exports.percentileCreator = percentileCreator
 exports.aggregate = aggregate
 exports.aggregateAt = aggregateAt
 exports.groupBy = groupBy

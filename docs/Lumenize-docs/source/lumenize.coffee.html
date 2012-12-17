@@ -75,12 +75,12 @@
  * 
  *     snapshotArray = Lumenize.csvStyleArray_To_ArrayOfMaps(snapshotsCSVStyle)
  * 
- * The `rangeSpec` defines the specification for the x-axis. Notice how you can exclude weekends and holidays. Here we
+ * The `timelineConfig` defines the specification for the x-axis. Notice how you can exclude weekends and holidays. Here we
  * specify a `startOn` and a `endBefore`. However, it's fairly common in charts to specify `endBefore: &quot;this day&quot;` and
  * `limit: 60` (no `startOn`). A number of human readable dates like `&quot;next month&quot;` or `&quot;previous week&quot;` are supported. You
  * need to specify any 2 of startOn, endBefore, or limit.
  * 
- *     rangeSpec = {
+ *     timelineConfig = {
  *       startOn: &quot;2011-01-02&quot;
  *       endBefore: &quot;2011-01-08&quot;,
  *       workDays: [&quot;Monday&quot;, &quot;Tuesday&quot;, &quot;Wednesday&quot;, &quot;Thursday&quot;, &quot;Friday&quot;],  # Also supports &quot;Monday, Tuesday, ...&quot;
@@ -125,13 +125,13 @@
  *       snapshotValidToField: '_ValidTo',
  *       snapshotUniqueID: 'ObjectID',
  *       timezone: 'America/New_York',
- *       rangeSpec: rangeSpec,
+ *       timelineConfig: timelineConfig,
  *       derivedFields: derivedFields,
  *       aggregationSpec: aggregationSpec
  *     }
  * 
  * Next, we call `Lumenize.timeSeriesCalculator` with the snapshots as well as the config object that we just built.
- * It will calculate the time-series data according to our specifications. It returns two values. A list of ChartTime
+ * It will calculate the time-series data according to our specifications. It returns two values. A list of Time
  * objects specifying the x-axis (`listOfAtCTs`) and our calculations (`aggregationAtArray`).
  * 
  *     {listOfAtCTs, aggregationAtArray} = Lumenize.timeSeriesCalculator(snapshotArray, config)
@@ -178,13 +178,13 @@
  */
 /* &lt;CoffeeScript&gt;
 
-exports.ChartTime = require('./src/ChartTime').ChartTime
+exports.Time = require('./src/Time').Time
 
-chartTimeIteratorAndRange = require('./src/ChartTimeIteratorAndRange')
-exports.ChartTimeIterator = chartTimeIteratorAndRange.ChartTimeIterator
-exports.ChartTimeRange = chartTimeIteratorAndRange.ChartTimeRange
+Timeline = require('./src/Timeline')
+exports.TimelineIterator = Timeline.TimelineIterator
+exports.Timeline = Timeline.Timeline
 
-exports.ChartTimeInStateCalculator = require('./src/ChartTimeInStateCalculator').ChartTimeInStateCalculator
+exports.TimeInStateCalculator = require('./src/TimeInStateCalculator').TimeInStateCalculator
 
 datatransform = require('./src/dataTransform')
 exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps
@@ -197,7 +197,6 @@ exports.aggregate = aggregate.aggregate
 exports.aggregateAt = aggregate.aggregateAt
 exports.groupBy = aggregate.groupBy
 exports.groupByAt = aggregate.groupByAt
-exports.percentileCreator = aggregate.percentileCreator
 exports.timeSeriesCalculator = aggregate.timeSeriesCalculator
 exports.timeSeriesGroupByCalculator = aggregate.timeSeriesGroupByCalculator
 

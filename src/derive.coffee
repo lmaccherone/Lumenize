@@ -1,8 +1,8 @@
-deriveFields = (list, derivedFieldsSpec) ->
+deriveFields = (list, config) ->
   ###
   @method deriveFields
   @param {Object[]} list
-  @param {Object[]} derivedFieldsSpec
+  @param {Object[]} config
 
   This function works on the list in place meaning that it's all side effect.
 
@@ -31,22 +31,22 @@ deriveFields = (list, derivedFieldsSpec) ->
       # [ { a: 1, b: 2, sum: 3 }, { a: 3, b: 4, sum: 7 } ]
 
   Note: the derivations are calculated in order so you can use the output of one derivation as the input to one
-  that appears later in the derivedFieldsSpec list.
+  that appears later in the config list.
   ###
   for row in list
-    for d in derivedFieldsSpec
+    for d in config
       row[d.name] = d.f(row)
       
-deriveFieldsAt = (atArray, derivedFieldsSpec) ->
+deriveFieldsAt = (atArray, config) ->
   ###
   @method deriveFieldsAt
   @param {Array[]} atArray
-  @param {Object[]} derivedFieldsSpec
+  @param {Object[]} config
   @return {Array[]}
   Sends every sub-array in atArray to deriveFields upgrading the atArray in place.
   ###
   for a in atArray
-    deriveFields(a, derivedFieldsSpec)
+    deriveFields(a, config)
   
 
 exports.deriveFields = deriveFields

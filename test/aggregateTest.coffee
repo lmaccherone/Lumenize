@@ -1,4 +1,4 @@
-{ChartTime, groupBy, groupByAt, aggregate, aggregateAt, percentileCreator} = require('../')
+{Time, groupBy, groupByAt, aggregate, aggregateAt, functions} = require('../')
 
 exports.aggregateTest =
 
@@ -11,15 +11,15 @@ exports.aggregateTest =
     a = [15, 20, 35, 40, 50]
     a2 = [3, 5]
     
-    test.equal(percentileCreator(50)(a2), 4)
-    f = percentileCreator(40)
+    test.equal(functions.percentileCreator(50)(a2), 4)
+    f = functions.percentileCreator(40)
     test.equal(f(a), 29)
-    test.ok(Math.abs(percentileCreator(90)(a) - 46) < 0.00001)
-    test.ok(Math.abs(percentileCreator(99)(a) - 49.6) < 0.00001)
-    test.ok(Math.abs(percentileCreator(99.9)(a) - 49.96) < 0.00001)
-    test.ok(Math.abs(percentileCreator(50)(a) - 35) < 0.00001)
-    test.ok(Math.abs(percentileCreator(100)(a) - 50) < 0.00001)
-    test.ok(Math.abs(percentileCreator(0)(a) - 15) < 0.00001)
+    test.ok(Math.abs(functions.percentileCreator(90)(a) - 46) < 0.00001)
+    test.ok(Math.abs(functions.percentileCreator(99)(a) - 49.6) < 0.00001)
+    test.ok(Math.abs(functions.percentileCreator(99.9)(a) - 49.96) < 0.00001)
+    test.ok(Math.abs(functions.percentileCreator(50)(a) - 35) < 0.00001)
+    test.ok(Math.abs(functions.percentileCreator(100)(a) - 50) < 0.00001)
+    test.ok(Math.abs(functions.percentileCreator(0)(a) - 15) < 0.00001)
         
     test.done()
     
@@ -30,11 +30,11 @@ exports.aggregateTest =
       { ObjectID: '3', KanbanState: 'Ready to pull', PlanEstimate: 5, TaskRemainingTotal: 12 }
     ]
     
-    spec = {
+    config = {
       groupBy: 'KanbanState',
-      aggregationSpec: [
+      aggregationConfig: [
         {field: 'ObjectID', f: 'count'}
-        {as: 'Drill-down', field:'ObjectID', f:'push'}
+        {as: 'Drill-down', field:'ObjectID', f:'values'}
         {field: 'PlanEstimate', f: 'sum'}
         {as: 'mySum', field: 'PlanEstimate', f: (values) ->
           temp = 0
@@ -50,7 +50,7 @@ exports.aggregateTest =
       { 'ObjectID_count': 2, 'Drill-down': [ '2', '3' ], 'PlanEstimate_sum': 8, mySum: 8, 'KanbanState': 'Ready to pull' } 
     ]
     
-    a = groupBy(list, spec)
+    a = groupBy(list, config)
     
     test.deepEqual(a, expected)
     
@@ -71,10 +71,10 @@ exports.aggregateTest =
     
     atArray = [list1, list2]
     
-    spec = {
+    config = {
       groupBy: 'KanbanState',
       uniqueValues: ['Ready to pull', 'In progress'] # 'In test' intentionally missing
-      aggregationSpec: [
+      aggregationConfig: [
         {field: 'ObjectID', f: 'count'}
       ]
     }
@@ -92,7 +92,7 @@ exports.aggregateTest =
       ] 
     ]
     
-    a = groupByAt(atArray, spec)
+    a = groupByAt(atArray, config)
     
     test.deepEqual(a, expected)
     
@@ -105,7 +105,7 @@ exports.aggregateTest =
       { ObjectID: '3', KanbanState: 'Ready to pull', PlanEstimate: 5, TaskRemainingTotal: 13 }
     ]
     
-    aggregationSpec = [
+    aggregationConfig = [
       {field: 'KanbanState', f: 'min'}
       {field: 'PlanEstimate', f:'min'}
       {field: 'PlanEstimate', f:'max'}
@@ -121,7 +121,7 @@ exports.aggregateTest =
       'TaskRemainingTotal_standardDeviation': 9 
     }
     
-    a = aggregate(list, aggregationSpec)
+    a = aggregate(list, aggregationConfig)
     
     test.deepEqual(a, expected)
     
@@ -142,9 +142,9 @@ exports.aggregateTest =
     
     atArray = [list1, list2]
     
-    aggregationSpec = [
+    aggregationConfig = [
       {field: 'TaskRemainingTotal', f: 'average'}
-      {as: 'UniqueValues', field:'KanbanState', f:'addToSet'}
+      {as: 'UniqueValues', field:'KanbanState', f:'uniqueValues'}
       {field: 'PlanEstimate', f: 'sumSquares'}
     ]
       
@@ -161,7 +161,7 @@ exports.aggregateTest =
       } 
     ]
     
-    a = aggregateAt(atArray, aggregationSpec)
+    a = aggregateAt(atArray, aggregationConfig)
     
     test.deepEqual(a, expected)
     

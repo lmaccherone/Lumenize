@@ -1,4 +1,4 @@
-ChartTime = require('./ChartTime').ChartTime
+Time = require('./Time').Time
 utils = require('./utils')
     
 csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
@@ -50,7 +50,7 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
   ###
   @method snapshotArray_To_AtArray
   @param {Object[]} snapshotArray Array of snapshots
-  @param {Array[]} atArray Array of ChartTime objects representing the moments we want the snapshots at
+  @param {Array[]} atArray Array of Time objects representing the moments we want the snapshots at
   @param {String} validFromField Specifies the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
   @param {String} validToField Same except for the end of the snapshot's active time.
     Defaults to '_ValidTo' for backward compatibility reasons.
@@ -63,11 +63,11 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
   each item at each moments of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
   the values at particular moments in time (the times in listOfAtCTs).
   
-  Since this transformation is timezone dependent, you'll need to initialize ChartTime with the path to the tz files.
+  Since this transformation is timezone dependent, you'll need to initialize Time with the path to the tz files.
   Note, that if you use the browserified version of Lumenize, you still need to call setTZPath with some dummy path.
   I'm hoping to fix this at some point.
 
-      {snapshotArray_To_AtArray, ChartTime} = require('../')
+      {snapshotArray_To_AtArray, Time} = require('../')
 
   It will convert an snapshotArray like:
 
@@ -82,7 +82,7 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
       
   And a listOfAtCTs like:
   
-      listOfAtCTs = [new ChartTime('2011-01-02'), new ChartTime('2011-01-03'), new ChartTime('2011-01-07')]
+      listOfAtCTs = [new Time('2011-01-02'), new Time('2011-01-03'), new Time('2011-01-07')]
       
   To an atArray with the value of each ObjectID at each of the points in the listOfAtCTs like:
   
@@ -248,12 +248,12 @@ groupByAtArray_To_HighChartsSeries = (groupByAtArray, nameField, valueField, nam
   return output
 
 
-aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, aggregationSpec) ->  # !TODO: Move to RallyAnalytics
+aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, config) ->  # !TODO: Move to RallyAnalytics
   ###
   @method aggregationAtArray_To_HighChartsSeries
   @param {Array[]} aggregationAtArray
-  @param {Object} aggregationSpec You can use the same spec you useed to call aggregateAt() as long as it includes
-    any yAxis specifications
+  @param {Object} config You can use the same config you used to call aggregateAt() as long as it includes
+    your yAxis specifications
   @return {Object[]} in HighCharts form
 
   Takes an array of arrays that came from a call to aggregateAt() and looks like this:
@@ -267,14 +267,14 @@ aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, aggregationSpec) -
   
   and a list of series configurations
   
-      aggregationSpec = [
+      config = [
         {name: "Series 1", yAxis: 1},
         {name: "Series 2"}
       ]
       
   and extracts the data into seperate series
   
-      console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregationSpec))
+      console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, config))
       # [ { name: 'Series 1', data: [ 8, 2 ], yAxis: 1 },
       #   { name: 'Series 2', data: [ 5, 3 ] } ]
       
@@ -284,7 +284,7 @@ aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, aggregationSpec) -
   preOutput = {}
   
   seriesNames = []
-  for a in aggregationSpec
+  for a in config
     seriesNames.push(a.name)
 
   for aggregationRow in aggregationAtArray
@@ -297,7 +297,7 @@ aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, aggregationSpec) -
   output = []
   for s, idx in seriesNames
     outputRow = {name: s, data: preOutput[s]}
-    seriesRow = aggregationSpec[idx]
+    seriesRow = config[idx]
     for key, value of seriesRow
       unless key in ['name', 'data']
         outputRow[key] = value

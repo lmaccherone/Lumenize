@@ -1,4 +1,4 @@
-{ChartTime, ChartTimeRange, utils} = require('../')
+{Time, Timeline, utils} = require('../')
 
 
 # !TODO: Needs more testing of step functionality
@@ -17,7 +17,7 @@ exports.timelineTest =
         '2012-09-03'
       ]
     }
-    timeline = new ChartTimeRange(spec).getTimeline()
+    timeline = new Timeline(spec).getAll()
     s = (t.toString() for t in timeline)
     expected = [ 
       '2012-08-31',
@@ -41,7 +41,7 @@ exports.timelineTest =
       startOn:'2012Q2',
       limit: 4,
     }
-    timeline = new ChartTimeRange(spec).getTimeline()
+    timeline = new Timeline(spec).getAll()
     s = (t.toString() for t in timeline)
     expected = [ 
       '2012Q2'
@@ -59,7 +59,7 @@ exports.timelineTest =
       startOn:'2012-11',
       endBefore: '2013-03',
     }
-    timeline = new ChartTimeRange(spec).getTimeline()
+    timeline = new Timeline(spec).getAll()
     s = (t.toString() for t in timeline)
     expected = [ 
       '2012-11'
@@ -84,7 +84,7 @@ exports.timelineTest =
         '2012-09-03'
       ]
     }
-    timeline = new ChartTimeRange(spec).getTimeline()
+    timeline = new Timeline(spec).getAll()
     s = (t.toString() for t in timeline)
     expected = [ 
       '2012-08-31',
@@ -101,7 +101,7 @@ exports.timelineTest =
     test.deepEqual(expected, s)
     
     spec.endBefore = '2012-09-15'
-    timeline = new ChartTimeRange(spec).getTimeline()
+    timeline = new Timeline(spec).getAll()
     s = (t.toString() for t in timeline)
     test.deepEqual(expected, s)
     
@@ -132,7 +132,7 @@ exports.timelineTest =
         '2012-09-03'
       ]
     }
-    timeline = new ChartTimeRange(spec).getTimeline()
+    timeline = new Timeline(spec).getAll()
     s = (t.toString() for t in timeline)
     
     expected = [ 
@@ -152,7 +152,7 @@ exports.timelineTest =
     test.done()
 
   testSinglePointTimeline: (test) ->
-    r5 = new ChartTimeRange({
+    r5 = new Timeline({
       startOn:'2011-01-06T00',
       endBefore:'2011-01-07T00',
       workDayStartOn: {hour: 9, minute: 0},
@@ -166,6 +166,6 @@ exports.timelineTest =
       month: 1,
       day: 6,
       hour: 9
-    }], r5.getTimeline())
+    }], r5.getAll())
 
     test.done()

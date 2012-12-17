@@ -1,7 +1,7 @@
-charttime = require('../')
-{ChartTimeRange, ChartTime, ChartTimeIterator, ChartTimeInStateCalculator} = charttime
+lumenize = require('../')
+{Timeline, Time, TimelineIterator, TimeInStateCalculator} = lumenize
 
-exports.ChartTimeInStateCalculatorTest =
+exports.TimeInStateCalculatorTest =
 
   testBasic: (test) ->
     
@@ -19,17 +19,16 @@ exports.ChartTimeInStateCalculatorTest =
     granularity = 'minute'
     timezone = 'America/Chicago'
     
-    rangeSpec = 
+    timelineConfig =
       granularity: granularity
-      startOn: new ChartTime(snapshots[0].from, granularity, timezone).decrement()
+      startOn: new Time(snapshots[0].from, granularity, timezone).decrement()
       endBefore: '2011-01-11T00:00:00.000'
       workDayStartOn: {hour: 9, minute: 0}  # 15:00 in Chicago
       workDayEndBefore: {hour: 11, minute: 0}  # 17:00 in Chicago.
 
-    r1 = new ChartTimeRange(rangeSpec)
-    i1 = r1.getIterator('ChartTime')
-    isc1 = i1.getChartTimeInStateCalculator(timezone)
-    timeInState = isc1.timeInState(snapshots, 'from', 'to', 'id')
+    tl1 = new Timeline(timelineConfig)
+    tisc1 = tl1.getTimeInStateCalculator(timezone)
+    timeInState = tisc1.timeInState(snapshots, 'from', 'to', 'id')
     
     expected = [
       { id: 1, ticks: 20, finalState: false, finalEventAt: '2011-01-06T15:30:00.000Z', finalTickAt: '2011-01-06T15:29:00.000Z' },
@@ -48,8 +47,8 @@ exports.ChartTimeInStateCalculatorTest =
 #    test.equal(timeInState[0].ticks, 260)
 #
 #    # We can adjust the granularity
-#    rangeSpec.granularity = 'hour'
-#    isc2 = new ChartTimeRange(rangeSpec).getIterator().getChartTimeInStateCalculator(timezone)
+#    timelineConfig.granularity = 'hour'
+#    isc2 = new Timeline(timelineConfig).getIterator().getTimeInStateCalculator(timezone)
 #    timeInState = isc2.timeInState(snapshots, 'from', 'to', 'id', false)
 #    test.equal(timeInState[0].ticks, 4)
     
