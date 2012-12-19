@@ -1,3 +1,5 @@
+utils = require('./utils')
+
 ###
 @class functions
 ###
@@ -161,5 +163,26 @@ functions.percentileCreator = (p) ->
     if n == vLength
       return values[vLength - 1]
     return values[k - 1] + d * (values[k] - values[k - 1])
+
+functions.extractFandAs = (a, field) ->
+  if a.as?
+    as = a.as
+  else
+    utils.assert(utils.type(a.f) != 'function', 'Must provide "as" field with your aggregation when providing a user defined function')
+    if a.field?
+      field = a.field
+    as = "#{field}_#{a.f}"
+  if utils.type(a.f) == 'function'
+    f = a.f
+  else if functions[a.f]?
+    f = functions[a.f]
+  else if a.f == 'median'
+    f = functions.percentileCreator(50)
+  else if a.f.substr(0, 1) == 'p'
+    p = /\p(\d+(.\d+)?)/.exec(a.f)[1]
+    f = functions.percentileCreator(Number(p))
+  else
+    throw new Error("#{a.f} is not a recognized built-in function")
+  return {f, as}
 
 exports.functions = functions

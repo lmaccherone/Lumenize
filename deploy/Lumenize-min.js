@@ -4789,6 +4789,8 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
 
   exports.histogram = require('./src/histogram').histogram;
 
+  exports.olapCalculator = require('./src/olap').olapCalculator;
+
 }).call(this);
 
 });
@@ -8448,7 +8450,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
 });
 
 require.define("/src/aggregate.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var Time, Timeline, TimelineIterator, aggregate, aggregateAt, deriveFieldsAt, functions, groupBy, groupByAt, snapshotArray_To_AtArray, timeSeriesCalculator, timeSeriesGroupByCalculator, utils, _extractFandAs, _ref,
+  var Time, Timeline, TimelineIterator, aggregate, aggregateAt, deriveFieldsAt, functions, groupBy, groupByAt, snapshotArray_To_AtArray, timeSeriesCalculator, timeSeriesGroupByCalculator, utils, _ref,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   utils = require('./utils');
@@ -8462,32 +8464,6 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
   snapshotArray_To_AtArray = require('./dataTransform').snapshotArray_To_AtArray;
 
   functions = require('./functions').functions;
-
-  _extractFandAs = function(a) {
-    var as, f, p;
-    if (a.as != null) {
-      as = a.as;
-    } else {
-      utils.assert(utils.type(a.f) !== 'function', 'Must provide "as" field with your aggregation when providing a user defined function');
-      as = "" + a.field + "_" + a.f;
-    }
-    if (utils.type(a.f) === 'function') {
-      f = a.f;
-    } else if (functions[a.f] != null) {
-      f = functions[a.f];
-    } else if (a.f === 'median') {
-      f = functions.percentileCreator(50);
-    } else if (a.f.substr(0, 2) === 'p') {
-      p = /\p(\d+(.\d+)?)/.exec(a.f)[1];
-      f = functions.percentileCreator(Number(p));
-    } else {
-      throw new Error("" + a.f + " is not a recognized built-in function");
-    }
-    return {
-      f: f,
-      as: as
-    };
-  };
 
   aggregate = function(list, config) {
     /*
@@ -8546,7 +8522,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
         row = list[_j];
         valuesArray.push(row[a.field]);
       }
-      _ref1 = _extractFandAs(a), f = _ref1.f, as = _ref1.as;
+      _ref1 = functions.extractFandAs(a), f = _ref1.f, as = _ref1.as;
       output[as] = f(valuesArray);
     }
     return output;
@@ -8652,7 +8628,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
           row = valuesForThisGroup[_k];
           valuesArray.push(row[a.field]);
         }
-        _ref2 = _extractFandAs(a), f = _ref2.f, as = _ref2.as;
+        _ref2 = functions.extractFandAs(a), f = _ref2.f, as = _ref2.as;
         outputRow[as] = f(valuesArray);
       }
       output.push(outputRow);
@@ -8713,7 +8689,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     _ref1 = config.aggregationConfig;
     for (_l = 0, _len3 = _ref1.length; _l < _len3; _l++) {
       a = _ref1[_l];
-      _ref2 = _extractFandAs(a), f = _ref2.f, as = _ref2.as;
+      _ref2 = functions.extractFandAs(a), f = _ref2.f, as = _ref2.as;
       blank[as] = f([]);
     }
     output = [];
@@ -8918,14 +8894,15 @@ require.define("/src/derive.coffee",function(require,module,exports,__dirname,__
 
 });
 
-require.define("/src/functions.coffee",function(require,module,exports,__dirname,__filename,process,global){
-/*
-@class functions
-*/
+require.define("/src/functions.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var functions, utils;
 
+  utils = require('./utils');
 
-(function() {
-  var functions;
+  /*
+  @class functions
+  */
+
 
   functions = {};
 
@@ -9149,6 +9126,35 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     };
   };
 
+  functions.extractFandAs = function(a, field) {
+    var as, f, p;
+    if (a.as != null) {
+      as = a.as;
+    } else {
+      utils.assert(utils.type(a.f) !== 'function', 'Must provide "as" field with your aggregation when providing a user defined function');
+      if (a.field != null) {
+        field = a.field;
+      }
+      as = "" + field + "_" + a.f;
+    }
+    if (utils.type(a.f) === 'function') {
+      f = a.f;
+    } else if (functions[a.f] != null) {
+      f = functions[a.f];
+    } else if (a.f === 'median') {
+      f = functions.percentileCreator(50);
+    } else if (a.f.substr(0, 1) === 'p') {
+      p = /\p(\d+(.\d+)?)/.exec(a.f)[1];
+      f = functions.percentileCreator(Number(p));
+    } else {
+      throw new Error("" + a.f + " is not a recognized built-in function");
+    }
+    return {
+      f: f,
+      as: as
+    };
+  };
+
   exports.functions = functions;
 
 }).call(this);
@@ -9320,6 +9326,196 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
   };
 
   exports.histogram = histogram;
+
+}).call(this);
+
+});
+
+require.define("/src/olap.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var decrement, expandRow, extractFilter, functions, mergeIntoOLAPArray, olapCalculator, possibilities, utils;
+
+  utils = require('../src/utils');
+
+  functions = require('../').functions;
+
+  possibilities = function(key, type, keepTotals) {
+    var a, len;
+    switch (utils.type(key)) {
+      case 'array':
+        if (keepTotals) {
+          a = [null];
+        } else {
+          a = [];
+        }
+        if (type === 'hierarchy') {
+          len = key.length;
+          while (len > 0) {
+            a.push(key.slice(0, len));
+            len--;
+          }
+        } else {
+          if (keepTotals) {
+            a = [null].concat(key);
+          } else {
+            a = key;
+          }
+        }
+        return a;
+      case 'string':
+      case 'number':
+        if (keepTotals) {
+          return [null, key];
+        } else {
+          return [key];
+        }
+    }
+  };
+
+  decrement = function(a, rollover) {
+    var i;
+    i = a.length - 1;
+    a[i]--;
+    while (a[i] < 0) {
+      a[i] = rollover[i];
+      i--;
+      if (i < 0) {
+        return false;
+      } else {
+        a[i]--;
+      }
+    }
+    return true;
+  };
+
+  expandRow = function(row, config) {
+    var countdownArray, d, index, m, metricsOut, more, out, outRow, p, possibilitiesArray, rolloverArray, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+    possibilitiesArray = [];
+    countdownArray = [];
+    rolloverArray = [];
+    _ref = config.dimensions;
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      d = _ref[_i];
+      p = possibilities(row[d.field], d.type, config.noTotals);
+      possibilitiesArray.push(p);
+      countdownArray.push(p.length - 1);
+      rolloverArray.push(p.length - 1);
+    }
+    out = [];
+    more = true;
+    while (more) {
+      outRow = {};
+      _ref1 = config.dimensions;
+      for (index = _j = 0, _len1 = _ref1.length; _j < _len1; index = ++_j) {
+        d = _ref1[index];
+        outRow[d.field] = possibilitiesArray[index][countdownArray[index]];
+      }
+      if (!config.noRows) {
+        outRow.__rows = [row];
+      }
+      metricsOut = {};
+      _ref2 = config.metrics;
+      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+        m = _ref2[_k];
+        metricsOut[m.field + '_values'] = [row[m.field]];
+      }
+      outRow.__metrics = metricsOut;
+      out.push(outRow);
+      more = decrement(countdownArray, rolloverArray);
+    }
+    return out;
+  };
+
+  extractFilter = function(row, dimensions) {
+    var d, out, _i, _len;
+    out = {};
+    for (_i = 0, _len = dimensions.length; _i < _len; _i++) {
+      d = dimensions[_i];
+      out[d.field] = row[d.field];
+    }
+    return out;
+  };
+
+  mergeIntoOLAPArray = function(olapArray, olapIndex, expandedRowArray, config) {
+    var currentMetrics, er, filterString, key, olapRow, value, _i, _len, _results;
+    _results = [];
+    for (_i = 0, _len = expandedRowArray.length; _i < _len; _i++) {
+      er = expandedRowArray[_i];
+      filterString = JSON.stringify(extractFilter(er, config.dimensions));
+      olapRow = olapIndex[filterString];
+      if (olapRow != null) {
+        if (!config.noRows) {
+          olapRow.__rows = olapRow.__rows.concat(er.__rows);
+        }
+        currentMetrics = olapRow.__metrics;
+        _results.push((function() {
+          var _ref, _results1;
+          _ref = er.__metrics;
+          _results1 = [];
+          for (key in _ref) {
+            value = _ref[key];
+            _results1.push(currentMetrics[key] = currentMetrics[key].concat(value));
+          }
+          return _results1;
+        })());
+      } else {
+        olapRow = er;
+        olapIndex[filterString] = olapRow;
+        _results.push(olapArray.push(olapRow));
+      }
+    }
+    return _results;
+  };
+
+  olapCalculator = function(rows, config) {
+    var as, currentField, currentMetrics, currentValues, expandedRowArray, f, m, m2, olapArray, olapIndex, row, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2;
+    if (config.trackRows == null) {
+      config.trackRows = true;
+    }
+    olapArray = [];
+    olapIndex = {};
+    for (_i = 0, _len = rows.length; _i < _len; _i++) {
+      row = rows[_i];
+      expandedRowArray = expandRow(row, config);
+      mergeIntoOLAPArray(olapArray, olapIndex, expandedRowArray, config);
+    }
+    for (_j = 0, _len1 = olapArray.length; _j < _len1; _j++) {
+      row = olapArray[_j];
+      currentMetrics = row.__metrics;
+      _ref = config.metrics;
+      for (_k = 0, _len2 = _ref.length; _k < _len2; _k++) {
+        m = _ref[_k];
+        currentField = m.field;
+        currentValues = currentMetrics[currentField + '_values'];
+        if (m.metrics == null) {
+          m.metrics = [
+            {
+              f: 'count'
+            }, {
+              f: 'sum'
+            }, {
+              f: 'sumSquares'
+            }
+          ];
+        }
+        _ref1 = m.metrics;
+        for (_l = 0, _len3 = _ref1.length; _l < _len3; _l++) {
+          m2 = _ref1[_l];
+          _ref2 = functions.extractFandAs(m2, currentField), f = _ref2.f, as = _ref2.as;
+          currentMetrics[as] = f(currentValues);
+        }
+        if (config.noValues) {
+          delete currentMetrics[currentField + "_values"];
+        }
+      }
+    }
+    return olapArray;
+  };
+
+  exports.expandRow = expandRow;
+
+  exports.possibilities = possibilities;
+
+  exports.olapCalculator = olapCalculator;
 
 }).call(this);
 

@@ -5,25 +5,6 @@ utils = require('./utils')
 {snapshotArray_To_AtArray} = require('./dataTransform')
 {functions} = require('./functions')
 
-_extractFandAs = (a) ->
-  if a.as?
-    as = a.as
-  else
-    utils.assert(utils.type(a.f) != 'function', 'Must provide "as" field with your aggregation when providing a user defined function')
-    as = "#{a.field}_#{a.f}"
-  if utils.type(a.f) == 'function'
-    f = a.f
-  else if functions[a.f]?
-    f = functions[a.f]
-  else if a.f == 'median'
-    f = functions.percentileCreator(50)
-  else if a.f.substr(0, 2) == 'p'
-    p = /\p(\d+(.\d+)?)/.exec(a.f)[1]
-    f = functions.percentileCreator(Number(p))
-  else
-    throw new Error("#{a.f} is not a recognized built-in function")
-  return {f, as}
-                     
 aggregate = (list, config) ->  
   ###
   @method aggregate
@@ -78,7 +59,7 @@ aggregate = (list, config) ->
     for row in list
       valuesArray.push(row[a.field])
       
-    {f, as} = _extractFandAs(a)
+    {f, as} = functions.extractFandAs(a)
 
     output[as] = f(valuesArray)
     
@@ -174,7 +155,7 @@ groupBy = (list, config) ->
       for row in valuesForThisGroup
         valuesArray.push(row[a.field])
         
-      {f, as} = _extractFandAs(a)
+      {f, as} = functions.extractFandAs(a)
 
       outputRow[as] = f(valuesArray)
     
@@ -222,7 +203,7 @@ groupByAt = (atArray, config) ->
 
   blank = {}
   for a in config.aggregationConfig
-    {f, as} = _extractFandAs(a)
+    {f, as} = functions.extractFandAs(a)
     blank[as] = f([])
         
   output = []
