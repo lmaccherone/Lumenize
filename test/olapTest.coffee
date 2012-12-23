@@ -1,4 +1,4 @@
-{olapCalculator, expandRow, possibilities} = require('../src/olap')
+{olapCalculator, expandFact, possibilities} = require('../src/olap')
 {csvStyleArray_To_ArrayOfMaps} = require('../')
 
 exports.olapTest =
@@ -19,8 +19,8 @@ exports.olapTest =
     test.deepEqual(expected, possibilities(['1', '2', '3'], 'hierarchy', true))  # Hierarchy
     test.done()
 
-  testExpandRow: (test) ->
-    singleRow =
+  testExpandFact: (test) ->
+    singleFact =
       singleValueField: 'a'
       hierarchicalField: ['1','2','3']
       field3: 7
@@ -45,21 +45,21 @@ exports.olapTest =
       'field4_values': [3]
 
     expected = [
-      {singleValueField: 'a', hierarchicalField: ['1'], __rows:[singleRow], __metrics: expectedMetrics},
-      {singleValueField: 'a', hierarchicalField: ['1','2'], __rows:[singleRow], __metrics: expectedMetrics},
-      {singleValueField: 'a', hierarchicalField: ['1','2','3'], __rows:[singleRow], __metrics: expectedMetrics},
-      {singleValueField: 'a', hierarchicalField: null, __rows:[singleRow], __metrics: expectedMetrics},
-      {singleValueField: null, hierarchicalField: ['1'], __rows:[singleRow], __metrics: expectedMetrics}
-      {singleValueField: null, hierarchicalField: ['1','2'], __rows:[singleRow], __metrics: expectedMetrics},
-      {singleValueField: null, hierarchicalField: ['1','2','3'], __rows:[singleRow], __metrics: expectedMetrics},
-      {singleValueField: null, hierarchicalField: null, __rows:[singleRow], __metrics: expectedMetrics}
+      {singleValueField: 'a', hierarchicalField: ['1'], __facts:[singleFact], __metrics: expectedMetrics},
+      {singleValueField: 'a', hierarchicalField: ['1','2'], __facts:[singleFact], __metrics: expectedMetrics},
+      {singleValueField: 'a', hierarchicalField: ['1','2','3'], __facts:[singleFact], __metrics: expectedMetrics},
+      {singleValueField: 'a', hierarchicalField: null, __facts:[singleFact], __metrics: expectedMetrics},
+      {singleValueField: null, hierarchicalField: ['1'], __facts:[singleFact], __metrics: expectedMetrics}
+      {singleValueField: null, hierarchicalField: ['1','2'], __facts:[singleFact], __metrics: expectedMetrics},
+      {singleValueField: null, hierarchicalField: ['1','2','3'], __facts:[singleFact], __metrics: expectedMetrics},
+      {singleValueField: null, hierarchicalField: null, __facts:[singleFact], __metrics: expectedMetrics}
     ]
 
     config = {dimensions, metrics}
     config.keepTotals = true
     config.keepRows = true
 
-    actual = expandRow(singleRow, config)
+    actual = expandFact(singleFact, config)
     test.deepEqual(expected, actual)
 
     test.done()
@@ -71,7 +71,7 @@ exports.olapTest =
       ['b'     , ['1','2']    , 70      , 30      ]
     ]
 
-    rows = csvStyleArray_To_ArrayOfMaps(aCSVStyle)
+    facts = csvStyleArray_To_ArrayOfMaps(aCSVStyle)
 
     dimensions = [
       {field: 'field1'},
@@ -215,7 +215,7 @@ exports.olapTest =
       }
     ]
 
-    olapCalc = olapCalculator(rows, config)
+    olapCalc = olapCalculator(facts, config)
 
     test.deepEqual(expected, olapCalc)
 
@@ -236,7 +236,7 @@ exports.olapTest =
       ['b'     , 2        ]
     ]
 
-    rows = csvStyleArray_To_ArrayOfMaps(aCSVStyle)
+    facts = csvStyleArray_To_ArrayOfMaps(aCSVStyle)
 
     dimensions = [
       {field: 'field1'}
@@ -251,7 +251,7 @@ exports.olapTest =
 
     config = {dimensions, metrics}
 
-    olapCalc = olapCalculator(rows, config)
+    olapCalc = olapCalculator(facts, config)
 
     expected = [
       {"field1": "a", "__metrics": {"field3_sum": 3 , "field3_count": 1}},

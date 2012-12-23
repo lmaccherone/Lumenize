@@ -71,7 +71,7 @@ functions.max = (values) ->
 ###
 @method values
 @static
-@param {Number[]} values
+@param {Object[]} values
 @return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
 ###
 functions.values = (values) ->
@@ -84,7 +84,7 @@ functions.values = (values) ->
 ###
 @method uniqueValues
 @static
-@param {Number[]} values
+@param {Object[]} values
 @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
 ###
 functions.uniqueValues = (values) ->

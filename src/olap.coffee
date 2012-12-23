@@ -38,12 +38,12 @@ decrement = (a, rollover) ->
       a[i]--
   return true
 
-expandRow = (row, config) ->
+expandFact = (fact, config) ->
   possibilitiesArray = []
   countdownArray = []
   rolloverArray = []
   for d in config.dimensions
-    p = possibilities(row[d.field], d.type, config.keepTotals)
+    p = possibilities(fact[d.field], d.type, config.keepTotals)
     possibilitiesArray.push(p)
     countdownArray.push(p.length - 1)
     rolloverArray.push(p.length - 1)  # !TODO: If I need some speed, we could calculate the rolloverArray once and make a copy to the countdownArray for each run
@@ -55,10 +55,10 @@ expandRow = (row, config) ->
     for d, index in config.dimensions
       outRow[d.field] = possibilitiesArray[index][countdownArray[index]]
     if config.keepRows
-      outRow.__rows = [row]
+      outRow.__facts = [fact]
     metricsOut = {}
     for m in config.metrics
-      metricsOut[m.field + '_values'] = [row[m.field]]
+      metricsOut[m.field + '_values'] = [fact[m.field]]
     outRow.__metrics = metricsOut
     out.push(outRow)
     more = decrement(countdownArray, rolloverArray)
@@ -71,13 +71,13 @@ extractFilter = (row, dimensions) ->
     out[d.field] = row[d.field]
   return out
 
-mergeIntoOLAPArray = (olapArray, olapIndex, expandedRowArray, config) ->
-  for er in expandedRowArray
+mergeIntoOLAPArray = (olapArray, olapIndex, expandedFactArray, config) ->
+  for er in expandedFactArray
     filterString = JSON.stringify(extractFilter(er, config.dimensions))
     olapRow = olapIndex[filterString]
     if olapRow?
       if config.keepRows
-        olapRow.__rows = olapRow.__rows.concat(er.__rows)
+        olapRow.__facts = olapRow.__facts.concat(er.__facts)
       currentMetrics = olapRow.__metrics
       for key, value of er.__metrics
         currentMetrics[key] = currentMetrics[key].concat(value)
@@ -86,18 +86,21 @@ mergeIntoOLAPArray = (olapArray, olapIndex, expandedRowArray, config) ->
       olapIndex[filterString] = olapRow
       olapArray.push(olapRow)
 
-olapCalculator = (rows, config) ->
-  unless config.trackRows?
-    config.trackRows = true
+###
+@method olapCalculator
+@param {Object[]} facts facts to be aggregated into OLAP cube
+@param {Object} config
+###
+olapCalculator = (facts, config) ->
   olapArray = []
   olapIndex = {}
-  for row in rows
-    expandedRowArray = expandRow(row, config)
-    mergeIntoOLAPArray(olapArray, olapIndex, expandedRowArray, config)
+  for fact in facts
+    expandedFactArray = expandFact(fact, config)
+    mergeIntoOLAPArray(olapArray, olapIndex, expandedFactArray, config)
 
   # calculate metrics for olapArray
-  for row in olapArray
-    currentMetrics = row.__metrics
+  for fact in olapArray
+    currentMetrics = fact.__metrics
     for m in config.metrics
       currentField = m.field
       currentValues = currentMetrics[currentField + '_values']
@@ -115,7 +118,7 @@ olapCalculator = (rows, config) ->
 
   return olapArray
 
-exports.expandRow = expandRow
+exports.expandFact = expandFact
 exports.possibilities = possibilities
 exports.olapCalculator = olapCalculator
 

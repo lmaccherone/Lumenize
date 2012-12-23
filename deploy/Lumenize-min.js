@@ -5590,7 +5590,7 @@ require.define("/src/Time.coffee",function(require,module,exports,__dirname,__fi
 
     Time.prototype.getISOStringInTZ = function(tz) {
       /*
-          @method getShiftedISOString
+          @method getISOStringInTZ
           @param {String} tz
           @return {String} The canonical ISO-8601 date in zulu representation but shifted to the specified tz
       
@@ -8139,13 +8139,13 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     /*
       @method snapshotArray_To_AtArray
       @param {Object[]} snapshotArray Array of snapshots
-      @param {Array[]} atArray Array of Time objects representing the moments we want the snapshots at
+      @param {Array[]} listOfAtCTs Array of Time objects representing the moments we want the snapshots at
       @param {String} validFromField Specifies the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
       @param {String} validToField Same except for the end of the snapshot's active time.
         Defaults to '_ValidTo' for backward compatibility reasons.
       @param {String} uniqueIDField Specifies the field that holds the unique ID. Note, no matter the input type, they will come
          out the other side as Strings. I could fix this if it ever became a problem.
-      @param {String} tz
+      @param {String} tz timezone like "America/New_York"
       @return {Array[]}
     
       If you have a list of snapshots representing the changes in a set of work items over time, this function will return the state of
@@ -8486,7 +8486,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     
           config = [
             {field: 'ObjectID', f: 'count'}
-            {as: 'Drill-down', field:'ObjectID', f:'push'}
+            {as: 'Drill-down', field:'ObjectID', f:'values'}
             {field: 'PlanEstimate', f: 'sum'}
             {as: 'mySum', field: 'PlanEstimate', f: (values) ->
               temp = 0
@@ -9003,7 +9003,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @method values
   @static
-  @param {Number[]} values
+  @param {Object[]} values
   @return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
   */
 
@@ -9015,7 +9015,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @method uniqueValues
   @static
-  @param {Number[]} values
+  @param {Object[]} values
   @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
   */
 
@@ -9332,7 +9332,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
 });
 
 require.define("/src/olap.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var decrement, expandRow, extractFilter, functions, mergeIntoOLAPArray, olapCalculator, possibilities, utils;
+  var decrement, expandFact, extractFilter, functions, mergeIntoOLAPArray, olapCalculator, possibilities, utils;
 
   utils = require('../src/utils');
 
@@ -9387,7 +9387,7 @@ require.define("/src/olap.coffee",function(require,module,exports,__dirname,__fi
     return true;
   };
 
-  expandRow = function(row, config) {
+  expandFact = function(fact, config) {
     var countdownArray, d, index, m, metricsOut, more, out, outRow, p, possibilitiesArray, rolloverArray, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
     possibilitiesArray = [];
     countdownArray = [];
@@ -9395,7 +9395,7 @@ require.define("/src/olap.coffee",function(require,module,exports,__dirname,__fi
     _ref = config.dimensions;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {
       d = _ref[_i];
-      p = possibilities(row[d.field], d.type, config.noTotals);
+      p = possibilities(fact[d.field], d.type, config.keepTotals);
       possibilitiesArray.push(p);
       countdownArray.push(p.length - 1);
       rolloverArray.push(p.length - 1);
@@ -9409,14 +9409,14 @@ require.define("/src/olap.coffee",function(require,module,exports,__dirname,__fi
         d = _ref1[index];
         outRow[d.field] = possibilitiesArray[index][countdownArray[index]];
       }
-      if (!config.noRows) {
-        outRow.__rows = [row];
+      if (config.keepRows) {
+        outRow.__facts = [fact];
       }
       metricsOut = {};
       _ref2 = config.metrics;
       for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
         m = _ref2[_k];
-        metricsOut[m.field + '_values'] = [row[m.field]];
+        metricsOut[m.field + '_values'] = [fact[m.field]];
       }
       outRow.__metrics = metricsOut;
       out.push(outRow);
@@ -9435,16 +9435,16 @@ require.define("/src/olap.coffee",function(require,module,exports,__dirname,__fi
     return out;
   };
 
-  mergeIntoOLAPArray = function(olapArray, olapIndex, expandedRowArray, config) {
+  mergeIntoOLAPArray = function(olapArray, olapIndex, expandedFactArray, config) {
     var currentMetrics, er, filterString, key, olapRow, value, _i, _len, _results;
     _results = [];
-    for (_i = 0, _len = expandedRowArray.length; _i < _len; _i++) {
-      er = expandedRowArray[_i];
+    for (_i = 0, _len = expandedFactArray.length; _i < _len; _i++) {
+      er = expandedFactArray[_i];
       filterString = JSON.stringify(extractFilter(er, config.dimensions));
       olapRow = olapIndex[filterString];
       if (olapRow != null) {
-        if (!config.noRows) {
-          olapRow.__rows = olapRow.__rows.concat(er.__rows);
+        if (config.keepRows) {
+          olapRow.__facts = olapRow.__facts.concat(er.__facts);
         }
         currentMetrics = olapRow.__metrics;
         _results.push((function() {
@@ -9466,21 +9466,25 @@ require.define("/src/olap.coffee",function(require,module,exports,__dirname,__fi
     return _results;
   };
 
-  olapCalculator = function(rows, config) {
-    var as, currentField, currentMetrics, currentValues, expandedRowArray, f, m, m2, olapArray, olapIndex, row, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2;
-    if (config.trackRows == null) {
-      config.trackRows = true;
-    }
+  /*
+  @method olapCalculator
+  @param {Object[]} facts facts to be aggregated into OLAP cube
+  @param {Object} config
+  */
+
+
+  olapCalculator = function(facts, config) {
+    var as, currentField, currentMetrics, currentValues, expandedFactArray, f, fact, m, m2, olapArray, olapIndex, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2;
     olapArray = [];
     olapIndex = {};
-    for (_i = 0, _len = rows.length; _i < _len; _i++) {
-      row = rows[_i];
-      expandedRowArray = expandRow(row, config);
-      mergeIntoOLAPArray(olapArray, olapIndex, expandedRowArray, config);
+    for (_i = 0, _len = facts.length; _i < _len; _i++) {
+      fact = facts[_i];
+      expandedFactArray = expandFact(fact, config);
+      mergeIntoOLAPArray(olapArray, olapIndex, expandedFactArray, config);
     }
     for (_j = 0, _len1 = olapArray.length; _j < _len1; _j++) {
-      row = olapArray[_j];
-      currentMetrics = row.__metrics;
+      fact = olapArray[_j];
+      currentMetrics = fact.__metrics;
       _ref = config.metrics;
       for (_k = 0, _len2 = _ref.length; _k < _len2; _k++) {
         m = _ref[_k];
@@ -9503,7 +9507,7 @@ require.define("/src/olap.coffee",function(require,module,exports,__dirname,__fi
           _ref2 = functions.extractFandAs(m2, currentField), f = _ref2.f, as = _ref2.as;
           currentMetrics[as] = f(currentValues);
         }
-        if (config.noValues) {
+        if (!config.keepValues) {
           delete currentMetrics[currentField + "_values"];
         }
       }
@@ -9511,7 +9515,7 @@ require.define("/src/olap.coffee",function(require,module,exports,__dirname,__fi
     return olapArray;
   };
 
-  exports.expandRow = expandRow;
+  exports.expandFact = expandFact;
 
   exports.possibilities = possibilities;
 

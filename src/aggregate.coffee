@@ -26,7 +26,7 @@ aggregate = (list, config) ->
 
       config = [
         {field: 'ObjectID', f: 'count'}
-        {as: 'Drill-down', field:'ObjectID', f:'push'}
+        {as: 'Drill-down', field:'ObjectID', f:'values'}
         {field: 'PlanEstimate', f: 'sum'}
         {as: 'mySum', field: 'PlanEstimate', f: (values) ->
           temp = 0
@@ -105,7 +105,7 @@ groupBy = (list, config) ->
         groupBy: 'KanbanState',
         aggregationConfig: [
           {field: 'ObjectID', f: 'count'}
-          {as: 'Drill-down', field:'ObjectID', f:'push'}
+          {as: 'Drill-down', field:'ObjectID', f:'values'}
           {field: 'PlanEstimate', f: 'sum'}
           {as: 'mySum', field: 'PlanEstimate', f: (values) ->
             temp = 0

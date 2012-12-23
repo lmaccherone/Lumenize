@@ -50,13 +50,13 @@ snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueID
   ###
   @method snapshotArray_To_AtArray
   @param {Object[]} snapshotArray Array of snapshots
-  @param {Array[]} atArray Array of Time objects representing the moments we want the snapshots at
+  @param {Array[]} listOfAtCTs Array of Time objects representing the moments we want the snapshots at
   @param {String} validFromField Specifies the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
   @param {String} validToField Same except for the end of the snapshot's active time.
     Defaults to '_ValidTo' for backward compatibility reasons.
   @param {String} uniqueIDField Specifies the field that holds the unique ID. Note, no matter the input type, they will come
      out the other side as Strings. I could fix this if it ever became a problem.
-  @param {String} tz
+  @param {String} tz timezone like "America/New_York"
   @return {Array[]}
 
   If you have a list of snapshots representing the changes in a set of work items over time, this function will return the state of

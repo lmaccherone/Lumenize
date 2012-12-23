@@ -661,7 +661,7 @@ class Time  #
   
   getISOStringInTZ: (tz) ->
     ###
-    @method getShiftedISOString
+    @method getISOStringInTZ
     @param {String} tz
     @return {String} The canonical ISO-8601 date in zulu representation but shifted to the specified tz
 
