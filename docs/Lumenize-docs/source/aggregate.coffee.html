@@ -23,32 +23,13 @@ utils = require('./utils')
 {snapshotArray_To_AtArray} = require('./dataTransform')
 {functions} = require('./functions')
 
-_extractFandAs = (a) -&gt;
-  if a.as?
-    as = a.as
-  else
-    utils.assert(utils.type(a.f) != 'function', 'Must provide &quot;as&quot; field with your aggregation when providing a user defined function')
-    as = &quot;#{a.field}_#{a.f}&quot;
-  if utils.type(a.f) == 'function'
-    f = a.f
-  else if functions[a.f]?
-    f = functions[a.f]
-  else if a.f == 'median'
-    f = functions.percentileCreator(50)
-  else if a.f.substr(0, 2) == 'p'
-    p = /\p(\d+(.\d+)?)/.exec(a.f)[1]
-    f = functions.percentileCreator(Number(p))
-  else
-    throw new Error(&quot;#{a.f} is not a recognized built-in function&quot;)
-  return {f, as}
-                     
-aggregate = (list, aggregationSpec) -&gt;  
+aggregate = (list, config) -&gt;  
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-method-aggregate'>  /**
 </span>   * @method aggregate
    * @member Lumenize
    * @param {Object[]} list An Array or arbitrary rows
-   * @param {Object} aggregationSpec
+   * @param {Object} config
    * @return {Object}
    * 
    * Takes a list like this:
@@ -61,11 +42,11 @@ aggregate = (list, aggregationSpec) -&gt;
    *       { ObjectID: '3', KanbanState: 'Ready to pull', PlanEstimate: 5, TaskRemainingTotal: 12 }
    *     ]
    *     
-   * and a list of aggregationSpec like this:
+   * and a list of config like this:
    * 
-   *     aggregationSpec = [
+   *     config = [
    *       {field: 'ObjectID', f: 'count'}
-   *       {as: 'Drill-down', field:'ObjectID', f:'push'}
+   *       {as: 'Drill-down', field:'ObjectID', f:'values'}
    *       {field: 'PlanEstimate', f: 'sum'}
    *       {as: 'mySum', field: 'PlanEstimate', f: (values) -&gt;
    *         temp = 0
@@ -77,7 +58,7 @@ aggregate = (list, aggregationSpec) -&gt;
    *     
    * and returns the aggregations like this:
    *   
-   *     a = aggregate(list, aggregationSpec)
+   *     a = aggregate(list, config)
    *     console.log(a)
    * 
    *     #   { ObjectID_count: 3,
@@ -86,53 +67,52 @@ aggregate = (list, aggregationSpec) -&gt;
    *     #     mySum: 13 } 
    *     
    * For each aggregation, you must provide a `field` and `f` (function) value. You can optionally 
-   * provide an alias for the aggregation with the 'as` field. There are a number of built in functions 
-   * documented above.
+   * provide an alias for the aggregation with the 'as` field. There are a number of built in functions.
    * 
    * Alternatively, you can provide your own function (it takes one parameter, which is an
-   * Array of values to aggregate) like the `mySum` example in our `aggregationSpec` list above.
+   * Array of values to aggregate) like the `mySum` example in our `config` list above.
    */
 /* &lt;CoffeeScript&gt;
     
   output = {}
-  for a in aggregationSpec
+  for a in config
     valuesArray = []
     for row in list
       valuesArray.push(row[a.field])
       
-    {f, as} = _extractFandAs(a)
+    {f, as} = functions.extractFandAs(a)
 
     output[as] = f(valuesArray)
     
   return output
   
-aggregateAt = (atArray, aggregationSpec) -&gt;  # !TODO: Change the name of all of these &quot;At&quot; functions. Mark suggests aggregateEach
+aggregateAt = (atArray, config) -&gt;  # !TODO: Change the name of all of these &quot;At&quot; functions. Mark suggests aggregateEach
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-method-aggregateAt'>  /**
 </span>   * @method aggregateAt
    * @member Lumenize
    * @param {Array[]} atArray
-   * @param {Object[]} aggregationSpec
+   * @param {Object[]} config
    * @return {Object[]}
    * 
    * Each sub-Array in atArray is passed to the `aggregate` function and the results are collected into a single array output.
-   * This is essentially a wrapper around the aggregate function so the spec parameter is the same. You can think of
+   * This is essentially a wrapper around the aggregate function so the config parameter is the same. You can think of
    * it as using a `map`.
    */
 /* &lt;CoffeeScript&gt;
   output = []
   for row, idx in atArray
-    a = aggregate(row, aggregationSpec)
+    a = aggregate(row, config)
     output.push(a)
   return output
 
-groupBy = (list, spec) -&gt;
+groupBy = (list, config) -&gt;
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-method-groupBy'>  /**
 </span>   * @method groupBy
    * @member Lumenize
    * @param {Object[]} list An Array of rows
-   * @param {Object} spec
+   * @param {Object} config
    * @return {Object[]}
    * 
    * Takes a list like this:
@@ -145,13 +125,13 @@ groupBy = (list, spec) -&gt;
    *       { ObjectID: '3', KanbanState: 'Ready to pull', PlanEstimate: 5, TaskRemainingTotal: 12 }
    *     ]
    *     
-   * and a spec like this:
+   * and a config like this:
    * 
-   *     spec = {
+   *     config = {
    *       groupBy: 'KanbanState',
-   *       aggregationSpec: [
+   *       aggregationConfig: [
    *         {field: 'ObjectID', f: 'count'}
-   *         {as: 'Drill-down', field:'ObjectID', f:'push'}
+   *         {as: 'Drill-down', field:'ObjectID', f:'values'}
    *         {field: 'PlanEstimate', f: 'sum'}
    *         {as: 'mySum', field: 'PlanEstimate', f: (values) -&gt;
    *           temp = 0
@@ -164,7 +144,7 @@ groupBy = (list, spec) -&gt;
    *       
    * Returns the aggregations like this:
    *   
-   *     a = groupBy(list, spec)
+   *     a = groupBy(list, config)
    *     console.log(a)
    * 
    *     #   [ { KanbanState: 'In progress',
@@ -184,38 +164,38 @@ groupBy = (list, spec) -&gt;
    * Uses the same aggregation functions as the `aggregate` function.
    */
 /* &lt;CoffeeScript&gt;
-  # Group by spec.groupBy
+  # Group by config.groupBy
   grouped = {}
   for row in list
-    unless grouped[row[spec.groupBy]]?
-      grouped[row[spec.groupBy]] = []
-    grouped[row[spec.groupBy]].push(row)
+    unless grouped[row[config.groupBy]]?
+      grouped[row[config.groupBy]] = []
+    grouped[row[config.groupBy]].push(row)
     
   # Start to calculate output
   output = []
   for groupByValue, valuesForThisGroup of grouped
     outputRow = {}
-    outputRow[spec.groupBy] = groupByValue
-    for a in spec.aggregationSpec
+    outputRow[config.groupBy] = groupByValue
+    for a in config.aggregationConfig
       # Pull out the correct field from valuesForThisGroup
       valuesArray = []
       for row in valuesForThisGroup
         valuesArray.push(row[a.field])
         
-      {f, as} = _extractFandAs(a)
+      {f, as} = functions.extractFandAs(a)
 
       outputRow[as] = f(valuesArray)
     
     output.push(outputRow)
   return output
   
-groupByAt = (atArray, spec) -&gt;
+groupByAt = (atArray, config) -&gt;
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-method-groupByAt'>  /**
 </span>   * @method groupByAt
    * @member Lumenize
    * @param {Array[]} atArray
-   * @param {Object} spec
+   * @param {Object} config
    * @return {Array[]}
    * 
    * Each row in atArray is passed to the `groupBy` function and the results are collected into a single output.
@@ -223,27 +203,27 @@ groupByAt = (atArray, spec) -&gt;
    * This function also finds all the unique groupBy values in all rows of the output and pads the output with blank/zero rows to cover
    * each unique groupBy value.
    * 
-   * This is essentially a wrapper around the groupBy function so the spec parameter is the same with the addition of the `uniqueValues` field.
-   * The ordering specified in `spec.uniqueValues` (optional) will be honored. Any additional unique values that aggregateAt finds will be added to
+   * This is essentially a wrapper around the groupBy function so the config parameter is the same with the addition of the `uniqueValues` field.
+   * The ordering specified in `config.uniqueValues` (optional) will be honored. Any additional unique values that aggregateAt finds will be added to
    * the uniqueValues list at the end. This gives you the best of both worlds. The ability to specify the order without the risk of the
-   * data containing more values than you originally thought when you created spec.uniqueValues.
+   * data containing more values than you originally thought when you created config.uniqueValues.
    * 
-   * Note: `groupByAt` has the side-effect that `spec.uniqueValues` are upgraded with the missing values.
+   * Note: `groupByAt` has the side-effect that `config.uniqueValues` are upgraded with the missing values.
    * You can use this if you want to do more calculations at the calling site.
    */
 /* &lt;CoffeeScript&gt;
   temp = []
   for row, idx in atArray
-    tempGroupBy = groupBy(row, spec)
+    tempGroupBy = groupBy(row, config)
     tempRow = {}
     for tgb in tempGroupBy
-      tempKey = tgb[spec.groupBy]
-      delete tgb[spec.groupBy]
+      tempKey = tgb[config.groupBy]
+      delete tgb[config.groupBy]
       tempRow[tempKey] = tgb    
     temp.push(tempRow)
     
-  if spec.uniqueValues?
-    uniqueValues = spec.uniqueValues
+  if config.uniqueValues?
+    uniqueValues = config.uniqueValues
   else
     uniqueValues = []
   for t in temp
@@ -252,8 +232,8 @@ groupByAt = (atArray, spec) -&gt;
         uniqueValues.push(key)
 
   blank = {}
-  for a in spec.aggregationSpec
-    {f, as} = _extractFandAs(a)
+  for a in config.aggregationConfig
+    {f, as} = functions.extractFandAs(a)
     blank[as] = f([])
         
   output = []
@@ -261,11 +241,11 @@ groupByAt = (atArray, spec) -&gt;
     row = []
     for u in uniqueValues
       if t[u]?   
-        t[u][spec.groupBy] = u
+        t[u][config.groupBy] = u
         row.push(t[u])
       else
         newRow = utils.clone(blank)
-        newRow[spec.groupBy] = u
+        newRow[config.groupBy] = u
         row.push(newRow)
     output.push(row)
   return output
@@ -281,7 +261,7 @@ timeSeriesCalculator = (snapshotArray, config) -&gt;
    * @return {Object} Returns an Object {listOfAtCTs, aggregationAtArray}
    * 
    * Takes an MVCC style `snapshotArray` array and returns the time series calculations `At` each moment specified by
-   * the Timeline spec (`timelineConfig`) within the config object.
+   * the Timeline config (`timelineConfig`) within the config object.
    * 
    * This is really just a thin wrapper around various other calculations, so look at the documentation for each of
    * those to get the detail picture of what this timeSeriesCalculator does. The general flow is:
@@ -307,7 +287,7 @@ timeSeriesCalculator = (snapshotArray, config) -&gt;
   deriveFieldsAt(atArray, config.derivedFields)
   
   # 4. Calculating aggregations
-  aggregationAtArray = aggregateAt(atArray, config.aggregationSpec)
+  aggregationAtArray = aggregateAt(atArray, config.aggregationConfig)
   
   return {listOfAtCTs, aggregationAtArray}
   
@@ -322,7 +302,7 @@ timeSeriesGroupByCalculator = (snapshotArray, config) -&gt;
    * @return {Object} Returns an Object {listOfAtCTs, groupByAtArray, uniqueValues}
    * 
    * Takes an MVCC style `snapshotArray` array and returns the data groupedBy a particular field `At` each moment specified by
-   * the Timeline spec (`timelineConfig`) within the config object.
+   * the Timeline config (`timelineConfig`) within the config object.
    * 
    * This is really just a thin wrapper around various other calculations, so look at the documentation for each of
    * those to get the detail picture of what this timeSeriesGroupByCalculator does. The general flow is:
@@ -344,25 +324,25 @@ timeSeriesGroupByCalculator = (snapshotArray, config) -&gt;
   atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField)
   
   # 3. Creating chartable grouped aggregations
-  aggregationSpec =
+  aggregationConfig =
     groupBy: config.groupByField
     uniqueValues: utils.clone(config.groupByFieldValues)
-    aggregationSpec: [
+    aggregationConfig: [
       {as: 'GroupBy', field: config.aggregationField, f: config.aggregationFunction}
       {as: 'Count', field:'ObjectID', f:'count'}
       {as: 'DrillDown', field:'ObjectID', f:'push'}
     ]
-  groupByAtArray = groupByAt(atArray, aggregationSpec)  
+  groupByAtArray = groupByAt(atArray, aggregationConfig)  
   
-  # Note: groupByAt has the side-effect that spec.uniqueValues are upgraded with the missing values.
+  # Note: groupByAt has the side-effect that config.uniqueValues are upgraded with the missing values.
   # Let's warn about any additional values
-  # if config.groupByFieldValues? and config.groupByFieldValues.length &lt; aggregationSpec.uniqueValues.length
+  # if config.groupByFieldValues? and config.groupByFieldValues.length &lt; aggregationConfig.uniqueValues.length
     # console.error('WARNING: Data found for values that are not in config.groupByFieldValues. Data found for values:')
-    # for v in aggregationSpec.uniqueValues
+    # for v in aggregationConfig.uniqueValues
       # unless v in config.groupByFieldValues
         # console.error('    ' + v)
         
-  return {listOfAtCTs, groupByAtArray, uniqueValues: utils.clone(aggregationSpec.uniqueValues)}
+  return {listOfAtCTs, groupByAtArray, uniqueValues: utils.clone(aggregationConfig.uniqueValues)}
 
 exports.aggregate = aggregate
 exports.aggregateAt = aggregateAt

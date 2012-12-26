@@ -4789,8 +4789,6 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
 
   exports.histogram = require('./src/histogram').histogram;
 
-  exports.olapCalculator = require('./src/olap').olapCalculator;
-
 }).call(this);
 
 });
@@ -6384,7 +6382,7 @@ require.define("/src/Time.coffee",function(require,module,exports,__dirname,__fi
 });
 
 require.define("/src/utils.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var AssertException, ErrorBase, assert, clone, isArray, match, startsWith, trim, type,
+  var AssertException, ErrorBase, assert, clone, exactMatch, filterMatch, isArray, match, startsWith, trim, type,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -6433,9 +6431,50 @@ require.define("/src/utils.coffee",function(require,module,exports,__dirname,__f
   match = function(obj1, obj2) {
     var key, value;
     for (key in obj1) {
-      if (!__hasProp.call(obj1, key)) continue;
       value = obj1[key];
       if (value !== obj2[key]) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  exactMatch = function(a, b) {
+    var atype, btype, key, val;
+    if (a === b) {
+      return true;
+    }
+    atype = typeof a;
+    btype = typeof b;
+    if (atype !== btype) {
+      return false;
+    }
+    if ((!a && b) || (a && !b)) {
+      return false;
+    }
+    if (atype !== 'object') {
+      return false;
+    }
+    if (a.length && (a.length !== b.length)) {
+      return false;
+    }
+    for (key in a) {
+      val = a[key];
+      if (!(key in b) || !exactMatch(val, b[key])) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  filterMatch = function(obj1, obj2) {
+    var key, value;
+    if (!(type(obj1) === 'object' && type(obj2) === 'object')) {
+      throw new Error('obj1 and obj2 must both be objects when calling filterMatch');
+    }
+    for (key in obj1) {
+      value = obj1[key];
+      if (!exactMatch(value, obj2[key])) {
         return false;
       }
     }
@@ -6490,6 +6529,8 @@ require.define("/src/utils.coffee",function(require,module,exports,__dirname,__f
   exports.assert = assert;
 
   exports.match = match;
+
+  exports.filterMatch = filterMatch;
 
   exports.trim = trim;
 
@@ -8573,7 +8614,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
             groupBy: 'KanbanState',
             aggregationConfig: [
               {field: 'ObjectID', f: 'count'}
-              {as: 'Drill-down', field:'ObjectID', f:'push'}
+              {as: 'Drill-down', field:'ObjectID', f:'values'}
               {field: 'PlanEstimate', f: 'sum'}
               {as: 'mySum', field: 'PlanEstimate', f: (values) ->
                 temp = 0
@@ -9326,200 +9367,6 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
   };
 
   exports.histogram = histogram;
-
-}).call(this);
-
-});
-
-require.define("/src/olap.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var decrement, expandFact, extractFilter, functions, mergeIntoOLAPArray, olapCalculator, possibilities, utils;
-
-  utils = require('../src/utils');
-
-  functions = require('../').functions;
-
-  possibilities = function(key, type, keepTotals) {
-    var a, len;
-    switch (utils.type(key)) {
-      case 'array':
-        if (keepTotals) {
-          a = [null];
-        } else {
-          a = [];
-        }
-        if (type === 'hierarchy') {
-          len = key.length;
-          while (len > 0) {
-            a.push(key.slice(0, len));
-            len--;
-          }
-        } else {
-          if (keepTotals) {
-            a = [null].concat(key);
-          } else {
-            a = key;
-          }
-        }
-        return a;
-      case 'string':
-      case 'number':
-        if (keepTotals) {
-          return [null, key];
-        } else {
-          return [key];
-        }
-    }
-  };
-
-  decrement = function(a, rollover) {
-    var i;
-    i = a.length - 1;
-    a[i]--;
-    while (a[i] < 0) {
-      a[i] = rollover[i];
-      i--;
-      if (i < 0) {
-        return false;
-      } else {
-        a[i]--;
-      }
-    }
-    return true;
-  };
-
-  expandFact = function(fact, config) {
-    var countdownArray, d, index, m, metricsOut, more, out, outRow, p, possibilitiesArray, rolloverArray, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
-    possibilitiesArray = [];
-    countdownArray = [];
-    rolloverArray = [];
-    _ref = config.dimensions;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      d = _ref[_i];
-      p = possibilities(fact[d.field], d.type, config.keepTotals);
-      possibilitiesArray.push(p);
-      countdownArray.push(p.length - 1);
-      rolloverArray.push(p.length - 1);
-    }
-    out = [];
-    more = true;
-    while (more) {
-      outRow = {};
-      _ref1 = config.dimensions;
-      for (index = _j = 0, _len1 = _ref1.length; _j < _len1; index = ++_j) {
-        d = _ref1[index];
-        outRow[d.field] = possibilitiesArray[index][countdownArray[index]];
-      }
-      if (config.keepRows) {
-        outRow.__facts = [fact];
-      }
-      metricsOut = {};
-      _ref2 = config.metrics;
-      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-        m = _ref2[_k];
-        metricsOut[m.field + '_values'] = [fact[m.field]];
-      }
-      outRow.__metrics = metricsOut;
-      out.push(outRow);
-      more = decrement(countdownArray, rolloverArray);
-    }
-    return out;
-  };
-
-  extractFilter = function(row, dimensions) {
-    var d, out, _i, _len;
-    out = {};
-    for (_i = 0, _len = dimensions.length; _i < _len; _i++) {
-      d = dimensions[_i];
-      out[d.field] = row[d.field];
-    }
-    return out;
-  };
-
-  mergeIntoOLAPArray = function(olapArray, olapIndex, expandedFactArray, config) {
-    var currentMetrics, er, filterString, key, olapRow, value, _i, _len, _results;
-    _results = [];
-    for (_i = 0, _len = expandedFactArray.length; _i < _len; _i++) {
-      er = expandedFactArray[_i];
-      filterString = JSON.stringify(extractFilter(er, config.dimensions));
-      olapRow = olapIndex[filterString];
-      if (olapRow != null) {
-        if (config.keepRows) {
-          olapRow.__facts = olapRow.__facts.concat(er.__facts);
-        }
-        currentMetrics = olapRow.__metrics;
-        _results.push((function() {
-          var _ref, _results1;
-          _ref = er.__metrics;
-          _results1 = [];
-          for (key in _ref) {
-            value = _ref[key];
-            _results1.push(currentMetrics[key] = currentMetrics[key].concat(value));
-          }
-          return _results1;
-        })());
-      } else {
-        olapRow = er;
-        olapIndex[filterString] = olapRow;
-        _results.push(olapArray.push(olapRow));
-      }
-    }
-    return _results;
-  };
-
-  /*
-  @method olapCalculator
-  @param {Object[]} facts facts to be aggregated into OLAP cube
-  @param {Object} config
-  */
-
-
-  olapCalculator = function(facts, config) {
-    var as, currentField, currentMetrics, currentValues, expandedFactArray, f, fact, m, m2, olapArray, olapIndex, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2;
-    olapArray = [];
-    olapIndex = {};
-    for (_i = 0, _len = facts.length; _i < _len; _i++) {
-      fact = facts[_i];
-      expandedFactArray = expandFact(fact, config);
-      mergeIntoOLAPArray(olapArray, olapIndex, expandedFactArray, config);
-    }
-    for (_j = 0, _len1 = olapArray.length; _j < _len1; _j++) {
-      fact = olapArray[_j];
-      currentMetrics = fact.__metrics;
-      _ref = config.metrics;
-      for (_k = 0, _len2 = _ref.length; _k < _len2; _k++) {
-        m = _ref[_k];
-        currentField = m.field;
-        currentValues = currentMetrics[currentField + '_values'];
-        if (m.metrics == null) {
-          m.metrics = [
-            {
-              f: 'count'
-            }, {
-              f: 'sum'
-            }, {
-              f: 'sumSquares'
-            }
-          ];
-        }
-        _ref1 = m.metrics;
-        for (_l = 0, _len3 = _ref1.length; _l < _len3; _l++) {
-          m2 = _ref1[_l];
-          _ref2 = functions.extractFandAs(m2, currentField), f = _ref2.f, as = _ref2.as;
-          currentMetrics[as] = f(currentValues);
-        }
-        if (!config.keepValues) {
-          delete currentMetrics[currentField + "_values"];
-        }
-      }
-    }
-    return olapArray;
-  };
-
-  exports.expandFact = expandFact;
-
-  exports.possibilities = possibilities;
-
-  exports.olapCalculator = olapCalculator;
 
 }).call(this);
 

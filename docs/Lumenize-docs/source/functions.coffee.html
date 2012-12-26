@@ -16,6 +16,8 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
+utils = require('./utils')
+
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions'>/**
 </span> * @class Lumenize.functions
@@ -102,30 +104,31 @@ functions.max = (values) -&gt;
   return temp
 
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-functions-static-method-push'>/**
-</span> * @method push
+<span id='Lumenize-functions-static-method-values'>/**
+</span> * @method values
  * @member Lumenize.functions
  * @static
- * @param {Number[]} values
+ * @param {Object[]} values
  * @return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
  */
 /* &lt;CoffeeScript&gt;
-functions.push = (values) -&gt;
-  temp = []
-  for v in values
-    temp.push(v)
-  return temp
+functions.values = (values) -&gt;
+  return values
+#  temp = []
+#  for v in values
+#    temp.push(v)
+#  return temp
 
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-functions-static-method-addToSet'>/**
-</span> * @method addToSet
+<span id='Lumenize-functions-static-method-uniqueValues'>/**
+</span> * @method uniqueValues
  * @member Lumenize.functions
  * @static
- * @param {Number[]} values
+ * @param {Object[]} values
  * @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
  */
 /* &lt;CoffeeScript&gt;
-functions.addToSet = (values) -&gt;
+functions.uniqueValues = (values) -&gt;
   temp = {}
   temp2 = []
   for v in values
@@ -213,6 +216,27 @@ functions.percentileCreator = (p) -&gt;
     if n == vLength
       return values[vLength - 1]
     return values[k - 1] + d * (values[k] - values[k - 1])
+
+functions.extractFandAs = (a, field) -&gt;
+  if a.as?
+    as = a.as
+  else
+    utils.assert(utils.type(a.f) != 'function', 'Must provide &quot;as&quot; field with your aggregation when providing a user defined function')
+    if a.field?
+      field = a.field
+    as = &quot;#{field}_#{a.f}&quot;
+  if utils.type(a.f) == 'function'
+    f = a.f
+  else if functions[a.f]?
+    f = functions[a.f]
+  else if a.f == 'median'
+    f = functions.percentileCreator(50)
+  else if a.f.substr(0, 1) == 'p'
+    p = /\p(\d+(.\d+)?)/.exec(a.f)[1]
+    f = functions.percentileCreator(Number(p))
+  else
+    throw new Error(&quot;#{a.f} is not a recognized built-in function&quot;)
+  return {f, as}
 
 exports.functions = functions
 &lt;/CoffeeScript&gt; */</pre>

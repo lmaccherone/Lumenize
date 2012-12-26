@@ -98,8 +98,21 @@ Once you have that all working, submit a pull request on GitHub.
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
-* 0.5.0 - 2012-12-15 (not pushed to github yet)
+* 0.5.0 - 2012-12-15 **Major backward breaking changes**
   * Major refactor of names/variables for inclusion in Rally's App SDK
+  * All functions that previously started with a `$` no longer do
+  * `$push()` is now `values()`
+  * `$addToSet()` is now `uniqueValues()`
+  * More parameters are pushed into the config Object parameter
+  * OLAPCube introduced. It's a great general purpose calculator but generally less efficient
+    than the hand-coded caculators. I may reimplement the TimeInStateCalculator using the
+    OLAPCube so it will be easier to upgrade its functionality, eventhough it will be less
+    efficient than the prior version.
+  * ChartTime is now Time, ChartTimeRange is now Timeline, ChartTimeIterator is now 
+    TimelineIterator. All three are now moved out to the TZTime package and have various other
+    backward breaking changes mostly having to do with defaults, method names, and method
+    signatures. There are no semantic changes.
+  * ChartTimeInStateCalculator is now TimeInStateCalculator.
 * 0.4.8 - 2012-12-08 - Turn off prefer global
 * 0.4.7 - 2012-12-08 - Updated dependencies
 * 0.4.6 - 2012-12-06 - More testing build and automatic npm publishing

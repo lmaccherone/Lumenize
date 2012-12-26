@@ -16,13 +16,13 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
-deriveFields = (list, derivedFieldsSpec) -&gt;
+deriveFields = (list, config) -&gt;
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-method-deriveFields'>  /**
 </span>   * @method deriveFields
    * @member Lumenize
    * @param {Object[]} list
-   * @param {Object[]} derivedFieldsSpec
+   * @param {Object[]} config
    * 
    * This function works on the list in place meaning that it's all side effect.
    * 
@@ -51,26 +51,26 @@ deriveFields = (list, derivedFieldsSpec) -&gt;
    *     # [ { a: 1, b: 2, sum: 3 }, { a: 3, b: 4, sum: 7 } ]
    * 
    * Note: the derivations are calculated in order so you can use the output of one derivation as the input to one
-   * that appears later in the derivedFieldsSpec list.
+   * that appears later in the config list.
    */
 /* &lt;CoffeeScript&gt;
   for row in list
-    for d in derivedFieldsSpec
+    for d in config
       row[d.name] = d.f(row)
       
-deriveFieldsAt = (atArray, derivedFieldsSpec) -&gt;
+deriveFieldsAt = (atArray, config) -&gt;
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-method-deriveFieldsAt'>  /**
 </span>   * @method deriveFieldsAt
    * @member Lumenize
    * @param {Array[]} atArray
-   * @param {Object[]} derivedFieldsSpec
+   * @param {Object[]} config
    * @return {Array[]}
    * Sends every sub-array in atArray to deriveFields upgrading the atArray in place.
    */
 /* &lt;CoffeeScript&gt;
   for a in atArray
-    deriveFields(a, derivedFieldsSpec)
+    deriveFields(a, config)
   
 
 exports.deriveFields = deriveFields

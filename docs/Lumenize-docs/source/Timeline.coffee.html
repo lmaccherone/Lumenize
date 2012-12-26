@@ -334,7 +334,7 @@ class Timeline
      * by step so they could be out of chronological order. Use getAll() if they must be in chronological order.
      */
 /* &lt;CoffeeScript&gt;
-    tli = new TimelineIterator(this, emit, tz, childGranularity)
+    tli = @getIterator(emit, tz, childGranularity)
     temp = []
     while tli.hasNext()
       temp.push(tli.next())
@@ -571,18 +571,6 @@ class TimelineIterator
         return childtimeline
       else
         throw new Error(&quot;You asked for type #{@emit}. Only 'Time', 'Date', 'ISOString', and 'Timeline' are allowed.&quot;)
-
-#  getAllRaw: () -&gt;
-#    ###
-#    @method getAll
-#    @return {Time[]/Timeline[]/Date[]/String[]}
-#    Returns all values as an array.
-#    ###
-#    @reset()
-#    temp = []
-#    while @hasNext()
-#      temp.push(@next())
-#    return temp
 
 exports.Timeline = Timeline
 exports.TimelineIterator = TimelineIterator

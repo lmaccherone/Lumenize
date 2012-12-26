@@ -105,11 +105,11 @@
  *       }
  *     ]
  * 
- * The `aggregationSpec` supports a number of functions including sum, count, addToSet, standardDeviation,
+ * The `aggregationConfig` supports a number of functions including sum, count, addToSet, standardDeviation,
  * p50 (for median), and p?? (for any quartile/percentile). It will also allow you to specify a callback function
  * like in derivedFields above if none of the built-in functions serves.
  * 
- *     aggregationSpec = [
+ *     aggregationConfig = [
  *       {&quot;as&quot;: &quot;scope&quot;, &quot;f&quot;: &quot;count&quot;, &quot;field&quot;: &quot;ObjectID&quot;},
  *       {&quot;as&quot;: &quot;accepted&quot;, &quot;f&quot;: &quot;sum&quot;, &quot;field&quot;: &quot;accepted&quot;}
  *     ]
@@ -127,7 +127,7 @@
  *       timezone: 'America/New_York',
  *       timelineConfig: timelineConfig,
  *       derivedFields: derivedFields,
- *       aggregationSpec: aggregationSpec
+ *       aggregationConfig: aggregationConfig
  *     }
  * 
  * Next, we call `Lumenize.timeSeriesCalculator` with the snapshots as well as the config object that we just built.
@@ -160,7 +160,7 @@
  *       }
  *     ]
  * 
- *     config.aggregationSpec = [
+ *     config.aggregationConfig = [
  *       {&quot;as&quot;: &quot;scope&quot;, &quot;f&quot;: &quot;sum&quot;, &quot;field&quot;: &quot;PlanEstimate&quot;},
  *       {&quot;as&quot;: &quot;accepted&quot;, &quot;f&quot;: &quot;sum&quot;, &quot;field&quot;: &quot;accepted&quot;}
  *     ]
@@ -207,6 +207,7 @@ exports.deriveFields = derive.deriveFields
 exports.deriveFieldsAt = derive.deriveFieldsAt
 
 exports.histogram = require('./src/histogram').histogram
+
 
 &lt;/CoffeeScript&gt; */</pre>
 </body>

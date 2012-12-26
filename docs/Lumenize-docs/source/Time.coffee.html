@@ -211,7 +211,7 @@ class Time  #
    * @param {String} [granularity]
    * @param {String} [tz]
    * 
-   * The constructor for Time supports the passing in of a String, a rata die number (RDN), or a spec Object
+   * The constructor for Time supports the passing in of a String, a rata die number (RDN), or a config Object
    * 
    * ## String ##
    * 
@@ -269,15 +269,15 @@ class Time  #
    * up with the same Time value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
    * option is even really useful. In most cases, you are probably better off using Time.getISOStringFromJSDate()
    * 
-   * ## Spec ##
+   * ## Config ##
    * 
-   * You can also explicitly spell out the segments in a **spec** Object in the form of 
+   * You can also explicitly spell out the segments in a **config** Object in the form of
    * `{granularity: Time.DAY, year: 2009, month: 1, day: 1}`. If the granularity is specified but not all of the segments are
    * provided, Time will fill in the missing value with the appropriate `lowest` value from _granularitySpecs.
    * 
    * ## granularity ##
    * 
-   * If you provide a granularity it will take precedence over whatever fields you've provided in your spec or whatever segments
+   * If you provide a granularity it will take precedence over whatever fields you've provided in your config or whatever segments
    * you have provided in your string. Time will leave off extra values and fill in missing ones with the appropriate `lowest`
    * value.
    * 
@@ -326,13 +326,13 @@ class Time  #
         unless tz?
           tz = 'GMT'
       when 'object'
-        spec = value
+        config = value
         if tz?
-          spec.granularity = 'millisecond'
-          newCT = new Time(spec)
+          config.granularity = 'millisecond'
+          newCT = new Time(config)
           jsDate = newCT.getJSDateFromGMTInTZ(tz)
         else
-          @_setFromSpec(spec)
+          @_setFromConfig(config)
 
     if tz?
       if @beforePastFlag in ['BEFORE_FIRST', 'PAST_LAST']
@@ -342,7 +342,7 @@ class Time  #
       unless @granularity?
         @granularity = 'millisecond'
       
-      newSpec =
+      newConfig =
         year: jsDate.getUTCFullYear()
         month: jsDate.getUTCMonth() + 1
         day: jsDate.getUTCDate()
@@ -352,8 +352,8 @@ class Time  #
         millisecond: jsDate.getUTCMilliseconds()
         granularity: 'millisecond'
         
-      newCT = new Time(newSpec).inGranularity(@granularity)
-      @_setFromSpec(newCT)
+      newCT = new Time(newConfig).inGranularity(@granularity)
+      @_setFromConfig(newCT)
 
     @_inBoundsCheck()
     @_overUnderFlow()
@@ -481,14 +481,14 @@ class Time  #
           else  
             throw new Error(&quot;Tried to set #{segment} to #{temp}. It must be &gt;= #{lowest} and &lt; #{rolloverValue}&quot;)
         
-  _setFromSpec: (spec) -&gt;
-    utils.assert(spec.granularity?, 'A granularity property must be part of the supplied spec.')
-    @granularity = spec.granularity
-    @beforePastFlag = if spec.beforePastFlag? then spec.beforePastFlag else ''
+  _setFromConfig: (config) -&gt;
+    utils.assert(config.granularity?, 'A granularity property must be part of the supplied config.')
+    @granularity = config.granularity
+    @beforePastFlag = if config.beforePastFlag? then config.beforePastFlag else ''
     segments = Time._granularitySpecs[@granularity].segments
     for segment in segments
-      if spec[segment]?
-        this[segment] = spec[segment]
+      if config[segment]?
+        this[segment] = config[segment]
       else
         this[segment] = Time._granularitySpecs[segment].lowest
         
@@ -517,7 +517,7 @@ class Time  #
       else
         tz = undefined
       zuluCT = new Time(new Date(), sSplit[1], tz)
-      @_setFromSpec(zuluCT)
+      @_setFromConfig(zuluCT)
       if sSplit[0] == 'next'
         @increment()
       else if sSplit[0] == 'previous'
@@ -556,7 +556,7 @@ class Time  #
     return sub
 
   _setFromRDN: (rdn, granularity) -&gt;
-    spec = {granularity: granularity}
+    config = {granularity: granularity}
     utils.assert(granularity?, &quot;Must provide a granularity when constructing with a Rata Die Number.&quot;)
     switch granularity
       when 'week', 'week_day'  # algorithm from http://en.wikipedia.org/wiki/Talk:ISO_week_date
@@ -570,10 +570,10 @@ class Time  #
         x = w * 28 + [15, 23, 3, 11][c]
         y = Math.floor(x / 1461)
         w = x % 1461
-        spec['year'] = y + n*400 + c*100 + 1
-        spec['week'] = Math.floor(w / 28) + 1
-        spec['week_day'] = d + 1
-        @_setFromSpec(spec)
+        config['year'] = y + n*400 + c*100 + 1
+        config['week'] = Math.floor(w / 28) + 1
+        config['week_day'] = d + 1
+        @_setFromConfig(config)
       when 'year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond', 'quarter'  # algorithm from http://en.wikipedia.org/wiki/Julian_day#Gregorian_calendar_from_Julian_day_number
 #         J = rdn + 1721425.5  # With it set like this dates like 2011-05-31 show up as 2011-06-00
         J = rdn + 1721425
@@ -589,11 +589,11 @@ class Time  #
         y = g * 400 + c * 100 + b * 4 + a
         m = Math.floor((da * 5 + 308) / 153) - 2
         d = da - Math.floor((m + 4) * 153 / 5) + 122
-        spec['year'] = y - 4800 + Math.floor((m + 2) / 12)
-        spec['month'] = (m + 2) % 12 + 1
-        spec['day'] = Math.floor(d) + 1
-        spec['quarter'] = Math.floor((spec.month - 1) / 3) + 1
-        @_setFromSpec(spec)
+        config['year'] = y - 4800 + Math.floor((m + 2) / 12)
+        config['month'] = (m + 2) % 12 + 1
+        config['day'] = Math.floor(d) + 1
+        config['quarter'] = Math.floor((config.month - 1) / 3) + 1
+        @_setFromConfig(config)
       else
         granularitySpec = Time._granularitySpecs[granularity]
         # Build spec for lowest possible value
@@ -611,7 +611,7 @@ class Time  #
           
         while true
           if rdn &lt; afterRDN and rdn &gt;= beforeRDN
-            @_setFromSpec(beforeCT) 
+            @_setFromConfig(beforeCT)
             return
           beforeCT = afterCT
           beforeRDN = afterRDN
@@ -619,11 +619,11 @@ class Time  #
           afterRDN = afterCT.rataDieNumber()
           if afterCT.beforePastFlag == 'PAST_LAST'
             if rdn &gt;= Time._granularitySpecs[beforeCT.granularity].endBeforeDay.rataDieNumber()
-              @_setFromSpec(afterCT)
+              @_setFromConfig(afterCT)
               @beforePastFlag == 'PAST_LAST'
               return
             else if rdn &gt;= beforeRDN
-              @_setFromSpec(beforeCT)
+              @_setFromConfig(beforeCT)
               return
             else
               throw new Error(&quot;RDN: #{rdn} seems to be out of range for #{granularity}&quot;)
@@ -686,8 +686,8 @@ class Time  #
   
   getISOStringInTZ: (tz) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-Time-method-getShiftedISOString'>    /**
-</span>     * @method getShiftedISOString
+<span id='Lumenize-Time-method-getISOStringInTZ'>    /**
+</span>     * @method getISOStringInTZ
      * @member Lumenize.Time
      * @param {String} tz
      * @return {String} The canonical ISO-8601 date in zulu representation but shifted to the specified tz

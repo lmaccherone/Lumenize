@@ -17,12 +17,32 @@ assert = (exp, message) ->
     throw new exports.AssertException(message)
 
 # Uses the properties of obj1, so will still match if obj2 has extra properties.
-# Also, keep in mind that this is only looking at obj1's "own" objects. Inherited ones are ignored.
 match = (obj1, obj2) ->
-  for own key, value of obj1
+  for key, value of obj1
     if (value != obj2[key])
       return false
   return true
+
+exactMatch = (a, b) ->
+  return true if a is b
+  atype = typeof(a); btype = typeof(b)
+  return false if atype isnt btype
+  return false if (!a and b) or (a and !b)
+  return false if atype isnt 'object'
+  return false if a.length and (a.length isnt b.length)
+  return false for key, val of a when !(key of b) or not exactMatch(val, b[key])
+  return true
+
+# At the top level, it will match even if obj1 is missing some elements that are in obj2, but at the lower levels, it must be an exact match.
+filterMatch = (obj1, obj2) ->
+  unless type(obj1) is 'object' and type(obj2) is 'object'
+    throw new Error('obj1 and obj2 must both be objects when calling filterMatch')
+  for key, value of obj1
+    if not exactMatch(value, obj2[key])
+      return false
+  return true
+
+
 
 trim = (val) ->
   return if String::trim? then val.trim() else val.replace(/^\s+|\s+$/g, "")
@@ -56,6 +76,7 @@ clone = (obj) ->
 exports.AssertException = AssertException
 exports.assert = assert
 exports.match = match
+exports.filterMatch = filterMatch
 exports.trim = trim
 exports.startsWith = startsWith
 exports.isArray = isArray
