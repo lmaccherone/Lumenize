@@ -743,6 +743,22 @@ class Time
     for segment in segments
       rawObject[segment] = this[segment]
     return rawObject
+
+  getSegmentsAsArray: () ->
+    ###
+    @method getSegmentsAsArray
+    @return {Array} Returns a simple JavaScript Array containing the segments. This is useful for doing hierarchical
+      aggregations using Lumenize.OLAPCube.
+
+        t = new Time('2011-01-10')
+        console.log(t.getSegmentsAsArray())
+        # [ 2011, 1, 10 ]
+    ###
+    segments = Time._granularitySpecs[@granularity].segments
+    a = []
+    for segment in segments
+      a.push(this[segment])
+    return a
   
   toString: () ->
     ###

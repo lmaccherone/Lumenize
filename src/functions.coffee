@@ -5,15 +5,24 @@ utils = require('./utils')
 ###
 functions = {}
 
+functions.INCREMENTAL = ['sum', 'sumSquares', 'lastValue', 'count', 'min', 'max', 'values', 'uniqueValues']
+
 ###
 @method sum
 @static
 @param {Number[]} values
+@param {Number} [oldResult] for incremental calculation
+@param {Number[]} [newValues] for incremental calculation
 @return {Number} The sum of the values
 ###
-functions.sum = (values) ->
-  temp = 0
-  for v in values
+functions.sum = (values, oldResult, newValues) ->
+  if oldResult?
+    temp = oldResult
+    tempValues = newValues
+  else
+    temp = 0
+    tempValues = values
+  for v in tempValues
     temp += v
   return temp
 
@@ -21,30 +30,58 @@ functions.sum = (values) ->
 @method sumSquares
 @static
 @param {Number[]} values
+@param {Number} [oldResult] for incremental calculation
+@param {Number[]} [newValues] for incremental calculation
 @return {Number} The sum of the squares of the values
 ###
-functions.sumSquares = (values) ->
-  temp = 0
-  for v in values
+functions.sumSquares = (values, oldResult, newValues) ->
+  if oldResult?
+    temp = oldResult
+    tempValues = newValues
+  else
+    temp = 0
+    tempValues = values
+  for v in tempValues
     temp += v * v
   return temp
+
+###
+@method lastValue
+@static
+@param {Number[]} values
+@param {Number} [oldResult] Not used. It is included to make the interface consistent.
+@param {Number[]} [newValues] for incremental calculation
+@return {Number} The last value
+###
+functions.lastValue = (values, oldResult, newValues) ->
+  if newValues?
+    return newValues[newValues.length - 1]
+  return values[values.length - 1]
 
 ###
 @method count
 @static
 @param {Number[]} values
+@param {Number} [oldResult] for incremental calculation
+@param {Number[]} [newValues] for incremental calculation
 @return {Number} The length of the values Array
 ###
-functions.count = (values) ->
+functions.count = (values, oldResult, newValues) ->
+  if oldResult?
+    return oldResult + newValues.length
   return values.length
 
 ###
 @method min
 @static
 @param {Number[]} values
+@param {Number} [oldResult] for incremental calculation
+@param {Number[]} [newValues] for incremental calculation
 @return {Number} The minimum value or null if no values
 ###
-functions.min = (values) ->
+functions.min = (values, oldResult, newValues) ->
+  if oldResult?
+    return functions.min(newValues.concat([oldResult]))
   if values.length == 0
     return null
   temp = values[0]
@@ -57,9 +94,13 @@ functions.min = (values) ->
 @method max
 @static
 @param {Number[]} values
+@param {Number} [oldResult] for incremental calculation
+@param {Number[]} [newValues] for incremental calculation
 @return {Number} The maximum value or null if no values
 ###
-functions.max = (values) ->
+functions.max = (values, oldResult, newValues) ->
+  if oldResult?
+    return functions.max(newValues.concat([oldResult]))
   if values.length == 0
     return null
   temp = values[0]
@@ -72,9 +113,13 @@ functions.max = (values) ->
 @method values
 @static
 @param {Object[]} values
+@param {Number} [oldResult] for incremental calculation
+@param {Number[]} [newValues] for incremental calculation
 @return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
 ###
-functions.values = (values) ->
+functions.values = (values, oldResult, newValues) ->
+  if oldResult?
+    return oldResult.concat(newValues)
   return values
 #  temp = []
 #  for v in values
@@ -85,12 +130,20 @@ functions.values = (values) ->
 @method uniqueValues
 @static
 @param {Object[]} values
+@param {Number} [oldResult] for incremental calculation
+@param {Number[]} [newValues] for incremental calculation
 @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
 ###
-functions.uniqueValues = (values) ->
+functions.uniqueValues = (values, oldResult, newValues) ->
   temp = {}
+  if oldResult?
+    for r in oldResult
+      temp[r] = null
+    tempValues = newValues
+  else
+    tempValues = values
   temp2 = []
-  for v in values
+  for v in tempValues
     temp[v] = null
   for key, value of temp
     temp2.push(key)

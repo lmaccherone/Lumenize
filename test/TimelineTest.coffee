@@ -148,10 +148,50 @@ exports.TimelineTest =
     test.equal(i3.hasNext(), false)
     
     test.done()
-  
+
+  testTicksThatIntersect: (test) ->
+    tl = new Timeline({
+      startOn:'2011-01-06T00',
+      endBefore:'2011-01-11T00',
+      workDayStartOn: {hour: 9, minute: 0},
+      workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for test purposes
+    })
+
+    ticks = tl.ticksThatIntersect('2010-01-01T00:00:00.000Z', '2010-01-10T00:00:00.000Z', 'America/New_York')
+    test.equal(0, ticks.length)
+
+    ticks = tl.ticksThatIntersect('2012-01-01T00:00:00.000Z', '2012-01-10T00:00:00.000Z', 'America/New_York')
+    test.equal(0, ticks.length)
+
+    ticks = tl.ticksThatIntersect('2011-01-01T00:00:00.000Z', '2012-01-01T00:00:00.000Z', 'America/New_York')
+    test.equal(6, ticks.length)
+
+    ticks = tl.ticksThatIntersect('2011-01-07T00:00:00.000Z', '2012-01-01T00:00:00.000Z', 'America/New_York')
+    test.equal(4, ticks.length)
+
+    ticks = tl.ticksThatIntersect('2011-01-07T00:00:00.000Z', '2011-01-08T00:00:00.000Z', 'America/New_York')
+    test.equal(2, ticks.length)
+
+    ticks = tl.ticksThatIntersect(new Time('2010-01-01'), new Time('2010-01-10'))
+    test.equal(0, ticks.length)
+
+    ticks = tl.ticksThatIntersect(new Time('2012-01-01'), new Time('2012-01-10'))
+    test.equal(0, ticks.length)
+
+    ticks = tl.ticksThatIntersect(new Time('2011-01-01'), new Time('2012-01-01'))
+    test.equal(6, ticks.length)
+
+    ticks = tl.ticksThatIntersect(new Time('2011-01-07'), new Time('2012-01-01'))
+    test.equal(4, ticks.length)
+
+    ticks = tl.ticksThatIntersect(new Time('2011-01-07'), new Time('2011-01-08'))
+    test.equal(2, ticks.length)
+
+    test.done()
+
   testHourGranularity: (test) ->
     r4 = new Timeline({
-      startOn:'2011-01-06T00',  # Notice how we include the hour now
+      startOn:'2011-01-06T00',
       endBefore:'2011-01-11T00',
       workDayStartOn: {hour: 9, minute: 0},
       workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes

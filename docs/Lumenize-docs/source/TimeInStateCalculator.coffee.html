@@ -17,22 +17,23 @@
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
 utils = require('./utils')
+OLAPCube = require('./OLAPCube').OLAPCube
+Timeline = require('./Timeline').Timeline
+Time = require('./Time').Time
 
 class TimeInStateCalculator
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-TimeInStateCalculator-method-constructor'><span id='Lumenize-TimeInStateCalculator'>  /**
-</span></span>   * @class Lumenize.TimeInStateCalculator
+<span id='Lumenize-TimeInStateCalculator-method-constructor'><span id='Lumenize-TimeInStateCalculator-cfg-workDayEndBefore'><span id='Lumenize-TimeInStateCalculator-cfg-workDayStartOn'><span id='Lumenize-TimeInStateCalculator-cfg-holidays'><span id='Lumenize-TimeInStateCalculator-cfg-workDays'><span id='Lumenize-TimeInStateCalculator-cfg-granularity'><span id='Lumenize-TimeInStateCalculator-cfg-uniqueIDField'><span id='Lumenize-TimeInStateCalculator-cfg-validToField'><span id='Lumenize-TimeInStateCalculator-cfg-validFromField'><span id='Lumenize-TimeInStateCalculator-cfg-tz'><span id='Lumenize-TimeInStateCalculator'>  /**
+</span></span></span></span></span></span></span></span></span></span></span>   * @class Lumenize.TimeInStateCalculator
    * 
    * Used to calculate how much time each uniqueID spent &quot;in-state&quot;. You use this by querying a temporal data
    * model (like Rally's Lookback API) with a predicate indicating the &quot;state&quot; of interest. You'll then have a list of
-   * snapshots where that predicate was true. You pass this in to the timeInState method of this previously instantiated
-   * TimeInStateCalculator class to identify how many &quot;ticks&quot; of the timeline specified by the iterator you used
-   * to instantiate this class.
+   * snapshots where that predicate was true. You pass this in to the addSnapshots method of this previously instantiated
+   * TimeInStateCalculator class.
    * 
    * Usage:
    * 
-   *     lumenize = require('../')
-   *     {Timeline, Time, TimelineIterator, TimeInStateCalculator} = lumenize
+   *     {TimeInStateCalculator} = require('../')
    * 
    *     snapshots = [ 
    *       { id: 1, from: '2011-01-06T15:10:00.000Z', to: '2011-01-06T15:30:00.000Z' }, # 20 minutes all within an hour
@@ -42,253 +43,198 @@ class TimeInStateCalculator
    *       { id: 5, from: '2011-01-06T16:50:00.000Z', to: '2011-01-07T15:10:00.000Z' }, # 10 minutes before end of one day and 10 before the start of next
    *       { id: 6, from: '2011-01-06T16:55:00.000Z', to: '2011-01-07T15:05:00.000Z' }, # multiple cycles over several days for a total of 20 minutes of work time
    *       { id: 6, from: '2011-01-07T16:55:00.000Z', to: '2011-01-10T15:05:00.000Z' }, 
-   *       { id: 7, from: '2011-01-06T16:40:00.000Z', to: '2011-01-20T19:00:00.000Z' }  # false beyond scope of iterator
+   *       { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z' }  # extends beyond scope of initial analysis
    *     ]
    *     
    *     granularity = 'minute'
-   *     timezone = 'America/Chicago'
-   *     
-   *     timelineConfig =
+   *     tz = 'America/Chicago'
+   * 
+   *     config =  # default work days and holidays
    *       granularity: granularity
-   *       startOn: new Time(snapshots[0].from, granularity, timezone).decrement()
+   *       tz: tz
    *       endBefore: '2011-01-11T00:00:00.000'
-   *       workDayStartOn: {hour: 9, minute: 0}  # 15:00 in Chicago
-   *       workDayEndBefore: {hour: 11, minute: 0}  # 17:00 in Chicago.
-   *     
-   *     tl1 = new Timeline(timelineConfig)
-   *     tisc1 = tl1.getTimeInStateCalculator(timezone)
-   *     timeInState = tisc1.timeInState(snapshots, 'from', 'to', 'id')
-   *     console.log(timeInState)
+   *       workDayStartOn: {hour: 9, minute: 0}  # 15:00 GMT in Chicago
+   *       workDayEndBefore: {hour: 11, minute: 0}  # 17:00 GMT in Chicago.
+   *       validFromField: 'from'
+   *       validToField: 'to'
+   *       uniqueIDField: 'id'
    * 
-   *     # [ { ticks: 20,
-   *     #     finalState: false,
-   *     #     finalEventAt: '2011-01-06T15:30:00.000Z',
-   *     #     finalTickAt: '2011-01-06T15:29:00.000Z',
-   *     #     id: '1' },
-   *     #   { ticks: 20,
-   *     #     finalState: false,
-   *     #     finalEventAt: '2011-01-06T16:10:00.000Z',
-   *     #     finalTickAt: '2011-01-06T16:09:00.000Z',
-   *     #     id: '2' },
-   *     #   { ticks: 20,
-   *     #     finalState: false,
-   *     #     finalEventAt: '2011-01-07T15:20:00.000Z',
-   *     #     finalTickAt: '2011-01-07T15:19:00.000Z',
-   *     #     id: '3' },
-   *     #   { ticks: 20,
-   *     #     finalState: false,
-   *     #     finalEventAt: '2011-01-06T19:00:00.000Z',
-   *     #     finalTickAt: '2011-01-06T16:59:00.000Z',
-   *     #     id: '4' },
-   *     #   { ticks: 20,
-   *     #     finalState: false,
-   *     #     finalEventAt: '2011-01-07T15:10:00.000Z',
-   *     #     finalTickAt: '2011-01-07T15:09:00.000Z',
-   *     #     id: '5' },
-   *     #   { ticks: 20,
-   *     #     finalState: false,
-   *     #     finalEventAt: '2011-01-10T15:05:00.000Z',
-   *     #     finalTickAt: '2011-01-10T15:04:00.000Z',
-   *     #     id: '6' } ]
+   *     startOn = '2011-01-05T00:00:00.000Z'
+   *     endBefore = '2011-01-11T00:00:00.000Z'
    * 
-   *     
-   * The default supresses the ones that are still open at the end, but we can override that
+   *     tisc = new TimeInStateCalculator(config)
+   *     tisc.addSnapshots(snapshots, startOn, endBefore)
    * 
-   *     snapshots = [snapshots[7]]
-   *     console.log(tisc1.timeInState(snapshots, 'from', 'to', 'id', false))
-   *     
-   *     # [ { ticks: 260,
-   *     #     finalState: true,
-   *     #     finalEventAt: '2011-01-06T16:40:00.000Z',
-   *     #     finalTickAt: '2011-01-10T16:59:00.000Z',
-   *     #     id: '7' } ]
-   *     
-   *     
-   * We can adjust the granularity
+   *     console.log(tisc.getResults())
+   *     # [ { id: 1, ticks: 20, lastValidTo: '2011-01-06T15:30:00.000Z' },
+   *     #   { id: 2, ticks: 20, lastValidTo: '2011-01-06T16:10:00.000Z' },
+   *     #   { id: 3, ticks: 20, lastValidTo: '2011-01-07T15:20:00.000Z' },
+   *     #   { id: 4, ticks: 20, lastValidTo: '2011-01-06T19:00:00.000Z' },
+   *     #   { id: 5, ticks: 20, lastValidTo: '2011-01-07T15:10:00.000Z' },
+   *     #   { id: 6, ticks: 20, lastValidTo: '2011-01-10T15:05:00.000Z' },
+   *     #   { id: 7, ticks: 260, lastValidTo: '9999-01-01T00:00:00.000Z' } ]
    * 
-   *     timelineConfig.granularity = 'hour'
-   *     tisc2 = new Timeline(timelineConfig).getTimeInStateCalculator(timezone)
-   *     timeInState = tisc2.timeInState(snapshots, 'from', 'to', 'id', false)
-   *     console.log(timeInState)
-   *     
-   *     # [ { ticks: 4,
-   *     #     finalState: true,
-   *     #     finalEventAt: '2011-01-06T16:40:00.000Z',
-   *     #     finalTickAt: '2011-01-10T16:00:00.000Z',
-   *     #     id: '7' } ]
+   * But we are not done yet. We can serialize the state of this calculator and later restore it.
+   * 
+   *     savedState = tisc.getStateForSaving({somekey: 'some value'})
+   * 
+   * Let's incrementally update the original.
+   * 
+   *     snapshots = [
+   *       { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z' },  # same snapshot as before still going
+   *       { id: 3, from: '2011-01-11T15:00:00.000Z', to: '2011-01-11T15:20:00.000Z' },  # 20 more minutes for id 3
+   *       { id: 8, from: '2011-01-11T15:00:00.000Z', to: '9999-01-01T00:00:00.000Z' }   # 20 minutes in scope for new id 8
+   *     ]
+   * 
+   *     startOn = '2011-01-11T00:00:00.000Z'  # must match endBefore of prior call
+   *     endBefore = '2011-01-11T15:20:00.000Z'
+   * 
+   *     tisc.addSnapshots(snapshots, startOn, endBefore)
+   * 
+   * Now, let's restore from saved state into tisc2.
+   * 
+   *     tisc2 = TimeInStateCalculator.newFromSavedState(savedState)
+   *     tisc2.addSnapshots(snapshots, startOn, endBefore)
+   * 
+   *     console.log(tisc2.meta.somekey)
+   *     # some value
+   * 
+   *     console.log(JSON.stringify(tisc.getResults()) == JSON.stringify(tisc2.getResults()))
+   *     # true
+   * 
    * 
    * @constructor
-   * @param {Timeline} timeline You must pass in a Timeline in the correct granularity and wide enough to cover any snapshots that you will analyze with this TimeInStateCalculator
-   * @param {String} tz The timezone for analysis
+   * @param {Object} config
+   * @cfg {String} tz The timezone for analysis
+   * @cfg {String} validFromField
+   * @cfg {String} validToField
+   * @cfg {String} uniqueIDField
+   * @cfg {String} granularity This calculator will tell you how many ticks fall within the snapshots you feed in.
+   *    This configuration value indicates the granularity of the ticks (i.e. Time.MINUTE, Time.HOUR, Time.DAY, etc.)
+   * @cfg {String[]/String} [workDays] List of days of the week that you work on. You can specify this as an Array of Strings
+   *    (['Monday', 'Tuesday', ...]) or a single comma seperated String (&quot;Monday,Tuesday,...&quot;).
+   *    Defaults to ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].
+   * @cfg {Object[]} [holidays] An optional Array containing rows that are either ISOStrings or JavaScript Objects
+   *   (mix and match). Example: `[{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, &quot;2012-12-24&quot;]`
+   *    Notice how you can leave off the year if the holiday falls on the same day every year.
+   * @cfg {Object} [workDayStartOn] An optional object in the form {hour: 8, minute: 15}. If minute is zero it can be omitted.
+   *    If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
+   *    hours span midnight. If tickGranularity is &quot;hour&quot; or finer, you probably want to set this; if tickGranularity is
+   *    &quot;day&quot; or coarser, probably not.
+   * @cfg {Object} [workDayEndBefore] An optional object in the form {hour: 17, minute: 0}. If minute is zero it can be omitted.
+   *    The use of workDayStartOn and workDayEndBefore only make sense when the granularity is &quot;hour&quot; or finer.
+   *    Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
+   *    than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
+   *    the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
    */
 /* &lt;CoffeeScript&gt;
 
-    @param {String} tz The timezone for analysis
-    @granularity = @timeline.granularity
-    # !TODO: If this approach of walking through each tick turns out to be slow, then refactor algorithm
-    # if @granularity in ['minute', 'second', 'millisecond']
-      # console.error('Warning: time-in-state calculations at granularities finer than hour can take a long time.')
-    if tz?
-      @tz = tz
-    utils.assert(@tz?, 'Must specify a timezone `tz`.')
-    allCTs = @timeline.getAll()
-    @ticks = []
-    previousState = false
-    allCTsLength = allCTs.length
-    for ct, idx in allCTs
-      ctPlus1 = ct.add(1)
-      if previousState
-        previousState = true
-        @ticks.push({at: ct.getISOStringInTZ(@tz), state: true})
-        if idx + 1 == allCTsLength
-          previousState = false
-          @ticks.push({at: ctPlus1.getISOStringInTZ(@tz), state: false})
-        else
-          unless ctPlus1.equal(allCTs[idx + 1])
-            previousState = false
-            @ticks.push({at: ctPlus1.getISOStringInTZ(@tz), state: false})
-      else
-        @ticks.push({at: ct.getISOStringInTZ(@tz), state: true})
-        previousState = true
+       the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
+    # Assert that the configuration object is self-consistent and required parameters are present
+    dimensions = [
+      {field: @config.uniqueIDField}
+    ]
+    metrics = [
+      {field: 'ticks', metrics:[{as: 'ticks', f:'sum'}]},
+      {field: @config.validToField, metrics:[{as: 'lastValidTo', f: 'lastValue'}]}
+    ]
+    cubeConfig = {dimensions, metrics}
+    @cube = new OLAPCube(cubeConfig)
+    @upToDate = null
 
-  timeInState: (snapshotArray, validFromField, validToField, uniqueIDField, excludeStillInState = true) -&gt;
+  addSnapshots: (snapshots, startOn, endBefore) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-TimeInStateCalculator-method-timeInState'>    /**
-</span>     * @method timeInState
+<span id='Lumenize-TimeInStateCalculator-method-addSnapshots'>    /**
+</span>     * @method addSnapshots
      * @member Lumenize.TimeInStateCalculator
-     * @param {Object[]} snapshotArray
-     * @param {String} validFromField What field in the snapshotArray indicates when the snapshot starts (inclusive)?
-     * @param {String} validToField What field in the snapshotArray indicates when the snapshot ends (exclusive)?
-     * @param {String} uniqueIDField What field in the snapshotArray holds the uniqueID
-     * @param {Boolean} [excludeStillInState] If false, even ids that are still active on the last tick are included
-     * 
-     * @return {Object[]} An entry for each uniqueID.
-     * 
-     * The fields in each row in the returned Array include:
-     * 
-     * * ticks: The number of ticks of the iterator that intersect with the snapshots
-     * * finalState: true if the last snapshot for this uniqueID had not yet ended by the moment of the last tick
-     * * finalEventAt: the validFrom value for the final event
-     * * finalTickAt: the last tick that intersected with this uniqueID
-     * * |uniqueIDField|: The uniqueID value
-     * 
-     * Assumptions about the snapshotArray that's passed in:
-     * 
-     * * The snapshotArray includes all snapshots where the logical state you want
-     *   to measure the &quot;time in&quot; is true. So, send the predicate you want to be true as part of the query to the snapshot service.
-     * * The `validFromField` and `validToField` in the `snapshotArray` contain strings in ISO-8601 canonical
-     *   Zulu format (eg `'2011-01-01T12:34:56.789Z'`).
+     *   Allows you to incrementally add snapshots to this calculator.
+     * @chainable
+     * @param {Object[]} snapshots An array of temporal data model snapshots.
+     * @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+     *   interest. On the second through nth call, this should equal the previous endBefore.
+     * @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+     *   period of interest.
+     * @return {TimeInStateCalculator}
      */
 /* &lt;CoffeeScript&gt;
-    
-    # it's an error if the first snapshot array entry is before the first entry in the ticks stream.
-    utils.assert(snapshotArray[0][validFromField] &gt;= @ticks[0].at, &quot;&quot;&quot;
-      The iterator used must go back at least as far as the first entry in the snapshotArray.
-      First entry:
-        #{snapshotArray[0][validFromField]}
-      Iterator start:
-        #{@ticks[0].at}
-    &quot;&quot;&quot;)
-    
-    # expand the snapshotArray to `state: true` and `state: false` entries
-    lastTickAt = @ticks[@ticks.length - 1].at
-    snapshotEvents = []
-    for s in snapshotArray
-      eventRow = {at: s[validFromField], state: true}
-      eventRow[uniqueIDField] = s[uniqueIDField]
-      eventRow.type = 1
-      snapshotEvents.push(eventRow)
-      if s[validToField] &lt; lastTickAt
-        eventRow = {at: s[validToField], state: false}
-        eventRow[uniqueIDField] = s[uniqueIDField]
-        eventRow.type = 0
-        snapshotEvents.push(eventRow)
-        
-    # sort the snapshotEvents array by the at field
-    snapshotEvents.sort((a, b) -&gt;
-      if a.at &gt; b.at
-        return 1
-      else if a.at == b.at
-        if a.type &gt; b.type
-          return 1
-        else if a.type == b.type
-          return 0
-        else
-          return -1
-      else
-        return -1
-    )
-    
-    # initialize output
-    output = {}
+    if @upToDate?
+      utils.assert(@upToDate == startOn, &quot;startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDate}) to addSnapshots.&quot;)
+    @upToDate = endBefore
+    timelineConfig = utils.clone(@config)
+    timelineConfig.startOn = new Time(startOn, Time.MILLISECOND, @config.tz)
+    timelineConfig.endBefore = new Time(endBefore, Time.MILLISECOND, @config.tz)
+    timeline = new Timeline(timelineConfig)
+    for s in snapshots
+      ticks = timeline.ticksThatIntersect(s[@config.validFromField], s[@config.validToField], @config.tz)
+      s.ticks = ticks.length
+    @cube.addFacts(snapshots)
+    return this
 
-    # initialize tick pointer
-    tickLength = @ticks.length
-    tickIndex = 0
-    currentTick = @ticks[tickIndex]
-    # initialize snapshot event pointer
-    snapshotLength = snapshotEvents.length
-    snapshotIndex = 0
-    currentSnapshotEvent = snapshotEvents[snapshotIndex]
-    
-    # find the first tick right before the first snapshot event
-    while currentTick.at &lt; currentSnapshotEvent.at
-      tickIndex++
-      currentTick = @ticks[tickIndex]   
-    tickIndex--
-    currentTick = @ticks[tickIndex]
-    currentTickState = currentTick.state
-    
-    # now we are ready to start counting
-    while snapshotIndex &lt; snapshotLength and tickIndex &lt; tickLength
-      if currentTick.at &lt; currentSnapshotEvent.at
-        if currentTickState
-          for uniqueID, outputRow of output
-            if outputRow.finalState
-              outputRow.ticks++
-              outputRow.finalTickAt = currentTick.at
-        tickIndex++
-        if tickIndex &lt; tickLength 
-          currentTick = @ticks[tickIndex]
-          currentTickState = currentTick.state
-      else
-        unless output[currentSnapshotEvent[uniqueIDField]]?
-          output[currentSnapshotEvent[uniqueIDField]] = {ticks: 0}
-        output[currentSnapshotEvent[uniqueIDField]].finalState = currentSnapshotEvent.state
-        output[currentSnapshotEvent[uniqueIDField]].finalEventAt = currentSnapshotEvent.at
-        snapshotIndex++
-        currentSnapshotEvent = snapshotEvents[snapshotIndex]
-        
-    # cleanup
-    if excludeStillInState
-      toDelete = []
-      for uniqueID, outputRow of output
-        if outputRow.finalState
-          toDelete.push(uniqueID)
-      for d in toDelete
-        delete output[d]
-    else
-      # we've depleted all of the entries in the snapshot event array 
-      # but we must deplete the entries in the ticks array for those uniqueIDs that are still &quot;in-state&quot;
-      while tickIndex &lt; tickLength
-        if currentTickState
-          for uniqueID, outputRow of output
-            if outputRow.finalState
-              outputRow.ticks++
-              outputRow.finalTickAt = currentTick.at
-        tickIndex++
-        if tickIndex &lt; tickLength 
-          currentTick = @ticks[tickIndex]
-          currentTickState = currentTick.state        
-         
-    # Squash the uniqueIDField into each row       
-    finalOutput = []
-    for uniqueID, row of output
-      row[uniqueIDField] = uniqueID
-      finalOutput.push(row)
+  getResults: () -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-TimeInStateCalculator-method-getResults'>    /**
+</span>     * @method getResults
+     * @member Lumenize.TimeInStateCalculator
+     *   Returns the current state of the calculator
+     * @return {Object[]} Returns an Array of Maps like `{&lt;uniqueIDField&gt;: &lt;id&gt;, ticks: &lt;ticks&gt;, lastValidTo: &lt;lastValidTo&gt;}`
+     */
+/* &lt;CoffeeScript&gt;
+    out = []
+    uniqueIDs = @cube.getDimensionValues(@config.uniqueIDField)
+    for id in uniqueIDs
+      filter = {}
+      filter[@config.uniqueIDField] = id
+      cell = @cube.getCell(filter)
+      outRow = {}
+      outRow[@config.uniqueIDField] = id
+      outRow.ticks = cell.__metrics.ticks
+      outRow.lastValidTo = cell.__metrics.lastValidTo
+      out.push(outRow)
+    return out
 
-    return finalOutput  
-    
+  getStateForSaving: (meta) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-TimeInStateCalculator-method-getState'>    /**
+</span>     * @method getState
+     * @member Lumenize.TimeInStateCalculator
+     *   Enables saving the state of this calculator.
+     * @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+     *   within the deserialized calculator.
+     * @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+     *   to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+     *   the calculator.
+     */
+/* &lt;CoffeeScript&gt;
+    out =
+      config: @config
+      cubeSavedState: @cube.getStateForSaving()
+      upToDate: @upToDate
+    if meta?
+      out.meta = meta
+    return out
+
+  @newFromSavedState: (p) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-TimeInStateCalculator-static-method-newFromSavedState'>    /**
+</span>     * @method newFromSavedState
+     * @member Lumenize.TimeInStateCalculator
+     *   Deserializes a previously saved calculator and returns a new calculator.
+     * 
+     *   See `getStateForSaving()` documentation for a detailed example.
+     * @static
+     * @param {String/Object} p A String or Object from a previously saved OLAPCube state
+     * @return {TimeInStateCalculator}
+     */
+/* &lt;CoffeeScript&gt;
+    if utils.type(p) is 'string'
+      p = JSON.parse(p)
+    calculator = new TimeInStateCalculator(p.config)
+    calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState)
+    calculator.upToDate = p.upToDate
+    if p.meta?
+      calculator.meta = p.meta
+
+    return calculator
 
 exports.TimeInStateCalculator = TimeInStateCalculator
 

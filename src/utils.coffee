@@ -42,8 +42,6 @@ filterMatch = (obj1, obj2) ->
       return false
   return true
 
-
-
 trim = (val) ->
   return if String::trim? then val.trim() else val.replace(/^\s+|\s+$/g, "")
   
@@ -73,6 +71,12 @@ clone = (obj) ->
 
   return newInstance
 
+keys = Object.keys or (obj) ->
+  return (key for key, val of obj)
+
+values = (obj) ->
+  return (val for key, val of obj)
+
 exports.AssertException = AssertException
 exports.assert = assert
 exports.match = match
@@ -82,3 +86,5 @@ exports.startsWith = startsWith
 exports.isArray = isArray
 exports.type = type
 exports.clone = clone
+exports.keys = keys
+exports.values = values

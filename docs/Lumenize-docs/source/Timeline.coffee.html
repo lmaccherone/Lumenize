@@ -17,7 +17,6 @@
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
 Time = require('./Time').Time
-TimeInStateCalculator = require('./TimeInStateCalculator').TimeInStateCalculator
 timezoneJS = require('./timezone-js.js').timezoneJS
 utils = require('./utils')
 
@@ -220,7 +219,8 @@ class Timeline
 /* &lt;CoffeeScript&gt;
   
        the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
-    if config.endBefore? 
+    @memoizedTicks = {}  # key: stringified parameters to getAll
+    if config.endBefore?
       @endBefore = config.endBefore
       if @endBefore != 'PAST_LAST'
         if utils.type(@endBefore) == 'string'
@@ -357,10 +357,77 @@ class Timeline
      * then use getAllRaw().
      */
 /* &lt;CoffeeScript&gt;
-    timeline = @getAllRaw(emit, tz, childGranularity)
-    if timeline.length &gt; 1 and timeline[0].greaterThan(timeline[1])
-      timeline.reverse()
-    return timeline
+    parameterKeyObject = {emit}
+    if tz?
+      parameterKeyObject.tz = tz
+    if childGranularity?
+      parameterKeyObject.childGranularity = childGranularity
+    parameterKey = JSON.stringify(parameterKeyObject)
+    ticks = @memoizedTicks[parameterKey]
+    unless ticks?
+      ticks = @getAllRaw(emit, tz, childGranularity)
+      if ticks.length &gt; 1
+        if (ticks[0] instanceof Time and ticks[0].greaterThan(ticks[1])) or (utils.type(ticks[0]) is 'string' and ticks[0] &gt; ticks[1] )
+          ticks.reverse()
+      @memoizedTicks[parameterKey] = ticks
+    return ticks
+
+  ticksThatIntersect: (startOn, endBefore, tz) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-Timeline-method-ticksThatIntersect'>    /**
+</span>     * @method ticksThatIntersect
+     * @member Lumenize.Timeline
+     * @param {Time/ISOString} startOn The start of the time period of interest
+     * @param {Time/ISOString} endBefore The moment just past the end of the time period of interest
+     * @return {Array}
+     * 
+     * Returns the list of ticks from this Timeline that intersect with the time period specified by the parameters
+     * startOn and endBefore.
+     */
+/* &lt;CoffeeScript&gt;
+    utils.assert(@limit == utils.MAX_INT, 'Cannot call `ticksThatIntersect()` on Timelines specified with `limit`.')
+    out = []
+    if utils.type(startOn) is 'string'
+      utils.assert(utils.type(endBefore) is 'string', 'The type for startOn and endBefore must match.')
+      isoDateRegExp = /\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d.\d\d\dZ/
+      utils.assert(isoDateRegExp.test(startOn), 'startOn must be in form ####-##-##T##:##:##.###Z')
+      utils.assert(isoDateRegExp.test(endBefore), 'endBefore must be in form ####-##-##T##:##:##.###Z')
+      utils.assert(tz?, &quot;Must specify parameter tz when submitting ISO string boundaries.&quot;)
+      ticks = @getAll('ISOString', tz)
+      if ticks[0] &gt;= endBefore or ticks[ticks.length - 1] &lt; startOn
+        out = []
+      else
+        i = 0
+        ticksLength = ticks.length
+        while i &lt; ticksLength and ticks[i] &lt; startOn
+          i++
+        while i &lt; ticksLength and ticks[i] &lt; endBefore
+          out.push(ticks[i])
+          i++
+    else if startOn instanceof Time
+      utils.assert(endBefore instanceof Time, 'The type for startOn and endBefore must match.')
+      startOn = startOn.inGranularity(@granularity)
+      endBefore = endBefore.inGranularity(@granularity)
+      if @endBefore.lessThan(@startOn)
+        st = @endBefore
+        en = @startOn
+      else
+        st = @startOn
+        en = @endBefore
+      if st.greaterThanOrEqual(endBefore) or en.lessThan(startOn)
+        out = []
+      else
+        ticks = @getAll()
+        i = 0
+        ticksLength = ticks.length
+        while i &lt; ticksLength and ticks[i].lessThan(startOn)
+          i++
+        while i &lt; ticksLength and ticks[i].lessThan(endBefore)
+          out.push(ticks[i])
+          i++
+    else
+      throw new Error(&quot;startOn must be a String or a Time object.&quot;)
+    return out
 
   contains: (date, tz) -&gt;
 &lt;/CoffeeScript&gt; */
@@ -403,10 +470,6 @@ class Timeline
     startOn = @startOn.getJSDate(tz)
     endBefore = @endBefore.getJSDate(tz)
     return target &lt; endBefore and target &gt;= startOn
-
-  getTimeInStateCalculator: (tz) -&gt;
-    timelineisc = new TimeInStateCalculator(this, tz)
-    return timelineisc
 
 class TimelineIterator
 &lt;/CoffeeScript&gt; */

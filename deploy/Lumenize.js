@@ -4789,6 +4789,8 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
 
   exports.histogram = require('./src/histogram').histogram;
 
+  exports.OLAPCube = require('./src/OLAPCube').OLAPCube;
+
 }).call(this);
 
 });
@@ -5686,6 +5688,27 @@ require.define("/src/Time.coffee",function(require,module,exports,__dirname,__fi
       return rawObject;
     };
 
+    Time.prototype.getSegmentsAsArray = function() {
+      /*
+          @method getSegmentsAsArray
+          @return {Array} Returns a simple JavaScript Array containing the segments. This is useful for doing hierarchical
+            aggregations using Lumenize.OLAPCube.
+      
+              t = new Time('2011-01-10')
+              console.log(t.getSegmentsAsArray())
+              # [ 2011, 1, 10 ]
+      */
+
+      var a, segment, segments, _i, _len;
+      segments = Time._granularitySpecs[this.granularity].segments;
+      a = [];
+      for (_i = 0, _len = segments.length; _i < _len; _i++) {
+        segment = segments[_i];
+        a.push(this[segment]);
+      }
+      return a;
+    };
+
     Time.prototype.toString = function() {
       /*
           @method toString
@@ -6382,7 +6405,7 @@ require.define("/src/Time.coffee",function(require,module,exports,__dirname,__fi
 });
 
 require.define("/src/utils.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var AssertException, ErrorBase, assert, clone, exactMatch, filterMatch, isArray, match, startsWith, trim, type,
+  var AssertException, ErrorBase, assert, clone, exactMatch, filterMatch, isArray, keys, match, startsWith, trim, type, values,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -6524,6 +6547,32 @@ require.define("/src/utils.coffee",function(require,module,exports,__dirname,__f
     return newInstance;
   };
 
+  keys = Object.keys || function(obj) {
+    var key, val;
+    return (function() {
+      var _results;
+      _results = [];
+      for (key in obj) {
+        val = obj[key];
+        _results.push(key);
+      }
+      return _results;
+    })();
+  };
+
+  values = function(obj) {
+    var key, val;
+    return (function() {
+      var _results;
+      _results = [];
+      for (key in obj) {
+        val = obj[key];
+        _results.push(val);
+      }
+      return _results;
+    })();
+  };
+
   exports.AssertException = AssertException;
 
   exports.assert = assert;
@@ -6541,6 +6590,10 @@ require.define("/src/utils.coffee",function(require,module,exports,__dirname,__f
   exports.type = type;
 
   exports.clone = clone;
+
+  exports.keys = keys;
+
+  exports.values = values;
 
 }).call(this);
 
@@ -7156,12 +7209,10 @@ require.define("fs",function(require,module,exports,__dirname,__filename,process
 });
 
 require.define("/src/Timeline.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var Time, TimeInStateCalculator, Timeline, TimelineIterator, timezoneJS, utils,
+  var Time, Timeline, TimelineIterator, timezoneJS, utils,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Time = require('./Time').Time;
-
-  TimeInStateCalculator = require('./TimeInStateCalculator').TimeInStateCalculator;
 
   timezoneJS = require('./timezone-js.js').timezoneJS;
 
@@ -7366,6 +7417,7 @@ require.define("/src/Timeline.coffee",function(require,module,exports,__dirname,
       */
 
       var h, holiday, idx, m, s, _i, _len, _ref, _ref1;
+      this.memoizedTicks = {};
       if (config.endBefore != null) {
         this.endBefore = config.endBefore;
         if (this.endBefore !== 'PAST_LAST') {
@@ -7518,7 +7570,7 @@ require.define("/src/Timeline.coffee",function(require,module,exports,__dirname,
     };
 
     Timeline.prototype.getAll = function(emit, tz, childGranularity) {
-      var timeline;
+      var parameterKey, parameterKeyObject, ticks;
       if (emit == null) {
         emit = 'Time';
       }
@@ -7536,11 +7588,92 @@ require.define("/src/Timeline.coffee",function(require,module,exports,__dirname,
           then use getAllRaw().
       */
 
-      timeline = this.getAllRaw(emit, tz, childGranularity);
-      if (timeline.length > 1 && timeline[0].greaterThan(timeline[1])) {
-        timeline.reverse();
+      parameterKeyObject = {
+        emit: emit
+      };
+      if (tz != null) {
+        parameterKeyObject.tz = tz;
       }
-      return timeline;
+      if (childGranularity != null) {
+        parameterKeyObject.childGranularity = childGranularity;
+      }
+      parameterKey = JSON.stringify(parameterKeyObject);
+      ticks = this.memoizedTicks[parameterKey];
+      if (ticks == null) {
+        ticks = this.getAllRaw(emit, tz, childGranularity);
+        if (ticks.length > 1) {
+          if ((ticks[0] instanceof Time && ticks[0].greaterThan(ticks[1])) || (utils.type(ticks[0]) === 'string' && ticks[0] > ticks[1])) {
+            ticks.reverse();
+          }
+        }
+        this.memoizedTicks[parameterKey] = ticks;
+      }
+      return ticks;
+    };
+
+    Timeline.prototype.ticksThatIntersect = function(startOn, endBefore, tz) {
+      /*
+          @method ticksThatIntersect
+          @param {Time/ISOString} startOn The start of the time period of interest
+          @param {Time/ISOString} endBefore The moment just past the end of the time period of interest
+          @return {Array}
+      
+          Returns the list of ticks from this Timeline that intersect with the time period specified by the parameters
+          startOn and endBefore.
+      */
+
+      var en, i, isoDateRegExp, out, st, ticks, ticksLength;
+      utils.assert(this.limit === utils.MAX_INT, 'Cannot call `ticksThatIntersect()` on Timelines specified with `limit`.');
+      out = [];
+      if (utils.type(startOn) === 'string') {
+        utils.assert(utils.type(endBefore) === 'string', 'The type for startOn and endBefore must match.');
+        isoDateRegExp = /\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d.\d\d\dZ/;
+        utils.assert(isoDateRegExp.test(startOn), 'startOn must be in form ####-##-##T##:##:##.###Z');
+        utils.assert(isoDateRegExp.test(endBefore), 'endBefore must be in form ####-##-##T##:##:##.###Z');
+        utils.assert(tz != null, "Must specify parameter tz when submitting ISO string boundaries.");
+        ticks = this.getAll('ISOString', tz);
+        if (ticks[0] >= endBefore || ticks[ticks.length - 1] < startOn) {
+          out = [];
+        } else {
+          i = 0;
+          ticksLength = ticks.length;
+          while (i < ticksLength && ticks[i] < startOn) {
+            i++;
+          }
+          while (i < ticksLength && ticks[i] < endBefore) {
+            out.push(ticks[i]);
+            i++;
+          }
+        }
+      } else if (startOn instanceof Time) {
+        utils.assert(endBefore instanceof Time, 'The type for startOn and endBefore must match.');
+        startOn = startOn.inGranularity(this.granularity);
+        endBefore = endBefore.inGranularity(this.granularity);
+        if (this.endBefore.lessThan(this.startOn)) {
+          st = this.endBefore;
+          en = this.startOn;
+        } else {
+          st = this.startOn;
+          en = this.endBefore;
+        }
+        if (st.greaterThanOrEqual(endBefore) || en.lessThan(startOn)) {
+          out = [];
+        } else {
+          ticks = this.getAll();
+          i = 0;
+          ticksLength = ticks.length;
+          while (i < ticksLength && ticks[i].lessThan(startOn)) {
+            i++;
+          }
+          while (i < ticksLength && ticks[i].lessThan(endBefore)) {
+            out.push(ticks[i]);
+            i++;
+          }
+        }
+      } else {
+        throw new Error("startOn must be a String or a Time object.");
+      }
+      return out;
     };
 
     Timeline.prototype.contains = function(date, tz) {
@@ -7587,12 +7720,6 @@ require.define("/src/Timeline.coffee",function(require,module,exports,__dirname,
       startOn = this.startOn.getJSDate(tz);
       endBefore = this.endBefore.getJSDate(tz);
       return target < endBefore && target >= startOn;
-    };
-
-    Timeline.prototype.getTimeInStateCalculator = function(tz) {
-      var timelineisc;
-      timelineisc = new TimeInStateCalculator(this, tz);
-      return timelineisc;
     };
 
     return Timeline;
@@ -7803,9 +7930,15 @@ require.define("/src/Timeline.coffee",function(require,module,exports,__dirname,
 });
 
 require.define("/src/TimeInStateCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var TimeInStateCalculator, utils;
+  var OLAPCube, Time, TimeInStateCalculator, Timeline, utils;
 
   utils = require('./utils');
+
+  OLAPCube = require('./OLAPCube').OLAPCube;
+
+  Timeline = require('./Timeline').Timeline;
+
+  Time = require('./Time').Time;
 
   TimeInStateCalculator = (function() {
     /*
@@ -7813,14 +7946,12 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
     
       Used to calculate how much time each uniqueID spent "in-state". You use this by querying a temporal data
       model (like Rally's Lookback API) with a predicate indicating the "state" of interest. You'll then have a list of
-      snapshots where that predicate was true. You pass this in to the timeInState method of this previously instantiated
-      TimeInStateCalculator class to identify how many "ticks" of the timeline specified by the iterator you used
-      to instantiate this class.
+      snapshots where that predicate was true. You pass this in to the addSnapshots method of this previously instantiated
+      TimeInStateCalculator class.
       
       Usage:
       
-          lumenize = require('../')
-          {Timeline, Time, TimelineIterator, TimeInStateCalculator} = lumenize
+          {TimeInStateCalculator} = require('../')
     
           snapshots = [ 
             { id: 1, from: '2011-01-06T15:10:00.000Z', to: '2011-01-06T15:30:00.000Z' }, # 20 minutes all within an hour
@@ -7830,281 +7961,227 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
             { id: 5, from: '2011-01-06T16:50:00.000Z', to: '2011-01-07T15:10:00.000Z' }, # 10 minutes before end of one day and 10 before the start of next
             { id: 6, from: '2011-01-06T16:55:00.000Z', to: '2011-01-07T15:05:00.000Z' }, # multiple cycles over several days for a total of 20 minutes of work time
             { id: 6, from: '2011-01-07T16:55:00.000Z', to: '2011-01-10T15:05:00.000Z' }, 
-            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '2011-01-20T19:00:00.000Z' }  # false beyond scope of iterator
+            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z' }  # extends beyond scope of initial analysis
           ]
           
           granularity = 'minute'
-          timezone = 'America/Chicago'
-          
-          timelineConfig =
+          tz = 'America/Chicago'
+    
+          config =  # default work days and holidays
             granularity: granularity
-            startOn: new Time(snapshots[0].from, granularity, timezone).decrement()
+            tz: tz
             endBefore: '2011-01-11T00:00:00.000'
-            workDayStartOn: {hour: 9, minute: 0}  # 15:00 in Chicago
-            workDayEndBefore: {hour: 11, minute: 0}  # 17:00 in Chicago.
-          
-          tl1 = new Timeline(timelineConfig)
-          tisc1 = tl1.getTimeInStateCalculator(timezone)
-          timeInState = tisc1.timeInState(snapshots, 'from', 'to', 'id')
-          console.log(timeInState)
+            workDayStartOn: {hour: 9, minute: 0}  # 15:00 GMT in Chicago
+            workDayEndBefore: {hour: 11, minute: 0}  # 17:00 GMT in Chicago.
+            validFromField: 'from'
+            validToField: 'to'
+            uniqueIDField: 'id'
     
-          # [ { ticks: 20,
-          #     finalState: false,
-          #     finalEventAt: '2011-01-06T15:30:00.000Z',
-          #     finalTickAt: '2011-01-06T15:29:00.000Z',
-          #     id: '1' },
-          #   { ticks: 20,
-          #     finalState: false,
-          #     finalEventAt: '2011-01-06T16:10:00.000Z',
-          #     finalTickAt: '2011-01-06T16:09:00.000Z',
-          #     id: '2' },
-          #   { ticks: 20,
-          #     finalState: false,
-          #     finalEventAt: '2011-01-07T15:20:00.000Z',
-          #     finalTickAt: '2011-01-07T15:19:00.000Z',
-          #     id: '3' },
-          #   { ticks: 20,
-          #     finalState: false,
-          #     finalEventAt: '2011-01-06T19:00:00.000Z',
-          #     finalTickAt: '2011-01-06T16:59:00.000Z',
-          #     id: '4' },
-          #   { ticks: 20,
-          #     finalState: false,
-          #     finalEventAt: '2011-01-07T15:10:00.000Z',
-          #     finalTickAt: '2011-01-07T15:09:00.000Z',
-          #     id: '5' },
-          #   { ticks: 20,
-          #     finalState: false,
-          #     finalEventAt: '2011-01-10T15:05:00.000Z',
-          #     finalTickAt: '2011-01-10T15:04:00.000Z',
-          #     id: '6' } ]
+          startOn = '2011-01-05T00:00:00.000Z'
+          endBefore = '2011-01-11T00:00:00.000Z'
     
-          
-      The default supresses the ones that are still open at the end, but we can override that
-      
-          snapshots = [snapshots[7]]
-          console.log(tisc1.timeInState(snapshots, 'from', 'to', 'id', false))
-          
-          # [ { ticks: 260,
-          #     finalState: true,
-          #     finalEventAt: '2011-01-06T16:40:00.000Z',
-          #     finalTickAt: '2011-01-10T16:59:00.000Z',
-          #     id: '7' } ]
-          
-          
-      We can adjust the granularity
+          tisc = new TimeInStateCalculator(config)
+          tisc.addSnapshots(snapshots, startOn, endBefore)
     
-          timelineConfig.granularity = 'hour'
-          tisc2 = new Timeline(timelineConfig).getTimeInStateCalculator(timezone)
-          timeInState = tisc2.timeInState(snapshots, 'from', 'to', 'id', false)
-          console.log(timeInState)
-          
-          # [ { ticks: 4,
-          #     finalState: true,
-          #     finalEventAt: '2011-01-06T16:40:00.000Z',
-          #     finalTickAt: '2011-01-10T16:00:00.000Z',
-          #     id: '7' } ]
+          console.log(tisc.getResults())
+          # [ { id: 1, ticks: 20, lastValidTo: '2011-01-06T15:30:00.000Z' },
+          #   { id: 2, ticks: 20, lastValidTo: '2011-01-06T16:10:00.000Z' },
+          #   { id: 3, ticks: 20, lastValidTo: '2011-01-07T15:20:00.000Z' },
+          #   { id: 4, ticks: 20, lastValidTo: '2011-01-06T19:00:00.000Z' },
+          #   { id: 5, ticks: 20, lastValidTo: '2011-01-07T15:10:00.000Z' },
+          #   { id: 6, ticks: 20, lastValidTo: '2011-01-10T15:05:00.000Z' },
+          #   { id: 7, ticks: 260, lastValidTo: '9999-01-01T00:00:00.000Z' } ]
+    
+      But we are not done yet. We can serialize the state of this calculator and later restore it.
+    
+          savedState = tisc.getStateForSaving({somekey: 'some value'})
+    
+      Let's incrementally update the original.
+    
+          snapshots = [
+            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z' },  # same snapshot as before still going
+            { id: 3, from: '2011-01-11T15:00:00.000Z', to: '2011-01-11T15:20:00.000Z' },  # 20 more minutes for id 3
+            { id: 8, from: '2011-01-11T15:00:00.000Z', to: '9999-01-01T00:00:00.000Z' }   # 20 minutes in scope for new id 8
+          ]
+    
+          startOn = '2011-01-11T00:00:00.000Z'  # must match endBefore of prior call
+          endBefore = '2011-01-11T15:20:00.000Z'
+    
+          tisc.addSnapshots(snapshots, startOn, endBefore)
+    
+      Now, let's restore from saved state into tisc2.
+    
+          tisc2 = TimeInStateCalculator.newFromSavedState(savedState)
+          tisc2.addSnapshots(snapshots, startOn, endBefore)
+    
+          console.log(tisc2.meta.somekey)
+          # some value
+    
+          console.log(JSON.stringify(tisc.getResults()) == JSON.stringify(tisc2.getResults()))
+          # true
     */
 
-    function TimeInStateCalculator(timeline, tz) {
-      var allCTs, allCTsLength, ct, ctPlus1, idx, previousState, _i, _len;
-      this.timeline = timeline;
+    function TimeInStateCalculator(config) {
+      var cubeConfig, dimensions, metrics;
+      this.config = config;
       /*
           @constructor
-          @param {Timeline} timeline You must pass in a Timeline in the correct granularity and wide enough to cover any snapshots that you will analyze with this TimeInStateCalculator
-          @param {String} tz The timezone for analysis
+          @param {Object} config
+          @cfg {String} tz The timezone for analysis
+          @cfg {String} validFromField
+          @cfg {String} validToField
+          @cfg {String} uniqueIDField
+          @cfg {String} granularity This calculator will tell you how many ticks fall within the snapshots you feed in.
+             This configuration value indicates the granularity of the ticks (i.e. Time.MINUTE, Time.HOUR, Time.DAY, etc.)
+          @cfg {String[]/String} [workDays] List of days of the week that you work on. You can specify this as an Array of Strings
+             (['Monday', 'Tuesday', ...]) or a single comma seperated String ("Monday,Tuesday,...").
+             Defaults to ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].
+          @cfg {Object[]} [holidays] An optional Array containing rows that are either ISOStrings or JavaScript Objects
+            (mix and match). Example: `[{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, "2012-12-24"]`
+             Notice how you can leave off the year if the holiday falls on the same day every year.
+          @cfg {Object} [workDayStartOn] An optional object in the form {hour: 8, minute: 15}. If minute is zero it can be omitted.
+             If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
+             hours span midnight. If tickGranularity is "hour" or finer, you probably want to set this; if tickGranularity is
+             "day" or coarser, probably not.
+          @cfg {Object} [workDayEndBefore] An optional object in the form {hour: 17, minute: 0}. If minute is zero it can be omitted.
+             The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
+             Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
+             than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
+             the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
       */
 
-      this.granularity = this.timeline.granularity;
-      if (tz != null) {
-        this.tz = tz;
-      }
-      utils.assert(this.tz != null, 'Must specify a timezone `tz`.');
-      allCTs = this.timeline.getAll();
-      this.ticks = [];
-      previousState = false;
-      allCTsLength = allCTs.length;
-      for (idx = _i = 0, _len = allCTs.length; _i < _len; idx = ++_i) {
-        ct = allCTs[idx];
-        ctPlus1 = ct.add(1);
-        if (previousState) {
-          previousState = true;
-          this.ticks.push({
-            at: ct.getISOStringInTZ(this.tz),
-            state: true
-          });
-          if (idx + 1 === allCTsLength) {
-            previousState = false;
-            this.ticks.push({
-              at: ctPlus1.getISOStringInTZ(this.tz),
-              state: false
-            });
-          } else {
-            if (!ctPlus1.equal(allCTs[idx + 1])) {
-              previousState = false;
-              this.ticks.push({
-                at: ctPlus1.getISOStringInTZ(this.tz),
-                state: false
-              });
-            }
-          }
-        } else {
-          this.ticks.push({
-            at: ct.getISOStringInTZ(this.tz),
-            state: true
-          });
-          previousState = true;
+      dimensions = [
+        {
+          field: this.config.uniqueIDField
         }
-      }
+      ];
+      metrics = [
+        {
+          field: 'ticks',
+          metrics: [
+            {
+              as: 'ticks',
+              f: 'sum'
+            }
+          ]
+        }, {
+          field: this.config.validToField,
+          metrics: [
+            {
+              as: 'lastValidTo',
+              f: 'lastValue'
+            }
+          ]
+        }
+      ];
+      cubeConfig = {
+        dimensions: dimensions,
+        metrics: metrics
+      };
+      this.cube = new OLAPCube(cubeConfig);
+      this.upToDate = null;
     }
 
-    TimeInStateCalculator.prototype.timeInState = function(snapshotArray, validFromField, validToField, uniqueIDField, excludeStillInState) {
-      var currentSnapshotEvent, currentTick, currentTickState, d, eventRow, finalOutput, lastTickAt, output, outputRow, row, s, snapshotEvents, snapshotIndex, snapshotLength, tickIndex, tickLength, toDelete, uniqueID, _i, _j, _len, _len1;
-      if (excludeStillInState == null) {
-        excludeStillInState = true;
-      }
+    TimeInStateCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore) {
       /*
-          @method timeInState
-          @param {Object[]} snapshotArray
-          @param {String} validFromField What field in the snapshotArray indicates when the snapshot starts (inclusive)?
-          @param {String} validToField What field in the snapshotArray indicates when the snapshot ends (exclusive)?
-          @param {String} uniqueIDField What field in the snapshotArray holds the uniqueID
-          @param {Boolean} [excludeStillInState] If false, even ids that are still active on the last tick are included
-      
-          @return {Object[]} An entry for each uniqueID.
-      
-          The fields in each row in the returned Array include:
-      
-          * ticks: The number of ticks of the iterator that intersect with the snapshots
-          * finalState: true if the last snapshot for this uniqueID had not yet ended by the moment of the last tick
-          * finalEventAt: the validFrom value for the final event
-          * finalTickAt: the last tick that intersected with this uniqueID
-          * |uniqueIDField|: The uniqueID value
-      
-          Assumptions about the snapshotArray that's passed in:
-          
-          * The snapshotArray includes all snapshots where the logical state you want
-            to measure the "time in" is true. So, send the predicate you want to be true as part of the query to the snapshot service.
-          * The `validFromField` and `validToField` in the `snapshotArray` contain strings in ISO-8601 canonical
-            Zulu format (eg `'2011-01-01T12:34:56.789Z'`).
+          @method addSnapshots
+            Allows you to incrementally add snapshots to this calculator.
+          @chainable
+          @param {Object[]} snapshots An array of temporal data model snapshots.
+          @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+            interest. On the second through nth call, this should equal the previous endBefore.
+          @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+            period of interest.
+          @return {TimeInStateCalculator}
       */
 
-      utils.assert(snapshotArray[0][validFromField] >= this.ticks[0].at, "The iterator used must go back at least as far as the first entry in the snapshotArray.\nFirst entry:\n  " + snapshotArray[0][validFromField] + "\nIterator start:\n  " + this.ticks[0].at);
-      lastTickAt = this.ticks[this.ticks.length - 1].at;
-      snapshotEvents = [];
-      for (_i = 0, _len = snapshotArray.length; _i < _len; _i++) {
-        s = snapshotArray[_i];
-        eventRow = {
-          at: s[validFromField],
-          state: true
-        };
-        eventRow[uniqueIDField] = s[uniqueIDField];
-        eventRow.type = 1;
-        snapshotEvents.push(eventRow);
-        if (s[validToField] < lastTickAt) {
-          eventRow = {
-            at: s[validToField],
-            state: false
-          };
-          eventRow[uniqueIDField] = s[uniqueIDField];
-          eventRow.type = 0;
-          snapshotEvents.push(eventRow);
-        }
+      var s, ticks, timeline, timelineConfig, _i, _len;
+      if (this.upToDate != null) {
+        utils.assert(this.upToDate === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDate + ") to addSnapshots.");
       }
-      snapshotEvents.sort(function(a, b) {
-        if (a.at > b.at) {
-          return 1;
-        } else if (a.at === b.at) {
-          if (a.type > b.type) {
-            return 1;
-          } else if (a.type === b.type) {
-            return 0;
-          } else {
-            return -1;
-          }
-        } else {
-          return -1;
-        }
-      });
-      output = {};
-      tickLength = this.ticks.length;
-      tickIndex = 0;
-      currentTick = this.ticks[tickIndex];
-      snapshotLength = snapshotEvents.length;
-      snapshotIndex = 0;
-      currentSnapshotEvent = snapshotEvents[snapshotIndex];
-      while (currentTick.at < currentSnapshotEvent.at) {
-        tickIndex++;
-        currentTick = this.ticks[tickIndex];
+      this.upToDate = endBefore;
+      timelineConfig = utils.clone(this.config);
+      timelineConfig.startOn = new Time(startOn, Time.MILLISECOND, this.config.tz);
+      timelineConfig.endBefore = new Time(endBefore, Time.MILLISECOND, this.config.tz);
+      timeline = new Timeline(timelineConfig);
+      for (_i = 0, _len = snapshots.length; _i < _len; _i++) {
+        s = snapshots[_i];
+        ticks = timeline.ticksThatIntersect(s[this.config.validFromField], s[this.config.validToField], this.config.tz);
+        s.ticks = ticks.length;
       }
-      tickIndex--;
-      currentTick = this.ticks[tickIndex];
-      currentTickState = currentTick.state;
-      while (snapshotIndex < snapshotLength && tickIndex < tickLength) {
-        if (currentTick.at < currentSnapshotEvent.at) {
-          if (currentTickState) {
-            for (uniqueID in output) {
-              outputRow = output[uniqueID];
-              if (outputRow.finalState) {
-                outputRow.ticks++;
-                outputRow.finalTickAt = currentTick.at;
-              }
-            }
-          }
-          tickIndex++;
-          if (tickIndex < tickLength) {
-            currentTick = this.ticks[tickIndex];
-            currentTickState = currentTick.state;
-          }
-        } else {
-          if (output[currentSnapshotEvent[uniqueIDField]] == null) {
-            output[currentSnapshotEvent[uniqueIDField]] = {
-              ticks: 0
-            };
-          }
-          output[currentSnapshotEvent[uniqueIDField]].finalState = currentSnapshotEvent.state;
-          output[currentSnapshotEvent[uniqueIDField]].finalEventAt = currentSnapshotEvent.at;
-          snapshotIndex++;
-          currentSnapshotEvent = snapshotEvents[snapshotIndex];
-        }
+      this.cube.addFacts(snapshots);
+      return this;
+    };
+
+    TimeInStateCalculator.prototype.getResults = function() {
+      /*
+          @method getResults
+            Returns the current state of the calculator
+          @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
+      */
+
+      var cell, filter, id, out, outRow, uniqueIDs, _i, _len;
+      out = [];
+      uniqueIDs = this.cube.getDimensionValues(this.config.uniqueIDField);
+      for (_i = 0, _len = uniqueIDs.length; _i < _len; _i++) {
+        id = uniqueIDs[_i];
+        filter = {};
+        filter[this.config.uniqueIDField] = id;
+        cell = this.cube.getCell(filter);
+        outRow = {};
+        outRow[this.config.uniqueIDField] = id;
+        outRow.ticks = cell.__metrics.ticks;
+        outRow.lastValidTo = cell.__metrics.lastValidTo;
+        out.push(outRow);
       }
-      if (excludeStillInState) {
-        toDelete = [];
-        for (uniqueID in output) {
-          outputRow = output[uniqueID];
-          if (outputRow.finalState) {
-            toDelete.push(uniqueID);
-          }
-        }
-        for (_j = 0, _len1 = toDelete.length; _j < _len1; _j++) {
-          d = toDelete[_j];
-          delete output[d];
-        }
-      } else {
-        while (tickIndex < tickLength) {
-          if (currentTickState) {
-            for (uniqueID in output) {
-              outputRow = output[uniqueID];
-              if (outputRow.finalState) {
-                outputRow.ticks++;
-                outputRow.finalTickAt = currentTick.at;
-              }
-            }
-          }
-          tickIndex++;
-          if (tickIndex < tickLength) {
-            currentTick = this.ticks[tickIndex];
-            currentTickState = currentTick.state;
-          }
-        }
+      return out;
+    };
+
+    TimeInStateCalculator.prototype.getStateForSaving = function(meta) {
+      /*
+          @method getState
+            Enables saving the state of this calculator.
+          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+            within the deserialized calculator.
+          @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+            to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+            the calculator.
+      */
+
+      var out;
+      out = {
+        config: this.config,
+        cubeSavedState: this.cube.getStateForSaving(),
+        upToDate: this.upToDate
+      };
+      if (meta != null) {
+        out.meta = meta;
       }
-      finalOutput = [];
-      for (uniqueID in output) {
-        row = output[uniqueID];
-        row[uniqueIDField] = uniqueID;
-        finalOutput.push(row);
+      return out;
+    };
+
+    TimeInStateCalculator.newFromSavedState = function(p) {
+      /*
+          @method newFromSavedState
+            Deserializes a previously saved calculator and returns a new calculator.
+      
+            See `getStateForSaving()` documentation for a detailed example.
+          @static
+          @param {String/Object} p A String or Object from a previously saved OLAPCube state
+          @return {TimeInStateCalculator}
+      */
+
+      var calculator;
+      if (utils.type(p) === 'string') {
+        p = JSON.parse(p);
       }
-      return finalOutput;
+      calculator = new TimeInStateCalculator(p.config);
+      calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState);
+      calculator.upToDate = p.upToDate;
+      if (p.meta != null) {
+        calculator.meta = p.meta;
+      }
+      return calculator;
     };
 
     return TimeInStateCalculator;
@@ -8112,6 +8189,1382 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
   })();
 
   exports.TimeInStateCalculator = TimeInStateCalculator;
+
+}).call(this);
+
+});
+
+require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var OLAPCube, functions, utils,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+  utils = require('../src/utils');
+
+  functions = require('./functions').functions;
+
+  exports.junk = 'hello';
+
+  OLAPCube = (function() {
+    /*
+      @class OLAPCube
+    
+      __An efficient, in-memory, incrementally-updateable, hierarchy-capable OLAP Cube implementation.__
+    
+      [OLAP Cubes](http://en.wikipedia.org/wiki/OLAP_cube) are a powerful abstraction that makes it easier to do everything
+      from simple group-by operations to more complex multi-dimensional and hierarchical analysis. This implementation has
+      the same conceptual ancestry as implementations found in business intelligence and OLAP database solutions. However,
+      it is meant as a light weight alternative primarily targeting the goal of making it easier for developers to implement
+      desired analysis. It also supports serialization and incremental updating so it's ideally
+      suited for visualizations and analysis that are updated on a periodic or even continuous basis.
+    
+      ## Features ##
+    
+      * In-memory
+      * Incrementally-updateable
+      * Serialize (`stringify()`) and deserialize (`newFromSavedState()`) to preserve aggregations between sessions
+      * Accepts simple JavaScript Objects as facts
+      * Storage and output as simple JavaScript Arrays of Objects
+      * Hierarchy (trees) derived from fact data assuming [materialized path](http://en.wikipedia.org/wiki/Materialized_path)
+        array model commonly used with NoSQL databases
+    
+      ## 2D Example ##
+    
+      Let's walk through a simple 2D example from facts to output. Let's say you have this set of facts:
+    
+          facts = [
+            {ProjectHierarchy: [1, 2, 3], Priority: 1, Points: 10},
+            {ProjectHierarchy: [1, 2, 4], Priority: 2, Points: 5 },
+            {ProjectHierarchy: [5]      , Priority: 1, Points: 17},
+            {ProjectHierarchy: [1, 2]   , Priority: 1, Points: 3 },
+          ]
+    
+      The ProjectHierarchy field models its hierarchy (tree) as an array containing a
+      [materialized path](http://en.wikipedia.org/wiki/Materialized_path). The first fact is "in" Project 3 whose parent is
+      Project 2, whose parent is Project 1. The second fact is "in" Project 4 whose parent is Project 2 which still has
+      Project 1 as its parent. Project 5 is another root Project like Project 1; and the fourth fact is "in" Project 2.
+      So the first fact will roll-up the tree and be aggregated against [1], and [1, 2] as well as [1, 2, 3]. Root Project 1
+      will get the data from all but the third fact which will get aggregated against root Project 5.
+    
+      We specify the ProjectHierarchy field as a dimension of type 'hierarchy' and the Priorty field as a simple value dimension.
+    
+          dimensions = [
+            {field: "ProjectHierarchy", type: 'hierarchy'},
+            {field: "Priority"}
+          ]
+    
+      This will create a 2D "cube" where each unique value for ProjectHierarchy and Priority defines a different cell.
+      Note, this happens to be a 2D "cube" (more commonly referred to as a [pivot table](http://en.wikipedia.org/wiki/Pivot_Table)),
+      but you can also have a 1D cube (a simple group-by), a 3D cube, or even an n-dimensional hypercube where n is greater than 3.
+    
+      You can specify any number of metrics to be calculated for each cell in the cube.
+    
+          metrics = [
+            {field: "Points", metrics: [
+              {as: "Scope", f: "sum"},
+              {f: "standardDeviation"}
+            ]}
+          ]
+    
+      You can use any of the aggregation functions found in Lumenize.functions except `count`. The count metric is
+      automatically tracked for each cell. Notice how the `as` specification can be excluded. It will build the name of the
+      resulting metric from the field name and the function. So the second metric in the example above is named
+      "Points_standardDeviation".
+    
+      The dimensions and metrics specifications are required fields in the OLAPCube config parameter.
+    
+          config = {dimensions, metrics}
+    
+      Hierarchy dimensions automatically roll up but you can also tell it to keep all totals by setting config.keepTotals to
+      true. The totals are then kept in the cells where one or more of the dimension values are set to `null`.
+    
+          config.keepTotals = true
+    
+      Now, let's create the cube.
+    
+          {OLAPCube} = require('../')
+          cube = new OLAPCube(config, facts)
+    
+      `getCell()` allows you to extract a single cell. The "total" cell for all facts where Priority = 1 can be found as follows:
+    
+          console.log(cube.getCell({Priority: 1}))
+          # { ProjectHierarchy: null,
+          #   Priority: 1,
+          #   __metrics: { count: 3, Scope: 30, Points_standardDeviation: 7 } }
+    
+      Notice how the ProjectHierarchy field value is `null`. This is because it is a total cell for Priority dimension
+      for all ProjectHierarchy values. Think of `null` values in this context as wildcards.
+    
+      Similarly, we can get the total for all descendants of ProjectHierarchy = [1] regarless of Priority as follows:
+    
+          console.log(cube.getCell({ProjectHierarchy: [1]}))
+          # { ProjectHierarchy: [ 1 ],
+          #   Priority: null,
+          #   __metrics:
+          #    { count: 3,
+          #      Scope: 18,
+          #      Points_standardDeviation: 3.605551275463989 } }
+    
+      `getCell()` uses the cellIndex so it's very efficient. Using `getCell()` and `getDimensionValues()`, you can iterate
+      over a slice of the OLAPCube. It is usually preferable to access the cells in place like this rather than the
+      traditional OLAP approach of extracting a slice for processing.
+    
+          rowValues = cube.getDimensionValues('ProjectHierarchy')
+          columnValues = cube.getDimensionValues('Priority')
+          s = OLAPCube._padToWidth('', 7) + ' | '
+          s += ((OLAPCube._padToWidth(JSON.stringify(c), 7) for c in columnValues).join(' | '))
+          s += ' | '
+          console.log(s)
+          for r in rowValues
+            s = OLAPCube._padToWidth(JSON.stringify(r), 7) + ' | '
+            for c in columnValues
+              cell = cube.getCell({ProjectHierarchy: r, Priority: c})
+              if cell?
+                cellString = JSON.stringify(cell.__metrics.count)
+              else
+                cellString = ''
+              s += OLAPCube._padToWidth(cellString, 7) + ' | '
+            console.log(s)
+          #         |    null |       1 |       2 |
+          #    null |       4 |       3 |       1 |
+          #     [1] |       3 |       2 |       1 |
+          #   [1,2] |       3 |       2 |       1 |
+          # [1,2,3] |       1 |       1 |         |
+          # [1,2,4] |       1 |         |       1 |
+          #     [5] |       1 |       1 |         |
+    
+      Or you can just call `toString()` method which extracts a 2D slice for tabular display. Both approachs will work on
+      cubes of any number of dimensions two or greater.
+    
+          console.log(cube.toString('ProjectHierarchy', 'Priority', 'Scope'))
+          # |        || Total |     1     2|
+          # |==============================|
+          # |Total   ||    35 |    30     5|
+          # |------------------------------|
+          # |[1]     ||    18 |    13     5|
+          # |[1,2]   ||    18 |    13     5|
+          # |[1,2,3] ||    10 |    10      |
+          # |[1,2,4] ||     5 |           5|
+          # |[5]     ||    17 |    17      |
+    
+      ## Dimension types ##
+    
+      The following dimension types are supported:
+    
+      1. Single value
+         * Number
+         * String
+         * Boolean
+         * Date
+         * Object... sorta. Technically, this works but the sort order is not obvious.
+      2. Arrays as materialized path for hierarchical (tree) data
+      3. Non-hierarchical Arrays ("tags")
+    
+      There is no need to tell the OLAPCube what type to use with the exception of #2. In that case, add `type: 'hierarchy'`
+      to the dimensions row like this:
+    
+          dimensions = [
+            {field: 'hierarchicalDimensionField', type: 'hierarchy'} #, ...
+          ]
+    
+      ## Hierarchical (tree) data ##
+    
+      This OLAP Cube implementation assumes your hierarchies (trees) are modeled as a
+      [materialized path](http://en.wikipedia.org/wiki/Materialized_path) array. This approach is commonly used with NoSQL databases like
+      [CouchDB](http://probablyprogramming.com/2008/07/04/storing-hierarchical-data-in-couchdb) and
+      [MongoDB (combining materialized path and array of ancestors)](http://docs.mongodb.org/manual/tutorial/model-tree-structures/)
+      and even SQL databases supporting array types like [Postgres](http://justcramer.com/2012/04/08/using-arrays-as-materialized-paths-in-postgres/).
+    
+      This approach differs from the traditional OLAP/MDX fixed/named level hierarchy approach. In that approach, you assume
+      that the number of levels in the hierarchy are fixed. Also, each level in the hierarchy is either represented by a different
+      column (clothing example --> level 0: SEX column - mens vs womens; level 1: TYPE column - pants vs shorts vs shirts; etc.) or
+      predetermined ranges of values in a single field (date example --> level 0: year; level 1: quarter; level 2: month; etc.)
+    
+      However, the approach used by this OLAPCube implementaion is the more general case, because it can easily simulate
+      fixed/named level hierachies whereas the reverse is not true. In the clothing example above, you would simply key
+      your dimension off of a derived field that was a combination of the SEX and TYPE columns (e.g. ['mens', 'pants'])
+    
+      ## Non-hierarchical Array fields ##
+    
+      If you don't specify type: 'hierarchy' and the OLAPCube sees a field whose value is an Array in a dimension field, the
+      data in that fact would get aggregated against each element in the Array. So a non-hierarchical Array field like
+      ['x', 'y', 'z'] would get aggregated against 'x', 'y', and 'z' rather than ['x'], ['x', 'y'], and ['x','y','z]. This
+      functionality is useful for  accomplishing analytics on tags, but it can be used in other powerful ways. For instance
+      let's say you have a list of events:
+    
+          events = [
+            {name: 'Renaissance Festival', activeMonths: ['September', 'October']},
+            {name: 'Concert Series', activeMonths: ['July', 'August', 'September']},
+            {name: 'Fall Festival', activeMonths: ['September']}
+          ]
+    
+      You could figure out the number of events active in each month by specifying "activeMonths" as a dimension.
+      Lumenize.TimeInStateCalculator (and other calculators in Lumenize) use this technique.
+    */
+
+    function OLAPCube(config, facts) {
+      var d, hasCount, hasSum, hasSumSquares, m, m2, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
+      this.config = config;
+      /*
+          @constructor
+          @param {Object} config See Config options for details. DO NOT change the config settings after the OLAP class is instantiated.
+          @param {Object[]} [facts] Optional parameter allowing the population of the OLAPCube with an intitial set of facts
+            upon instantiation. Use addFacts() to add facts after instantiation.
+          @cfg {Object[]} dimensions (required) Array which specifies the fields to use as dimension fields. If the field contains a
+            hierarchy array, say so in the row, (e.g. `{field: 'SomeFieldName', type: 'hierarchy'}`). Any array values that it
+            finds in the supplied facts will be assumed to be tags rather than a hierarchy specification unless `type: 'hierarchy'`
+            is specified.
+      
+            For example, let's say you have a set of facts that look like this:
+      
+              fact = {
+                dimensionField: 'a',
+                hierarchicalDimensionField: ['1','2','3'],
+                tagDimensionField: ['x', 'y', 'z'],
+                valueField: 10
+              }
+      
+            Then a set of dimensions like this makes sense.
+      
+              config.dimensions = [
+                {field: 'dimensionField'},
+                {field: 'hierarchicalDimensionField', type: 'hierarchy'},
+                {field: 'tagDimensionField'}
+              ]
+      
+          @cfg {Object[]} metrics (required) Array which specifies the metrics to calculate for each cell in the cube.
+      
+            Example:
+      
+              config = {}
+              config.metrics = [
+                {field: 'field3'},                                      # defaults to metrics: ['sum']
+                {field: 'field4', metrics: [
+                  {f: 'sum'},                                           # will add a metric named field4_sum
+                  {as: 'median4', f: 'p50'},                            # renamed p50 to median4 from default of field4_p50
+                  {as: 'myCount', f: (values) -> return values.length}  # user-supplied function
+                ]}
+              ]
+      
+            If you specify a field without any metrics, it will assume you want the sum but it will not automatically
+            add the sum metric to fields with a metrics specification. User-supplied aggregation functions are also supported as
+            shown in the 'myCount' metric above.
+      
+          @cfg {Boolean} [keepValues=false] Setting this will have a similar effect as including `f: "values"` for all metrics fields.
+            If you are going to incrementally update the OLAPCube, then you are required to set this to true if you are using
+            any functions other than count, sum, sumSquares, variance, or standardDeviation.
+          @cfg {Boolean} [keepTotals=false] Setting this will add an additional total row (indicated with field: null) along
+            all dimensions. This setting can have a significant impact on the memory usage and performance of the OLAPCube so
+            if things are tight, only use it if you really need it.
+          @cfg {Boolean} [keepFacts=false] Setting this will cause the OLAPCube to keep track of the facts that contributed to
+            the metrics for each cell by adding an automatic 'facts' metric.
+      */
+
+      this.cells = [];
+      this.cellIndex = {};
+      this.virgin = true;
+      this._dirtyCells = [];
+      this._dirtyCellIndex = {};
+      this._dimensionValues = {};
+      _ref = this.config.dimensions;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        d = _ref[_i];
+        this._dimensionValues[d.field] = {};
+      }
+      if (!this.config.keepValues) {
+        this.config.keepValues = false;
+      }
+      if (!this.config.keepTotals) {
+        this.config.keepTotals = false;
+      }
+      if (!this.config.keepFacts) {
+        this.config.keepFacts = false;
+      }
+      _ref1 = this.config.metrics;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        m = _ref1[_j];
+        if (m.metrics == null) {
+          m.metrics = [
+            {
+              f: 'sum'
+            }
+          ];
+        }
+      }
+      this.mustKeepValuesToAdd = false;
+      _ref2 = this.config.metrics;
+      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+        m = _ref2[_k];
+        hasCount = true;
+        hasSum = false;
+        hasSumSquares = false;
+        _ref3 = m.metrics;
+        for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+          m2 = _ref3[_l];
+          if (m2.as === 'count') {
+            throw new Error('Your metric definition has `"as": "count" which conflicts with automatic "count" metric.');
+          }
+          if (m2.as === 'facts' && this.config.keepFacts) {
+            throw new Error('Your metric definition has `"as": "facts" which conflicts with automatic "facts" metric.');
+          }
+          switch (m2.f) {
+            case 'count':
+              throw new Error('Count is automatically kept. No need to specify it for a particular field.');
+              break;
+            case 'sum':
+              hasSum = true;
+              break;
+            case 'sumSquares':
+              hasSumSquares = true;
+          }
+        }
+        _ref4 = m.metrics;
+        for (_m = 0, _len4 = _ref4.length; _m < _len4; _m++) {
+          m2 = _ref4[_m];
+          if (_ref5 = m2.f, __indexOf.call(functions.INCREMENTAL, _ref5) >= 0) {
+
+          } else if (m2.f === 'average') {
+            if (!(hasCount && hasSum)) {
+              this.mustKeepValuesToAdd = true;
+            }
+          } else if ((_ref6 = m2.f) === 'variance' || _ref6 === 'standardDeviation') {
+            if (!(hasCount && hasSum && hasSumSquares)) {
+              this.mustKeepValuesToAdd = true;
+            }
+          } else {
+            this.mustKeepValuesToAdd = true;
+          }
+        }
+      }
+      this.addFacts(facts);
+    }
+
+    OLAPCube._possibilities = function(key, type, keepTotals) {
+      var a, len;
+      switch (utils.type(key)) {
+        case 'array':
+          if (keepTotals) {
+            a = [null];
+          } else {
+            a = [];
+          }
+          if (type === 'hierarchy') {
+            len = key.length;
+            while (len > 0) {
+              a.push(key.slice(0, len));
+              len--;
+            }
+          } else {
+            if (keepTotals) {
+              a = [null].concat(key);
+            } else {
+              a = key;
+            }
+          }
+          return a;
+        case 'string':
+        case 'number':
+          if (keepTotals) {
+            return [null, key];
+          } else {
+            return [key];
+          }
+      }
+    };
+
+    OLAPCube._decrement = function(a, rollover) {
+      var i;
+      i = a.length - 1;
+      a[i]--;
+      while (a[i] < 0) {
+        a[i] = rollover[i];
+        i--;
+        if (i < 0) {
+          return false;
+        } else {
+          a[i]--;
+        }
+      }
+      return true;
+    };
+
+    OLAPCube.prototype._expandFact = function(fact) {
+      var countdownArray, d, index, m, metricsOut, more, out, outRow, p, possibilitiesArray, rolloverArray, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+      possibilitiesArray = [];
+      countdownArray = [];
+      rolloverArray = [];
+      _ref = this.config.dimensions;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        d = _ref[_i];
+        p = OLAPCube._possibilities(fact[d.field], d.type, this.config.keepTotals);
+        possibilitiesArray.push(p);
+        countdownArray.push(p.length - 1);
+        rolloverArray.push(p.length - 1);
+      }
+      out = [];
+      more = true;
+      while (more) {
+        outRow = {};
+        _ref1 = this.config.dimensions;
+        for (index = _j = 0, _len1 = _ref1.length; _j < _len1; index = ++_j) {
+          d = _ref1[index];
+          outRow[d.field] = possibilitiesArray[index][countdownArray[index]];
+        }
+        metricsOut = {
+          count: 1
+        };
+        if (this.config.keepFacts) {
+          metricsOut.facts = [fact];
+        }
+        _ref2 = this.config.metrics;
+        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+          m = _ref2[_k];
+          metricsOut[m.field + '_values'] = [fact[m.field]];
+        }
+        outRow.__metrics = metricsOut;
+        out.push(outRow);
+        more = OLAPCube._decrement(countdownArray, rolloverArray);
+      }
+      return out;
+    };
+
+    OLAPCube._extractFilter = function(row, dimensions) {
+      var d, out, _i, _len;
+      out = {};
+      for (_i = 0, _len = dimensions.length; _i < _len; _i++) {
+        d = dimensions[_i];
+        out[d.field] = row[d.field];
+      }
+      return out;
+    };
+
+    OLAPCube.prototype._mergeExpandedFactArray = function(expandedFactArray) {
+      var currentMetrics, d, er, fieldValue, filterString, key, olapRow, value, _i, _j, _len, _len1, _ref, _ref1, _results;
+      _results = [];
+      for (_i = 0, _len = expandedFactArray.length; _i < _len; _i++) {
+        er = expandedFactArray[_i];
+        _ref = this.config.dimensions;
+        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+          d = _ref[_j];
+          fieldValue = er[d.field];
+          this._dimensionValues[d.field][JSON.stringify(fieldValue)] = fieldValue;
+        }
+        filterString = JSON.stringify(OLAPCube._extractFilter(er, this.config.dimensions));
+        olapRow = this.cellIndex[filterString];
+        if (olapRow != null) {
+          currentMetrics = olapRow.__metrics;
+          _ref1 = er.__metrics;
+          for (key in _ref1) {
+            value = _ref1[key];
+            if (key === 'count') {
+              if (currentMetrics[key] == null) {
+                currentMetrics[key] = 0;
+              }
+              currentMetrics[key] += value;
+            } else if (key === 'facts') {
+              if (currentMetrics[key] == null) {
+                currentMetrics[key] = [];
+              }
+              currentMetrics[key] = currentMetrics[key].concat(value);
+            } else {
+              if (currentMetrics[key] == null) {
+                currentMetrics[key] = [];
+              }
+              currentMetrics[key] = currentMetrics[key].concat(value);
+            }
+          }
+        } else {
+          olapRow = er;
+          this.cellIndex[filterString] = olapRow;
+          this.cells.push(olapRow);
+        }
+        if (this._dirtyCellIndex[filterString] == null) {
+          this._dirtyCellIndex[filterString] = olapRow;
+          _results.push(this._dirtyCells.push(olapRow));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    OLAPCube._variance = function(count, sum, sumSquares) {
+      return (count * sumSquares - sum * sum) / (count * (count - 1));
+    };
+
+    OLAPCube._standardDeviation = function(count, sum, sumSquares) {
+      return Math.sqrt(count, sum, sumSquares);
+    };
+
+    OLAPCube.prototype.addFacts = function(facts) {
+      /*
+          @method addFacts
+            Adds facts to the OLAPCube.
+      
+          @chainable
+          @param {Object[]} facts An Array of facts to be aggregated into OLAPCube. Each fact is a Map where the keys are the field names
+            and the values are the field values (e.g. `{field1: 'a', field2: 5}`).
+      */
+
+      var as, currentCount, currentField, currentMetrics, currentSum, currentSumSquares, currentValues, expandedFactArray, f, fact, m, m2, olapRow, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _len7, _len8, _len9, _m, _n, _o, _p, _q, _r, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+      if (utils.type(facts) === 'array') {
+        if (facts.length <= 0) {
+          return;
+        }
+      } else {
+        if (facts != null) {
+          facts = [facts];
+        } else {
+          return;
+        }
+      }
+      if (!this.virgin && this.mustKeepValuesToAdd && !this.config.keepValues) {
+        throw new Error('Must specify config.keepValues to add facts with this set of metrics.');
+      }
+      for (_i = 0, _len = facts.length; _i < _len; _i++) {
+        fact = facts[_i];
+        expandedFactArray = this._expandFact(fact);
+        this._mergeExpandedFactArray(expandedFactArray);
+      }
+      if (this.config.keepValues || this.virgin) {
+        _ref = this._dirtyCells;
+        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+          olapRow = _ref[_j];
+          currentMetrics = olapRow.__metrics;
+          currentCount = currentMetrics.count;
+          _ref1 = this.config.metrics;
+          for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+            m = _ref1[_k];
+            currentField = m.field;
+            currentValues = currentMetrics[currentField + '_values'];
+            currentSum = null;
+            currentSumSquares = null;
+            if (this.mustKeepValuesToAdd) {
+              _ref2 = m.metrics;
+              for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
+                m2 = _ref2[_l];
+                _ref3 = functions.extractFandAs(m2, currentField), f = _ref3.f, as = _ref3.as;
+                currentMetrics[as] = f(currentValues);
+              }
+            } else {
+              _ref4 = m.metrics;
+              for (_m = 0, _len4 = _ref4.length; _m < _len4; _m++) {
+                m2 = _ref4[_m];
+                _ref5 = functions.extractFandAs(m2, currentField), f = _ref5.f, as = _ref5.as;
+                if (m2.f === 'sum') {
+                  currentSum = f(currentValues);
+                  currentMetrics[as] = currentSum;
+                } else if (m2.f === 'sumSquares') {
+                  currentSumSquares = f(currentValues);
+                  currentMetrics[as] = currentSumSquares;
+                }
+              }
+              _ref6 = m.metrics;
+              for (_n = 0, _len5 = _ref6.length; _n < _len5; _n++) {
+                m2 = _ref6[_n];
+                _ref7 = functions.extractFandAs(m2, currentField), f = _ref7.f, as = _ref7.as;
+                if (m2.f === 'average') {
+                  currentMetrics[as] = currentSum / currentCount;
+                } else if (m2.f === 'variance') {
+                  currentMetrics[as] = OLAPCube._variance(currentCount, currentSum, currentSumSquares);
+                } else if (m2.f === 'standardDeviation') {
+                  currentMetrics[as] = OLAPCube._standardDeviation(currentCount, currentSum, currentSumSquares);
+                } else {
+                  if ((_ref8 = m2.f) !== 'sum' && _ref8 !== 'sumSquares') {
+                    currentMetrics[as] = f(currentValues);
+                  }
+                }
+              }
+            }
+            if (!this.config.keepValues) {
+              delete currentMetrics[currentField + "_values"];
+            }
+          }
+        }
+      } else {
+        _ref9 = this._dirtyCells;
+        for (_o = 0, _len6 = _ref9.length; _o < _len6; _o++) {
+          olapRow = _ref9[_o];
+          currentMetrics = olapRow.__metrics;
+          currentCount = currentMetrics.count;
+          _ref10 = this.config.metrics;
+          for (_p = 0, _len7 = _ref10.length; _p < _len7; _p++) {
+            m = _ref10[_p];
+            currentField = m.field;
+            currentValues = currentMetrics[currentField + '_values'];
+            currentSum = null;
+            currentSumSquares = null;
+            _ref11 = m.metrics;
+            for (_q = 0, _len8 = _ref11.length; _q < _len8; _q++) {
+              m2 = _ref11[_q];
+              _ref12 = functions.extractFandAs(m2, currentField), f = _ref12.f, as = _ref12.as;
+              if (m2.f === 'sum') {
+                currentSum = functions.sum(currentValues, currentMetrics[as], currentValues);
+                currentMetrics[as] = currentSum;
+              } else if (m2.f === 'sumSquares') {
+                currentSumSquares = functions.sumSquares(currentValues, currentMetrics[as], currentValues);
+                currentMetrics[as] = currentSumSquares;
+              } else if (_ref13 = m2.f, __indexOf.call(functions.INCREMENTAL, _ref13) >= 0) {
+                currentMetrics[as] = f(currentValues, currentMetrics[as], currentValues);
+              }
+            }
+            _ref14 = m.metrics;
+            for (_r = 0, _len9 = _ref14.length; _r < _len9; _r++) {
+              m2 = _ref14[_r];
+              _ref15 = functions.extractFandAs(m2, currentField), f = _ref15.f, as = _ref15.as;
+              if (m2.f === 'average') {
+                currentMetrics[as] = currentSum / currentCount;
+              } else if (m2.f === 'variance') {
+                currentMetrics[as] = OLAPCube._variance(currentCount, currentSum, currentSumSquares);
+              } else if (m2.f === 'standardDeviation') {
+                currentMetrics[as] = OLAPCube._standardDeviation(currentCount, currentSum, currentSumSquares);
+              } else {
+                if (_ref16 = m2.f, __indexOf.call(functions.INCREMENTAL, _ref16) < 0) {
+                  throw new Error('If we have this error, then we have a bug with sensing the need for @mustKeepValuesToAdd.');
+                }
+              }
+            }
+            if (!this.config.keepValues) {
+              delete currentMetrics[currentField + "_values"];
+            }
+          }
+        }
+      }
+      this.virgin = false;
+      this._dirtyCells = [];
+      this._dirtyCellIndex = {};
+      return this;
+    };
+
+    OLAPCube.prototype.getCells = function(filterObject) {
+      /*
+          @method getCells
+            Returns a subset of the cells that match the supplied filter. You can perform slice and dice operations using
+            this. If you have criteria for all of the dimensions, you are better off using `getCell()`. Most times, it's
+            better to iterate over the unique values for the dimensions of interest using `getCell()` in place of slice or
+            dice operations.
+          @param {Object} [filterObject] Specifies the constraints that the returned cells must match in the form of
+            `{field1: value1, field2: value2}`. If this parameter is missing, the internal cells array is returned.
+          @return {Object[]} Returns the cells that match the supplied filter
+      */
+
+      var c, output, _i, _len, _ref;
+      if (filterObject == null) {
+        return cells;
+      }
+      output = [];
+      _ref = this.cells;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        c = _ref[_i];
+        if (utils.filterMatch(filterObject, c)) {
+          output.push(c);
+        }
+      }
+      return output;
+    };
+
+    OLAPCube.prototype.getCell = function(filter) {
+      /*
+          @method getCell
+            Returns the single cell matching the supplied filter. Iterating over the unique values for the dimensions of
+            interest, you can incrementally retrieve a slice or dice using this method. Since `getCell()` always uses an index,
+            in most cases, this is better than using `getCells()` to prefetch a slice or dice.
+          @param {Object} Specifies the constraints for the returned cell in the form of `{field1: value1, field2: value2}.
+            Any fields that are specified in config.dimensions that are missing from the filter are automatically filled in
+            with null.
+          @return {Object[]} Returns the cell that match the supplied filter
+      */
+
+      var d, normalizedFilter, _i, _len, _ref;
+      normalizedFilter = {};
+      _ref = this.config.dimensions;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        d = _ref[_i];
+        if (filter.hasOwnProperty(d.field)) {
+          normalizedFilter[d.field] = filter[d.field];
+        } else {
+          normalizedFilter[d.field] = null;
+        }
+      }
+      return this.cellIndex[JSON.stringify(normalizedFilter)];
+    };
+
+    OLAPCube.prototype.getDimensionValues = function(field, descending) {
+      var values;
+      if (descending == null) {
+        descending = false;
+      }
+      /*
+          @method getDimensionValues
+            Returns the unique values for the specified dimension in sort order.
+          @param {String} field The field whose values you want
+          @param {Boolean} [descending=false] Set to true if you want them in reverse order
+      */
+
+      values = utils.values(this._dimensionValues[field]);
+      values.sort(OLAPCube._compare);
+      if (!descending) {
+        values.reverse();
+      }
+      return values;
+    };
+
+    OLAPCube._compare = function(a, b) {
+      var aString, bString, index, value, _i, _len;
+      if (a === null) {
+        return 1;
+      }
+      if (b === null) {
+        return -1;
+      }
+      switch (utils.type(a)) {
+        case 'number':
+        case 'boolean':
+        case 'date':
+          return b - a;
+        case 'array':
+          for (index = _i = 0, _len = a.length; _i < _len; index = ++_i) {
+            value = a[index];
+            if (value < b[index]) {
+              return 1;
+            }
+            if (value > b[index]) {
+              return -1;
+            }
+          }
+          if (a.length < b.length) {
+            return 1;
+          } else if (a.length > b.length) {
+            return -1;
+          } else {
+            return 0;
+          }
+          break;
+        case 'object':
+        case 'string':
+          aString = JSON.stringify(a);
+          bString = JSON.stringify(b);
+          if (aString < bString) {
+            return 1;
+          } else if (aString > bString) {
+            return -1;
+          } else {
+            return 0;
+          }
+          break;
+        default:
+          throw new Error("Do not know how to sort objects of type " + (utils.type(o1)) + ".");
+      }
+    };
+
+    OLAPCube.prototype.toString = function(rows, columns, metric) {
+      /*
+          @method toString
+            Produces a printable table with the first dimension as the rows, the second dimension as the columns, and the count
+            as the values in the table.
+          @param {String} [rows=<first dimension>]
+          @param {String} [columns=<second dimension>]
+          @param {String} [metric='count']
+      */
+
+      var c, cell, cellString, columnValueStrings, columnValues, field, filter, fullWidth, index, indexColumn, indexRow, maxColumnWidth, r, rowLabelWidth, rowValueStrings, rowValues, s, valueStrings, valueStringsRow, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref;
+      if (metric == null) {
+        metric = 'count';
+      }
+      if (this.config.dimensions.length === 1) {
+        field = this.config.dimensions[0].field;
+        s = OLAPCube._padToWidth(field, 15) + OLAPCube._padToWidth(metric, 27);
+        _ref = this.getDimensionValues(field);
+        for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
+          r = _ref[index];
+          filter = {};
+          filter[field] = r;
+          cell = this.getCell(filter);
+          if (cell != null) {
+            cellString = JSON.stringify(cell.__metrics[metric]);
+          } else {
+            cellString = '';
+          }
+          s += '\n' + OLAPCube._padToWidth(r.toString(), 15) + OLAPCube._padToWidth(cellString, 27);
+        }
+      } else {
+        if (rows == null) {
+          rows = this.config.dimensions[0].field;
+        }
+        if (columns == null) {
+          columns = this.config.dimensions[1].field;
+        }
+        rowValues = this.getDimensionValues(rows);
+        columnValues = this.getDimensionValues(columns);
+        rowValueStrings = (function() {
+          var _j, _len1, _results;
+          _results = [];
+          for (_j = 0, _len1 = rowValues.length; _j < _len1; _j++) {
+            r = rowValues[_j];
+            _results.push(JSON.stringify(r));
+          }
+          return _results;
+        })();
+        columnValueStrings = (function() {
+          var _j, _len1, _results;
+          _results = [];
+          for (_j = 0, _len1 = columnValues.length; _j < _len1; _j++) {
+            c = columnValues[_j];
+            _results.push(JSON.stringify(c));
+          }
+          return _results;
+        })();
+        rowLabelWidth = Math.max.apply({}, (function() {
+          var _j, _len1, _results;
+          _results = [];
+          for (_j = 0, _len1 = rowValueStrings.length; _j < _len1; _j++) {
+            s = rowValueStrings[_j];
+            _results.push(s.length);
+          }
+          return _results;
+        })());
+        rowLabelWidth = Math.max(rowLabelWidth, 'Total'.length);
+        valueStrings = [];
+        maxColumnWidth = Math.max.apply({}, (function() {
+          var _j, _len1, _results;
+          _results = [];
+          for (_j = 0, _len1 = columnValueStrings.length; _j < _len1; _j++) {
+            s = columnValueStrings[_j];
+            _results.push(s.length);
+          }
+          return _results;
+        })());
+        maxColumnWidth = Math.max(maxColumnWidth, 'Total'.length);
+        for (indexRow = _j = 0, _len1 = rowValues.length; _j < _len1; indexRow = ++_j) {
+          r = rowValues[indexRow];
+          valueStringsRow = [];
+          for (indexColumn = _k = 0, _len2 = columnValues.length; _k < _len2; indexColumn = ++_k) {
+            c = columnValues[indexColumn];
+            filter = {};
+            filter[rows] = r;
+            filter[columns] = c;
+            cell = this.getCell(filter);
+            if (cell != null) {
+              cellString = JSON.stringify(cell.__metrics[metric]);
+            } else {
+              cellString = '';
+            }
+            maxColumnWidth = Math.max(maxColumnWidth, cellString.length);
+            valueStringsRow.push(cellString);
+          }
+          valueStrings.push(valueStringsRow);
+        }
+        maxColumnWidth += 1;
+        s = '|' + (OLAPCube._padToWidth('', rowLabelWidth)) + ' ||';
+        for (indexColumn = _l = 0, _len3 = columnValueStrings.length; _l < _len3; indexColumn = ++_l) {
+          c = columnValueStrings[indexColumn];
+          if (c === 'null') {
+            s += OLAPCube._padToWidth('Total', maxColumnWidth) + ' |';
+          } else {
+            s += OLAPCube._padToWidth(c, maxColumnWidth);
+          }
+        }
+        fullWidth = rowLabelWidth + maxColumnWidth * columnValueStrings.length + 3;
+        if (columnValueStrings[0] === 'null') {
+          fullWidth += 2;
+        }
+        s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '=');
+        for (indexRow = _m = 0, _len4 = rowValueStrings.length; _m < _len4; indexRow = ++_m) {
+          r = rowValueStrings[indexRow];
+          s += '|\n|';
+          if (r === 'null') {
+            s += OLAPCube._padToWidth('Total', rowLabelWidth, ' ', true);
+          } else {
+            s += OLAPCube._padToWidth(r, rowLabelWidth, ' ', true);
+          }
+          s += ' ||';
+          for (indexColumn = _n = 0, _len5 = columnValueStrings.length; _n < _len5; indexColumn = ++_n) {
+            c = columnValueStrings[indexColumn];
+            s += OLAPCube._padToWidth(valueStrings[indexRow][indexColumn], maxColumnWidth);
+            if (c === 'null') {
+              s += ' |';
+            }
+          }
+          if (r === 'null') {
+            s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '-');
+          }
+        }
+        s += '|';
+      }
+      return s;
+    };
+
+    OLAPCube._padToWidth = function(s, width, padCharacter, rightPad) {
+      var padding;
+      if (padCharacter == null) {
+        padCharacter = ' ';
+      }
+      if (rightPad == null) {
+        rightPad = false;
+      }
+      padding = new Array(width - s.length + 1).join(padCharacter);
+      if (rightPad) {
+        return s + padding;
+      } else {
+        return padding + s;
+      }
+    };
+
+    OLAPCube.prototype.stringify = function(meta) {
+      /*
+          @method stringify
+            Enables the serialization of an OLAPCube.
+          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+            within the deserialized OLAPCube
+          @return {String} Returns a String representing the state of the OLAPCube. This String is suitable for saving to
+            disk. Use the static method `newFromSavedState()` on this string to reconstitute the OLAPCube.
+      
+              facts = [
+                {ProjectHierarchy: [1, 2, 3], Priority: 1},
+                {ProjectHierarchy: [1, 2, 4], Priority: 2},
+                {ProjectHierarchy: [5]      , Priority: 1},
+                {ProjectHierarchy: [1, 2]   , Priority: 1},
+              ]
+      
+              dimensions = [
+                {field: "ProjectHierarchy", type: 'hierarchy'},
+                {field: "Priority"}
+              ]
+      
+              config = {dimensions, metrics: []}
+              config.keepTotals = true
+      
+              originalCube = new OLAPCube(config, facts)
+      
+              dateString = '2012-12-27T12:34:56.789Z'
+              saveString = originalCube.stringify({upToDate: dateString})
+              restoredCube = OLAPCube.newFromSavedState(saveString)
+      
+              newFacts = [
+                {ProjectHierarchy: [5], Priority: 3},
+                {ProjectHierarchy: [1, 2, 4], Priority: 1}
+              ]
+              originalCube.addFacts(newFacts)
+              restoredCube.addFacts(newFacts)
+      
+              console.log(restoredCube.toString() == originalCube.toString())
+              # true
+      
+              console.log(restoredCube.meta.upToDate)
+              # 2012-12-27T12:34:56.789Z
+      */
+
+      var out;
+      out = this.getStateForSaving(meta);
+      return JSON.stringify(out);
+    };
+
+    OLAPCube.prototype.getStateForSaving = function(meta) {
+      /*
+          @method getState
+            Enables saving the state of an OLAPCube. See `stringify()` for example usage.
+          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+            within the deserialized OLAPCube
+          @return {Object} Returns an Ojbect representing the state of the OLAPCube. This Object is suitable for saving to
+            to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute the OLAPCube.
+      */
+
+      var out;
+      out = {
+        config: this.config,
+        cells: this.cells,
+        virgin: this.virgin
+      };
+      if (meta != null) {
+        out.meta = meta;
+      }
+      return out;
+    };
+
+    OLAPCube.newFromSavedState = function(p) {
+      /*
+          @method newFromSavedState
+            Deserializes a previously stringified OLAPCube and returns a new OLAPCube.
+      
+            See `stringify()` documentation for a detailed example.
+      
+            Note, if you have specified config.keepFacts = true, the values for the facts will be restored, however, they
+            will no longer be references to the original facts. For this reason, it's usually better to include a `values` or
+            `uniqueValues` metric on some ID field if you want fact drill-down support to survive a save and restore.
+          @static
+          @param {String/Object} p A String or Object from a previously saved OLAPCube state
+          @return {OLAPCube}
+      */
+
+      var c, cube, d, fieldValue, filterString, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+      if (utils.type(p) === 'string') {
+        p = JSON.parse(p);
+      }
+      cube = new OLAPCube(p.config);
+      if (p.meta != null) {
+        cube.meta = p.meta;
+      }
+      cube.cells = p.cells;
+      cube.virgin = p.virgin;
+      cube.cellIndex = {};
+      cube._dimensionValues = {};
+      _ref = cube.config.dimensions;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        d = _ref[_i];
+        cube._dimensionValues[d.field] = {};
+      }
+      _ref1 = cube.cells;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        c = _ref1[_j];
+        filterString = JSON.stringify(OLAPCube._extractFilter(c, cube.config.dimensions));
+        cube.cellIndex[filterString] = c;
+        _ref2 = cube.config.dimensions;
+        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+          d = _ref2[_k];
+          fieldValue = c[d.field];
+          cube._dimensionValues[d.field][JSON.stringify(fieldValue)] = fieldValue;
+        }
+      }
+      return cube;
+    };
+
+    return OLAPCube;
+
+  })();
+
+  exports.OLAPCube = OLAPCube;
+
+}).call(this);
+
+});
+
+require.define("/src/functions.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var functions, utils;
+
+  utils = require('./utils');
+
+  /*
+  @class functions
+  */
+
+
+  functions = {};
+
+  functions.INCREMENTAL = ['sum', 'sumSquares', 'lastValue', 'count', 'min', 'max', 'values', 'uniqueValues'];
+
+  /*
+  @method sum
+  @static
+  @param {Number[]} values
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Number} The sum of the values
+  */
+
+
+  functions.sum = function(values, oldResult, newValues) {
+    var temp, tempValues, v, _i, _len;
+    if (oldResult != null) {
+      temp = oldResult;
+      tempValues = newValues;
+    } else {
+      temp = 0;
+      tempValues = values;
+    }
+    for (_i = 0, _len = tempValues.length; _i < _len; _i++) {
+      v = tempValues[_i];
+      temp += v;
+    }
+    return temp;
+  };
+
+  /*
+  @method sumSquares
+  @static
+  @param {Number[]} values
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Number} The sum of the squares of the values
+  */
+
+
+  functions.sumSquares = function(values, oldResult, newValues) {
+    var temp, tempValues, v, _i, _len;
+    if (oldResult != null) {
+      temp = oldResult;
+      tempValues = newValues;
+    } else {
+      temp = 0;
+      tempValues = values;
+    }
+    for (_i = 0, _len = tempValues.length; _i < _len; _i++) {
+      v = tempValues[_i];
+      temp += v * v;
+    }
+    return temp;
+  };
+
+  /*
+  @method lastValue
+  @static
+  @param {Number[]} values
+  @param {Number} [oldResult] Not used. It is included to make the interface consistent.
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Number} The last value
+  */
+
+
+  functions.lastValue = function(values, oldResult, newValues) {
+    if (newValues != null) {
+      return newValues[newValues.length - 1];
+    }
+    return values[values.length - 1];
+  };
+
+  /*
+  @method count
+  @static
+  @param {Number[]} values
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Number} The length of the values Array
+  */
+
+
+  functions.count = function(values, oldResult, newValues) {
+    if (oldResult != null) {
+      return oldResult + newValues.length;
+    }
+    return values.length;
+  };
+
+  /*
+  @method min
+  @static
+  @param {Number[]} values
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Number} The minimum value or null if no values
+  */
+
+
+  functions.min = function(values, oldResult, newValues) {
+    var temp, v, _i, _len;
+    if (oldResult != null) {
+      return functions.min(newValues.concat([oldResult]));
+    }
+    if (values.length === 0) {
+      return null;
+    }
+    temp = values[0];
+    for (_i = 0, _len = values.length; _i < _len; _i++) {
+      v = values[_i];
+      if (v < temp) {
+        temp = v;
+      }
+    }
+    return temp;
+  };
+
+  /*
+  @method max
+  @static
+  @param {Number[]} values
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Number} The maximum value or null if no values
+  */
+
+
+  functions.max = function(values, oldResult, newValues) {
+    var temp, v, _i, _len;
+    if (oldResult != null) {
+      return functions.max(newValues.concat([oldResult]));
+    }
+    if (values.length === 0) {
+      return null;
+    }
+    temp = values[0];
+    for (_i = 0, _len = values.length; _i < _len; _i++) {
+      v = values[_i];
+      if (v > temp) {
+        temp = v;
+      }
+    }
+    return temp;
+  };
+
+  /*
+  @method values
+  @static
+  @param {Object[]} values
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
+  */
+
+
+  functions.values = function(values, oldResult, newValues) {
+    if (oldResult != null) {
+      return oldResult.concat(newValues);
+    }
+    return values;
+  };
+
+  /*
+  @method uniqueValues
+  @static
+  @param {Object[]} values
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
+  */
+
+
+  functions.uniqueValues = function(values, oldResult, newValues) {
+    var key, r, temp, temp2, tempValues, v, value, _i, _j, _len, _len1;
+    temp = {};
+    if (oldResult != null) {
+      for (_i = 0, _len = oldResult.length; _i < _len; _i++) {
+        r = oldResult[_i];
+        temp[r] = null;
+      }
+      tempValues = newValues;
+    } else {
+      tempValues = values;
+    }
+    temp2 = [];
+    for (_j = 0, _len1 = tempValues.length; _j < _len1; _j++) {
+      v = tempValues[_j];
+      temp[v] = null;
+    }
+    for (key in temp) {
+      value = temp[key];
+      temp2.push(key);
+    }
+    return temp2;
+  };
+
+  /*
+  @method average
+  @static
+  @param {Number[]} values
+  @return {Number} The arithmetic mean
+  */
+
+
+  functions.average = function(values) {
+    var count, sum, v, _i, _len;
+    count = values.length;
+    sum = 0;
+    for (_i = 0, _len = values.length; _i < _len; _i++) {
+      v = values[_i];
+      sum += v;
+    }
+    return sum / count;
+  };
+
+  /*
+  @method variance
+  @static
+  @param {Number[]} values
+  @return {Number} The variance
+  */
+
+
+  functions.variance = function(values) {
+    var n, sum, sumSquares, v, _i, _len;
+    n = values.length;
+    sum = 0;
+    sumSquares = 0;
+    for (_i = 0, _len = values.length; _i < _len; _i++) {
+      v = values[_i];
+      sum += v;
+      sumSquares += v * v;
+    }
+    return (n * sumSquares - sum * sum) / (n * (n - 1));
+  };
+
+  /*
+  @method standardDeviation
+  @static
+  @param {Number[]} values
+  @return {Number} The standard deviation
+  */
+
+
+  functions.standardDeviation = function(values) {
+    return Math.sqrt(functions.variance(values));
+  };
+
+  /*
+  @method percentileCreator
+  @static
+  @param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
+  @return {Function} A funtion to calculate the percentile
+  
+  When the user passes in `p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate
+  percentile function. The returned function will find the `<n>`th percentile where `<n>` is some number in the form of
+  `##[.##]`. (e.g. `p40`, `p99`, `p99.9`).
+  
+  Note: `median` is an alias for `p50`.
+  
+  There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
+  use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
+  recommendation and makes the most sense to me.
+  */
+
+
+  functions.percentileCreator = function(p) {
+    return function(values) {
+      var d, k, n, sortfunc, vLength;
+      sortfunc = function(a, b) {
+        return a - b;
+      };
+      vLength = values.length;
+      values.sort(sortfunc);
+      n = (p * (vLength - 1) / 100) + 1;
+      k = Math.floor(n);
+      d = n - k;
+      if (n === 1) {
+        return values[1 - 1];
+      }
+      if (n === vLength) {
+        return values[vLength - 1];
+      }
+      return values[k - 1] + d * (values[k] - values[k - 1]);
+    };
+  };
+
+  functions.extractFandAs = function(a, field) {
+    var as, f, p;
+    if (a.as != null) {
+      as = a.as;
+    } else {
+      utils.assert(utils.type(a.f) !== 'function', 'Must provide "as" field with your aggregation when providing a user defined function');
+      if (a.field != null) {
+        field = a.field;
+      }
+      as = "" + field + "_" + a.f;
+    }
+    if (utils.type(a.f) === 'function') {
+      f = a.f;
+    } else if (functions[a.f] != null) {
+      f = functions[a.f];
+    } else if (a.f === 'median') {
+      f = functions.percentileCreator(50);
+    } else if (a.f.substr(0, 1) === 'p') {
+      p = /\p(\d+(.\d+)?)/.exec(a.f)[1];
+      f = functions.percentileCreator(Number(p));
+    } else {
+      throw new Error("" + a.f + " is not a recognized built-in function");
+    }
+    return {
+      f: f,
+      as: as
+    };
+  };
+
+  exports.functions = functions;
 
 }).call(this);
 
@@ -8930,273 +10383,6 @@ require.define("/src/derive.coffee",function(require,module,exports,__dirname,__
   exports.deriveFields = deriveFields;
 
   exports.deriveFieldsAt = deriveFieldsAt;
-
-}).call(this);
-
-});
-
-require.define("/src/functions.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var functions, utils;
-
-  utils = require('./utils');
-
-  /*
-  @class functions
-  */
-
-
-  functions = {};
-
-  /*
-  @method sum
-  @static
-  @param {Number[]} values
-  @return {Number} The sum of the values
-  */
-
-
-  functions.sum = function(values) {
-    var temp, v, _i, _len;
-    temp = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      temp += v;
-    }
-    return temp;
-  };
-
-  /*
-  @method sumSquares
-  @static
-  @param {Number[]} values
-  @return {Number} The sum of the squares of the values
-  */
-
-
-  functions.sumSquares = function(values) {
-    var temp, v, _i, _len;
-    temp = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      temp += v * v;
-    }
-    return temp;
-  };
-
-  /*
-  @method count
-  @static
-  @param {Number[]} values
-  @return {Number} The length of the values Array
-  */
-
-
-  functions.count = function(values) {
-    return values.length;
-  };
-
-  /*
-  @method min
-  @static
-  @param {Number[]} values
-  @return {Number} The minimum value or null if no values
-  */
-
-
-  functions.min = function(values) {
-    var temp, v, _i, _len;
-    if (values.length === 0) {
-      return null;
-    }
-    temp = values[0];
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      if (v < temp) {
-        temp = v;
-      }
-    }
-    return temp;
-  };
-
-  /*
-  @method max
-  @static
-  @param {Number[]} values
-  @return {Number} The maximum value or null if no values
-  */
-
-
-  functions.max = function(values) {
-    var temp, v, _i, _len;
-    if (values.length === 0) {
-      return null;
-    }
-    temp = values[0];
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      if (v > temp) {
-        temp = v;
-      }
-    }
-    return temp;
-  };
-
-  /*
-  @method values
-  @static
-  @param {Object[]} values
-  @return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
-  */
-
-
-  functions.values = function(values) {
-    return values;
-  };
-
-  /*
-  @method uniqueValues
-  @static
-  @param {Object[]} values
-  @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
-  */
-
-
-  functions.uniqueValues = function(values) {
-    var key, temp, temp2, v, value, _i, _len;
-    temp = {};
-    temp2 = [];
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      temp[v] = null;
-    }
-    for (key in temp) {
-      value = temp[key];
-      temp2.push(key);
-    }
-    return temp2;
-  };
-
-  /*
-  @method average
-  @static
-  @param {Number[]} values
-  @return {Number} The arithmetic mean
-  */
-
-
-  functions.average = function(values) {
-    var count, sum, v, _i, _len;
-    count = values.length;
-    sum = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      sum += v;
-    }
-    return sum / count;
-  };
-
-  /*
-  @method variance
-  @static
-  @param {Number[]} values
-  @return {Number} The variance
-  */
-
-
-  functions.variance = function(values) {
-    var n, sum, sumSquares, v, _i, _len;
-    n = values.length;
-    sum = 0;
-    sumSquares = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      sum += v;
-      sumSquares += v * v;
-    }
-    return (n * sumSquares - sum * sum) / (n * (n - 1));
-  };
-
-  /*
-  @method standardDeviation
-  @static
-  @param {Number[]} values
-  @return {Number} The standard deviation
-  */
-
-
-  functions.standardDeviation = function(values) {
-    return Math.sqrt(functions.variance(values));
-  };
-
-  /*
-  @method percentileCreator
-  @static
-  @param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
-  @return {Function} A funtion to calculate the percentile
-  
-  When the user passes in `p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate
-  percentile function. The returned function will find the `<n>`th percentile where `<n>` is some number in the form of
-  `##[.##]`. (e.g. `p40`, `p99`, `p99.9`).
-  
-  Note: `median` is an alias for `p50`.
-  
-  There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
-  use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
-  recommendation and makes the most sense to me.
-  */
-
-
-  functions.percentileCreator = function(p) {
-    return function(values) {
-      var d, k, n, sortfunc, vLength;
-      sortfunc = function(a, b) {
-        return a - b;
-      };
-      vLength = values.length;
-      values.sort(sortfunc);
-      n = (p * (vLength - 1) / 100) + 1;
-      k = Math.floor(n);
-      d = n - k;
-      if (n === 1) {
-        return values[1 - 1];
-      }
-      if (n === vLength) {
-        return values[vLength - 1];
-      }
-      return values[k - 1] + d * (values[k] - values[k - 1]);
-    };
-  };
-
-  functions.extractFandAs = function(a, field) {
-    var as, f, p;
-    if (a.as != null) {
-      as = a.as;
-    } else {
-      utils.assert(utils.type(a.f) !== 'function', 'Must provide "as" field with your aggregation when providing a user defined function');
-      if (a.field != null) {
-        field = a.field;
-      }
-      as = "" + field + "_" + a.f;
-    }
-    if (utils.type(a.f) === 'function') {
-      f = a.f;
-    } else if (functions[a.f] != null) {
-      f = functions[a.f];
-    } else if (a.f === 'median') {
-      f = functions.percentileCreator(50);
-    } else if (a.f.substr(0, 1) === 'p') {
-      p = /\p(\d+(.\d+)?)/.exec(a.f)[1];
-      f = functions.percentileCreator(Number(p));
-    } else {
-      throw new Error("" + a.f + " is not a recognized built-in function");
-    }
-    return {
-      f: f,
-      as: as
-    };
-  };
-
-  exports.functions = functions;
 
 }).call(this);
 

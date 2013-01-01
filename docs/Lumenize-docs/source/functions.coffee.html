@@ -25,18 +25,27 @@ utils = require('./utils')
 /* &lt;CoffeeScript&gt;
 functions = {}
 
+functions.INCREMENTAL = ['sum', 'sumSquares', 'lastValue', 'count', 'min', 'max', 'values', 'uniqueValues']
+
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-sum'>/**
 </span> * @method sum
  * @member Lumenize.functions
  * @static
  * @param {Number[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The sum of the values
  */
 /* &lt;CoffeeScript&gt;
-functions.sum = (values) -&gt;
-  temp = 0
-  for v in values
+functions.sum = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    temp = oldResult
+    tempValues = newValues
+  else
+    temp = 0
+    tempValues = values
+  for v in tempValues
     temp += v
   return temp
 
@@ -46,14 +55,37 @@ functions.sum = (values) -&gt;
  * @member Lumenize.functions
  * @static
  * @param {Number[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The sum of the squares of the values
  */
 /* &lt;CoffeeScript&gt;
-functions.sumSquares = (values) -&gt;
-  temp = 0
-  for v in values
+functions.sumSquares = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    temp = oldResult
+    tempValues = newValues
+  else
+    temp = 0
+    tempValues = values
+  for v in tempValues
     temp += v * v
   return temp
+
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-static-method-lastValue'>/**
+</span> * @method lastValue
+ * @member Lumenize.functions
+ * @static
+ * @param {Number[]} values
+ * @param {Number} [oldResult] Not used. It is included to make the interface consistent.
+ * @param {Number[]} [newValues] for incremental calculation
+ * @return {Number} The last value
+ */
+/* &lt;CoffeeScript&gt;
+functions.lastValue = (values, oldResult, newValues) -&gt;
+  if newValues?
+    return newValues[newValues.length - 1]
+  return values[values.length - 1]
 
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-count'>/**
@@ -61,10 +93,14 @@ functions.sumSquares = (values) -&gt;
  * @member Lumenize.functions
  * @static
  * @param {Number[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The length of the values Array
  */
 /* &lt;CoffeeScript&gt;
-functions.count = (values) -&gt;
+functions.count = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    return oldResult + newValues.length
   return values.length
 
 &lt;/CoffeeScript&gt; */
@@ -73,10 +109,14 @@ functions.count = (values) -&gt;
  * @member Lumenize.functions
  * @static
  * @param {Number[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The minimum value or null if no values
  */
 /* &lt;CoffeeScript&gt;
-functions.min = (values) -&gt;
+functions.min = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    return functions.min(newValues.concat([oldResult]))
   if values.length == 0
     return null
   temp = values[0]
@@ -91,10 +131,14 @@ functions.min = (values) -&gt;
  * @member Lumenize.functions
  * @static
  * @param {Number[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The maximum value or null if no values
  */
 /* &lt;CoffeeScript&gt;
-functions.max = (values) -&gt;
+functions.max = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    return functions.max(newValues.concat([oldResult]))
   if values.length == 0
     return null
   temp = values[0]
@@ -109,10 +153,14 @@ functions.max = (values) -&gt;
  * @member Lumenize.functions
  * @static
  * @param {Object[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
  * @return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
  */
 /* &lt;CoffeeScript&gt;
-functions.values = (values) -&gt;
+functions.values = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    return oldResult.concat(newValues)
   return values
 #  temp = []
 #  for v in values
@@ -125,13 +173,21 @@ functions.values = (values) -&gt;
  * @member Lumenize.functions
  * @static
  * @param {Object[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
  * @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
  */
 /* &lt;CoffeeScript&gt;
-functions.uniqueValues = (values) -&gt;
+functions.uniqueValues = (values, oldResult, newValues) -&gt;
   temp = {}
+  if oldResult?
+    for r in oldResult
+      temp[r] = null
+    tempValues = newValues
+  else
+    tempValues = values
   temp2 = []
-  for v in values
+  for v in tempValues
     temp[v] = null
   for key, value of temp
     temp2.push(key)

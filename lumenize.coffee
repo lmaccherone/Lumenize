@@ -186,3 +186,5 @@ exports.deriveFieldsAt = derive.deriveFieldsAt
 
 exports.histogram = require('./src/histogram').histogram
 
+exports.OLAPCube = require('./src/OLAPCube').OLAPCube
+

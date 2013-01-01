@@ -1,5 +1,4 @@
 Time = require('./Time').Time
-TimeInStateCalculator = require('./TimeInStateCalculator').TimeInStateCalculator
 timezoneJS = require('./timezone-js.js').timezoneJS
 utils = require('./utils')
 
@@ -201,7 +200,8 @@ class Timeline
        than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
        the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
     ###
-    if config.endBefore? 
+    @memoizedTicks = {}  # key: stringified parameters to getAll
+    if config.endBefore?
       @endBefore = config.endBefore
       if @endBefore != 'PAST_LAST'
         if utils.type(@endBefore) == 'string'
@@ -329,10 +329,74 @@ class Timeline
     Returns all of the points in the timeline in chronological order. If you want them in the order specified by `step`
     then use getAllRaw().
     ###
-    timeline = @getAllRaw(emit, tz, childGranularity)
-    if timeline.length > 1 and timeline[0].greaterThan(timeline[1])
-      timeline.reverse()
-    return timeline
+    parameterKeyObject = {emit}
+    if tz?
+      parameterKeyObject.tz = tz
+    if childGranularity?
+      parameterKeyObject.childGranularity = childGranularity
+    parameterKey = JSON.stringify(parameterKeyObject)
+    ticks = @memoizedTicks[parameterKey]
+    unless ticks?
+      ticks = @getAllRaw(emit, tz, childGranularity)
+      if ticks.length > 1
+        if (ticks[0] instanceof Time and ticks[0].greaterThan(ticks[1])) or (utils.type(ticks[0]) is 'string' and ticks[0] > ticks[1] )
+          ticks.reverse()
+      @memoizedTicks[parameterKey] = ticks
+    return ticks
+
+  ticksThatIntersect: (startOn, endBefore, tz) ->
+    ###
+    @method ticksThatIntersect
+    @param {Time/ISOString} startOn The start of the time period of interest
+    @param {Time/ISOString} endBefore The moment just past the end of the time period of interest
+    @return {Array}
+
+    Returns the list of ticks from this Timeline that intersect with the time period specified by the parameters
+    startOn and endBefore.
+    ###
+    utils.assert(@limit == utils.MAX_INT, 'Cannot call `ticksThatIntersect()` on Timelines specified with `limit`.')
+    out = []
+    if utils.type(startOn) is 'string'
+      utils.assert(utils.type(endBefore) is 'string', 'The type for startOn and endBefore must match.')
+      isoDateRegExp = /\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d.\d\d\dZ/
+      utils.assert(isoDateRegExp.test(startOn), 'startOn must be in form ####-##-##T##:##:##.###Z')
+      utils.assert(isoDateRegExp.test(endBefore), 'endBefore must be in form ####-##-##T##:##:##.###Z')
+      utils.assert(tz?, "Must specify parameter tz when submitting ISO string boundaries.")
+      ticks = @getAll('ISOString', tz)
+      if ticks[0] >= endBefore or ticks[ticks.length - 1] < startOn
+        out = []
+      else
+        i = 0
+        ticksLength = ticks.length
+        while i < ticksLength and ticks[i] < startOn
+          i++
+        while i < ticksLength and ticks[i] < endBefore
+          out.push(ticks[i])
+          i++
+    else if startOn instanceof Time
+      utils.assert(endBefore instanceof Time, 'The type for startOn and endBefore must match.')
+      startOn = startOn.inGranularity(@granularity)
+      endBefore = endBefore.inGranularity(@granularity)
+      if @endBefore.lessThan(@startOn)
+        st = @endBefore
+        en = @startOn
+      else
+        st = @startOn
+        en = @endBefore
+      if st.greaterThanOrEqual(endBefore) or en.lessThan(startOn)
+        out = []
+      else
+        ticks = @getAll()
+        i = 0
+        ticksLength = ticks.length
+        while i < ticksLength and ticks[i].lessThan(startOn)
+          i++
+        while i < ticksLength and ticks[i].lessThan(endBefore)
+          out.push(ticks[i])
+          i++
+    else
+      throw new Error("startOn must be a String or a Time object.")
+    return out
 
   contains: (date, tz) ->
     ###
@@ -372,10 +436,6 @@ class Timeline
     startOn = @startOn.getJSDate(tz)
     endBefore = @endBefore.getJSDate(tz)
     return target < endBefore and target >= startOn
-
-  getTimeInStateCalculator: (tz) ->
-    timelineisc = new TimeInStateCalculator(this, tz)
-    return timelineisc
 
 class TimelineIterator
   ###
