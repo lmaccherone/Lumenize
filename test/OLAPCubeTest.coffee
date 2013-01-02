@@ -653,8 +653,8 @@ exports.olapTest =
     originalCube = new OLAPCube(config, facts)
 
     dateString = '2012-12-27T12:34:56.789Z'
-    saveString = originalCube.stringify({upToDate: dateString})
-    restoredCube = OLAPCube.newFromSavedState(saveString)
+    savedState = originalCube.getStateForSaving({upToDate: dateString})
+    restoredCube = OLAPCube.newFromSavedState(savedState)
 
     newFacts = [
       {ProjectHierarchy: [5], Priority: 3},

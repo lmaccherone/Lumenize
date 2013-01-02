@@ -750,7 +750,7 @@ class OLAPCube
     @method newFromSavedState
       Deserializes a previously stringified OLAPCube and returns a new OLAPCube.
 
-      See `stringify()` documentation for a detailed example.
+      See `getStateForSaving()` documentation for a detailed example.
 
       Note, if you have specified config.keepFacts = true, the values for the facts will be restored, however, they
       will no longer be references to the original facts. For this reason, it's usually better to include a `values` or
