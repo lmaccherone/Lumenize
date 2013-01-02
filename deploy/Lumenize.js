@@ -8009,7 +8009,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
     
           tisc.addSnapshots(snapshots, startOn, endBefore)
     
-      Now, let's restore from saved state into tisc2.
+      Now, let's restore from saved state into tisc2 and give it the same updates and confirm that they match.
     
           tisc2 = TimeInStateCalculator.newFromSavedState(savedState)
           tisc2.addSnapshots(snapshots, startOn, endBefore)
@@ -8139,8 +8139,8 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
 
     TimeInStateCalculator.prototype.getStateForSaving = function(meta) {
       /*
-          @method getState
-            Enables saving the state of this calculator.
+          @method getStateForSaving
+            Enables saving the state of this calculator. See class documentation for a detailed example.
           @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
             within the deserialized calculator.
           @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
@@ -8163,9 +8163,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
     TimeInStateCalculator.newFromSavedState = function(p) {
       /*
           @method newFromSavedState
-            Deserializes a previously saved calculator and returns a new calculator.
-      
-            See `getStateForSaving()` documentation for a detailed example.
+            Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
           @static
           @param {String/Object} p A String or Object from a previously saved OLAPCube state
           @return {TimeInStateCalculator}
@@ -9109,14 +9107,14 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       }
     };
 
-    OLAPCube.prototype.stringify = function(meta) {
+    OLAPCube.prototype.getStateForSaving = function(meta) {
       /*
-          @method stringify
-            Enables the serialization of an OLAPCube.
+          @method getStateForSaving
+            Enables saving the state of an OLAPCube.
           @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
             within the deserialized OLAPCube
-          @return {String} Returns a String representing the state of the OLAPCube. This String is suitable for saving to
-            disk. Use the static method `newFromSavedState()` on this string to reconstitute the OLAPCube.
+          @return {Object} Returns an Ojbect representing the state of the OLAPCube. This Object is suitable for saving to
+            to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute the OLAPCube.
       
               facts = [
                 {ProjectHierarchy: [1, 2, 3], Priority: 1},
@@ -9136,8 +9134,8 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
               originalCube = new OLAPCube(config, facts)
       
               dateString = '2012-12-27T12:34:56.789Z'
-              saveString = originalCube.stringify({upToDate: dateString})
-              restoredCube = OLAPCube.newFromSavedState(saveString)
+              savedState = originalCube.getStateForSaving({upToDate: dateString})
+              restoredCube = OLAPCube.newFromSavedState(savedState)
       
               newFacts = [
                 {ProjectHierarchy: [5], Priority: 3},
@@ -9151,21 +9149,6 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       
               console.log(restoredCube.meta.upToDate)
               # 2012-12-27T12:34:56.789Z
-      */
-
-      var out;
-      out = this.getStateForSaving(meta);
-      return JSON.stringify(out);
-    };
-
-    OLAPCube.prototype.getStateForSaving = function(meta) {
-      /*
-          @method getState
-            Enables saving the state of an OLAPCube. See `stringify()` for example usage.
-          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
-            within the deserialized OLAPCube
-          @return {Object} Returns an Ojbect representing the state of the OLAPCube. This Object is suitable for saving to
-            to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute the OLAPCube.
       */
 
       var out;

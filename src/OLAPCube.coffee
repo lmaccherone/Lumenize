@@ -692,14 +692,14 @@ class OLAPCube
     else
       return padding + s
 
-  stringify: (meta) ->
+  getStateForSaving: (meta) ->
     ###
-    @method stringify
-      Enables the serialization of an OLAPCube.
+    @method getStateForSaving
+      Enables saving the state of an OLAPCube.
     @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
       within the deserialized OLAPCube
-    @return {String} Returns a String representing the state of the OLAPCube. This String is suitable for saving to
-      disk. Use the static method `newFromSavedState()` on this string to reconstitute the OLAPCube.
+    @return {Object} Returns an Ojbect representing the state of the OLAPCube. This Object is suitable for saving to
+      to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute the OLAPCube.
 
         facts = [
           {ProjectHierarchy: [1, 2, 3], Priority: 1},
@@ -719,8 +719,8 @@ class OLAPCube
         originalCube = new OLAPCube(config, facts)
 
         dateString = '2012-12-27T12:34:56.789Z'
-        saveString = originalCube.stringify({upToDate: dateString})
-        restoredCube = OLAPCube.newFromSavedState(saveString)
+        savedState = originalCube.getStateForSaving({upToDate: dateString})
+        restoredCube = OLAPCube.newFromSavedState(savedState)
 
         newFacts = [
           {ProjectHierarchy: [5], Priority: 3},
@@ -734,18 +734,6 @@ class OLAPCube
 
         console.log(restoredCube.meta.upToDate)
         # 2012-12-27T12:34:56.789Z
-    ###
-    out = @getStateForSaving(meta)
-    return JSON.stringify(out)
-
-  getStateForSaving: (meta) ->
-    ###
-    @method getState
-      Enables saving the state of an OLAPCube. See `stringify()` for example usage.
-    @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
-      within the deserialized OLAPCube
-    @return {Object} Returns an Ojbect representing the state of the OLAPCube. This Object is suitable for saving to
-      to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute the OLAPCube.
     ###
     out =
       config: @config

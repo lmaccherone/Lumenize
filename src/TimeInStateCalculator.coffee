@@ -72,7 +72,7 @@ class TimeInStateCalculator
 
       tisc.addSnapshots(snapshots, startOn, endBefore)
 
-  Now, let's restore from saved state into tisc2.
+  Now, let's restore from saved state into tisc2 and give it the same updates and confirm that they match.
 
       tisc2 = TimeInStateCalculator.newFromSavedState(savedState)
       tisc2.addSnapshots(snapshots, startOn, endBefore)
@@ -169,8 +169,8 @@ class TimeInStateCalculator
 
   getStateForSaving: (meta) ->
     ###
-    @method getState
-      Enables saving the state of this calculator.
+    @method getStateForSaving
+      Enables saving the state of this calculator. See class documentation for a detailed example.
     @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
       within the deserialized calculator.
     @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
@@ -188,9 +188,7 @@ class TimeInStateCalculator
   @newFromSavedState: (p) ->
     ###
     @method newFromSavedState
-      Deserializes a previously saved calculator and returns a new calculator.
-
-      See `getStateForSaving()` documentation for a detailed example.
+      Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
     @static
     @param {String/Object} p A String or Object from a previously saved OLAPCube state
     @return {TimeInStateCalculator}
