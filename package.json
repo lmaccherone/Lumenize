@@ -39,7 +39,7 @@
     "fileify-lm": "~0.3.1"
   },
   "scripts": {
-    "test": "cake test-all"
+    "test": "cake testall"
   },
   "licenses": [
     {
