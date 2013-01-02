@@ -8219,7 +8219,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     
       * In-memory
       * Incrementally-updateable
-      * Serialize (`stringify()`) and deserialize (`newFromSavedState()`) to preserve aggregations between sessions
+      * Serialize (`getStateForSaving()`) and deserialize (`newFromSavedState()`) to preserve aggregations between sessions
       * Accepts simple JavaScript Objects as facts
       * Storage and output as simple JavaScript Arrays of Objects
       * Hierarchy (trees) derived from fact data assuming [materialized path](http://en.wikipedia.org/wiki/Materialized_path)
@@ -8331,7 +8331,8 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           #     [5] |       1 |       1 |         |
     
       Or you can just call `toString()` method which extracts a 2D slice for tabular display. Both approachs will work on
-      cubes of any number of dimensions two or greater.
+      cubes of any number of dimensions two or greater. The manual example above extracted the `count` metric. We'll tell
+      the example below to extract the `Scope` metric.
     
           console.log(cube.toString('ProjectHierarchy', 'Priority', 'Scope'))
           # |        || Total |     1     2|
@@ -8454,7 +8455,8 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
             all dimensions. This setting can have a significant impact on the memory usage and performance of the OLAPCube so
             if things are tight, only use it if you really need it.
           @cfg {Boolean} [keepFacts=false] Setting this will cause the OLAPCube to keep track of the facts that contributed to
-            the metrics for each cell by adding an automatic 'facts' metric.
+            the metrics for each cell by adding an automatic 'facts' metric. Note, facts are restored after deserialization
+            as you would expect, but they are no longer tied to the original facts.
       */
 
       this.cells = [];
