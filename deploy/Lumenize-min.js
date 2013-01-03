@@ -8430,7 +8430,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
                 {field: 'tagDimensionField'}
               ]
       
-          @cfg {Object[]} metrics (required) Array which specifies the metrics to calculate for each cell in the cube.
+          @cfg {Object[]} [metrics] (required) Array which specifies the metrics to calculate for each cell in the cube.
       
             Example:
       
@@ -8459,6 +8459,10 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
             as you would expect, but they are no longer tied to the original facts.
       */
 
+      utils.assert(this.config.dimensions != null, 'Must provide config.dimensions.');
+      if (this.config.metrics == null) {
+        this.config.metrics = [];
+      }
       this.cells = [];
       this.cellIndex = {};
       this.virgin = true;

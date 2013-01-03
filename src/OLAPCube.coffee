@@ -229,7 +229,7 @@ class OLAPCube
           {field: 'tagDimensionField'}
         ]
 
-    @cfg {Object[]} metrics (required) Array which specifies the metrics to calculate for each cell in the cube.
+    @cfg {Object[]} [metrics=[]] (required) Array which specifies the metrics to calculate for each cell in the cube.
 
       Example:
 
@@ -257,6 +257,9 @@ class OLAPCube
       the metrics for each cell by adding an automatic 'facts' metric. Note, facts are restored after deserialization
       as you would expect, but they are no longer tied to the original facts.
     ###
+    utils.assert(@config.dimensions?, 'Must provide config.dimensions.')
+    unless @config.metrics?
+      @config.metrics = []
     @cells = []
     @cellIndex = {}
     @virgin = true

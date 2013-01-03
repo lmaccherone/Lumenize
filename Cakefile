@@ -70,6 +70,7 @@ task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
 )
 
 task('pub-docs', 'Push master to gh-pages on github', () ->
+  invoke('docs')
   pubDocsRaw()
 )
 
@@ -170,6 +171,6 @@ task('test', 'Run the CoffeeScript test suite with nodeunit', () ->
 )
 
 task('testall', 'Run tests and doctests', () ->
+  runSync('cake doctest')
   invoke('test')
-  invoke('doctest')
 )
