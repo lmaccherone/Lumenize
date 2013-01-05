@@ -3,7 +3,7 @@ OLAPCube = require('./OLAPCube').OLAPCube
 Timeline = require('./Timeline').Timeline
 Time = require('./Time').Time
 
-class TimeInStateCalculator
+class TimeInStateCalculator # implements iCalculator
   ###
   @class TimeInStateCalculator
 

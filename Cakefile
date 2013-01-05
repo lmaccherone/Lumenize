@@ -124,7 +124,7 @@ task('build', 'Build with browserify and place in ./deploy', () ->
   fs.writeFileSync(deployFileName, fileString)
 
   minFileString = uglify.minify(deployFileName).code
-  fs.writeFileSync("deploy/#{name}-min.js", fileString)
+  fs.writeFileSync("deploy/#{name}-min.js", minFileString)
   console.log('done')
   # !TODO: Need to run tests on the built version
 )

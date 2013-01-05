@@ -554,17 +554,22 @@ class OLAPCube
       Returns the single cell matching the supplied filter. Iterating over the unique values for the dimensions of
       interest, you can incrementally retrieve a slice or dice using this method. Since `getCell()` always uses an index,
       in most cases, this is better than using `getCells()` to prefetch a slice or dice.
-    @param {Object} Specifies the constraints for the returned cell in the form of `{field1: value1, field2: value2}.
+    @param {Object} [filter={}] Specifies the constraints for the returned cell in the form of `{field1: value1, field2: value2}.
       Any fields that are specified in config.dimensions that are missing from the filter are automatically filled in
-      with null.
+      with null. Calling `getCell()` with no parameter or `{}` will return the total of all dimensions (if @config.keepTotals=true).
     @return {Object[]} Returns the cell that match the supplied filter
     ###
+    unless filter?
+      filter = {}
     normalizedFilter = {}
     for d in @config.dimensions
       if filter.hasOwnProperty(d.field)
         normalizedFilter[d.field] = filter[d.field]
       else
-        normalizedFilter[d.field] = null
+        if @config.keepTotals?
+          normalizedFilter[d.field] = null
+        else
+          throw new Error('Must set config.keepTotals = true to use getCell with a partial filter.')
     return @cellIndex[JSON.stringify(normalizedFilter)]
 
   getDimensionValues: (field, descending = false) ->

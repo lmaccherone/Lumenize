@@ -5807,7 +5807,7 @@ require.define("/src/Time.coffee",function(require,module,exports,__dirname,__fi
       /*
           @method rataDieNumber
           @return {Number} Returns the counting number for days starting with 0001-01-01 (i.e. 0 AD). Note, this differs
-          from the Uniz Epoch which starts on 1970-01-01. This function works for
+          from the Unix Epoch which starts on 1970-01-01. This function works for
           granularities finer than day (hour, minute, second, millisecond) but ignores the segments of finer granularity than
           day. Also called common era days.
       
@@ -8430,7 +8430,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
                 {field: 'tagDimensionField'}
               ]
       
-          @cfg {Object[]} [metrics] (required) Array which specifies the metrics to calculate for each cell in the cube.
+          @cfg {Object[]} [metrics=[]] (required) Array which specifies the metrics to calculate for each cell in the cube.
       
             Example:
       
@@ -8872,13 +8872,16 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
             Returns the single cell matching the supplied filter. Iterating over the unique values for the dimensions of
             interest, you can incrementally retrieve a slice or dice using this method. Since `getCell()` always uses an index,
             in most cases, this is better than using `getCells()` to prefetch a slice or dice.
-          @param {Object} Specifies the constraints for the returned cell in the form of `{field1: value1, field2: value2}.
+          @param {Object} [filter={}] Specifies the constraints for the returned cell in the form of `{field1: value1, field2: value2}.
             Any fields that are specified in config.dimensions that are missing from the filter are automatically filled in
-            with null.
+            with null. Calling `getCell()` with no parameter or `{}` will return the total of all dimensions (if @config.keepTotals=true).
           @return {Object[]} Returns the cell that match the supplied filter
       */
 
       var d, normalizedFilter, _i, _len, _ref;
+      if (filter == null) {
+        filter = {};
+      }
       normalizedFilter = {};
       _ref = this.config.dimensions;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
@@ -8886,7 +8889,11 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
         if (filter.hasOwnProperty(d.field)) {
           normalizedFilter[d.field] = filter[d.field];
         } else {
-          normalizedFilter[d.field] = null;
+          if (this.config.keepTotals != null) {
+            normalizedFilter[d.field] = null;
+          } else {
+            throw new Error('Must set config.keepTotals = true to use getCell with a partial filter.');
+          }
         }
       }
       return this.cellIndex[JSON.stringify(normalizedFilter)];
