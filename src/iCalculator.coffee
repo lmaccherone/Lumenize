@@ -25,6 +25,10 @@ class iCalculator
       period of interest.
     @return {iCalculator}
     ###
+    if @upToDate?
+      utils.assert(@upToDate == startOn, "startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDate}) to addSnapshots.")
+    @upToDate = endBefore
+    # Do what you need to do
     return this
 
   getResults: () ->
@@ -45,6 +49,7 @@ class iCalculator
       the calculator.
     ###
     out = {}
+    out.upToDate = @upToDate
     if meta?
       out.meta = meta
     # Add whatever you need to fully serialize the state of the calculator
@@ -61,10 +66,10 @@ class iCalculator
     if utils.type(p) is 'string'
       p = JSON.parse(p)
     # calculator = new <your_class_here>(p.config)
-    # Other stuff to restore the calculator state
     if p.meta?
       calculator.meta = p.meta
-
+    # Other stuff to restore the calculator state
+    calculator.upToDate = p.upToDate
     return calculator
 
 exports.iCalculator = iCalculator

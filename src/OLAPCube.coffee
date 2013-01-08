@@ -284,7 +284,7 @@ class OLAPCube
         ]
 
     # determine if values must be kept
-    @mustKeepValuesToAdd = false
+    @mustKeepValuesToAdd = false  # !TODO: If it's slow or a memory hog when this is true, then we could make this field-specific
     for m in @config.metrics
       hasCount = true
       hasSum = false

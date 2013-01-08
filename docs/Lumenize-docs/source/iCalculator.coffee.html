@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
+class iCalculator
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-iCalculator-method-constructor'><span id='Lumenize-iCalculator'>  /**
+</span></span>   * @class Lumenize.iCalculator
+   * 
+   * This serves as documentation for the interface expected of all Lumenize Calculators. You can extend from it but it's
+   * not technically necessary. You are more likely to copy this as the starting point for a new calculator.
+   * 
+   * @constructor
+   * @param {Object} config
+   *   The config properties are up to you.
+   */
+/* &lt;CoffeeScript&gt;
+
+      The config properties are up to you.
+
+  addSnapshots: (snapshots, startOn, endBefore) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-iCalculator-method-addSnapshots'>    /**
+</span>     * @method addSnapshots
+     * @member Lumenize.iCalculator
+     *   Allows you to incrementally add snapshots to this calculator.
+     * @chainable
+     * @param {Object[]} snapshots An array of temporal data model snapshots.
+     * @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+     *   interest. On the second through nth call, this should equal the previous endBefore.
+     * @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+     *   period of interest.
+     * @return {iCalculator}
+     */
+/* &lt;CoffeeScript&gt;
+    if @upToDate?
+      utils.assert(@upToDate == startOn, &quot;startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDate}) to addSnapshots.&quot;)
+    @upToDate = endBefore
+    # Do what you need to do
+    return this
+
+  getResults: () -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-iCalculator-method-getResults'>    /**
+</span>     * @method getResults
+     * @member Lumenize.iCalculator
+     *   Returns the current state of the calculator
+     * @return {Object} The type and format of what it returns is up to you.
+     */
+/* &lt;CoffeeScript&gt;
+
+  getStateForSaving: (meta) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-iCalculator-method-getStateForSaving'>    /**
+</span>     * @method getStateForSaving
+     * @member Lumenize.iCalculator
+     *   Enables saving the state of this calculator. See class documentation for a detailed example.
+     * @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+     *   within the deserialized calculator.
+     * @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+     *   to an object store or LocalCache. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+     *   the calculator.
+     */
+/* &lt;CoffeeScript&gt;
+    out = {}
+    out.upToDate = @upToDate
+    if meta?
+      out.meta = meta
+    # Add whatever you need to fully serialize the state of the calculator
+    return out
+
+  @newFromSavedState: (p) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-iCalculator-static-method-newFromSavedState'>    /**
+</span>     * @method newFromSavedState
+     * @member Lumenize.iCalculator
+     *   Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
+     * @static
+     * @param {String/Object} p A String or Object from a previously saved calculator state
+     * @return {iCalculator}
+     */
+/* &lt;CoffeeScript&gt;
+    if utils.type(p) is 'string'
+      p = JSON.parse(p)
+    # calculator = new &lt;your_class_here&gt;(p.config)
+    if p.meta?
+      calculator.meta = p.meta
+    # Other stuff to restore the calculator state
+    calculator.upToDate = p.upToDate
+    return calculator
+
+exports.iCalculator = iCalculator
+
+&lt;/CoffeeScript&gt; */</pre>
+</body>
+</html>

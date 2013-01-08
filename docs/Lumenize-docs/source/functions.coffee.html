@@ -25,6 +25,9 @@ utils = require('./utils')
 /* &lt;CoffeeScript&gt;
 functions = {}
 
+###
+@var {String[]} functions.INCREMENTAL A list of the function names that can be calculated incrementally
+###
 functions.INCREMENTAL = ['sum', 'sumSquares', 'lastValue', 'count', 'min', 'max', 'values', 'uniqueValues']
 
 &lt;/CoffeeScript&gt; */
@@ -274,6 +277,16 @@ functions.percentileCreator = (p) -&gt;
     return values[k - 1] + d * (values[k] - values[k - 1])
 
 functions.extractFandAs = (a, field) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-static-method-extractFandAs'>  /**
+</span>   * @method extractFandAs
+   * @member Lumenize.functions
+   * @static
+   * @param {Object} a Will look like this `{as: 'mySum', f: 'sum'}`
+   * @param {String} field The name of the field this function operates on
+   * @return {Object} {f: &lt;executable Function&gt;, as: &lt;String name for calculation&gt;}
+   */
+/* &lt;CoffeeScript&gt;
   if a.as?
     as = a.as
   else

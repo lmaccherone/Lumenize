@@ -881,7 +881,7 @@ class Time
 </span>     * @method rataDieNumber
      * @member Lumenize.Time
      * @return {Number} Returns the counting number for days starting with 0001-01-01 (i.e. 0 AD). Note, this differs
-     * from the Uniz Epoch which starts on 1970-01-01. This function works for
+     * from the Unix Epoch which starts on 1970-01-01. This function works for
      * granularities finer than day (hour, minute, second, millisecond) but ignores the segments of finer granularity than
      * day. Also called common era days.
      * 
@@ -927,6 +927,25 @@ class Time
           return (ew + @week - 1) * 7 + 1
         when 'week_day'
           return (ew + @week - 1) * 7 + @week_day
+
+# !TODO: I think the code below should work but the mere adding of a valueOf() method changes the type coercion so 134 tests start failing with this method added. I'll fix the tests and add this method some other time.
+#  @MILLISECONDS_IN_A_MINUTE = 60 * 1000
+#  @MILLISECONDS_IN_AN_HOUR = 60 * Time.MILLISECONDS_IN_A_MINUTE
+#  @MILLISECONDS_IN_A_DAY = 24 * Time.MILLISECONDS_IN_AN_HOUR
+#  valueOf: () -&gt;
+#    ###
+#    @method getTime
+#      Lumenize.Time is not meant to be a drop in replacement for the JavaScript Date() Object. However, it's sometimes
+#      nice to do Date math with operators (e.g. +, -, ==, etc.). This function allows you to compare Date() Objects
+#      to Lumenize.Time Object with these operators. Think of it as poor man's operator overload.
+#    @return {Number} The milliseconds since the Unix Epoch (1970-01-01).
+#
+#        console.log(new Time('1970-01-01').valueOf())
+#        # 0
+#    ###
+#    time = this.inGranularity(Time.MILLISECOND)
+#    days = time.rataDieNumber() - new Time('1970-01-01').rataDieNumber()
+#    return days * Time.MILLISECONDS_IN_A_DAY + time.hour * Time.MILLISECONDS_IN_AN_HOUR + time.minute * Time.MILLISECONDS_IN_A_MINUTE + Time.second * 1000 + Time.millisecond
 
   inGranularity: (granularity) -&gt;
 &lt;/CoffeeScript&gt; */

@@ -2,10 +2,28 @@ utils = require('./utils')
 
 ###
 @class functions
+
+Rules about dependencies
+  * If a function can be calculated incrementally from an oldResult and newValues, then you do not need to specify dependencies
+  * If a funciton can be calculated from other incrementally calculable results, then you need only specify those dependencies
+  * If a function a full list of values to be calculated (like percentile coverage), then you must specify 'values'
+  * To support the direct passing in of OLAP cube cells, you can provide a prefix (field name) so the key in dependentValues can be generated
+  * 'count' is special and does not use a prefix because it is not dependent up a particular field
+  * You should calculate the dependencies before you calculate the thing that is depedent. The OLAP cube does some checking to confirm you've done this.
 ###
 functions = {}
 
-functions.INCREMENTAL = ['sum', 'sumSquares', 'lastValue', 'count', 'min', 'max', 'values', 'uniqueValues']
+functions.INCREMENTAL = ['sum', 'sumSquares', 'lastValue', 'count', 'min', 'max', 'values', 'uniqueValues']  # !TODO: remove this once dependencies is implemented
+
+_populateDependentValues = (values, dependencies, dependentValues = {}, prefix = '') ->
+  for d in dependencies
+    if d is 'count'
+      key = d
+    else
+      key = prefix + d
+    unless dependentValues[key]?
+      dependentValues[key] = functions[d](values, undefined, undefined, dependentValues, prefix)
+  return dependentValues
 
 ###
 @method sum
@@ -155,12 +173,11 @@ functions.uniqueValues = (values, oldResult, newValues) ->
 @param {Number[]} values
 @return {Number} The arithmetic mean
 ###
-functions.average = (values) ->
-  count = values.length
-  sum = 0
-  for v in values
-    sum += v
+functions.average = (values, oldResult, newValues, dependentValues, prefix) ->
+  {count, sum} = _populateDependentValues(values, functions.average.dependencies, dependentValues, prefix)
   return sum / count
+
+functions.average.dependencies = ['count', 'sum']
 
 ###
 @method variance
@@ -168,14 +185,11 @@ functions.average = (values) ->
 @param {Number[]} values
 @return {Number} The variance
 ###
-functions.variance = (values) ->
-  n = values.length
-  sum = 0
-  sumSquares = 0
-  for v in values
-    sum += v
-    sumSquares += v * v
-  return (n * sumSquares - sum * sum) / (n * (n - 1))
+functions.variance = (values, oldResult, newValues, dependentValues, prefix) ->
+  {count, sum, sumSquares} = _populateDependentValues(values, functions.variance.dependencies, dependentValues, prefix)
+  return (count * sumSquares - sum * sum) / (count * (count - 1))
+
+functions.variance.dependencies = ['count', 'sum', 'sumSquares']
 
 ###
 @method standardDeviation
@@ -183,8 +197,10 @@ functions.variance = (values) ->
 @param {Number[]} values
 @return {Number} The standard deviation
 ###
-functions.standardDeviation = (values) ->
-  return Math.sqrt(functions.variance(values))
+functions.standardDeviation = (values, oldResult, newValues, dependentValues, prefix) ->
+  return Math.sqrt(functions.variance(values, oldResult, newValues, dependentValues, prefix))
+
+functions.standardDeviation.dependencies = functions.variance.dependencies
 
 ###
 @method percentileCreator
@@ -203,7 +219,7 @@ use. The function returned by this `percentileCreator` uses the Excel interpolat
 recommendation and makes the most sense to me.
 ###
 functions.percentileCreator = (p) ->
-  return (values) ->
+  f = (values) ->
     sortfunc = (a, b) ->
       return a - b
     vLength = values.length
@@ -216,8 +232,17 @@ functions.percentileCreator = (p) ->
     if n == vLength
       return values[vLength - 1]
     return values[k - 1] + d * (values[k] - values[k - 1])
+  f.dependencies = ['values']
+  return f
 
 functions.extractFandAs = (a, field) ->
+  ###
+  @method extractFandAs Takes specifications for functions and returns executable Functions
+  @static
+  @param {Object} a Will look like this `{as: 'mySum', f: 'sum'}`
+  @param {String} field The name of the field this function operates on
+  @return {Object} {f: <executable Function>, as: <String name for calculation>}
+  ###
   if a.as?
     as = a.as
   else
@@ -227,6 +252,7 @@ functions.extractFandAs = (a, field) ->
     as = "#{field}_#{a.f}"
   if utils.type(a.f) == 'function'
     f = a.f
+    f.dependencies = ['values']
   else if functions[a.f]?
     f = functions[a.f]
   else if a.f == 'median'

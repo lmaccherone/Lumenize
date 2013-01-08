@@ -245,7 +245,7 @@ class OLAPCube
    *       {field: 'tagDimensionField'}
    *     ]
    * 
-   * @cfg {Object[]} metrics (required) Array which specifies the metrics to calculate for each cell in the cube.
+   * @cfg {Object[]} [metrics=[]] (required) Array which specifies the metrics to calculate for each cell in the cube.
    * 
    *   Example:
    * 
@@ -276,6 +276,9 @@ class OLAPCube
 /* &lt;CoffeeScript&gt;
 
       as you would expect, but they are no longer tied to the original facts.
+    utils.assert(@config.dimensions?, 'Must provide config.dimensions.')
+    unless @config.metrics?
+      @config.metrics = []
     @cells = []
     @cellIndex = {}
     @virgin = true
@@ -300,7 +303,7 @@ class OLAPCube
         ]
 
     # determine if values must be kept
-    @mustKeepValuesToAdd = false
+    @mustKeepValuesToAdd = false  # !TODO: If it's slow or a memory hog when this is true, then we could make this field-specific
     for m in @config.metrics
       hasCount = true
       hasSum = false
@@ -578,18 +581,23 @@ class OLAPCube
      *   Returns the single cell matching the supplied filter. Iterating over the unique values for the dimensions of
      *   interest, you can incrementally retrieve a slice or dice using this method. Since `getCell()` always uses an index,
      *   in most cases, this is better than using `getCells()` to prefetch a slice or dice.
-     * @param {Object} Specifies the constraints for the returned cell in the form of `{field1: value1, field2: value2}.
+     * @param {Object} [filter={}] Specifies the constraints for the returned cell in the form of `{field1: value1, field2: value2}.
      *   Any fields that are specified in config.dimensions that are missing from the filter are automatically filled in
-     *   with null.
+     *   with null. Calling `getCell()` with no parameter or `{}` will return the total of all dimensions (if @config.keepTotals=true).
      * @return {Object[]} Returns the cell that match the supplied filter
      */
 /* &lt;CoffeeScript&gt;
+    unless filter?
+      filter = {}
     normalizedFilter = {}
     for d in @config.dimensions
       if filter.hasOwnProperty(d.field)
         normalizedFilter[d.field] = filter[d.field]
       else
-        normalizedFilter[d.field] = null
+        if @config.keepTotals?
+          normalizedFilter[d.field] = null
+        else
+          throw new Error('Must set config.keepTotals = true to use getCell with a partial filter.')
     return @cellIndex[JSON.stringify(normalizedFilter)]
 
   getDimensionValues: (field, descending = false) -&gt;
@@ -789,7 +797,7 @@ class OLAPCube
      * @member Lumenize.OLAPCube
      *   Deserializes a previously stringified OLAPCube and returns a new OLAPCube.
      * 
-     *   See `stringify()` documentation for a detailed example.
+     *   See `getStateForSaving()` documentation for a detailed example.
      * 
      *   Note, if you have specified config.keepFacts = true, the values for the facts will be restored, however, they
      *   will no longer be references to the original facts. For this reason, it's usually better to include a `values` or

@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.5.0
+Lumenize version: 0.5.1
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -4753,6 +4753,8 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
 
   exports.Timeline = Timeline.Timeline;
 
+  exports.iCalculator = require('./src/iCalculator').iCalculator;
+
   exports.TimeInStateCalculator = require('./src/TimeInStateCalculator').TimeInStateCalculator;
 
   datatransform = require('./src/dataTransform');
@@ -4790,6 +4792,8 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
   exports.histogram = require('./src/histogram').histogram;
 
   exports.OLAPCube = require('./src/OLAPCube').OLAPCube;
+
+  exports.utils = require('./src/utils');
 
 }).call(this);
 
@@ -7929,6 +7933,103 @@ require.define("/src/Timeline.coffee",function(require,module,exports,__dirname,
 
 });
 
+require.define("/src/iCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var iCalculator;
+
+  iCalculator = (function() {
+    /*
+      @class iCalculator
+    
+      This serves as documentation for the interface expected of all Lumenize Calculators. You can extend from it but it's
+      not technically necessary. You are more likely to copy this as the starting point for a new calculator.
+    */
+
+    function iCalculator(config) {
+      this.config = config;
+      /*
+          @constructor
+          @param {Object} config
+            The config properties are up to you.
+      */
+
+    }
+
+    iCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore) {
+      /*
+          @method addSnapshots
+            Allows you to incrementally add snapshots to this calculator.
+          @chainable
+          @param {Object[]} snapshots An array of temporal data model snapshots.
+          @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+            interest. On the second through nth call, this should equal the previous endBefore.
+          @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+            period of interest.
+          @return {iCalculator}
+      */
+      if (this.upToDate != null) {
+        utils.assert(this.upToDate === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDate + ") to addSnapshots.");
+      }
+      this.upToDate = endBefore;
+      return this;
+    };
+
+    iCalculator.prototype.getResults = function() {
+      /*
+          @method getResults
+            Returns the current state of the calculator
+          @return {Object} The type and format of what it returns is up to you.
+      */
+
+    };
+
+    iCalculator.prototype.getStateForSaving = function(meta) {
+      /*
+          @method getStateForSaving
+            Enables saving the state of this calculator. See class documentation for a detailed example.
+          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+            within the deserialized calculator.
+          @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+            to an object store or LocalCache. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+            the calculator.
+      */
+
+      var out;
+      out = {};
+      out.upToDate = this.upToDate;
+      if (meta != null) {
+        out.meta = meta;
+      }
+      return out;
+    };
+
+    iCalculator.newFromSavedState = function(p) {
+      /*
+          @method newFromSavedState
+            Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
+          @static
+          @param {String/Object} p A String or Object from a previously saved calculator state
+          @return {iCalculator}
+      */
+      if (utils.type(p) === 'string') {
+        p = JSON.parse(p);
+      }
+      if (p.meta != null) {
+        calculator.meta = p.meta;
+      }
+      calculator.upToDate = p.upToDate;
+      return calculator;
+    };
+
+    return iCalculator;
+
+  })();
+
+  exports.iCalculator = iCalculator;
+
+}).call(this);
+
+});
+
 require.define("/src/TimeInStateCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
   var OLAPCube, Time, TimeInStateCalculator, Timeline, utils;
 
@@ -7954,14 +8055,14 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
           {TimeInStateCalculator} = require('../')
     
           snapshots = [ 
-            { id: 1, from: '2011-01-06T15:10:00.000Z', to: '2011-01-06T15:30:00.000Z' }, # 20 minutes all within an hour
-            { id: 2, from: '2011-01-06T15:50:00.000Z', to: '2011-01-06T16:10:00.000Z' }, # 20 minutes spanning an hour
-            { id: 3, from: '2011-01-07T13:00:00.000Z', to: '2011-01-07T15:20:00.000Z' }, # start 2 hours before but overlap by 20 minutes of start
-            { id: 4, from: '2011-01-06T16:40:00.000Z', to: '2011-01-06T19:00:00.000Z' }, # 20 minutes before end of day
-            { id: 5, from: '2011-01-06T16:50:00.000Z', to: '2011-01-07T15:10:00.000Z' }, # 10 minutes before end of one day and 10 before the start of next
-            { id: 6, from: '2011-01-06T16:55:00.000Z', to: '2011-01-07T15:05:00.000Z' }, # multiple cycles over several days for a total of 20 minutes of work time
-            { id: 6, from: '2011-01-07T16:55:00.000Z', to: '2011-01-10T15:05:00.000Z' }, 
-            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z' }  # extends beyond scope of initial analysis
+            { id: 1, from: '2011-01-06T15:10:00.000Z', to: '2011-01-06T15:30:00.000Z', Name: '1.0' }, # 20 minutes all within an hour
+            { id: 2, from: '2011-01-06T15:50:00.000Z', to: '2011-01-06T16:10:00.000Z', Name: '2.0' }, # 20 minutes spanning an hour
+            { id: 3, from: '2011-01-07T13:00:00.000Z', to: '2011-01-07T15:20:00.000Z', Name: '3.0' }, # start 2 hours before but overlap by 20 minutes of start
+            { id: 4, from: '2011-01-06T16:40:00.000Z', to: '2011-01-06T19:00:00.000Z', Name: '4.0' }, # 20 minutes before end of day
+            { id: 5, from: '2011-01-06T16:50:00.000Z', to: '2011-01-07T15:10:00.000Z', Name: '5.0' }, # 10 minutes before end of one day and 10 before the start of next
+            { id: 6, from: '2011-01-06T16:55:00.000Z', to: '2011-01-07T15:05:00.000Z', Name: '6.0' }, # multiple cycles over several days for a total of 20 minutes of work time
+            { id: 6, from: '2011-01-07T16:55:00.000Z', to: '2011-01-10T15:05:00.000Z', Name: '6.1' },
+            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: '7.0' }  # continues past the range of consideration in this test
           ]
           
           granularity = 'minute'
@@ -7976,6 +8077,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
             validFromField: 'from'
             validToField: 'to'
             uniqueIDField: 'id'
+            trackLastValueForTheseFields: ['to', 'Name']
     
           startOn = '2011-01-05T00:00:00.000Z'
           endBefore = '2011-01-11T00:00:00.000Z'
@@ -7984,13 +8086,34 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
           tisc.addSnapshots(snapshots, startOn, endBefore)
     
           console.log(tisc.getResults())
-          # [ { id: 1, ticks: 20, lastValidTo: '2011-01-06T15:30:00.000Z' },
-          #   { id: 2, ticks: 20, lastValidTo: '2011-01-06T16:10:00.000Z' },
-          #   { id: 3, ticks: 20, lastValidTo: '2011-01-07T15:20:00.000Z' },
-          #   { id: 4, ticks: 20, lastValidTo: '2011-01-06T19:00:00.000Z' },
-          #   { id: 5, ticks: 20, lastValidTo: '2011-01-07T15:10:00.000Z' },
-          #   { id: 6, ticks: 20, lastValidTo: '2011-01-10T15:05:00.000Z' },
-          #   { id: 7, ticks: 260, lastValidTo: '9999-01-01T00:00:00.000Z' } ]
+          # [ { id: 1,
+          #     ticks: 20,
+          #     to_lastValue: '2011-01-06T15:30:00.000Z',
+          #     Name_lastValue: '1.0' },
+          #   { id: 2,
+          #     ticks: 20,
+          #     to_lastValue: '2011-01-06T16:10:00.000Z',
+          #     Name_lastValue: '2.0' },
+          #   { id: 3,
+          #     ticks: 20,
+          #     to_lastValue: '2011-01-07T15:20:00.000Z',
+          #     Name_lastValue: '3.0' },
+          #   { id: 4,
+          #     ticks: 20,
+          #     to_lastValue: '2011-01-06T19:00:00.000Z',
+          #     Name_lastValue: '4.0' },
+          #   { id: 5,
+          #     ticks: 20,
+          #     to_lastValue: '2011-01-07T15:10:00.000Z',
+          #     Name_lastValue: '5.0' },
+          #   { id: 6,
+          #     ticks: 20,
+          #     to_lastValue: '2011-01-10T15:05:00.000Z',
+          #     Name_lastValue: '6.1' },
+          #   { id: 7,
+          #     ticks: 260,
+          #     to_lastValue: '9999-01-01T00:00:00.000Z',
+          #     Name_lastValue: '7.0' } ]
     
       But we are not done yet. We can serialize the state of this calculator and later restore it.
     
@@ -7999,9 +8122,9 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
       Let's incrementally update the original.
     
           snapshots = [
-            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z' },  # same snapshot as before still going
-            { id: 3, from: '2011-01-11T15:00:00.000Z', to: '2011-01-11T15:20:00.000Z' },  # 20 more minutes for id 3
-            { id: 8, from: '2011-01-11T15:00:00.000Z', to: '9999-01-01T00:00:00.000Z' }   # 20 minutes in scope for new id 8
+            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: '7.1' },  # same snapshot as before still going
+            { id: 3, from: '2011-01-11T15:00:00.000Z', to: '2011-01-11T15:20:00.000Z', Name: '3.1' },  # 20 more minutes for id 3
+            { id: 8, from: '2011-01-11T15:00:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: '8.0' }   # 20 minutes in scope for new id 8
           ]
     
           startOn = '2011-01-11T00:00:00.000Z'  # must match endBefore of prior call
@@ -8022,20 +8145,17 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
     */
 
     function TimeInStateCalculator(config) {
-      var cubeConfig, dimensions, metrics;
-      this.config = config;
       /*
           @constructor
           @param {Object} config
           @cfg {String} tz The timezone for analysis
-          @cfg {String} validFromField
-          @cfg {String} validToField
-          @cfg {String} uniqueIDField
+          @cfg {String} [validFromField = "_ValidFrom"]
+          @cfg {String} [validToField = "_ValidTo"]
+          @cfg {String} [uniqueIDField = "ObjectID"]
           @cfg {String} granularity This calculator will tell you how many ticks fall within the snapshots you feed in.
              This configuration value indicates the granularity of the ticks (i.e. Time.MINUTE, Time.HOUR, Time.DAY, etc.)
-          @cfg {String[]/String} [workDays] List of days of the week that you work on. You can specify this as an Array of Strings
+          @cfg {String[]/String} [workDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']] List of days of the week that you work on. You can specify this as an Array of Strings
              (['Monday', 'Tuesday', ...]) or a single comma seperated String ("Monday,Tuesday,...").
-             Defaults to ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].
           @cfg {Object[]} [holidays] An optional Array containing rows that are either ISOStrings or JavaScript Objects
             (mix and match). Example: `[{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, "2012-12-24"]`
              Notice how you can leave off the year if the holiday falls on the same day every year.
@@ -8048,8 +8168,22 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
              Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
              than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
              the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
+          @cfg {String[]} [trackLastValueForTheseFields] If provided, the last value of these fields will be tracked.
       */
 
+      var cubeConfig, dimensions, fieldName, metricObject, metrics, _i, _len, _ref;
+      this.config = utils.clone(config);
+      if (this.config.validFromField == null) {
+        this.config.validFromField = "_ValidFrom";
+      }
+      if (this.config.validToField == null) {
+        this.config.validToField = "_ValidTo";
+      }
+      if (this.config.uniqueIDField == null) {
+        this.config.uniqueIDField = "ObjectID";
+      }
+      utils.assert(this.config.tz != null, "Must provide a timezone to this calculator.");
+      utils.assert(this.config.granularity != null, "Must provide a granularity to this calculator.");
       dimensions = [
         {
           field: this.config.uniqueIDField
@@ -8064,16 +8198,21 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
               f: 'sum'
             }
           ]
-        }, {
-          field: this.config.validToField,
-          metrics: [
-            {
-              as: 'lastValidTo',
-              f: 'lastValue'
-            }
-          ]
         }
       ];
+      if (this.config.trackLastValueForTheseFields != null) {
+        metricObject = {
+          f: 'lastValue'
+        };
+        _ref = this.config.trackLastValueForTheseFields;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          fieldName = _ref[_i];
+          metrics.push({
+            field: fieldName,
+            metrics: [metricObject]
+          });
+        }
+      }
       cubeConfig = {
         dimensions: dimensions,
         metrics: metrics
@@ -8120,7 +8259,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
           @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
       */
 
-      var cell, filter, id, out, outRow, uniqueIDs, _i, _len;
+      var cell, fieldName, filter, id, out, outRow, uniqueIDs, _i, _j, _len, _len1, _ref;
       out = [];
       uniqueIDs = this.cube.getDimensionValues(this.config.uniqueIDField);
       for (_i = 0, _len = uniqueIDs.length; _i < _len; _i++) {
@@ -8131,7 +8270,13 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
         outRow = {};
         outRow[this.config.uniqueIDField] = id;
         outRow.ticks = cell.__metrics.ticks;
-        outRow.lastValidTo = cell.__metrics.lastValidTo;
+        if (this.config.trackLastValueForTheseFields != null) {
+          _ref = this.config.trackLastValueForTheseFields;
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            fieldName = _ref[_j];
+            outRow[fieldName + '_lastValue'] = cell.__metrics[fieldName + '_lastValue'];
+          }
+        }
         out.push(outRow);
       }
       return out;
@@ -9234,18 +9379,48 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
 });
 
 require.define("/src/functions.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var functions, utils;
+  var functions, utils, _populateDependentValues;
 
   utils = require('./utils');
 
   /*
   @class functions
+  
+  Rules about dependencies
+    * If a function can be calculated incrementally from an oldResult and newValues, then you do not need to specify dependencies
+    * If a funciton can be calculated from other incrementally calculable results, then you need only specify those dependencies
+    * If a function a full list of values to be calculated (like percentile coverage), then you must specify 'values'
+    * To support the direct passing in of OLAP cube cells, you can provide a prefix (field name) so the key in dependentValues can be generated
+    * 'count' is special and does not use a prefix because it is not dependent up a particular field
+    * You should calculate the dependencies before you calculate the thing that is depedent. The OLAP cube does some checking to confirm you've done this.
   */
 
 
   functions = {};
 
   functions.INCREMENTAL = ['sum', 'sumSquares', 'lastValue', 'count', 'min', 'max', 'values', 'uniqueValues'];
+
+  _populateDependentValues = function(values, dependencies, dependentValues, prefix) {
+    var d, key, _i, _len;
+    if (dependentValues == null) {
+      dependentValues = {};
+    }
+    if (prefix == null) {
+      prefix = '';
+    }
+    for (_i = 0, _len = dependencies.length; _i < _len; _i++) {
+      d = dependencies[_i];
+      if (d === 'count') {
+        key = d;
+      } else {
+        key = prefix + d;
+      }
+      if (dependentValues[key] == null) {
+        dependentValues[key] = functions[d](values, void 0, void 0, dependentValues, prefix);
+      }
+    }
+    return dependentValues;
+  };
 
   /*
   @method sum
@@ -9448,16 +9623,13 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   */
 
 
-  functions.average = function(values) {
-    var count, sum, v, _i, _len;
-    count = values.length;
-    sum = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      sum += v;
-    }
+  functions.average = function(values, oldResult, newValues, dependentValues, prefix) {
+    var count, sum, _ref;
+    _ref = _populateDependentValues(values, functions.average.dependencies, dependentValues, prefix), count = _ref.count, sum = _ref.sum;
     return sum / count;
   };
+
+  functions.average.dependencies = ['count', 'sum'];
 
   /*
   @method variance
@@ -9467,18 +9639,13 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   */
 
 
-  functions.variance = function(values) {
-    var n, sum, sumSquares, v, _i, _len;
-    n = values.length;
-    sum = 0;
-    sumSquares = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      sum += v;
-      sumSquares += v * v;
-    }
-    return (n * sumSquares - sum * sum) / (n * (n - 1));
+  functions.variance = function(values, oldResult, newValues, dependentValues, prefix) {
+    var count, sum, sumSquares, _ref;
+    _ref = _populateDependentValues(values, functions.variance.dependencies, dependentValues, prefix), count = _ref.count, sum = _ref.sum, sumSquares = _ref.sumSquares;
+    return (count * sumSquares - sum * sum) / (count * (count - 1));
   };
+
+  functions.variance.dependencies = ['count', 'sum', 'sumSquares'];
 
   /*
   @method standardDeviation
@@ -9488,9 +9655,11 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   */
 
 
-  functions.standardDeviation = function(values) {
-    return Math.sqrt(functions.variance(values));
+  functions.standardDeviation = function(values, oldResult, newValues, dependentValues, prefix) {
+    return Math.sqrt(functions.variance(values, oldResult, newValues, dependentValues, prefix));
   };
+
+  functions.standardDeviation.dependencies = functions.variance.dependencies;
 
   /*
   @method percentileCreator
@@ -9511,7 +9680,8 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
 
 
   functions.percentileCreator = function(p) {
-    return function(values) {
+    var f;
+    f = function(values) {
       var d, k, n, sortfunc, vLength;
       sortfunc = function(a, b) {
         return a - b;
@@ -9529,9 +9699,19 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
       }
       return values[k - 1] + d * (values[k] - values[k - 1]);
     };
+    f.dependencies = ['values'];
+    return f;
   };
 
   functions.extractFandAs = function(a, field) {
+    /*
+      @method extractFandAs Takes specifications for functions and returns executable Functions
+      @static
+      @param {Object} a Will look like this `{as: 'mySum', f: 'sum'}`
+      @param {String} field The name of the field this function operates on
+      @return {Object} {f: <executable Function>, as: <String name for calculation>}
+    */
+
     var as, f, p;
     if (a.as != null) {
       as = a.as;
@@ -9544,6 +9724,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     }
     if (utils.type(a.f) === 'function') {
       f = a.f;
+      f.dependencies = ['values'];
     } else if (functions[a.f] != null) {
       f = functions[a.f];
     } else if (a.f === 'median') {

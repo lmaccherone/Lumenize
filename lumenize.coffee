@@ -162,6 +162,7 @@ Timeline = require('./src/Timeline')
 exports.TimelineIterator = Timeline.TimelineIterator
 exports.Timeline = Timeline.Timeline
 
+exports.iCalculator = require('./src/iCalculator').iCalculator
 exports.TimeInStateCalculator = require('./src/TimeInStateCalculator').TimeInStateCalculator
 
 datatransform = require('./src/dataTransform')
@@ -187,4 +188,6 @@ exports.deriveFieldsAt = derive.deriveFieldsAt
 exports.histogram = require('./src/histogram').histogram
 
 exports.OLAPCube = require('./src/OLAPCube').OLAPCube
+
+exports.utils = require('./src/utils')
 
