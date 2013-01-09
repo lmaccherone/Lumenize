@@ -24,10 +24,8 @@ exports.olapTest =
     ]
 
     metrics = [
-      {field: "Points", metrics: [
-        {as: "Scope", f: "sum"},
-        {f: "standardDeviation"}
-      ]}
+      {field: "Points", metric: "sum"},
+      {field: "Points", metric: "standardDeviation"}
     ]
 
     config = {dimensions, metrics}
@@ -38,7 +36,10 @@ exports.olapTest =
     expected = {
       _ProjectHierarchy: null,
       Priority: 1,
-      __metrics: {count: 3, Scope: 30, Points_standardDeviation: 7}
+      _count: 3,
+      Points_sumSquares: 398,
+      Points_sum: 30,
+      Points_standardDeviation: 7
     }
 
     test.deepEqual(expected, cube.getCell({Priority: 1}))
@@ -46,7 +47,10 @@ exports.olapTest =
     expected = {
       _ProjectHierarchy: [ 1 ],
       Priority: null,
-      __metrics: {count: 3, Scope: 18, Points_standardDeviation: 3.605551275463989}
+      _count: 3,
+      Points_sumSquares: 134,
+      Points_sum: 18,
+      Points_standardDeviation: 3.605551275463989
     }
     test.deepEqual(expected, cube.getCell({_ProjectHierarchy: [1]}))
 
@@ -68,7 +72,7 @@ exports.olapTest =
       |[5]     ||    17 |    17      |
     '''
 
-    outString = cube.toString('_ProjectHierarchy', 'Priority', 'Scope')
+    outString = cube.toString('_ProjectHierarchy', 'Priority', 'Points_sum')
     test.equal(expected, outString)
 
     test.done()
@@ -102,38 +106,30 @@ exports.olapTest =
     ]
 
     metrics = [
-      {field: 'field3'},
-      {field: 'field4', metrics: [
-        {as: 'median4', f: 'p50'},
-        {f: 'sum'},
-        {as: 'myCount', f: (values) -> return values.length}
-      ]}
+      {field: 'field3', metric: 'sum'},
+      {field: 'field4', metric: 'p50'}
     ]
 
-    expectedMetrics =
-      'count': 1
-      'facts': [singleFact]
-      'field3_values': [7]
-      'field4_values': [3]
-
     expected = [
-      {singleValueField: 'a', hierarchicalField: ['1'], __metrics: expectedMetrics},
-      {singleValueField: 'a', hierarchicalField: ['1','2'], __metrics: expectedMetrics},
-      {singleValueField: 'a', hierarchicalField: ['1','2','3'], __metrics: expectedMetrics},
-      {singleValueField: 'a', hierarchicalField: null, __metrics: expectedMetrics},
-      {singleValueField: null, hierarchicalField: ['1'], __metrics: expectedMetrics}
-      {singleValueField: null, hierarchicalField: ['1','2'], __metrics: expectedMetrics},
-      {singleValueField: null, hierarchicalField: ['1','2','3'], __metrics: expectedMetrics},
-      {singleValueField: null, hierarchicalField: null, __metrics: expectedMetrics}
+      {singleValueField: 'a', hierarchicalField: ['1'], '_count': 1, '_facts': [singleFact], 'field4_values': [3], field3_sum: 7, field4_p50: 3},
+      {singleValueField: 'a', hierarchicalField: ['1','2'], '_count': 1, '_facts': [singleFact], 'field4_values': [3], field3_sum: 7, field4_p50: 3},
+      {singleValueField: 'a', hierarchicalField: ['1','2','3'], '_count': 1, '_facts': [singleFact], 'field4_values': [3], field3_sum: 7, field4_p50: 3},
+      {singleValueField: 'a', hierarchicalField: null, '_count': 1, '_facts': [singleFact], 'field4_values': [3], field3_sum: 7, field4_p50: 3},
+      {singleValueField: null, hierarchicalField: ['1'], '_count': 1, '_facts': [singleFact], 'field4_values': [3], field3_sum: 7, field4_p50: 3}
+      {singleValueField: null, hierarchicalField: ['1','2'], '_count': 1, '_facts': [singleFact], 'field4_values': [3], field3_sum: 7, field4_p50: 3},
+      {singleValueField: null, hierarchicalField: ['1','2','3'], '_count': 1, '_facts': [singleFact], 'field4_values': [3], field3_sum: 7, field4_p50: 3},
+      {singleValueField: null, hierarchicalField: null, '_count': 1, '_facts': [singleFact], 'field4_values': [3], field3_sum: 7, field4_p50: 3}
     ]
 
     config = {dimensions, metrics}
     config.keepTotals = true
     config.keepFacts = true
 
-    cube = new OLAPCube(config, singleFact)
+    cube = new OLAPCube(config)
     actual = cube._expandFact(singleFact, config)
     test.deepEqual(expected, actual)
+
+    cube.addFacts(singleFact)
 
     expected = [
       {singleValueField: 'a', hierarchicalField: ['1','2']},
@@ -148,176 +144,42 @@ exports.olapTest =
 
   testOLAPCube: (test) ->
     aCSVStyle = [
-      ['field1', 'field2'     , 'field3', 'field4'],
-      ['a'     , ['1','2','3'], 7       , 3       ],
-      ['b'     , ['1','2']    , 70      , 30      ]
+      ['f1', 'f2'         , 'f3', 'f4'],
+      ['a' , ['1','2','3'], 7   , 3   ],
+      ['b' , ['1','2']    , 70  , 30  ]
     ]
 
     facts = csvStyleArray_To_ArrayOfMaps(aCSVStyle)
 
     dimensions = [
-      {field: 'field1'},
-      {field: 'field2', type:'hierarchy'}
+      {field: 'f2', type:'hierarchy'},
+      {field: 'f1'}
     ]
 
     metrics = [
-      {field: 'field3'},  # Default metrics of count, sum, sumSquares
-      {field: 'field4', metrics: [
-        {as: 'median4', f: 'p50'},
-        {f: 'sum'},
-        {as: 'myCount', f: (values) -> return values.length}
-      ]}
+      {field: 'f3', metric: 'sum'},
+      {field: 'f4', metric: 'p50'}
     ]
 
     config = {dimensions, metrics}
     config.keepTotals = true
-    config.keepValues = true
 
-    expected = [
-      {"field1": "a", "field2": ["1"], "__metrics": {
-          "count": 1,
-          "field3_values": [7],
-          "field4_values": [3],
-          "field3_sum": 7,
-          "median4": 3,
-          "field4_sum": 3,
-          "myCount": 1
-        }
-      },
-      {"field1": "a", "field2": ["1", "2"], "__metrics": {
-          "count": 1,
-          "field3_values": [7],
-          "field4_values": [3],
-          "field3_sum": 7,
-          "median4": 3,
-          "field4_sum": 3,
-          "myCount": 1
-        }
-      },
-      {"field1": "a", "field2": ["1", "2", "3"], "__metrics": {
-          "count": 1,
-          "field3_values": [7],
-          "field4_values": [3],
-          "field3_sum": 7,
-          "median4": 3,
-          "field4_sum": 3,
-          "myCount": 1
-        }
-      },
-      {"field1": "a", "field2": null, "__metrics": {
-          "count": 1,
-          "field3_values": [7],
-          "field4_values": [3],
-          "field3_sum": 7,
-          "median4": 3,
-          "field4_sum": 3,
-          "myCount": 1
-        }
-      },
-      {"field1": null, "field2": ["1"], "__metrics": {
-          "count": 2,
-          "field3_values": [7, 70],
-          "field4_values": [3, 30],
-          "field3_sum": 77,
-          "median4": 16.5,
-          "field4_sum": 33,
-          "myCount": 2
-          }
-      },
-      {"field1": null, "field2": ["1", "2"], "__metrics": {
-          "count": 2,
-          "field3_values": [7, 70],
-          "field4_values": [3, 30],
-          "field3_sum": 77,
-          "median4": 16.5,
-          "field4_sum": 33,
-          "myCount": 2
-        }
-      },
-      {"field1": null, "field2": ["1", "2", "3"], "__metrics": {
-          "count": 1,
-          "field3_values": [7],
-          "field4_values": [3],
-          "field3_sum": 7,
-          "median4": 3,
-          "field4_sum": 3,
-          "myCount": 1
-        }
-      },
-      {"field1": null, "field2": null, "__metrics": {
-          "count": 2,
-          "field3_values": [7, 70],
-          "field4_values": [3, 30],
-          "field3_sum": 77,
-          "median4": 16.5,
-          "field4_sum": 33,
-          "myCount": 2
-        }
-      },
-      {"field1": "b", "field2": ["1"], "__metrics": {
-          "count": 1,
-          "field3_values": [70],
-          "field4_values": [30],
-          "field3_sum": 70,
-          "median4": 30,
-          "field4_sum": 30,
-          "myCount": 1
-        }
-      },
-      {"field1": "b", "field2": ["1", "2"], "__metrics": {
-          "count": 1,
-          "field3_values": [70],
-          "field4_values": [30],
-          "field3_sum": 70,
-          "median4": 30,
-          "field4_sum": 30,
-          "myCount": 1
-        }
-      },
-      {"field1": "b", "field2": null, "__metrics": {
-          "count": 1,
-          "field3_values": [70],
-          "field4_values": [30],
-          "field3_sum": 70,
-          "median4": 30,
-          "field4_sum": 30,
-          "myCount": 1
-        }
-      }
-    ]
+    expectedSum = '''
+      |              || Total |   "a"   "b"|
+      |====================================|
+      |Total         ||    77 |     7    70|
+      |------------------------------------|
+      |["1"]         ||    77 |     7    70|
+      |["1","2"]     ||    77 |     7    70|
+      |["1","2","3"] ||     7 |     7      |
+    '''
 
     cube = new OLAPCube(config, facts)
 
-    test.deepEqual(expected, cube.cells)
+    test.deepEqual(expectedSum, cube.toString(undefined, undefined, 'f3_sum'))
 
     expected = undefined
-    test.deepEqual(expected, cube.getCell({field1: "z"}))
-
-    expected = {
-      "field1": "b", "field2": null, "__metrics": {
-        "count": 1,
-        "field3_values": [70],
-        "field4_values": [30],
-        "field3_sum": 70,
-        "median4": 30,
-        "field4_sum": 30,
-        "myCount": 1
-      }
-    }
-    test.deepEqual(expected, cube.getCell({field1: "b"}))
-
-    expected = {
-      "field1": "b", "field2": ["1"], "__metrics": {
-        "count": 1,
-        "field3_values": [70],
-        "field4_values": [30],
-        "field3_sum": 70,
-        "median4": 30,
-        "field4_sum": 30,
-        "myCount": 1
-      }
-    }
-    test.deepEqual(expected, cube.getCell({field1: "b", field2: ["1"]}))
+    test.deepEqual(expected, cube.getCell({f1: "z"}))
 
     test.done()
 
@@ -343,9 +205,7 @@ exports.olapTest =
     ]
 
     metrics = [
-      {field: 'field3', metrics:[
-        {f: 'sum'}
-      ]}
+      {field: 'field3', metric: 'sum'}
     ]
 
     config = {dimensions, metrics}
@@ -353,33 +213,33 @@ exports.olapTest =
     cube = new OLAPCube(config, facts)
 
     expected = [
-      {"field1": "a", "__metrics": {"field3_sum": 3, "count": 1}},
-      {"field1": "b", "__metrics": {"field3_sum": 93, "count": 7}},
-      {"field1": "c", "__metrics": {"field3_sum": 57, "count": 2}}
+      {"field1": "a", "field3_sum": 3, "_count": 1},
+      {"field1": "b", "field3_sum": 93, "_count": 7},
+      {"field1": "c", "field3_sum": 57, "_count": 2}
     ]
 
-    test.deepEqual(expected, cube.cells)
+    test.deepEqual(expected, cube.getCells())
 
     config.keepTotals = true
 
     cube = new OLAPCube(config, facts)
 
     expected = [
-      {"field1": "a", "__metrics": {"field3_sum": 3 , "count": 1}},
-      {"field1": null, "__metrics": {"field3_sum": 153 , "count": 10}},
-      {"field1": "b", "__metrics": {"field3_sum": 93, "count": 7}},
-      {"field1": "c", "__metrics": {"field3_sum": 57, "count": 2}}
+      {"field1": "a", "field3_sum": 3, "_count": 1},
+      {"field1": null, "field3_sum": 153, "_count": 10},
+      {"field1": "b", "field3_sum": 93, "_count": 7},
+      {"field1": "c", "field3_sum": 57, "_count": 2}
     ]
 
-    test.deepEqual(expected, cube.cells)
+    test.deepEqual(expected, cube.getCells())
 
     cube.addFacts({field1:'c', field3:10})
 
     expected = [
-      {"field1": "a", "__metrics": {"field3_sum": 3 , "count": 1}},
-      {"field1": null, "__metrics": {"field3_sum": 163 , "count": 11}},
-      {"field1": "b", "__metrics": {"field3_sum": 93, "count": 7}},
-      {"field1": "c", "__metrics": {"field3_sum": 67, "count": 3}}
+      {"field1": "a", "field3_sum": 3 , "_count": 1},
+      {"field1": null, "field3_sum": 163 , "_count": 11},
+      {"field1": "b", "field3_sum": 93, "_count": 7},
+      {"field1": "c", "field3_sum": 67, "_count": 3}
     ]
 
     test.deepEqual(expected, cube.cells)
@@ -391,243 +251,10 @@ exports.olapTest =
     ])
 
     expected = [
-      {"field1": "a", "__metrics": {"field3_sum": 503 , "count": 2}},
-      {"field1": null, "__metrics": {"field3_sum": 963 , "count": 14}},
-      {"field1": "b", "__metrics": {"field3_sum": 393, "count": 9}},
-      {"field1": "c", "__metrics": {"field3_sum": 67, "count": 3}}
-    ]
-
-    test.deepEqual(expected, cube.cells)
-
-    test.done()
-
-  testVirginVsNonVirginBehaviorWhenMustKeepValues: (test) ->
-    facts = csvStyleArray_To_ArrayOfMaps([
-      ['field1', 'field3',],
-      ['a'     , 3        ],
-      ['a'     , 3        ]
-    ])
-
-    dimensions = [
-      {field: 'field1'}
-    ]
-
-    metrics = [
-      {field: 'field3', metrics:[
-        {f: 'p75'}
-      ]}
-    ]
-
-    config = {dimensions, metrics}
-
-    config.keepValues = false
-
-    expected = [
-      {"field1": "a", "__metrics": {"field3_p75": 3 , "count": 2}},
-    ]
-
-    cube = new OLAPCube(config, facts)
-
-    test.deepEqual(expected, cube.cells)
-
-    f = () ->
-      cube.addFacts({field1: 'a', field3: 3})
-
-    test.throws(f, Error)
-
-    test.done()
-
-  testVirginVsNonVirginBehaviorWhenKeepValuesIsTrue: (test) ->
-    facts = csvStyleArray_To_ArrayOfMaps([
-      ['field1', 'field3',],
-      ['a'     , 3        ],
-      ['a'     , 3        ]
-    ])
-
-    dimensions = [
-      {field: 'field1'}
-    ]
-
-    metrics = [
-      {field: 'field3', metrics:[
-        {f: 'p75'}
-      ]}
-    ]
-
-    config = {dimensions, metrics}
-
-    config.keepValues = true
-
-    expected = [
-      {"field1": "a", "__metrics": {"field3_values": [3, 3], "field3_p75": 3 , "count": 2}},
-    ]
-
-    cube = new OLAPCube(config, facts)
-
-    test.deepEqual(expected, cube.cells)
-
-    cube.addFacts({field1: 'a', field3: 3})
-
-    expected = [
-      {"field1": "a", "__metrics": {"field3_values": [3, 3, 3], "field3_p75": 3 , "count": 3}},
-    ]
-
-    test.deepEqual(expected, cube.cells)
-
-    test.done()
-
-  testAverageButNoSum: (test) ->
-
-    facts = csvStyleArray_To_ArrayOfMaps([
-      ['field1', 'field3',],
-      ['a'     , 3        ],
-      ['a'     , 3        ]
-    ])
-
-    dimensions = [
-      {field: 'field1'}
-    ]
-
-    metrics = [
-      {field: 'field3', metrics:[
-        {f: 'average'}
-      ]}
-    ]
-
-    config = {dimensions, metrics}
-
-    config.keepValues = false
-
-    expected = [
-      {"field1": "a", "__metrics": {"count": 2, "field3_average": 3}}
-    ]
-
-    cube = new OLAPCube(config, facts)
-
-    test.deepEqual(expected, cube.cells)
-
-    f = () ->
-      cube.addFacts({field1: 'a', field3: 3})
-
-    test.throws(f, Error)
-
-    test.done()
-
-  testAddFactsLaterWithAverageAndSumAndCountButNotKeepValues: (test) ->
-
-    facts = csvStyleArray_To_ArrayOfMaps([
-      ['field1', 'field3',],
-      ['a'     , 3        ],
-      ['a'     , 3        ]
-    ])
-
-    dimensions = [
-      {field: 'field1'}
-    ]
-
-    metrics = [
-      {field: 'field3', metrics:[
-        {f: 'average'},
-        {f: 'sum'}
-      ]}
-    ]
-
-    config = {dimensions, metrics}
-
-    config.keepValues = false
-
-    expected = [
-      {"field1": "a", "__metrics": {"count": 2, "field3_sum": 6, "field3_average": 3}}
-    ]
-
-    cube = new OLAPCube(config, facts)
-
-    test.deepEqual(expected, cube.cells)
-
-    cube.addFacts({field1: 'a', field3: 3})
-
-    expected = [
-      {"field1": "a", "__metrics": {"count": 3, "field3_sum": 9, "field3_average": 3}}
-    ]
-
-    test.deepEqual(expected, cube.cells)
-
-    test.done()
-
-  testStandardDeviationButNoSumSquares: (test) ->
-
-    facts = csvStyleArray_To_ArrayOfMaps([
-      ['field1', 'field3',],
-      ['a'     , 3        ],
-      ['a'     , 3        ]
-    ])
-
-    dimensions = [
-      {field: 'field1'}
-    ]
-
-    metrics = [
-      {field: 'field3', metrics:[
-        {f: 'sum'},
-        {f: 'standardDeviation'}
-      ]}
-    ]
-
-    config = {dimensions, metrics}
-
-    config.keepValues = false
-
-    expected = [
-      {"field1": "a", "__metrics": {"count": 2, "field3_sum": 6, "field3_standardDeviation": 0}}
-    ]
-
-    cube = new OLAPCube(config, facts)
-
-    test.deepEqual(expected, cube.cells)
-
-    f = () ->
-      cube.addFacts({field1: 'a', field3: 3})
-
-    test.throws(f, Error)
-
-    test.done()
-
-  testVarianceWithCountSumAndSumSquares: (test) ->
-
-    facts = csvStyleArray_To_ArrayOfMaps([
-      ['field1', 'field3',],
-      ['a'     , 3        ],
-      ['a'     , 3        ]
-    ])
-
-    dimensions = [
-      {field: 'field1'}
-    ]
-
-    metrics = [
-      {field: 'field3', metrics:[
-        {f: 'sum'},
-        {f: 'sumSquares'}
-        {f: 'variance'}
-      ]}
-    ]
-
-    config = {dimensions, metrics}
-
-    config.keepValues = false
-
-    expected = [
-      {"field1": "a", "__metrics": {"count": 2, "field3_sum": 6, "field3_sumSquares": 18, "field3_variance": 0}}
-    ]
-
-    cube = new OLAPCube(config, facts)
-
-    test.deepEqual(expected, cube.cells)
-
-    cube.addFacts({field1: 'a', field3: 3})
-
-    expected = [
-      {"field1": "a", "__metrics": {"count": 3, "field3_sum": 9, "field3_sumSquares": 27, "field3_variance": 0}}
+      {"field1": "a", "field3_sum": 503 , "_count": 2},
+      {"field1": null, "field3_sum": 963 , "_count": 14},
+      {"field1": "b", "field3_sum": 393, "_count": 9},
+      {"field1": "c", "field3_sum": 67, "_count": 3}
     ]
 
     test.deepEqual(expected, cube.cells)
@@ -647,25 +274,28 @@ exports.olapTest =
       {field: "Priority"}
     ]
 
-    config = {dimensions, metrics: []}
+    config = {dimensions}
     config.keepTotals = true
 
     originalCube = new OLAPCube(config, facts)
 
+    console.log(originalCube.config.metrics)
+
     dateString = '2012-12-27T12:34:56.789Z'
     savedState = originalCube.getStateForSaving({upToDate: dateString})
+#    savedState = JSON.stringify(savedState)
     restoredCube = OLAPCube.newFromSavedState(savedState)
-
-    newFacts = [
-      {ProjectHierarchy: [5], Priority: 3},
-      {ProjectHierarchy: [1, 2, 4], Priority: 1}
-    ]
-    originalCube.addFacts(newFacts)
-    restoredCube.addFacts(newFacts)
-
-    test.equal(restoredCube.toString(), originalCube.toString())
-
-    test.equal(dateString, restoredCube.meta.upToDate)
+#
+#    newFacts = [
+#      {ProjectHierarchy: [5], Priority: 3},
+#      {ProjectHierarchy: [1, 2, 4], Priority: 1}
+#    ]
+#    originalCube.addFacts(newFacts)
+#    restoredCube.addFacts(newFacts)
+#
+#    test.equal(restoredCube.toString(), originalCube.toString())
+#
+#    test.equal(dateString, restoredCube.meta.upToDate)
 
     test.done()
 
@@ -682,11 +312,9 @@ exports.olapTest =
     ]
 
     metrics = [
-      {field: 'Priority', metrics: [
-        {f: 'lastValue'},
-        {f: 'min'},
-        {f: 'max'}
-      ]}
+      {field: 'Priority', metric: 'lastValue'},
+      {field: 'Priority', metric: 'min'},
+      {field: 'Priority', metric: 'max'}
     ]
 
     config = {dimensions, metrics}
@@ -700,12 +328,12 @@ exports.olapTest =
 
     cube.addFacts(newFacts)
 
-    test.equal(cube.getCell({ProjectHierarchy: [1]}).__metrics.Priority_lastValue, 8)
-    test.equal(cube.getCell({ProjectHierarchy: [1, 2, 3]}).__metrics.Priority_lastValue, 1)
-    test.equal(cube.getCell({ProjectHierarchy: [5]}).__metrics.Priority_lastValue, 7)
+    test.equal(cube.getCell({ProjectHierarchy: [1]}).Priority_lastValue, 8)
+    test.equal(cube.getCell({ProjectHierarchy: [1, 2, 3]}).Priority_lastValue, 1)
+    test.equal(cube.getCell({ProjectHierarchy: [5]}).Priority_lastValue, 7)
 
     cell = cube.getCell({ProjectHierarchy: [5]})
-    test.equal(cell.__metrics.Priority_min, 3)
-    test.equal(cell.__metrics.Priority_max, 7)
+    test.equal(cell.Priority_min, 3)
+    test.equal(cell.Priority_max, 7)
 
     test.done()

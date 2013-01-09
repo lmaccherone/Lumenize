@@ -28,34 +28,34 @@ exports.histogramTest =
 
     {buckets, chartMax} = histogram(rows, 'age')
     
-    expected = [ 
+    expected = [
       { label: '0-13',  count: 2 },
       { label: '13-26', count: 7 },
       { label: '26-39', count: 6 },
       { label: '39-52', count: 1 },
-      { label: '52-65', count: 1 } 
+      { label: '52-65', count: 1 }
     ]
 
     for b, idx in buckets
       test.ok(utils.match(expected[idx], b))
       for row in b.rows
         test.equal(row.age, row.clippedChartValue)
-      
+
     test.equal(buckets[0].rows[0].age, 7)
-    
+
     # Adding an outlier
     rows.push({age: 85})
 
     {buckets, chartMax} = histogram(rows, 'age')
 
-    expected = [ 
+    expected = [
       { label: '0-17',  count: 4 },
       { label: '17-34', count: 10 },
       { label: '34-51', count: 2 },
       { label: '51-68', count: 1 },
-      { label: '68-86*', count: 1 } 
+      { label: '68-86*', count: 1 }
     ]
-    
+
     for b, idx in buckets
       test.ok(utils.match(expected[idx], b))
       for row in b.rows

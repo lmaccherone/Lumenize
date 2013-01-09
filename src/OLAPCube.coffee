@@ -1,8 +1,6 @@
 utils = require('../src/utils')
 functions = require('./functions').functions
 
-exports.junk = 'hello'
-
 class OLAPCube
   ###
   @class OLAPCube
@@ -201,7 +199,7 @@ class OLAPCube
   Lumenize.TimeInStateCalculator (and other calculators in Lumenize) use this technique.
   ###
 
-  constructor: (@config, facts) ->
+  constructor: (@userConfig, facts) ->
     ###
     @constructor
     @param {Object} config See Config options for details. DO NOT change the config settings after the OLAP class is instantiated.
@@ -247,9 +245,6 @@ class OLAPCube
       add the sum metric to fields with a metrics specification. User-supplied aggregation functions are also supported as
       shown in the 'myCount' metric above.
 
-    @cfg {Boolean} [keepValues=false] Setting this will have a similar effect as including `f: "values"` for all metrics fields.
-      If you are going to incrementally update the OLAPCube, then you are required to set this to true if you are using
-      any functions other than count, sum, sumSquares, variance, or standardDeviation.
     @cfg {Boolean} [keepTotals=false] Setting this will add an additional total row (indicated with field: null) along
       all dimensions. This setting can have a significant impact on the memory usage and performance of the OLAPCube so
       if things are tight, only use it if you really need it.
@@ -257,61 +252,23 @@ class OLAPCube
       the metrics for each cell by adding an automatic 'facts' metric. Note, facts are restored after deserialization
       as you would expect, but they are no longer tied to the original facts.
     ###
+    @config = utils.clone(@userConfig)
     utils.assert(@config.dimensions?, 'Must provide config.dimensions.')
     unless @config.metrics?
       @config.metrics = []
     @cells = []
     @cellIndex = {}
-    @virgin = true
-    @_dirtyCells = []
-    @_dirtyCellIndex = {}
+    @currentValues = {}
     @_dimensionValues = {}  # key: fieldName, value: {} where key: uniqueValue, value: the real key (not stringified)
     for d in @config.dimensions
       @_dimensionValues[d.field] = {}
 
-    unless @config.keepValues
-      @config.keepValues = false
     unless @config.keepTotals
       @config.keepTotals = false
     unless @config.keepFacts
       @config.keepFacts = false
 
-    # add default metrics if not specified
-    for m in @config.metrics
-      unless m.metrics?
-        m.metrics = [
-          {f: 'sum'}
-        ]
-
-    # determine if values must be kept
-    @mustKeepValuesToAdd = false  # !TODO: If it's slow or a memory hog when this is true, then we could make this field-specific
-    for m in @config.metrics
-      hasCount = true
-      hasSum = false
-      hasSumSquares = false
-      for m2 in m.metrics
-        if m2.as is 'count'
-          throw new Error('Your metric definition has `"as": "count" which conflicts with automatic "count" metric.')
-        if m2.as is 'facts' and @config.keepFacts
-          throw new Error('Your metric definition has `"as": "facts" which conflicts with automatic "facts" metric.')
-        switch m2.f
-          when 'count'
-            throw new Error('Count is automatically kept. No need to specify it for a particular field.')
-          when 'sum'
-            hasSum = true
-          when 'sumSquares'
-            hasSumSquares = true
-      for m2 in m.metrics
-        if m2.f in functions.INCREMENTAL
-          # do nothing
-        else if m2.f == 'average'
-          unless hasCount and hasSum
-            @mustKeepValuesToAdd = true
-        else if m2.f in ['variance', 'standardDeviation']
-          unless hasCount and hasSum and hasSumSquares
-            @mustKeepValuesToAdd = true
-        else
-          @mustKeepValuesToAdd = true
+    functions.expandMetrics(@config.metrics, true)
 
     @addFacts(facts)
   
@@ -368,12 +325,12 @@ class OLAPCube
       outRow = {}
       for d, index in @config.dimensions
         outRow[d.field] = possibilitiesArray[index][countdownArray[index]]
-      metricsOut = {count: 1}
+      outRow._count = 1
       if @config.keepFacts
-        metricsOut.facts = [fact]
+        outRow._facts = [fact]
       for m in @config.metrics
-        metricsOut[m.field + '_values'] = [fact[m.field]]
-      outRow.__metrics = metricsOut
+        @currentValues[m.field] = [fact[m.field]]
+        outRow[m.as] = m.f([fact[m.field]], undefined, undefined, outRow, m.field + '_')
       out.push(outRow)
       more = OLAPCube._decrement(countdownArray, rolloverArray)
   
@@ -396,34 +353,12 @@ class OLAPCube
       filterString = JSON.stringify(OLAPCube._extractFilter(er, @config.dimensions))
       olapRow = @cellIndex[filterString]
       if olapRow?
-        currentMetrics = olapRow.__metrics
-        for key, value of er.__metrics
-          if key is 'count'
-            unless currentMetrics[key]?
-              currentMetrics[key] = 0
-            currentMetrics[key] += value
-          else if key is 'facts'
-            unless currentMetrics[key]?
-              currentMetrics[key] = []
-            currentMetrics[key] = currentMetrics[key].concat(value)
-          else
-            unless currentMetrics[key]?
-              currentMetrics[key] = []
-            currentMetrics[key] = currentMetrics[key].concat(value)
+        for m in @config.metrics
+          olapRow[m.as] = m.f(@currentValues[m.field], olapRow[m.as], @currentValues[m.field], olapRow, m.field + '_')
       else
         olapRow = er
         @cellIndex[filterString] = olapRow
         @cells.push(olapRow)
-
-      unless @_dirtyCellIndex[filterString]?
-        @_dirtyCellIndex[filterString] = olapRow
-        @_dirtyCells.push(olapRow)
-
-  @_variance: (count, sum, sumSquares) ->
-    return (count * sumSquares - sum * sum) / (count * (count - 1))
-
-  @_standardDeviation: (count, sum, sumSquares) ->
-    return Math.sqrt(count, sum, sumSquares)
 
   addFacts: (facts) ->
     ###
@@ -443,89 +378,11 @@ class OLAPCube
       else
         return
 
-    if not @virgin and @mustKeepValuesToAdd and not @config.keepValues
-      throw new Error('Must specify config.keepValues to add facts with this set of metrics.')
-
     for fact in facts
+      @currentValues = {}
       expandedFactArray = @_expandFact(fact)
       @_mergeExpandedFactArray(expandedFactArray)
-  
-    # calculate metrics for @cells
-    if @config.keepValues or @virgin
-      for olapRow in @_dirtyCells
-        currentMetrics = olapRow.__metrics
-        currentCount = currentMetrics.count
-        for m in @config.metrics
-          currentField = m.field
-          currentValues = currentMetrics[currentField + '_values']
-          currentSum = null
-          currentSumSquares = null
 
-          if @mustKeepValuesToAdd
-            for m2 in m.metrics
-              {f, as} = functions.extractFandAs(m2, currentField)
-              currentMetrics[as] = f(currentValues)
-          else
-            for m2 in m.metrics
-              {f, as} = functions.extractFandAs(m2, currentField)
-              if m2.f == 'sum'
-                currentSum = f(currentValues)
-                currentMetrics[as] = currentSum
-              else if m2.f == 'sumSquares'
-                currentSumSquares = f(currentValues)
-                currentMetrics[as] = currentSumSquares
-            for m2 in m.metrics
-              {f, as} = functions.extractFandAs(m2, currentField)
-              if m2.f == 'average'
-                currentMetrics[as] = currentSum / currentCount
-              else if m2.f == 'variance'
-                currentMetrics[as] = OLAPCube._variance(currentCount, currentSum, currentSumSquares)
-              else if m2.f == 'standardDeviation'
-                currentMetrics[as] = OLAPCube._standardDeviation(currentCount, currentSum, currentSumSquares)
-              else
-                unless m2.f in ['sum', 'sumSquares']
-                  currentMetrics[as] = f(currentValues)
-
-          unless @config.keepValues
-            delete currentMetrics[currentField + "_values"]
-
-    else  # not @virgin and not @config.keepValues
-      for olapRow in @_dirtyCells
-        currentMetrics = olapRow.__metrics
-        currentCount = currentMetrics.count
-        for m in @config.metrics
-          currentField = m.field
-          currentValues = currentMetrics[currentField + '_values']
-          currentSum = null
-          currentSumSquares = null
-          for m2 in m.metrics
-            {f, as} = functions.extractFandAs(m2, currentField)
-            if m2.f == 'sum'
-              currentSum = functions.sum(currentValues, currentMetrics[as], currentValues)
-              currentMetrics[as] = currentSum
-            else if m2.f == 'sumSquares'
-              currentSumSquares = functions.sumSquares(currentValues, currentMetrics[as], currentValues)
-              currentMetrics[as] = currentSumSquares
-            else if m2.f in functions.INCREMENTAL
-              currentMetrics[as] = f(currentValues, currentMetrics[as], currentValues)
-          for m2 in m.metrics
-            {f, as} = functions.extractFandAs(m2, currentField)
-            if m2.f == 'average'
-              currentMetrics[as] = currentSum / currentCount
-            else if m2.f == 'variance'
-              currentMetrics[as] = OLAPCube._variance(currentCount, currentSum, currentSumSquares)
-            else if m2.f == 'standardDeviation'
-              currentMetrics[as] = OLAPCube._standardDeviation(currentCount, currentSum, currentSumSquares)
-            else
-              unless m2.f in functions.INCREMENTAL
-                throw new Error('If we have this error, then we have a bug with sensing the need for @mustKeepValuesToAdd.')
-
-          unless @config.keepValues
-            delete currentMetrics[currentField + "_values"]
-
-    @virgin = false
-    @_dirtyCells = []
-    @_dirtyCellIndex = {}
     return this
 
   getCells: (filterObject) ->
@@ -540,7 +397,7 @@ class OLAPCube
     @return {Object[]} Returns the cells that match the supplied filter
     ###
     unless filterObject?
-      return cells
+      return @cells
 
     output = []
     for c in @cells
@@ -561,6 +418,15 @@ class OLAPCube
     ###
     unless filter?
       filter = {}
+
+    for key, value of filter
+      foundIt = false
+      for d in @config.dimensions
+        if d.field == key
+          foundIt = true
+      unless foundIt
+        throw new Error("#{key} is not a dimension for this cube.")
+
     normalizedFilter = {}
     for d in @config.dimensions
       if filter.hasOwnProperty(d.field)
@@ -627,7 +493,7 @@ class OLAPCube
     @param {String} [metric='count']
     ###
     unless metric?
-      metric = 'count'
+      metric = '_count'
     if @config.dimensions.length == 1  # !TODO: Upgrade this 1-dimension portion to be as nice as the 2+ dimension version below
       field = @config.dimensions[0].field
       s = OLAPCube._padToWidth(field, 15) + OLAPCube._padToWidth(metric, 27)
@@ -636,7 +502,7 @@ class OLAPCube
         filter[field] = r
         cell = @getCell(filter)
         if cell?
-          cellString = JSON.stringify(cell.__metrics[metric])
+          cellString = JSON.stringify(cell[metric])
         else
           cellString = ''
         s += '\n' + OLAPCube._padToWidth(r.toString(), 15) + OLAPCube._padToWidth(cellString, 27)
@@ -662,7 +528,7 @@ class OLAPCube
           filter[columns] = c
           cell = @getCell(filter)
           if cell?
-            cellString = JSON.stringify(cell.__metrics[metric])
+            cellString = JSON.stringify(cell[metric])
           else
             cellString = ''
           maxColumnWidth = Math.max(maxColumnWidth, cellString.length)
@@ -746,7 +612,7 @@ class OLAPCube
         # 2012-12-27T12:34:56.789Z
     ###
     out =
-      config: @config
+      config: @userConfig
       cells: @cells
       virgin: @virgin
     if meta?

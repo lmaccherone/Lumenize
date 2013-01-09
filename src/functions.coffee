@@ -16,14 +16,19 @@ functions = {}
 functions.INCREMENTAL = ['sum', 'sumSquares', 'lastValue', 'count', 'min', 'max', 'values', 'uniqueValues']  # !TODO: remove this once dependencies is implemented
 
 _populateDependentValues = (values, dependencies, dependentValues = {}, prefix = '') ->
+  out = {}
   for d in dependencies
-    if d is 'count'
-      key = d
+    if d == 'count'
+      if prefix == ''
+        key = 'count'
+      else
+        key = '_count'
     else
       key = prefix + d
     unless dependentValues[key]?
       dependentValues[key] = functions[d](values, undefined, undefined, dependentValues, prefix)
-  return dependentValues
+    out[d] = dependentValues[key]
+  return out
 
 ###
 @method sum
@@ -219,7 +224,9 @@ use. The function returned by this `percentileCreator` uses the Excel interpolat
 recommendation and makes the most sense to me.
 ###
 functions.percentileCreator = (p) ->
-  f = (values) ->
+  f = (values, oldResult, newValues, dependentValues, prefix) ->
+    unless values?
+      {values} = _populateDependentValues(values, ['values'], dependentValues, prefix)
     sortfunc = (a, b) ->
       return a - b
     vLength = values.length
@@ -235,33 +242,91 @@ functions.percentileCreator = (p) ->
   f.dependencies = ['values']
   return f
 
-functions.extractFandAs = (a, field) ->
+functions.expandFandAs = (a) ->
   ###
-  @method extractFandAs Takes specifications for functions and returns executable Functions
+  @method expandFandAs Takes specifications for functions and expands them to include the actual function and 'as'
   @static
   @param {Object} a Will look like this `{as: 'mySum', f: 'sum'}`
-  @param {String} field The name of the field this function operates on
-  @return {Object} {f: <executable Function>, as: <String name for calculation>}
+  @return {Object} returns the expanded specification
   ###
+  utils.assert(a.field? or a.metric == 'count', "'field' missing from metric specification: \n#{JSON.stringify(a, undefined, 4)}")
+  utils.assert(a.metric? or utils.type(a.f) == 'function', "'metric' missing from metric specification: \n#{JSON.stringify(a, undefined, 4)}")
   if a.as?
     as = a.as
   else
-    utils.assert(utils.type(a.f) != 'function', 'Must provide "as" field with your aggregation when providing a user defined function')
-    if a.field?
-      field = a.field
-    as = "#{field}_#{a.f}"
+    if a.metric == 'count'
+      a.field = ''
+    as = "#{a.field}_#{a.metric}"
   if utils.type(a.f) == 'function'
+    utils.assert(a.as?, 'Must provide "as" field with your aggregation when providing a user defined function')
     f = a.f
     f.dependencies = ['values']
-  else if functions[a.f]?
-    f = functions[a.f]
-  else if a.f == 'median'
+  else if functions[a.metric]?
+    f = functions[a.metric]
+  else if a.metric == 'median'
     f = functions.percentileCreator(50)
-  else if a.f.substr(0, 1) == 'p'
-    p = /\p(\d+(.\d+)?)/.exec(a.f)[1]
+  else if a.metric.substr(0, 1) == 'p'
+    p = /\p(\d+(.\d+)?)/.exec(a.metric)[1]
     f = functions.percentileCreator(Number(p))
   else
-    throw new Error("#{a.f} is not a recognized built-in function")
-  return {f, as}
+    throw new Error("#{a.metric} is not a recognized built-in function")
+  a.f = f
+  a.as = as
+  return a
+
+functions.expandMetrics = (metrics = [], addCountIfMissing = false) ->
+  confirmMetricAbove = (metric, fieldName, aboveThisIndex) ->
+    if metric is 'count'
+      lookingFor = '_' + metric
+    else
+      lookingFor = fieldName + '_' + metric
+    i = 0
+    while i < aboveThisIndex
+      currentRow = metrics[i]
+      if currentRow.as == lookingFor
+        return true
+      i++
+    # OK, it's not above, let's now see if it's below. Then throw error.
+    i = aboveThisIndex + 1
+    metricsLength = metrics.length
+    while i < metricsLength
+      currentRow = metrics[i]
+      if currentRow.as == lookingFor
+        throw new Error("Depdencies must appear before the metric they are dependant upon. #{metric} appears after.")
+      i++
+    return false
+
+  assureDependenciesAbove = (dependencies, fieldName, aboveThisIndex) ->
+    for d in dependencies
+      unless confirmMetricAbove(d, fieldName, aboveThisIndex)
+        if d == 'count'
+          newRow = {metric: 'count'}
+        else
+          newRow = {metric: d, field: fieldName}
+        functions.expandFandAs(newRow)
+        metrics.unshift(newRow)
+        return false
+    return true
+
+  hasCount = false
+  for m in metrics
+    functions.expandFandAs(m)
+    if m.metric is 'count'
+      hasCount = true
+
+  if addCountIfMissing and not hasCount
+    countRow = {metric: 'count'}
+    functions.expandFandAs(countRow)
+    metrics.unshift(countRow)
+
+  index = 0
+  while index < metrics.length  # intentionally not caching length because the loop can add rows
+    metricsRow = metrics[index]
+    if metricsRow.f.dependencies?
+      unless assureDependenciesAbove(metricsRow.f.dependencies, metricsRow.field, index)
+        index = -1
+    index++
+
+  return metrics
 
 exports.functions = functions

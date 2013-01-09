@@ -8338,14 +8338,11 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
 });
 
 require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var OLAPCube, functions, utils,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var OLAPCube, functions, utils;
 
   utils = require('../src/utils');
 
   functions = require('./functions').functions;
-
-  exports.junk = 'hello';
 
   OLAPCube = (function() {
     /*
@@ -8545,9 +8542,9 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       Lumenize.TimeInStateCalculator (and other calculators in Lumenize) use this technique.
     */
 
-    function OLAPCube(config, facts) {
-      var d, hasCount, hasSum, hasSumSquares, m, m2, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
-      this.config = config;
+    function OLAPCube(userConfig, facts) {
+      var d, _i, _len, _ref;
+      this.userConfig = userConfig;
       /*
           @constructor
           @param {Object} config See Config options for details. DO NOT change the config settings after the OLAP class is instantiated.
@@ -8593,9 +8590,9 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
             add the sum metric to fields with a metrics specification. User-supplied aggregation functions are also supported as
             shown in the 'myCount' metric above.
       
-          @cfg {Boolean} [keepValues=false] Setting this will have a similar effect as including `f: "values"` for all metrics fields.
-            If you are going to incrementally update the OLAPCube, then you are required to set this to true if you are using
-            any functions other than count, sum, sumSquares, variance, or standardDeviation.
+      #    @cfg {Boolean} [keepValues=false] Setting this will have a similar effect as including `f: "values"` for all metrics fields.
+      #      If you are going to incrementally update the OLAPCube, then you are required to set this to true if you are using
+      #      any functions other than count, sum, sumSquares, variance, or standardDeviation.
           @cfg {Boolean} [keepTotals=false] Setting this will add an additional total row (indicated with field: null) along
             all dimensions. This setting can have a significant impact on the memory usage and performance of the OLAPCube so
             if things are tight, only use it if you really need it.
@@ -8604,23 +8601,19 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
             as you would expect, but they are no longer tied to the original facts.
       */
 
+      this.config = utils.clone(this.userConfig);
       utils.assert(this.config.dimensions != null, 'Must provide config.dimensions.');
       if (this.config.metrics == null) {
         this.config.metrics = [];
       }
       this.cells = [];
       this.cellIndex = {};
-      this.virgin = true;
-      this._dirtyCells = [];
-      this._dirtyCellIndex = {};
+      this.currentValues = {};
       this._dimensionValues = {};
       _ref = this.config.dimensions;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         d = _ref[_i];
         this._dimensionValues[d.field] = {};
-      }
-      if (!this.config.keepValues) {
-        this.config.keepValues = false;
       }
       if (!this.config.keepTotals) {
         this.config.keepTotals = false;
@@ -8628,62 +8621,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       if (!this.config.keepFacts) {
         this.config.keepFacts = false;
       }
-      _ref1 = this.config.metrics;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        m = _ref1[_j];
-        if (m.metrics == null) {
-          m.metrics = [
-            {
-              f: 'sum'
-            }
-          ];
-        }
-      }
-      this.mustKeepValuesToAdd = false;
-      _ref2 = this.config.metrics;
-      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-        m = _ref2[_k];
-        hasCount = true;
-        hasSum = false;
-        hasSumSquares = false;
-        _ref3 = m.metrics;
-        for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-          m2 = _ref3[_l];
-          if (m2.as === 'count') {
-            throw new Error('Your metric definition has `"as": "count" which conflicts with automatic "count" metric.');
-          }
-          if (m2.as === 'facts' && this.config.keepFacts) {
-            throw new Error('Your metric definition has `"as": "facts" which conflicts with automatic "facts" metric.');
-          }
-          switch (m2.f) {
-            case 'count':
-              throw new Error('Count is automatically kept. No need to specify it for a particular field.');
-              break;
-            case 'sum':
-              hasSum = true;
-              break;
-            case 'sumSquares':
-              hasSumSquares = true;
-          }
-        }
-        _ref4 = m.metrics;
-        for (_m = 0, _len4 = _ref4.length; _m < _len4; _m++) {
-          m2 = _ref4[_m];
-          if (_ref5 = m2.f, __indexOf.call(functions.INCREMENTAL, _ref5) >= 0) {
-
-          } else if (m2.f === 'average') {
-            if (!(hasCount && hasSum)) {
-              this.mustKeepValuesToAdd = true;
-            }
-          } else if ((_ref6 = m2.f) === 'variance' || _ref6 === 'standardDeviation') {
-            if (!(hasCount && hasSum && hasSumSquares)) {
-              this.mustKeepValuesToAdd = true;
-            }
-          } else {
-            this.mustKeepValuesToAdd = true;
-          }
-        }
-      }
+      functions.expandMetrics(this.config.metrics, true);
       this.addFacts(facts);
     }
 
@@ -8737,7 +8675,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     };
 
     OLAPCube.prototype._expandFact = function(fact) {
-      var countdownArray, d, index, m, metricsOut, more, out, outRow, p, possibilitiesArray, rolloverArray, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+      var countdownArray, d, index, m, more, out, outRow, p, possibilitiesArray, rolloverArray, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
       possibilitiesArray = [];
       countdownArray = [];
       rolloverArray = [];
@@ -8758,18 +8696,16 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           d = _ref1[index];
           outRow[d.field] = possibilitiesArray[index][countdownArray[index]];
         }
-        metricsOut = {
-          count: 1
-        };
+        outRow._count = 1;
         if (this.config.keepFacts) {
-          metricsOut.facts = [fact];
+          outRow._facts = [fact];
         }
         _ref2 = this.config.metrics;
         for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
           m = _ref2[_k];
-          metricsOut[m.field + '_values'] = [fact[m.field]];
+          this.currentValues[m.field] = [fact[m.field]];
+          outRow[m.as] = m.f([fact[m.field]], void 0, void 0, outRow, m.field + '_');
         }
-        outRow.__metrics = metricsOut;
         out.push(outRow);
         more = OLAPCube._decrement(countdownArray, rolloverArray);
       }
@@ -8787,7 +8723,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     };
 
     OLAPCube.prototype._mergeExpandedFactArray = function(expandedFactArray) {
-      var currentMetrics, d, er, fieldValue, filterString, key, olapRow, value, _i, _j, _len, _len1, _ref, _ref1, _results;
+      var d, er, fieldValue, filterString, m, olapRow, _i, _j, _len, _len1, _ref, _results;
       _results = [];
       for (_i = 0, _len = expandedFactArray.length; _i < _len; _i++) {
         er = expandedFactArray[_i];
@@ -8800,48 +8736,23 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
         filterString = JSON.stringify(OLAPCube._extractFilter(er, this.config.dimensions));
         olapRow = this.cellIndex[filterString];
         if (olapRow != null) {
-          currentMetrics = olapRow.__metrics;
-          _ref1 = er.__metrics;
-          for (key in _ref1) {
-            value = _ref1[key];
-            if (key === 'count') {
-              if (currentMetrics[key] == null) {
-                currentMetrics[key] = 0;
-              }
-              currentMetrics[key] += value;
-            } else if (key === 'facts') {
-              if (currentMetrics[key] == null) {
-                currentMetrics[key] = [];
-              }
-              currentMetrics[key] = currentMetrics[key].concat(value);
-            } else {
-              if (currentMetrics[key] == null) {
-                currentMetrics[key] = [];
-              }
-              currentMetrics[key] = currentMetrics[key].concat(value);
+          _results.push((function() {
+            var _k, _len2, _ref1, _results1;
+            _ref1 = this.config.metrics;
+            _results1 = [];
+            for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+              m = _ref1[_k];
+              _results1.push(olapRow[m.as] = m.f(this.currentValues[m.field], olapRow[m.as], this.currentValues[m.field], olapRow, m.field + '_'));
             }
-          }
+            return _results1;
+          }).call(this));
         } else {
           olapRow = er;
           this.cellIndex[filterString] = olapRow;
-          this.cells.push(olapRow);
-        }
-        if (this._dirtyCellIndex[filterString] == null) {
-          this._dirtyCellIndex[filterString] = olapRow;
-          _results.push(this._dirtyCells.push(olapRow));
-        } else {
-          _results.push(void 0);
+          _results.push(this.cells.push(olapRow));
         }
       }
       return _results;
-    };
-
-    OLAPCube._variance = function(count, sum, sumSquares) {
-      return (count * sumSquares - sum * sum) / (count * (count - 1));
-    };
-
-    OLAPCube._standardDeviation = function(count, sum, sumSquares) {
-      return Math.sqrt(count, sum, sumSquares);
     };
 
     OLAPCube.prototype.addFacts = function(facts) {
@@ -8854,7 +8765,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
             and the values are the field values (e.g. `{field1: 'a', field2: 5}`).
       */
 
-      var as, currentCount, currentField, currentMetrics, currentSum, currentSumSquares, currentValues, expandedFactArray, f, fact, m, m2, olapRow, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _len7, _len8, _len9, _m, _n, _o, _p, _q, _r, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+      var expandedFactArray, fact, _i, _len;
       if (utils.type(facts) === 'array') {
         if (facts.length <= 0) {
           return;
@@ -8866,121 +8777,12 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           return;
         }
       }
-      if (!this.virgin && this.mustKeepValuesToAdd && !this.config.keepValues) {
-        throw new Error('Must specify config.keepValues to add facts with this set of metrics.');
-      }
       for (_i = 0, _len = facts.length; _i < _len; _i++) {
         fact = facts[_i];
+        this.currentValues = {};
         expandedFactArray = this._expandFact(fact);
         this._mergeExpandedFactArray(expandedFactArray);
       }
-      if (this.config.keepValues || this.virgin) {
-        _ref = this._dirtyCells;
-        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-          olapRow = _ref[_j];
-          currentMetrics = olapRow.__metrics;
-          currentCount = currentMetrics.count;
-          _ref1 = this.config.metrics;
-          for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-            m = _ref1[_k];
-            currentField = m.field;
-            currentValues = currentMetrics[currentField + '_values'];
-            currentSum = null;
-            currentSumSquares = null;
-            if (this.mustKeepValuesToAdd) {
-              _ref2 = m.metrics;
-              for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
-                m2 = _ref2[_l];
-                _ref3 = functions.extractFandAs(m2, currentField), f = _ref3.f, as = _ref3.as;
-                currentMetrics[as] = f(currentValues);
-              }
-            } else {
-              _ref4 = m.metrics;
-              for (_m = 0, _len4 = _ref4.length; _m < _len4; _m++) {
-                m2 = _ref4[_m];
-                _ref5 = functions.extractFandAs(m2, currentField), f = _ref5.f, as = _ref5.as;
-                if (m2.f === 'sum') {
-                  currentSum = f(currentValues);
-                  currentMetrics[as] = currentSum;
-                } else if (m2.f === 'sumSquares') {
-                  currentSumSquares = f(currentValues);
-                  currentMetrics[as] = currentSumSquares;
-                }
-              }
-              _ref6 = m.metrics;
-              for (_n = 0, _len5 = _ref6.length; _n < _len5; _n++) {
-                m2 = _ref6[_n];
-                _ref7 = functions.extractFandAs(m2, currentField), f = _ref7.f, as = _ref7.as;
-                if (m2.f === 'average') {
-                  currentMetrics[as] = currentSum / currentCount;
-                } else if (m2.f === 'variance') {
-                  currentMetrics[as] = OLAPCube._variance(currentCount, currentSum, currentSumSquares);
-                } else if (m2.f === 'standardDeviation') {
-                  currentMetrics[as] = OLAPCube._standardDeviation(currentCount, currentSum, currentSumSquares);
-                } else {
-                  if ((_ref8 = m2.f) !== 'sum' && _ref8 !== 'sumSquares') {
-                    currentMetrics[as] = f(currentValues);
-                  }
-                }
-              }
-            }
-            if (!this.config.keepValues) {
-              delete currentMetrics[currentField + "_values"];
-            }
-          }
-        }
-      } else {
-        _ref9 = this._dirtyCells;
-        for (_o = 0, _len6 = _ref9.length; _o < _len6; _o++) {
-          olapRow = _ref9[_o];
-          currentMetrics = olapRow.__metrics;
-          currentCount = currentMetrics.count;
-          _ref10 = this.config.metrics;
-          for (_p = 0, _len7 = _ref10.length; _p < _len7; _p++) {
-            m = _ref10[_p];
-            currentField = m.field;
-            currentValues = currentMetrics[currentField + '_values'];
-            currentSum = null;
-            currentSumSquares = null;
-            _ref11 = m.metrics;
-            for (_q = 0, _len8 = _ref11.length; _q < _len8; _q++) {
-              m2 = _ref11[_q];
-              _ref12 = functions.extractFandAs(m2, currentField), f = _ref12.f, as = _ref12.as;
-              if (m2.f === 'sum') {
-                currentSum = functions.sum(currentValues, currentMetrics[as], currentValues);
-                currentMetrics[as] = currentSum;
-              } else if (m2.f === 'sumSquares') {
-                currentSumSquares = functions.sumSquares(currentValues, currentMetrics[as], currentValues);
-                currentMetrics[as] = currentSumSquares;
-              } else if (_ref13 = m2.f, __indexOf.call(functions.INCREMENTAL, _ref13) >= 0) {
-                currentMetrics[as] = f(currentValues, currentMetrics[as], currentValues);
-              }
-            }
-            _ref14 = m.metrics;
-            for (_r = 0, _len9 = _ref14.length; _r < _len9; _r++) {
-              m2 = _ref14[_r];
-              _ref15 = functions.extractFandAs(m2, currentField), f = _ref15.f, as = _ref15.as;
-              if (m2.f === 'average') {
-                currentMetrics[as] = currentSum / currentCount;
-              } else if (m2.f === 'variance') {
-                currentMetrics[as] = OLAPCube._variance(currentCount, currentSum, currentSumSquares);
-              } else if (m2.f === 'standardDeviation') {
-                currentMetrics[as] = OLAPCube._standardDeviation(currentCount, currentSum, currentSumSquares);
-              } else {
-                if (_ref16 = m2.f, __indexOf.call(functions.INCREMENTAL, _ref16) < 0) {
-                  throw new Error('If we have this error, then we have a bug with sensing the need for @mustKeepValuesToAdd.');
-                }
-              }
-            }
-            if (!this.config.keepValues) {
-              delete currentMetrics[currentField + "_values"];
-            }
-          }
-        }
-      }
-      this.virgin = false;
-      this._dirtyCells = [];
-      this._dirtyCellIndex = {};
       return this;
     };
 
@@ -8998,7 +8800,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
 
       var c, output, _i, _len, _ref;
       if (filterObject == null) {
-        return cells;
+        return this.cells;
       }
       output = [];
       _ref = this.cells;
@@ -9023,14 +8825,28 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           @return {Object[]} Returns the cell that match the supplied filter
       */
 
-      var d, normalizedFilter, _i, _len, _ref;
+      var d, foundIt, key, normalizedFilter, value, _i, _j, _len, _len1, _ref, _ref1;
       if (filter == null) {
         filter = {};
       }
+      for (key in filter) {
+        value = filter[key];
+        foundIt = false;
+        _ref = this.config.dimensions;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          d = _ref[_i];
+          if (d.field === key) {
+            foundIt = true;
+          }
+        }
+        if (!foundIt) {
+          throw new Error("" + key + " is not a dimension for this cube.");
+        }
+      }
       normalizedFilter = {};
-      _ref = this.config.dimensions;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        d = _ref[_i];
+      _ref1 = this.config.dimensions;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        d = _ref1[_j];
         if (filter.hasOwnProperty(d.field)) {
           normalizedFilter[d.field] = filter[d.field];
         } else {
@@ -9124,7 +8940,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
 
       var c, cell, cellString, columnValueStrings, columnValues, field, filter, fullWidth, index, indexColumn, indexRow, maxColumnWidth, r, rowLabelWidth, rowValueStrings, rowValues, s, valueStrings, valueStringsRow, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref;
       if (metric == null) {
-        metric = 'count';
+        metric = '_count';
       }
       if (this.config.dimensions.length === 1) {
         field = this.config.dimensions[0].field;
@@ -9136,7 +8952,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           filter[field] = r;
           cell = this.getCell(filter);
           if (cell != null) {
-            cellString = JSON.stringify(cell.__metrics[metric]);
+            cellString = JSON.stringify(cell[metric]);
           } else {
             cellString = '';
           }
@@ -9200,7 +9016,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
             filter[columns] = c;
             cell = this.getCell(filter);
             if (cell != null) {
-              cellString = JSON.stringify(cell.__metrics[metric]);
+              cellString = JSON.stringify(cell[metric]);
             } else {
               cellString = '';
             }
@@ -9311,7 +9127,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
 
       var out;
       out = {
-        config: this.config,
+        config: this.userConfig,
         cells: this.cells,
         virgin: this.virgin
       };
@@ -9401,25 +9217,31 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   functions.INCREMENTAL = ['sum', 'sumSquares', 'lastValue', 'count', 'min', 'max', 'values', 'uniqueValues'];
 
   _populateDependentValues = function(values, dependencies, dependentValues, prefix) {
-    var d, key, _i, _len;
+    var d, key, out, _i, _len;
     if (dependentValues == null) {
       dependentValues = {};
     }
     if (prefix == null) {
       prefix = '';
     }
+    out = {};
     for (_i = 0, _len = dependencies.length; _i < _len; _i++) {
       d = dependencies[_i];
       if (d === 'count') {
-        key = d;
+        if (prefix === '') {
+          key = 'count';
+        } else {
+          key = '_count';
+        }
       } else {
         key = prefix + d;
       }
       if (dependentValues[key] == null) {
         dependentValues[key] = functions[d](values, void 0, void 0, dependentValues, prefix);
       }
+      out[d] = dependentValues[key];
     }
-    return dependentValues;
+    return out;
   };
 
   /*
@@ -9681,8 +9503,11 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
 
   functions.percentileCreator = function(p) {
     var f;
-    f = function(values) {
+    f = function(values, oldResult, newValues, dependentValues, prefix) {
       var d, k, n, sortfunc, vLength;
+      if (values == null) {
+        values = _populateDependentValues(values, ['values'], dependentValues, prefix).values;
+      }
       sortfunc = function(a, b) {
         return a - b;
       };
@@ -9703,42 +9528,126 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     return f;
   };
 
-  functions.extractFandAs = function(a, field) {
+  functions.expandFandAs = function(a) {
     /*
-      @method extractFandAs Takes specifications for functions and returns executable Functions
+      @method expandFandAs Takes specifications for functions and expands them to include the actual function and 'as'
       @static
       @param {Object} a Will look like this `{as: 'mySum', f: 'sum'}`
-      @param {String} field The name of the field this function operates on
-      @return {Object} {f: <executable Function>, as: <String name for calculation>}
+      @return {Object} returns the expanded specification
     */
 
     var as, f, p;
+    utils.assert((a.field != null) || a.metric === 'count', "'field' missing from metric specification: \n" + (JSON.stringify(a, void 0, 4)));
+    utils.assert((a.metric != null) || utils.type(a.f) === 'function', "'metric' missing from metric specification: \n" + (JSON.stringify(a, void 0, 4)));
     if (a.as != null) {
       as = a.as;
     } else {
-      utils.assert(utils.type(a.f) !== 'function', 'Must provide "as" field with your aggregation when providing a user defined function');
-      if (a.field != null) {
-        field = a.field;
+      if (a.metric === 'count') {
+        a.field = '';
       }
-      as = "" + field + "_" + a.f;
+      as = "" + a.field + "_" + a.metric;
     }
     if (utils.type(a.f) === 'function') {
+      utils.assert(a.as != null, 'Must provide "as" field with your aggregation when providing a user defined function');
       f = a.f;
       f.dependencies = ['values'];
-    } else if (functions[a.f] != null) {
-      f = functions[a.f];
-    } else if (a.f === 'median') {
+    } else if (functions[a.metric] != null) {
+      f = functions[a.metric];
+    } else if (a.metric === 'median') {
       f = functions.percentileCreator(50);
-    } else if (a.f.substr(0, 1) === 'p') {
-      p = /\p(\d+(.\d+)?)/.exec(a.f)[1];
+    } else if (a.metric.substr(0, 1) === 'p') {
+      p = /\p(\d+(.\d+)?)/.exec(a.metric)[1];
       f = functions.percentileCreator(Number(p));
     } else {
-      throw new Error("" + a.f + " is not a recognized built-in function");
+      throw new Error("" + a.metric + " is not a recognized built-in function");
     }
-    return {
-      f: f,
-      as: as
+    a.f = f;
+    a.as = as;
+    return a;
+  };
+
+  functions.expandMetrics = function(metrics, addCountIfMissing) {
+    var assureDependenciesAbove, confirmMetricAbove, countRow, hasCount, index, m, metricsRow, _i, _len;
+    if (metrics == null) {
+      metrics = [];
+    }
+    if (addCountIfMissing == null) {
+      addCountIfMissing = false;
+    }
+    confirmMetricAbove = function(metric, fieldName, aboveThisIndex) {
+      var currentRow, i, lookingFor, metricsLength;
+      if (metric === 'count') {
+        lookingFor = '_' + metric;
+      } else {
+        lookingFor = fieldName + '_' + metric;
+      }
+      i = 0;
+      while (i < aboveThisIndex) {
+        currentRow = metrics[i];
+        if (currentRow.as === lookingFor) {
+          return true;
+        }
+        i++;
+      }
+      i = aboveThisIndex + 1;
+      metricsLength = metrics.length;
+      while (i < metricsLength) {
+        currentRow = metrics[i];
+        if (currentRow.as === lookingFor) {
+          throw new Error("Depdencies must appear before the metric they are dependant upon. " + metric + " appears after.");
+        }
+        i++;
+      }
+      return false;
     };
+    assureDependenciesAbove = function(dependencies, fieldName, aboveThisIndex) {
+      var d, newRow, _i, _len;
+      for (_i = 0, _len = dependencies.length; _i < _len; _i++) {
+        d = dependencies[_i];
+        if (!confirmMetricAbove(d, fieldName, aboveThisIndex)) {
+          if (d === 'count') {
+            newRow = {
+              metric: 'count'
+            };
+          } else {
+            newRow = {
+              metric: d,
+              field: fieldName
+            };
+          }
+          functions.expandFandAs(newRow);
+          metrics.unshift(newRow);
+          return false;
+        }
+      }
+      return true;
+    };
+    hasCount = false;
+    for (_i = 0, _len = metrics.length; _i < _len; _i++) {
+      m = metrics[_i];
+      functions.expandFandAs(m);
+      if (m.metric === 'count') {
+        hasCount = true;
+      }
+    }
+    if (addCountIfMissing && !hasCount) {
+      countRow = {
+        metric: 'count'
+      };
+      functions.expandFandAs(countRow);
+      metrics.unshift(countRow);
+    }
+    index = 0;
+    while (index < metrics.length) {
+      metricsRow = metrics[index];
+      if (metricsRow.f.dependencies != null) {
+        if (!assureDependenciesAbove(metricsRow.f.dependencies, metricsRow.field, index)) {
+          index = -1;
+        }
+      }
+      index++;
+    }
+    return metrics;
   };
 
   exports.functions = functions;
