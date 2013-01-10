@@ -279,23 +279,20 @@ exports.olapTest =
 
     originalCube = new OLAPCube(config, facts)
 
-    console.log(originalCube.config.metrics)
-
     dateString = '2012-12-27T12:34:56.789Z'
     savedState = originalCube.getStateForSaving({upToDate: dateString})
-#    savedState = JSON.stringify(savedState)
     restoredCube = OLAPCube.newFromSavedState(savedState)
-#
-#    newFacts = [
-#      {ProjectHierarchy: [5], Priority: 3},
-#      {ProjectHierarchy: [1, 2, 4], Priority: 1}
-#    ]
-#    originalCube.addFacts(newFacts)
-#    restoredCube.addFacts(newFacts)
-#
-#    test.equal(restoredCube.toString(), originalCube.toString())
-#
-#    test.equal(dateString, restoredCube.meta.upToDate)
+
+    newFacts = [
+      {ProjectHierarchy: [5], Priority: 3},
+      {ProjectHierarchy: [1, 2, 4], Priority: 1}
+    ]
+    originalCube.addFacts(newFacts)
+    restoredCube.addFacts(newFacts)
+
+    test.equal(restoredCube.toString(), originalCube.toString())
+
+    test.equal(dateString, restoredCube.meta.upToDate)
 
     test.done()
 
@@ -335,5 +332,40 @@ exports.olapTest =
     cell = cube.getCell({ProjectHierarchy: [5]})
     test.equal(cell.Priority_min, 3)
     test.equal(cell.Priority_max, 7)
+
+    test.done()
+
+  testIncrementalP50: (test) ->
+    facts = [
+      {f1: 1, m1: 10},
+      {f1: 1, m1: 20},
+      {f1: 1, m1: 30},
+      {f1: 1, m1: 40},
+    ]
+
+    dimensions = [{field: 'f1'}]
+
+    metrics = [{field: 'm1', metric: 'p50'}]
+
+    config = {dimensions, metrics}
+
+    cube = new OLAPCube(config, facts)
+
+    moreFacts = [
+      {f1: 1, m1: 60},
+      {f1: 1, m1: 70},
+      {f1: 1, m1: 80},
+      {f1: 1, m1: 90},
+    ]
+
+    cube.addFacts(moreFacts)
+
+    allFacts = facts.concat(moreFacts)
+
+    newCube = new OLAPCube(config, allFacts)
+
+    filter = {f1: 1}
+
+    test.deepEqual(cube.getCell(filter), newCube.getCell(filter))
 
     test.done()

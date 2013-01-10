@@ -260,7 +260,9 @@ functions.expandFandAs = (a) ->
   if utils.type(a.f) == 'function'
     utils.assert(a.as?, 'Must provide "as" field with your aggregation when providing a user defined function')
     f = a.f
-    f.dependencies = ['values']
+    unless f.dependencies?
+      f.dependencies = []
+    f.dependencies.push('values')
   else if functions[a.metric]?
     f = functions[a.metric]
   else if a.metric == 'median'

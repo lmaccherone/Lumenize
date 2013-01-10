@@ -8590,9 +8590,6 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
             add the sum metric to fields with a metrics specification. User-supplied aggregation functions are also supported as
             shown in the 'myCount' metric above.
       
-      #    @cfg {Boolean} [keepValues=false] Setting this will have a similar effect as including `f: "values"` for all metrics fields.
-      #      If you are going to incrementally update the OLAPCube, then you are required to set this to true if you are using
-      #      any functions other than count, sum, sumSquares, variance, or standardDeviation.
           @cfg {Boolean} [keepTotals=false] Setting this will add an additional total row (indicated with field: null) along
             all dimensions. This setting can have a significant impact on the memory usage and performance of the OLAPCube so
             if things are tight, only use it if you really need it.
@@ -8675,7 +8672,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     };
 
     OLAPCube.prototype._expandFact = function(fact) {
-      var countdownArray, d, index, m, more, out, outRow, p, possibilitiesArray, rolloverArray, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+      var countdownArray, d, index, m, more, out, outRow, p, possibilitiesArray, rolloverArray, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3;
       possibilitiesArray = [];
       countdownArray = [];
       rolloverArray = [];
@@ -8683,27 +8680,34 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         d = _ref[_i];
         p = OLAPCube._possibilities(fact[d.field], d.type, this.config.keepTotals);
+        if (p == null) {
+          console.log('p is undefined', p);
+        }
         possibilitiesArray.push(p);
         countdownArray.push(p.length - 1);
         rolloverArray.push(p.length - 1);
+      }
+      _ref1 = this.config.metrics;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        m = _ref1[_j];
+        this.currentValues[m.field] = [fact[m.field]];
       }
       out = [];
       more = true;
       while (more) {
         outRow = {};
-        _ref1 = this.config.dimensions;
-        for (index = _j = 0, _len1 = _ref1.length; _j < _len1; index = ++_j) {
-          d = _ref1[index];
+        _ref2 = this.config.dimensions;
+        for (index = _k = 0, _len2 = _ref2.length; _k < _len2; index = ++_k) {
+          d = _ref2[index];
           outRow[d.field] = possibilitiesArray[index][countdownArray[index]];
         }
         outRow._count = 1;
         if (this.config.keepFacts) {
           outRow._facts = [fact];
         }
-        _ref2 = this.config.metrics;
-        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-          m = _ref2[_k];
-          this.currentValues[m.field] = [fact[m.field]];
+        _ref3 = this.config.metrics;
+        for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+          m = _ref3[_l];
           outRow[m.as] = m.f([fact[m.field]], void 0, void 0, outRow, m.field + '_');
         }
         out.push(outRow);
@@ -8723,7 +8727,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     };
 
     OLAPCube.prototype._mergeExpandedFactArray = function(expandedFactArray) {
-      var d, er, fieldValue, filterString, m, olapRow, _i, _j, _len, _len1, _ref, _results;
+      var d, er, fieldValue, filterString, localValues, m, olapRow, _i, _j, _len, _len1, _ref, _results;
       _results = [];
       for (_i = 0, _len = expandedFactArray.length; _i < _len; _i++) {
         er = expandedFactArray[_i];
@@ -8736,13 +8740,17 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
         filterString = JSON.stringify(OLAPCube._extractFilter(er, this.config.dimensions));
         olapRow = this.cellIndex[filterString];
         if (olapRow != null) {
+          localValues = {};
           _results.push((function() {
             var _k, _len2, _ref1, _results1;
             _ref1 = this.config.metrics;
             _results1 = [];
             for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
               m = _ref1[_k];
-              _results1.push(olapRow[m.as] = m.f(this.currentValues[m.field], olapRow[m.as], this.currentValues[m.field], olapRow, m.field + '_'));
+              if (m.metric === 'values') {
+                localValues[m.field] = olapRow[m.as];
+              }
+              _results1.push(olapRow[m.as] = m.f(localValues[m.field], olapRow[m.as], this.currentValues[m.field], olapRow, m.field + '_'));
             }
             return _results1;
           }).call(this));
@@ -9128,8 +9136,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       var out;
       out = {
         config: this.userConfig,
-        cells: this.cells,
-        virgin: this.virgin
+        cells: this.cells
       };
       if (meta != null) {
         out.meta = meta;
@@ -9161,7 +9168,6 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
         cube.meta = p.meta;
       }
       cube.cells = p.cells;
-      cube.virgin = p.virgin;
       cube.cellIndex = {};
       cube._dimensionValues = {};
       _ref = cube.config.dimensions;
@@ -9550,7 +9556,10 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     if (utils.type(a.f) === 'function') {
       utils.assert(a.as != null, 'Must provide "as" field with your aggregation when providing a user defined function');
       f = a.f;
-      f.dependencies = ['values'];
+      if (f.dependencies == null) {
+        f.dependencies = [];
+      }
+      f.dependencies.push('values');
     } else if (functions[a.metric] != null) {
       f = functions[a.metric];
     } else if (a.metric === 'median') {

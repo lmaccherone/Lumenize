@@ -315,10 +315,14 @@ class OLAPCube
     rolloverArray = []
     for d in @config.dimensions
       p = OLAPCube._possibilities(fact[d.field], d.type, @config.keepTotals)
+      unless p?
+        console.log('p is undefined', p)
       possibilitiesArray.push(p)
       countdownArray.push(p.length - 1)
       rolloverArray.push(p.length - 1)  # !TODO: If I need some speed, we could calculate the rolloverArray once and make a copy to the countdownArray for each run
-  
+
+    for m in @config.metrics
+      @currentValues[m.field] = [fact[m.field]]
     out = []
     more = true
     while more
@@ -329,7 +333,6 @@ class OLAPCube
       if @config.keepFacts
         outRow._facts = [fact]
       for m in @config.metrics
-        @currentValues[m.field] = [fact[m.field]]
         outRow[m.as] = m.f([fact[m.field]], undefined, undefined, outRow, m.field + '_')
       out.push(outRow)
       more = OLAPCube._decrement(countdownArray, rolloverArray)
@@ -353,8 +356,11 @@ class OLAPCube
       filterString = JSON.stringify(OLAPCube._extractFilter(er, @config.dimensions))
       olapRow = @cellIndex[filterString]
       if olapRow?
+        localValues = {}
         for m in @config.metrics
-          olapRow[m.as] = m.f(@currentValues[m.field], olapRow[m.as], @currentValues[m.field], olapRow, m.field + '_')
+          if m.metric is 'values'
+            localValues[m.field] = olapRow[m.as]
+          olapRow[m.as] = m.f(localValues[m.field], olapRow[m.as], @currentValues[m.field], olapRow, m.field + '_')
       else
         olapRow = er
         @cellIndex[filterString] = olapRow
@@ -614,7 +620,6 @@ class OLAPCube
     out =
       config: @userConfig
       cells: @cells
-      virgin: @virgin
     if meta?
       out.meta = meta
     return out
@@ -639,7 +644,6 @@ class OLAPCube
     if p.meta?
       cube.meta = p.meta
     cube.cells = p.cells
-    cube.virgin = p.virgin
     cube.cellIndex = {}
     cube._dimensionValues = {}
     for d in cube.config.dimensions
