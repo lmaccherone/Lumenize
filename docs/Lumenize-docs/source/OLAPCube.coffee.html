@@ -19,12 +19,10 @@
 utils = require('../src/utils')
 functions = require('./functions').functions
 
-exports.junk = 'hello'
-
 class OLAPCube
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-OLAPCube-method-constructor'><span id='Lumenize-OLAPCube-cfg-keepFacts'><span id='Lumenize-OLAPCube-cfg-keepTotals'><span id='Lumenize-OLAPCube-cfg-keepValues'><span id='Lumenize-OLAPCube-cfg-metrics'><span id='Lumenize-OLAPCube-cfg-dimensions'><span id='Lumenize-OLAPCube'>  /**
-</span></span></span></span></span></span></span>   * @class Lumenize.OLAPCube
+<span id='Lumenize-OLAPCube-method-constructor'><span id='Lumenize-OLAPCube-cfg-keepFacts'><span id='Lumenize-OLAPCube-cfg-keepTotals'><span id='Lumenize-OLAPCube-cfg-metrics'><span id='Lumenize-OLAPCube-cfg-dimensions'><span id='Lumenize-OLAPCube'>  /**
+</span></span></span></span></span></span>   * @class Lumenize.OLAPCube
    * 
    * __An efficient, in-memory, incrementally-updateable, hierarchy-capable OLAP Cube implementation.__
    * 
@@ -77,10 +75,7 @@ class OLAPCube
    * You can specify any number of metrics to be calculated for each cell in the cube.
    * 
    *     metrics = [
-   *       {field: &quot;Points&quot;, metrics: [
-   *         {as: &quot;Scope&quot;, f: &quot;sum&quot;},
-   *         {f: &quot;standardDeviation&quot;}
-   *       ]}
+   *       {field: &quot;Points&quot;, f: &quot;sum&quot;, as: &quot;Scope&quot;}
    *     ]
    * 
    * You can use any of the aggregation functions found in Lumenize.functions except `count`. The count metric is
@@ -105,9 +100,7 @@ class OLAPCube
    * `getCell()` allows you to extract a single cell. The &quot;total&quot; cell for all facts where Priority = 1 can be found as follows:
    * 
    *     console.log(cube.getCell({Priority: 1}))
-   *     # { ProjectHierarchy: null,
-   *     #   Priority: 1,
-   *     #   __metrics: { count: 3, Scope: 30, Points_standardDeviation: 7 } }
+   *     # { ProjectHierarchy: null, Priority: 1, _count: 3, Scope: 30 }
    * 
    * Notice how the ProjectHierarchy field value is `null`. This is because it is a total cell for Priority dimension
    * for all ProjectHierarchy values. Think of `null` values in this context as wildcards.
@@ -115,12 +108,7 @@ class OLAPCube
    * Similarly, we can get the total for all descendants of ProjectHierarchy = [1] regarless of Priority as follows:
    * 
    *     console.log(cube.getCell({ProjectHierarchy: [1]}))
-   *     # { ProjectHierarchy: [ 1 ],
-   *     #   Priority: null,
-   *     #   __metrics:
-   *     #    { count: 3,
-   *     #      Scope: 18,
-   *     #      Points_standardDeviation: 3.605551275463989 } }
+   *     # { ProjectHierarchy: [ 1 ], Priority: null, _count: 3, Scope: 18 }
    * 
    * `getCell()` uses the cellIndex so it's very efficient. Using `getCell()` and `getDimensionValues()`, you can iterate
    * over a slice of the OLAPCube. It is usually preferable to access the cells in place like this rather than the
@@ -137,7 +125,7 @@ class OLAPCube
    *       for c in columnValues
    *         cell = cube.getCell({ProjectHierarchy: r, Priority: c})
    *         if cell?
-   *           cellString = JSON.stringify(cell.__metrics.count)
+   *           cellString = JSON.stringify(cell._count)
    *         else
    *           cellString = ''
    *         s += OLAPCube._padToWidth(cellString, 7) + ' | '
@@ -263,9 +251,11 @@ class OLAPCube
    *   add the sum metric to fields with a metrics specification. User-supplied aggregation functions are also supported as
    *   shown in the 'myCount' metric above.
    * 
-   * @cfg {Boolean} [keepValues=false] Setting this will have a similar effect as including `f: &quot;values&quot;` for all metrics fields.
-   *   If you are going to incrementally update the OLAPCube, then you are required to set this to true if you are using
-   *   any functions other than count, sum, sumSquares, variance, or standardDeviation.
+   *   Note, if the metric has dependencies (e.g. average depends upon count and sum) it will automatically add those to
+   *   your metric definition. If you've already added a dependency but put it under a different &quot;as&quot;, it's not smart
+   *   enough to sense that and it will add it again. Either live with the slight inefficiency and duplication or leave
+   *   dependent metrics named their default by not providing an &quot;as&quot; field.
+   * 
    * @cfg {Boolean} [keepTotals=false] Setting this will add an additional total row (indicated with field: null) along
    *   all dimensions. This setting can have a significant impact on the memory usage and performance of the OLAPCube so
    *   if things are tight, only use it if you really need it.
@@ -276,61 +266,23 @@ class OLAPCube
 /* &lt;CoffeeScript&gt;
 
       as you would expect, but they are no longer tied to the original facts.
+    @config = utils.clone(@userConfig)
     utils.assert(@config.dimensions?, 'Must provide config.dimensions.')
     unless @config.metrics?
       @config.metrics = []
     @cells = []
     @cellIndex = {}
-    @virgin = true
-    @_dirtyCells = []
-    @_dirtyCellIndex = {}
+    @currentValues = {}
     @_dimensionValues = {}  # key: fieldName, value: {} where key: uniqueValue, value: the real key (not stringified)
     for d in @config.dimensions
       @_dimensionValues[d.field] = {}
 
-    unless @config.keepValues
-      @config.keepValues = false
     unless @config.keepTotals
       @config.keepTotals = false
     unless @config.keepFacts
       @config.keepFacts = false
 
-    # add default metrics if not specified
-    for m in @config.metrics
-      unless m.metrics?
-        m.metrics = [
-          {f: 'sum'}
-        ]
-
-    # determine if values must be kept
-    @mustKeepValuesToAdd = false  # !TODO: If it's slow or a memory hog when this is true, then we could make this field-specific
-    for m in @config.metrics
-      hasCount = true
-      hasSum = false
-      hasSumSquares = false
-      for m2 in m.metrics
-        if m2.as is 'count'
-          throw new Error('Your metric definition has `&quot;as&quot;: &quot;count&quot; which conflicts with automatic &quot;count&quot; metric.')
-        if m2.as is 'facts' and @config.keepFacts
-          throw new Error('Your metric definition has `&quot;as&quot;: &quot;facts&quot; which conflicts with automatic &quot;facts&quot; metric.')
-        switch m2.f
-          when 'count'
-            throw new Error('Count is automatically kept. No need to specify it for a particular field.')
-          when 'sum'
-            hasSum = true
-          when 'sumSquares'
-            hasSumSquares = true
-      for m2 in m.metrics
-        if m2.f in functions.INCREMENTAL
-          # do nothing
-        else if m2.f == 'average'
-          unless hasCount and hasSum
-            @mustKeepValuesToAdd = true
-        else if m2.f in ['variance', 'standardDeviation']
-          unless hasCount and hasSum and hasSumSquares
-            @mustKeepValuesToAdd = true
-        else
-          @mustKeepValuesToAdd = true
+    functions.expandMetrics(@config.metrics, true, true)
 
     @addFacts(facts)
   
@@ -377,22 +329,25 @@ class OLAPCube
     rolloverArray = []
     for d in @config.dimensions
       p = OLAPCube._possibilities(fact[d.field], d.type, @config.keepTotals)
+      unless p?
+        console.log('p is undefined', p)
       possibilitiesArray.push(p)
       countdownArray.push(p.length - 1)
       rolloverArray.push(p.length - 1)  # !TODO: If I need some speed, we could calculate the rolloverArray once and make a copy to the countdownArray for each run
-  
+
+    for m in @config.metrics
+      @currentValues[m.field] = [fact[m.field]]
     out = []
     more = true
     while more
       outRow = {}
       for d, index in @config.dimensions
         outRow[d.field] = possibilitiesArray[index][countdownArray[index]]
-      metricsOut = {count: 1}
+      outRow._count = 1
       if @config.keepFacts
-        metricsOut.facts = [fact]
+        outRow._facts = [fact]
       for m in @config.metrics
-        metricsOut[m.field + '_values'] = [fact[m.field]]
-      outRow.__metrics = metricsOut
+        outRow[m.as] = m.f([fact[m.field]], undefined, undefined, outRow, m.field + '_')
       out.push(outRow)
       more = OLAPCube._decrement(countdownArray, rolloverArray)
   
@@ -415,34 +370,15 @@ class OLAPCube
       filterString = JSON.stringify(OLAPCube._extractFilter(er, @config.dimensions))
       olapRow = @cellIndex[filterString]
       if olapRow?
-        currentMetrics = olapRow.__metrics
-        for key, value of er.__metrics
-          if key is 'count'
-            unless currentMetrics[key]?
-              currentMetrics[key] = 0
-            currentMetrics[key] += value
-          else if key is 'facts'
-            unless currentMetrics[key]?
-              currentMetrics[key] = []
-            currentMetrics[key] = currentMetrics[key].concat(value)
-          else
-            unless currentMetrics[key]?
-              currentMetrics[key] = []
-            currentMetrics[key] = currentMetrics[key].concat(value)
+        localValues = {}
+        for m in @config.metrics
+          if m.metric is 'values'
+            localValues[m.field] = olapRow[m.as]
+          olapRow[m.as] = m.f(localValues[m.field], olapRow[m.as], @currentValues[m.field], olapRow, m.field + '_')
       else
         olapRow = er
         @cellIndex[filterString] = olapRow
         @cells.push(olapRow)
-
-      unless @_dirtyCellIndex[filterString]?
-        @_dirtyCellIndex[filterString] = olapRow
-        @_dirtyCells.push(olapRow)
-
-  @_variance: (count, sum, sumSquares) -&gt;
-    return (count * sumSquares - sum * sum) / (count * (count - 1))
-
-  @_standardDeviation: (count, sum, sumSquares) -&gt;
-    return Math.sqrt(count, sum, sumSquares)
 
   addFacts: (facts) -&gt;
 &lt;/CoffeeScript&gt; */
@@ -465,89 +401,11 @@ class OLAPCube
       else
         return
 
-    if not @virgin and @mustKeepValuesToAdd and not @config.keepValues
-      throw new Error('Must specify config.keepValues to add facts with this set of metrics.')
-
     for fact in facts
+      @currentValues = {}
       expandedFactArray = @_expandFact(fact)
       @_mergeExpandedFactArray(expandedFactArray)
-  
-    # calculate metrics for @cells
-    if @config.keepValues or @virgin
-      for olapRow in @_dirtyCells
-        currentMetrics = olapRow.__metrics
-        currentCount = currentMetrics.count
-        for m in @config.metrics
-          currentField = m.field
-          currentValues = currentMetrics[currentField + '_values']
-          currentSum = null
-          currentSumSquares = null
 
-          if @mustKeepValuesToAdd
-            for m2 in m.metrics
-              {f, as} = functions.extractFandAs(m2, currentField)
-              currentMetrics[as] = f(currentValues)
-          else
-            for m2 in m.metrics
-              {f, as} = functions.extractFandAs(m2, currentField)
-              if m2.f == 'sum'
-                currentSum = f(currentValues)
-                currentMetrics[as] = currentSum
-              else if m2.f == 'sumSquares'
-                currentSumSquares = f(currentValues)
-                currentMetrics[as] = currentSumSquares
-            for m2 in m.metrics
-              {f, as} = functions.extractFandAs(m2, currentField)
-              if m2.f == 'average'
-                currentMetrics[as] = currentSum / currentCount
-              else if m2.f == 'variance'
-                currentMetrics[as] = OLAPCube._variance(currentCount, currentSum, currentSumSquares)
-              else if m2.f == 'standardDeviation'
-                currentMetrics[as] = OLAPCube._standardDeviation(currentCount, currentSum, currentSumSquares)
-              else
-                unless m2.f in ['sum', 'sumSquares']
-                  currentMetrics[as] = f(currentValues)
-
-          unless @config.keepValues
-            delete currentMetrics[currentField + &quot;_values&quot;]
-
-    else  # not @virgin and not @config.keepValues
-      for olapRow in @_dirtyCells
-        currentMetrics = olapRow.__metrics
-        currentCount = currentMetrics.count
-        for m in @config.metrics
-          currentField = m.field
-          currentValues = currentMetrics[currentField + '_values']
-          currentSum = null
-          currentSumSquares = null
-          for m2 in m.metrics
-            {f, as} = functions.extractFandAs(m2, currentField)
-            if m2.f == 'sum'
-              currentSum = functions.sum(currentValues, currentMetrics[as], currentValues)
-              currentMetrics[as] = currentSum
-            else if m2.f == 'sumSquares'
-              currentSumSquares = functions.sumSquares(currentValues, currentMetrics[as], currentValues)
-              currentMetrics[as] = currentSumSquares
-            else if m2.f in functions.INCREMENTAL
-              currentMetrics[as] = f(currentValues, currentMetrics[as], currentValues)
-          for m2 in m.metrics
-            {f, as} = functions.extractFandAs(m2, currentField)
-            if m2.f == 'average'
-              currentMetrics[as] = currentSum / currentCount
-            else if m2.f == 'variance'
-              currentMetrics[as] = OLAPCube._variance(currentCount, currentSum, currentSumSquares)
-            else if m2.f == 'standardDeviation'
-              currentMetrics[as] = OLAPCube._standardDeviation(currentCount, currentSum, currentSumSquares)
-            else
-              unless m2.f in functions.INCREMENTAL
-                throw new Error('If we have this error, then we have a bug with sensing the need for @mustKeepValuesToAdd.')
-
-          unless @config.keepValues
-            delete currentMetrics[currentField + &quot;_values&quot;]
-
-    @virgin = false
-    @_dirtyCells = []
-    @_dirtyCellIndex = {}
     return this
 
   getCells: (filterObject) -&gt;
@@ -565,7 +423,7 @@ class OLAPCube
      */
 /* &lt;CoffeeScript&gt;
     unless filterObject?
-      return cells
+      return @cells
 
     output = []
     for c in @cells
@@ -589,6 +447,15 @@ class OLAPCube
 /* &lt;CoffeeScript&gt;
     unless filter?
       filter = {}
+
+    for key, value of filter
+      foundIt = false
+      for d in @config.dimensions
+        if d.field == key
+          foundIt = true
+      unless foundIt
+        throw new Error(&quot;#{key} is not a dimension for this cube.&quot;)
+
     normalizedFilter = {}
     for d in @config.dimensions
       if filter.hasOwnProperty(d.field)
@@ -661,16 +528,17 @@ class OLAPCube
      */
 /* &lt;CoffeeScript&gt;
     unless metric?
-      metric = 'count'
+      metric = '_count'
     if @config.dimensions.length == 1  # !TODO: Upgrade this 1-dimension portion to be as nice as the 2+ dimension version below
       field = @config.dimensions[0].field
       s = OLAPCube._padToWidth(field, 15) + OLAPCube._padToWidth(metric, 27)
+
       for r, index in @getDimensionValues(field)
         filter = {}
         filter[field] = r
         cell = @getCell(filter)
         if cell?
-          cellString = JSON.stringify(cell.__metrics[metric])
+          cellString = JSON.stringify(cell[metric])
         else
           cellString = ''
         s += '\n' + OLAPCube._padToWidth(r.toString(), 15) + OLAPCube._padToWidth(cellString, 27)
@@ -696,7 +564,7 @@ class OLAPCube
           filter[columns] = c
           cell = @getCell(filter)
           if cell?
-            cellString = JSON.stringify(cell.__metrics[metric])
+            cellString = JSON.stringify(cell[metric])
           else
             cellString = ''
           maxColumnWidth = Math.max(maxColumnWidth, cellString.length)
@@ -704,6 +572,7 @@ class OLAPCube
         valueStrings.push(valueStringsRow)
       maxColumnWidth += 1
       s = '|' + (OLAPCube._padToWidth('', rowLabelWidth)) + ' ||'
+
       for c, indexColumn in columnValueStrings
         if c == 'null'
           s += OLAPCube._padToWidth('Total', maxColumnWidth) + ' |'
@@ -783,9 +652,8 @@ class OLAPCube
      */
 /* &lt;CoffeeScript&gt;
     out =
-      config: @config
+      config: @userConfig
       cells: @cells
-      virgin: @virgin
     if meta?
       out.meta = meta
     return out
@@ -813,7 +681,6 @@ class OLAPCube
     if p.meta?
       cube.meta = p.meta
     cube.cells = p.cells
-    cube.virgin = p.virgin
     cube.cellIndex = {}
     cube._dimensionValues = {}
     for d in cube.config.dimensions

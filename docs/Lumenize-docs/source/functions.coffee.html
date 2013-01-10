@@ -21,14 +21,32 @@ utils = require('./utils')
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions'>/**
 </span> * @class Lumenize.functions
+ * 
+ * Rules about dependencies
+ *   * If a function can be calculated incrementally from an oldResult and newValues, then you do not need to specify dependencies
+ *   * If a funciton can be calculated from other incrementally calculable results, then you need only specify those dependencies
+ *   * If a function a full list of values to be calculated (like percentile coverage), then you must specify 'values'
+ *   * To support the direct passing in of OLAP cube cells, you can provide a prefix (field name) so the key in dependentValues can be generated
+ *   * 'count' is special and does not use a prefix because it is not dependent up a particular field
+ *   * You should calculate the dependencies before you calculate the thing that is depedent. The OLAP cube does some checking to confirm you've done this.
  */
 /* &lt;CoffeeScript&gt;
 functions = {}
 
-###
-@var {String[]} functions.INCREMENTAL A list of the function names that can be calculated incrementally
-###
-functions.INCREMENTAL = ['sum', 'sumSquares', 'lastValue', 'count', 'min', 'max', 'values', 'uniqueValues']
+_populateDependentValues = (values, dependencies, dependentValues = {}, prefix = '') -&gt;
+  out = {}
+  for d in dependencies
+    if d == 'count'
+      if prefix == ''
+        key = 'count'
+      else
+        key = '_count'
+    else
+      key = prefix + d
+    unless dependentValues[key]?
+      dependentValues[key] = functions[d](values, undefined, undefined, dependentValues, prefix)
+    out[d] = dependentValues[key]
+  return out
 
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-sum'>/**
@@ -205,12 +223,11 @@ functions.uniqueValues = (values, oldResult, newValues) -&gt;
  * @return {Number} The arithmetic mean
  */
 /* &lt;CoffeeScript&gt;
-functions.average = (values) -&gt;
-  count = values.length
-  sum = 0
-  for v in values
-    sum += v
+functions.average = (values, oldResult, newValues, dependentValues, prefix) -&gt;
+  {count, sum} = _populateDependentValues(values, functions.average.dependencies, dependentValues, prefix)
   return sum / count
+
+functions.average.dependencies = ['count', 'sum']
 
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-variance'>/**
@@ -221,14 +238,11 @@ functions.average = (values) -&gt;
  * @return {Number} The variance
  */
 /* &lt;CoffeeScript&gt;
-functions.variance = (values) -&gt;
-  n = values.length
-  sum = 0
-  sumSquares = 0
-  for v in values
-    sum += v
-    sumSquares += v * v
-  return (n * sumSquares - sum * sum) / (n * (n - 1))
+functions.variance = (values, oldResult, newValues, dependentValues, prefix) -&gt;
+  {count, sum, sumSquares} = _populateDependentValues(values, functions.variance.dependencies, dependentValues, prefix)
+  return (count * sumSquares - sum * sum) / (count * (count - 1))
+
+functions.variance.dependencies = ['count', 'sum', 'sumSquares']
 
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-standardDeviation'>/**
@@ -239,8 +253,10 @@ functions.variance = (values) -&gt;
  * @return {Number} The standard deviation
  */
 /* &lt;CoffeeScript&gt;
-functions.standardDeviation = (values) -&gt;
-  return Math.sqrt(functions.variance(values))
+functions.standardDeviation = (values, oldResult, newValues, dependentValues, prefix) -&gt;
+  return Math.sqrt(functions.variance(values, oldResult, newValues, dependentValues, prefix))
+
+functions.standardDeviation.dependencies = functions.variance.dependencies
 
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-percentileCreator'>/**
@@ -262,7 +278,9 @@ functions.standardDeviation = (values) -&gt;
  */
 /* &lt;CoffeeScript&gt;
 functions.percentileCreator = (p) -&gt;
-  return (values) -&gt;
+  f = (values, oldResult, newValues, dependentValues, prefix) -&gt;
+    unless values?
+      {values} = _populateDependentValues(values, ['values'], dependentValues, prefix)
     sortfunc = (a, b) -&gt;
       return a - b
     vLength = values.length
@@ -275,37 +293,114 @@ functions.percentileCreator = (p) -&gt;
     if n == vLength
       return values[vLength - 1]
     return values[k - 1] + d * (values[k] - values[k - 1])
+  f.dependencies = ['values']
+  return f
 
-functions.extractFandAs = (a, field) -&gt;
+functions.expandFandAs = (a) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-functions-static-method-extractFandAs'>  /**
-</span>   * @method extractFandAs
+<span id='Lumenize-functions-static-method-expandFandAs'>  /**
+</span>   * @method expandFandAs
    * @member Lumenize.functions
    * @static
-   * @param {Object} a Will look like this `{as: 'mySum', f: 'sum'}`
-   * @param {String} field The name of the field this function operates on
-   * @return {Object} {f: &lt;executable Function&gt;, as: &lt;String name for calculation&gt;}
+   * @param {Object} a Will look like this `{as: 'mySum', f: 'sum', field: 'Points'}`
+   * @return {Object} returns the expanded specification
    */
 /* &lt;CoffeeScript&gt;
-  if a.as?
-    as = a.as
-  else
-    utils.assert(utils.type(a.f) != 'function', 'Must provide &quot;as&quot; field with your aggregation when providing a user defined function')
-    if a.field?
-      field = a.field
-    as = &quot;#{field}_#{a.f}&quot;
+  utils.assert(a.field? or a.f == 'count', &quot;'field' missing from specification: \n#{JSON.stringify(a, undefined, 4)}&quot;)
+  utils.assert(a.f?, &quot;'f' missing from specification: \n#{JSON.stringify(a, undefined, 4)}&quot;)
   if utils.type(a.f) == 'function'
-    f = a.f
+    utils.assert(a.as?, 'Must provide &quot;as&quot; field with your aggregation when providing a user defined function')
+    a.metric = a.f.toString()
   else if functions[a.f]?
-    f = functions[a.f]
+    a.metric = a.f
+    a.f = functions[a.f]
   else if a.f == 'median'
-    f = functions.percentileCreator(50)
+    a.metric = 'median'
+    a.f = functions.percentileCreator(50)
   else if a.f.substr(0, 1) == 'p'
+    a.metric = a.f
     p = /\p(\d+(.\d+)?)/.exec(a.f)[1]
-    f = functions.percentileCreator(Number(p))
+    a.f = functions.percentileCreator(Number(p))
   else
     throw new Error(&quot;#{a.f} is not a recognized built-in function&quot;)
-  return {f, as}
+
+  unless a.as?
+    if a.metric == 'count'
+      a.field = ''
+      a.metric = 'count'
+    a.as = &quot;#{a.field}_#{a.metric}&quot;
+  return a
+
+functions.expandMetrics = (metrics = [], addCountIfMissing = false, addValuesForCustomFunctions = false) -&gt;
+  confirmMetricAbove = (m, fieldName, aboveThisIndex) -&gt;
+    if m is 'count'
+      lookingFor = '_' + m
+    else
+      lookingFor = fieldName + '_' + m
+    i = 0
+    while i &lt; aboveThisIndex
+      currentRow = metrics[i]
+      if currentRow.as == lookingFor
+        return true
+      i++
+    # OK, it's not above, let's now see if it's below. Then throw error.
+    i = aboveThisIndex + 1
+    metricsLength = metrics.length
+    while i &lt; metricsLength
+      currentRow = metrics[i]
+      if currentRow.as == lookingFor
+        throw new Error(&quot;Depdencies must appear before the metric they are dependant upon. #{m} appears after.&quot;)
+      i++
+    return false
+
+  assureDependenciesAbove = (dependencies, fieldName, aboveThisIndex) -&gt;
+    for d in dependencies
+      unless confirmMetricAbove(d, fieldName, aboveThisIndex)
+        if d == 'count'
+          newRow = {f: 'count'}
+        else
+          newRow = {f: d, field: fieldName}
+        functions.expandFandAs(newRow)
+        metrics.unshift(newRow)
+        return false
+    return true
+
+  # add values for custom functions
+  if addValuesForCustomFunctions
+    for m, index in metrics
+      if utils.type(m.f) is 'function'
+        unless m.f.dependencies?
+          m.f.dependencies = []
+        unless m.f.dependencies[0] is 'values'
+          m.f.dependencies.push('values')
+        unless confirmMetricAbove('values', m.field, index)
+          valuesRow = {f: 'values', field: m.field}
+          functions.expandFandAs(valuesRow)
+          metrics.unshift(valuesRow)
+
+  hasCount = false
+  for m in metrics
+    functions.expandFandAs(m)
+    if m.metric is 'count'
+      hasCount = true
+
+  if addCountIfMissing and not hasCount
+    countRow = {f: 'count'}
+    functions.expandFandAs(countRow)
+    metrics.unshift(countRow)
+
+
+  index = 0
+  while index &lt; metrics.length  # intentionally not caching length because the loop can add rows
+    metricsRow = metrics[index]
+    if utils.type(metricsRow.f) is 'function'
+      dependencies = ['values']
+    if metricsRow.f.dependencies?
+      unless assureDependenciesAbove(metricsRow.f.dependencies, metricsRow.field, index)
+        index = -1
+    index++
+
+  return metrics
 
 exports.functions = functions
 &lt;/CoffeeScript&gt; */</pre>

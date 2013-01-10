@@ -8192,25 +8192,19 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
       metrics = [
         {
           field: 'ticks',
-          metrics: [
-            {
-              as: 'ticks',
-              f: 'sum'
-            }
-          ]
+          as: 'ticks',
+          f: 'sum'
         }
       ];
       if (this.config.trackLastValueForTheseFields != null) {
-        metricObject = {
-          f: 'lastValue'
-        };
         _ref = this.config.trackLastValueForTheseFields;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           fieldName = _ref[_i];
-          metrics.push({
-            field: fieldName,
-            metrics: [metricObject]
-          });
+          metricObject = {
+            f: 'lastValue',
+            field: fieldName
+          };
+          metrics.push(metricObject);
         }
       }
       cubeConfig = {
@@ -8269,12 +8263,12 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
         cell = this.cube.getCell(filter);
         outRow = {};
         outRow[this.config.uniqueIDField] = id;
-        outRow.ticks = cell.__metrics.ticks;
+        outRow.ticks = cell.ticks;
         if (this.config.trackLastValueForTheseFields != null) {
           _ref = this.config.trackLastValueForTheseFields;
           for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
             fieldName = _ref[_j];
-            outRow[fieldName + '_lastValue'] = cell.__metrics[fieldName + '_lastValue'];
+            outRow[fieldName + '_lastValue'] = cell[fieldName + '_lastValue'];
           }
         }
         out.push(outRow);
@@ -8399,10 +8393,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       You can specify any number of metrics to be calculated for each cell in the cube.
     
           metrics = [
-            {field: "Points", metrics: [
-              {as: "Scope", f: "sum"},
-              {f: "standardDeviation"}
-            ]}
+            {field: "Points", f: "sum", as: "Scope"}
           ]
     
       You can use any of the aggregation functions found in Lumenize.functions except `count`. The count metric is
@@ -8427,9 +8418,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       `getCell()` allows you to extract a single cell. The "total" cell for all facts where Priority = 1 can be found as follows:
     
           console.log(cube.getCell({Priority: 1}))
-          # { ProjectHierarchy: null,
-          #   Priority: 1,
-          #   __metrics: { count: 3, Scope: 30, Points_standardDeviation: 7 } }
+          # { ProjectHierarchy: null, Priority: 1, _count: 3, Scope: 30 }
     
       Notice how the ProjectHierarchy field value is `null`. This is because it is a total cell for Priority dimension
       for all ProjectHierarchy values. Think of `null` values in this context as wildcards.
@@ -8437,12 +8426,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       Similarly, we can get the total for all descendants of ProjectHierarchy = [1] regarless of Priority as follows:
     
           console.log(cube.getCell({ProjectHierarchy: [1]}))
-          # { ProjectHierarchy: [ 1 ],
-          #   Priority: null,
-          #   __metrics:
-          #    { count: 3,
-          #      Scope: 18,
-          #      Points_standardDeviation: 3.605551275463989 } }
+          # { ProjectHierarchy: [ 1 ], Priority: null, _count: 3, Scope: 18 }
     
       `getCell()` uses the cellIndex so it's very efficient. Using `getCell()` and `getDimensionValues()`, you can iterate
       over a slice of the OLAPCube. It is usually preferable to access the cells in place like this rather than the
@@ -8459,7 +8443,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
             for c in columnValues
               cell = cube.getCell({ProjectHierarchy: r, Priority: c})
               if cell?
-                cellString = JSON.stringify(cell.__metrics.count)
+                cellString = JSON.stringify(cell._count)
               else
                 cellString = ''
               s += OLAPCube._padToWidth(cellString, 7) + ' | '
@@ -8590,6 +8574,11 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
             add the sum metric to fields with a metrics specification. User-supplied aggregation functions are also supported as
             shown in the 'myCount' metric above.
       
+            Note, if the metric has dependencies (e.g. average depends upon count and sum) it will automatically add those to
+            your metric definition. If you've already added a dependency but put it under a different "as", it's not smart
+            enough to sense that and it will add it again. Either live with the slight inefficiency and duplication or leave
+            dependent metrics named their default by not providing an "as" field.
+      
           @cfg {Boolean} [keepTotals=false] Setting this will add an additional total row (indicated with field: null) along
             all dimensions. This setting can have a significant impact on the memory usage and performance of the OLAPCube so
             if things are tight, only use it if you really need it.
@@ -8618,7 +8607,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       if (!this.config.keepFacts) {
         this.config.keepFacts = false;
       }
-      functions.expandMetrics(this.config.metrics, true);
+      functions.expandMetrics(this.config.metrics, true, true);
       this.addFacts(facts);
     }
 
@@ -9220,8 +9209,6 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
 
   functions = {};
 
-  functions.INCREMENTAL = ['sum', 'sumSquares', 'lastValue', 'count', 'min', 'max', 'values', 'uniqueValues'];
-
   _populateDependentValues = function(values, dependencies, dependentValues, prefix) {
     var d, key, out, _i, _len;
     if (dependentValues == null) {
@@ -9538,57 +9525,56 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     /*
       @method expandFandAs Takes specifications for functions and expands them to include the actual function and 'as'
       @static
-      @param {Object} a Will look like this `{as: 'mySum', f: 'sum'}`
+      @param {Object} a Will look like this `{as: 'mySum', f: 'sum', field: 'Points'}`
       @return {Object} returns the expanded specification
     */
 
-    var as, f, p;
-    utils.assert((a.field != null) || a.metric === 'count', "'field' missing from metric specification: \n" + (JSON.stringify(a, void 0, 4)));
-    utils.assert((a.metric != null) || utils.type(a.f) === 'function', "'metric' missing from metric specification: \n" + (JSON.stringify(a, void 0, 4)));
-    if (a.as != null) {
-      as = a.as;
-    } else {
-      if (a.metric === 'count') {
-        a.field = '';
-      }
-      as = "" + a.field + "_" + a.metric;
-    }
+    var p;
+    utils.assert((a.field != null) || a.f === 'count', "'field' missing from specification: \n" + (JSON.stringify(a, void 0, 4)));
+    utils.assert(a.f != null, "'f' missing from specification: \n" + (JSON.stringify(a, void 0, 4)));
     if (utils.type(a.f) === 'function') {
       utils.assert(a.as != null, 'Must provide "as" field with your aggregation when providing a user defined function');
-      f = a.f;
-      if (f.dependencies == null) {
-        f.dependencies = [];
-      }
-      f.dependencies.push('values');
-    } else if (functions[a.metric] != null) {
-      f = functions[a.metric];
-    } else if (a.metric === 'median') {
-      f = functions.percentileCreator(50);
-    } else if (a.metric.substr(0, 1) === 'p') {
-      p = /\p(\d+(.\d+)?)/.exec(a.metric)[1];
-      f = functions.percentileCreator(Number(p));
+      a.metric = a.f.toString();
+    } else if (functions[a.f] != null) {
+      a.metric = a.f;
+      a.f = functions[a.f];
+    } else if (a.f === 'median') {
+      a.metric = 'median';
+      a.f = functions.percentileCreator(50);
+    } else if (a.f.substr(0, 1) === 'p') {
+      a.metric = a.f;
+      p = /\p(\d+(.\d+)?)/.exec(a.f)[1];
+      a.f = functions.percentileCreator(Number(p));
     } else {
-      throw new Error("" + a.metric + " is not a recognized built-in function");
+      throw new Error("" + a.f + " is not a recognized built-in function");
     }
-    a.f = f;
-    a.as = as;
+    if (a.as == null) {
+      if (a.metric === 'count') {
+        a.field = '';
+        a.metric = 'count';
+      }
+      a.as = "" + a.field + "_" + a.metric;
+    }
     return a;
   };
 
-  functions.expandMetrics = function(metrics, addCountIfMissing) {
-    var assureDependenciesAbove, confirmMetricAbove, countRow, hasCount, index, m, metricsRow, _i, _len;
+  functions.expandMetrics = function(metrics, addCountIfMissing, addValuesForCustomFunctions) {
+    var assureDependenciesAbove, confirmMetricAbove, countRow, dependencies, hasCount, index, m, metricsRow, valuesRow, _i, _j, _len, _len1;
     if (metrics == null) {
       metrics = [];
     }
     if (addCountIfMissing == null) {
       addCountIfMissing = false;
     }
-    confirmMetricAbove = function(metric, fieldName, aboveThisIndex) {
+    if (addValuesForCustomFunctions == null) {
+      addValuesForCustomFunctions = false;
+    }
+    confirmMetricAbove = function(m, fieldName, aboveThisIndex) {
       var currentRow, i, lookingFor, metricsLength;
-      if (metric === 'count') {
-        lookingFor = '_' + metric;
+      if (m === 'count') {
+        lookingFor = '_' + m;
       } else {
-        lookingFor = fieldName + '_' + metric;
+        lookingFor = fieldName + '_' + m;
       }
       i = 0;
       while (i < aboveThisIndex) {
@@ -9603,7 +9589,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
       while (i < metricsLength) {
         currentRow = metrics[i];
         if (currentRow.as === lookingFor) {
-          throw new Error("Depdencies must appear before the metric they are dependant upon. " + metric + " appears after.");
+          throw new Error("Depdencies must appear before the metric they are dependant upon. " + m + " appears after.");
         }
         i++;
       }
@@ -9616,11 +9602,11 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
         if (!confirmMetricAbove(d, fieldName, aboveThisIndex)) {
           if (d === 'count') {
             newRow = {
-              metric: 'count'
+              f: 'count'
             };
           } else {
             newRow = {
-              metric: d,
+              f: d,
               field: fieldName
             };
           }
@@ -9631,9 +9617,30 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
       }
       return true;
     };
+    if (addValuesForCustomFunctions) {
+      for (index = _i = 0, _len = metrics.length; _i < _len; index = ++_i) {
+        m = metrics[index];
+        if (utils.type(m.f) === 'function') {
+          if (m.f.dependencies == null) {
+            m.f.dependencies = [];
+          }
+          if (m.f.dependencies[0] !== 'values') {
+            m.f.dependencies.push('values');
+          }
+          if (!confirmMetricAbove('values', m.field, index)) {
+            valuesRow = {
+              f: 'values',
+              field: m.field
+            };
+            functions.expandFandAs(valuesRow);
+            metrics.unshift(valuesRow);
+          }
+        }
+      }
+    }
     hasCount = false;
-    for (_i = 0, _len = metrics.length; _i < _len; _i++) {
-      m = metrics[_i];
+    for (_j = 0, _len1 = metrics.length; _j < _len1; _j++) {
+      m = metrics[_j];
       functions.expandFandAs(m);
       if (m.metric === 'count') {
         hasCount = true;
@@ -9641,7 +9648,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     }
     if (addCountIfMissing && !hasCount) {
       countRow = {
-        metric: 'count'
+        f: 'count'
       };
       functions.expandFandAs(countRow);
       metrics.unshift(countRow);
@@ -9649,6 +9656,9 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     index = 0;
     while (index < metrics.length) {
       metricsRow = metrics[index];
+      if (utils.type(metricsRow.f) === 'function') {
+        dependencies = ['values'];
+      }
       if (metricsRow.f.dependencies != null) {
         if (!assureDependenciesAbove(metricsRow.f.dependencies, metricsRow.field, index)) {
           index = -1;
@@ -10054,7 +10064,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
 
   functions = require('./functions').functions;
 
-  aggregate = function(list, config) {
+  aggregate = function(list, userConfig) {
     /*
       @method aggregate
       @param {Object[]} list An Array or arbitrary rows
@@ -10090,7 +10100,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
           a = aggregate(list, config)
           console.log(a)
      
-          #   { ObjectID_count: 3,
+          #   { _count: 3,
           #     'Drill-down': [ '1', '2', '3' ], 
           #     PlanEstimate_sum: 13,
           #     mySum: 13 } 
@@ -10102,7 +10112,8 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       Array of values to aggregate) like the `mySum` example in our `config` list above.
     */
 
-    var a, as, f, output, row, valuesArray, _i, _j, _len, _len1, _ref1;
+    var a, as, config, f, output, row, valuesArray, _i, _j, _len, _len1, _ref1;
+    config = utils.clone(userConfig);
     output = {};
     for (_i = 0, _len = config.length; _i < _len; _i++) {
       a = config[_i];
@@ -10111,13 +10122,13 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
         row = list[_j];
         valuesArray.push(row[a.field]);
       }
-      _ref1 = functions.extractFandAs(a), f = _ref1.f, as = _ref1.as;
+      _ref1 = functions.expandFandAs(a), f = _ref1.f, as = _ref1.as;
       output[as] = f(valuesArray);
     }
     return output;
   };
 
-  aggregateAt = function(atArray, config) {
+  aggregateAt = function(atArray, userConfig) {
     /*
       @method aggregateAt
       @param {Array[]} atArray
@@ -10129,7 +10140,8 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       it as using a `map`.
     */
 
-    var a, idx, output, row, _i, _len;
+    var a, config, idx, output, row, _i, _len;
+    config = utils.clone(userConfig);
     output = [];
     for (idx = _i = 0, _len = atArray.length; _i < _len; idx = ++_i) {
       row = atArray[idx];
@@ -10139,7 +10151,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     return output;
   };
 
-  groupBy = function(list, config) {
+  groupBy = function(list, userConfig) {
     /*
       @method groupBy
       @param {Object[]} list An Array of rows
@@ -10195,7 +10207,8 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       Uses the same aggregation functions as the `aggregate` function.
     */
 
-    var a, as, f, groupByValue, grouped, output, outputRow, row, valuesArray, valuesForThisGroup, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2;
+    var a, as, config, f, groupByValue, grouped, output, outputRow, row, valuesArray, valuesForThisGroup, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2;
+    config = utils.clone(userConfig);
     grouped = {};
     for (_i = 0, _len = list.length; _i < _len; _i++) {
       row = list[_i];
@@ -10217,7 +10230,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
           row = valuesForThisGroup[_k];
           valuesArray.push(row[a.field]);
         }
-        _ref2 = functions.extractFandAs(a), f = _ref2.f, as = _ref2.as;
+        _ref2 = functions.expandFandAs(a), f = _ref2.f, as = _ref2.as;
         outputRow[as] = f(valuesArray);
       }
       output.push(outputRow);
@@ -10225,7 +10238,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     return output;
   };
 
-  groupByAt = function(atArray, config) {
+  groupByAt = function(atArray, userConfig) {
     /*
       @method groupByAt
       @param {Array[]} atArray
@@ -10246,7 +10259,8 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       You can use this if you want to do more calculations at the calling site.
     */
 
-    var a, as, blank, f, idx, key, newRow, output, row, t, temp, tempGroupBy, tempKey, tempRow, tgb, u, uniqueValues, value, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref1, _ref2;
+    var a, as, blank, config, f, idx, key, newRow, output, row, t, temp, tempGroupBy, tempKey, tempRow, tgb, u, uniqueValues, value, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref1, _ref2;
+    config = utils.clone(userConfig);
     temp = [];
     for (idx = _i = 0, _len = atArray.length; _i < _len; idx = ++_i) {
       row = atArray[idx];
@@ -10278,7 +10292,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     _ref1 = config.aggregationConfig;
     for (_l = 0, _len3 = _ref1.length; _l < _len3; _l++) {
       a = _ref1[_l];
-      _ref2 = functions.extractFandAs(a), f = _ref2.f, as = _ref2.as;
+      _ref2 = functions.expandFandAs(a), f = _ref2.f, as = _ref2.as;
       blank[as] = f([]);
     }
     output = [];
@@ -10301,7 +10315,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     return output;
   };
 
-  timeSeriesCalculator = function(snapshotArray, config) {
+  timeSeriesCalculator = function(snapshotArray, userConfig) {
     /*
       @method timeSeriesCalculator
       @param {Object[]} snapshotArray
@@ -10322,7 +10336,8 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       4. Use `aggregateAt` to calculate aggregations into an `aggregationAtArray` which contains chartable values.
     */
 
-    var aggregationAtArray, atArray, listOfAtCTs;
+    var aggregationAtArray, atArray, config, listOfAtCTs;
+    config = utils.clone(userConfig);
     listOfAtCTs = new Timeline(config.timelineConfig).getAll();
     utils.assert(listOfAtCTs.length > 0, "Timeline has no data points.");
     atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField);
@@ -10334,7 +10349,7 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
     };
   };
 
-  timeSeriesGroupByCalculator = function(snapshotArray, config) {
+  timeSeriesGroupByCalculator = function(snapshotArray, userConfig) {
     /*
       @method timeSeriesGroupByCalculator
       @param {Object[]} snapshotArray
@@ -10354,7 +10369,8 @@ require.define("/src/aggregate.coffee",function(require,module,exports,__dirname
       3. Use `groupByAt` to create a `groupByAtArray` of grouped aggregations to chart
     */
 
-    var aggregationConfig, atArray, groupByAtArray, listOfAtCTs;
+    var aggregationConfig, atArray, config, groupByAtArray, listOfAtCTs;
+    config = utils.clone(userConfig);
     listOfAtCTs = new Timeline(config.timelineConfig).getAll();
     utils.assert(listOfAtCTs.length > 0, "Timeline has no data points.");
     atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField);

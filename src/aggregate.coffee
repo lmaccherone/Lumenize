@@ -5,7 +5,7 @@ utils = require('./utils')
 {snapshotArray_To_AtArray} = require('./dataTransform')
 {functions} = require('./functions')
 
-aggregate = (list, config) ->  
+aggregate = (list, userConfig) ->
   ###
   @method aggregate
   @param {Object[]} list An Array or arbitrary rows
@@ -41,7 +41,7 @@ aggregate = (list, config) ->
       a = aggregate(list, config)
       console.log(a)
  
-      #   { ObjectID_count: 3,
+      #   { _count: 3,
       #     'Drill-down': [ '1', '2', '3' ], 
       #     PlanEstimate_sum: 13,
       #     mySum: 13 } 
@@ -52,20 +52,20 @@ aggregate = (list, config) ->
   Alternatively, you can provide your own function (it takes one parameter, which is an
   Array of values to aggregate) like the `mySum` example in our `config` list above.
   ###
-    
+  config = utils.clone(userConfig)
   output = {}
   for a in config
     valuesArray = []
     for row in list
       valuesArray.push(row[a.field])
       
-    {f, as} = functions.extractFandAs(a)
+    {f, as} = functions.expandFandAs(a)
 
     output[as] = f(valuesArray)
     
   return output
   
-aggregateAt = (atArray, config) ->  # !TODO: Change the name of all of these "At" functions. Mark suggests aggregateEach
+aggregateAt = (atArray, userConfig) ->  # !TODO: Change the name of all of these "At" functions. Mark suggests aggregateEach
   ###
   @method aggregateAt
   @param {Array[]} atArray
@@ -76,13 +76,14 @@ aggregateAt = (atArray, config) ->  # !TODO: Change the name of all of these "At
   This is essentially a wrapper around the aggregate function so the config parameter is the same. You can think of
   it as using a `map`.
   ###
+  config = utils.clone(userConfig)
   output = []
   for row, idx in atArray
     a = aggregate(row, config)
     output.push(a)
   return output
 
-groupBy = (list, config) ->
+groupBy = (list, userConfig) ->
   ###
   @method groupBy
   @param {Object[]} list An Array of rows
@@ -122,12 +123,12 @@ groupBy = (list, config) ->
       console.log(a)
 
       #   [ { KanbanState: 'In progress',
-      #       ObjectID_count: 1,
+      #       _count: 1,
       #       'Drill-down': [ '1' ], 
       #       PlanEstimate_sum: 5,
       #       mySum: 5 },
       #     { KanbanState: 'Ready to pull',
-      #       ObjectID_count: 2,
+      #       _count: 2,
       #       'Drill-down': [ '2', '3' ], 
       #       PlanEstimate_sum: 8,
       #       mySum: 8 } ]
@@ -138,6 +139,7 @@ groupBy = (list, config) ->
   Uses the same aggregation functions as the `aggregate` function.
   ###
   # Group by config.groupBy
+  config = utils.clone(userConfig)
   grouped = {}
   for row in list
     unless grouped[row[config.groupBy]]?
@@ -155,14 +157,14 @@ groupBy = (list, config) ->
       for row in valuesForThisGroup
         valuesArray.push(row[a.field])
         
-      {f, as} = functions.extractFandAs(a)
+      {f, as} = functions.expandFandAs(a)
 
       outputRow[as] = f(valuesArray)
     
     output.push(outputRow)
   return output
   
-groupByAt = (atArray, config) ->
+groupByAt = (atArray, userConfig) ->
   ###
   @method groupByAt
   @param {Array[]} atArray
@@ -182,6 +184,7 @@ groupByAt = (atArray, config) ->
   Note: `groupByAt` has the side-effect that `config.uniqueValues` are upgraded with the missing values.
   You can use this if you want to do more calculations at the calling site.
   ###
+  config = utils.clone(userConfig)
   temp = []
   for row, idx in atArray
     tempGroupBy = groupBy(row, config)
@@ -203,7 +206,7 @@ groupByAt = (atArray, config) ->
 
   blank = {}
   for a in config.aggregationConfig
-    {f, as} = functions.extractFandAs(a)
+    {f, as} = functions.expandFandAs(a)
     blank[as] = f([])
         
   output = []
@@ -221,7 +224,7 @@ groupByAt = (atArray, config) ->
   return output
 
 
-timeSeriesCalculator = (snapshotArray, config) ->  
+timeSeriesCalculator = (snapshotArray, userConfig) ->
   ###
   @method timeSeriesCalculator
   @param {Object[]} snapshotArray
@@ -242,6 +245,8 @@ timeSeriesCalculator = (snapshotArray, config) ->
   4. Use `aggregateAt` to calculate aggregations into an `aggregationAtArray` which contains chartable values.
   
   ###
+
+  config = utils.clone(userConfig)
   
   # 1. Figuring out the points for the x-axis (listOfAtCTs) 
   listOfAtCTs = new Timeline(config.timelineConfig).getAll()
@@ -259,7 +264,7 @@ timeSeriesCalculator = (snapshotArray, config) ->
   return {listOfAtCTs, aggregationAtArray}
   
 
-timeSeriesGroupByCalculator = (snapshotArray, config) -> 
+timeSeriesGroupByCalculator = (snapshotArray, userConfig) ->
   ###
   @method timeSeriesGroupByCalculator
   @param {Object[]} snapshotArray
@@ -279,6 +284,8 @@ timeSeriesGroupByCalculator = (snapshotArray, config) ->
   3. Use `groupByAt` to create a `groupByAtArray` of grouped aggregations to chart
 
   ###
+
+  config = utils.clone(userConfig)
 
   # 1. Figuring out the points for the x-axis (listOfAtCTs)
   listOfAtCTs = new Timeline(config.timelineConfig).getAll()

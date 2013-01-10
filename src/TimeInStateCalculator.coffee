@@ -147,12 +147,12 @@ class TimeInStateCalculator # implements iCalculator
       {field: @config.uniqueIDField}
     ]
     metrics = [
-      {field: 'ticks', metrics:[{as: 'ticks', f:'sum'}]}
+      {field: 'ticks', as: 'ticks', f:'sum'}
     ]
     if @config.trackLastValueForTheseFields?
-      metricObject = {f: 'lastValue'}
       for fieldName in @config.trackLastValueForTheseFields
-        metrics.push({field: fieldName, metrics: [metricObject]})
+        metricObject = {f: 'lastValue', field: fieldName}
+        metrics.push(metricObject)
     cubeConfig = {dimensions, metrics}
     @cube = new OLAPCube(cubeConfig)
     @upToDate = null
@@ -198,10 +198,10 @@ class TimeInStateCalculator # implements iCalculator
       cell = @cube.getCell(filter)
       outRow = {}
       outRow[@config.uniqueIDField] = id
-      outRow.ticks = cell.__metrics.ticks
+      outRow.ticks = cell.ticks
       if @config.trackLastValueForTheseFields?
         for fieldName in @config.trackLastValueForTheseFields
-          outRow[fieldName + '_lastValue'] = cell.__metrics[fieldName + '_lastValue']
+          outRow[fieldName + '_lastValue'] = cell[fieldName + '_lastValue']
       out.push(outRow)
     return out
 

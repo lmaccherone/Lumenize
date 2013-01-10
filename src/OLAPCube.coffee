@@ -56,10 +56,7 @@ class OLAPCube
   You can specify any number of metrics to be calculated for each cell in the cube.
 
       metrics = [
-        {field: "Points", metrics: [
-          {as: "Scope", f: "sum"},
-          {f: "standardDeviation"}
-        ]}
+        {field: "Points", f: "sum", as: "Scope"}
       ]
 
   You can use any of the aggregation functions found in Lumenize.functions except `count`. The count metric is
@@ -84,9 +81,7 @@ class OLAPCube
   `getCell()` allows you to extract a single cell. The "total" cell for all facts where Priority = 1 can be found as follows:
 
       console.log(cube.getCell({Priority: 1}))
-      # { ProjectHierarchy: null,
-      #   Priority: 1,
-      #   __metrics: { count: 3, Scope: 30, Points_standardDeviation: 7 } }
+      # { ProjectHierarchy: null, Priority: 1, _count: 3, Scope: 30 }
 
   Notice how the ProjectHierarchy field value is `null`. This is because it is a total cell for Priority dimension
   for all ProjectHierarchy values. Think of `null` values in this context as wildcards.
@@ -94,12 +89,7 @@ class OLAPCube
   Similarly, we can get the total for all descendants of ProjectHierarchy = [1] regarless of Priority as follows:
 
       console.log(cube.getCell({ProjectHierarchy: [1]}))
-      # { ProjectHierarchy: [ 1 ],
-      #   Priority: null,
-      #   __metrics:
-      #    { count: 3,
-      #      Scope: 18,
-      #      Points_standardDeviation: 3.605551275463989 } }
+      # { ProjectHierarchy: [ 1 ], Priority: null, _count: 3, Scope: 18 }
 
   `getCell()` uses the cellIndex so it's very efficient. Using `getCell()` and `getDimensionValues()`, you can iterate
   over a slice of the OLAPCube. It is usually preferable to access the cells in place like this rather than the
@@ -116,7 +106,7 @@ class OLAPCube
         for c in columnValues
           cell = cube.getCell({ProjectHierarchy: r, Priority: c})
           if cell?
-            cellString = JSON.stringify(cell.__metrics.count)
+            cellString = JSON.stringify(cell._count)
           else
             cellString = ''
           s += OLAPCube._padToWidth(cellString, 7) + ' | '
@@ -245,6 +235,11 @@ class OLAPCube
       add the sum metric to fields with a metrics specification. User-supplied aggregation functions are also supported as
       shown in the 'myCount' metric above.
 
+      Note, if the metric has dependencies (e.g. average depends upon count and sum) it will automatically add those to
+      your metric definition. If you've already added a dependency but put it under a different "as", it's not smart
+      enough to sense that and it will add it again. Either live with the slight inefficiency and duplication or leave
+      dependent metrics named their default by not providing an "as" field.
+
     @cfg {Boolean} [keepTotals=false] Setting this will add an additional total row (indicated with field: null) along
       all dimensions. This setting can have a significant impact on the memory usage and performance of the OLAPCube so
       if things are tight, only use it if you really need it.
@@ -268,7 +263,7 @@ class OLAPCube
     unless @config.keepFacts
       @config.keepFacts = false
 
-    functions.expandMetrics(@config.metrics, true)
+    functions.expandMetrics(@config.metrics, true, true)
 
     @addFacts(facts)
   
@@ -503,6 +498,7 @@ class OLAPCube
     if @config.dimensions.length == 1  # !TODO: Upgrade this 1-dimension portion to be as nice as the 2+ dimension version below
       field = @config.dimensions[0].field
       s = OLAPCube._padToWidth(field, 15) + OLAPCube._padToWidth(metric, 27)
+
       for r, index in @getDimensionValues(field)
         filter = {}
         filter[field] = r
@@ -542,6 +538,7 @@ class OLAPCube
         valueStrings.push(valueStringsRow)
       maxColumnWidth += 1
       s = '|' + (OLAPCube._padToWidth('', rowLabelWidth)) + ' ||'
+
       for c, indexColumn in columnValueStrings
         if c == 'null'
           s += OLAPCube._padToWidth('Total', maxColumnWidth) + ' |'

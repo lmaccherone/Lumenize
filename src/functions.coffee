@@ -13,8 +13,6 @@ Rules about dependencies
 ###
 functions = {}
 
-functions.INCREMENTAL = ['sum', 'sumSquares', 'lastValue', 'count', 'min', 'max', 'values', 'uniqueValues']  # !TODO: remove this once dependencies is implemented
-
 _populateDependentValues = (values, dependencies, dependentValues = {}, prefix = '') ->
   out = {}
   for d in dependencies
@@ -246,42 +244,40 @@ functions.expandFandAs = (a) ->
   ###
   @method expandFandAs Takes specifications for functions and expands them to include the actual function and 'as'
   @static
-  @param {Object} a Will look like this `{as: 'mySum', f: 'sum'}`
+  @param {Object} a Will look like this `{as: 'mySum', f: 'sum', field: 'Points'}`
   @return {Object} returns the expanded specification
   ###
-  utils.assert(a.field? or a.metric == 'count', "'field' missing from metric specification: \n#{JSON.stringify(a, undefined, 4)}")
-  utils.assert(a.metric? or utils.type(a.f) == 'function', "'metric' missing from metric specification: \n#{JSON.stringify(a, undefined, 4)}")
-  if a.as?
-    as = a.as
-  else
-    if a.metric == 'count'
-      a.field = ''
-    as = "#{a.field}_#{a.metric}"
+  utils.assert(a.field? or a.f == 'count', "'field' missing from specification: \n#{JSON.stringify(a, undefined, 4)}")
+  utils.assert(a.f?, "'f' missing from specification: \n#{JSON.stringify(a, undefined, 4)}")
   if utils.type(a.f) == 'function'
     utils.assert(a.as?, 'Must provide "as" field with your aggregation when providing a user defined function')
-    f = a.f
-    unless f.dependencies?
-      f.dependencies = []
-    f.dependencies.push('values')
-  else if functions[a.metric]?
-    f = functions[a.metric]
-  else if a.metric == 'median'
-    f = functions.percentileCreator(50)
-  else if a.metric.substr(0, 1) == 'p'
-    p = /\p(\d+(.\d+)?)/.exec(a.metric)[1]
-    f = functions.percentileCreator(Number(p))
+    a.metric = a.f.toString()
+  else if functions[a.f]?
+    a.metric = a.f
+    a.f = functions[a.f]
+  else if a.f == 'median'
+    a.metric = 'median'
+    a.f = functions.percentileCreator(50)
+  else if a.f.substr(0, 1) == 'p'
+    a.metric = a.f
+    p = /\p(\d+(.\d+)?)/.exec(a.f)[1]
+    a.f = functions.percentileCreator(Number(p))
   else
-    throw new Error("#{a.metric} is not a recognized built-in function")
-  a.f = f
-  a.as = as
+    throw new Error("#{a.f} is not a recognized built-in function")
+
+  unless a.as?
+    if a.metric == 'count'
+      a.field = ''
+      a.metric = 'count'
+    a.as = "#{a.field}_#{a.metric}"
   return a
 
-functions.expandMetrics = (metrics = [], addCountIfMissing = false) ->
-  confirmMetricAbove = (metric, fieldName, aboveThisIndex) ->
-    if metric is 'count'
-      lookingFor = '_' + metric
+functions.expandMetrics = (metrics = [], addCountIfMissing = false, addValuesForCustomFunctions = false) ->
+  confirmMetricAbove = (m, fieldName, aboveThisIndex) ->
+    if m is 'count'
+      lookingFor = '_' + m
     else
-      lookingFor = fieldName + '_' + metric
+      lookingFor = fieldName + '_' + m
     i = 0
     while i < aboveThisIndex
       currentRow = metrics[i]
@@ -294,7 +290,7 @@ functions.expandMetrics = (metrics = [], addCountIfMissing = false) ->
     while i < metricsLength
       currentRow = metrics[i]
       if currentRow.as == lookingFor
-        throw new Error("Depdencies must appear before the metric they are dependant upon. #{metric} appears after.")
+        throw new Error("Depdencies must appear before the metric they are dependant upon. #{m} appears after.")
       i++
     return false
 
@@ -302,13 +298,26 @@ functions.expandMetrics = (metrics = [], addCountIfMissing = false) ->
     for d in dependencies
       unless confirmMetricAbove(d, fieldName, aboveThisIndex)
         if d == 'count'
-          newRow = {metric: 'count'}
+          newRow = {f: 'count'}
         else
-          newRow = {metric: d, field: fieldName}
+          newRow = {f: d, field: fieldName}
         functions.expandFandAs(newRow)
         metrics.unshift(newRow)
         return false
     return true
+
+  # add values for custom functions
+  if addValuesForCustomFunctions
+    for m, index in metrics
+      if utils.type(m.f) is 'function'
+        unless m.f.dependencies?
+          m.f.dependencies = []
+        unless m.f.dependencies[0] is 'values'
+          m.f.dependencies.push('values')
+        unless confirmMetricAbove('values', m.field, index)
+          valuesRow = {f: 'values', field: m.field}
+          functions.expandFandAs(valuesRow)
+          metrics.unshift(valuesRow)
 
   hasCount = false
   for m in metrics
@@ -317,13 +326,16 @@ functions.expandMetrics = (metrics = [], addCountIfMissing = false) ->
       hasCount = true
 
   if addCountIfMissing and not hasCount
-    countRow = {metric: 'count'}
+    countRow = {f: 'count'}
     functions.expandFandAs(countRow)
     metrics.unshift(countRow)
+
 
   index = 0
   while index < metrics.length  # intentionally not caching length because the loop can add rows
     metricsRow = metrics[index]
+    if utils.type(metricsRow.f) is 'function'
+      dependencies = ['values']
     if metricsRow.f.dependencies?
       unless assureDependenciesAbove(metricsRow.f.dependencies, metricsRow.field, index)
         index = -1

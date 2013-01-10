@@ -24,22 +24,20 @@ exports.olapTest =
     ]
 
     metrics = [
-      {field: "Points", metric: "sum"},
-      {field: "Points", metric: "standardDeviation"}
+      {field: "Points", f: "sum", as: "Scope"}
     ]
 
     config = {dimensions, metrics}
     config.keepTotals = true
 
     cube = new OLAPCube(config, facts)
+    console.log(cube.getCell({_ProjectHierarchy: [1]}))
 
     expected = {
       _ProjectHierarchy: null,
       Priority: 1,
       _count: 3,
-      Points_sumSquares: 398,
-      Points_sum: 30,
-      Points_standardDeviation: 7
+      Scope: 30
     }
 
     test.deepEqual(expected, cube.getCell({Priority: 1}))
@@ -48,9 +46,7 @@ exports.olapTest =
       _ProjectHierarchy: [ 1 ],
       Priority: null,
       _count: 3,
-      Points_sumSquares: 134,
-      Points_sum: 18,
-      Points_standardDeviation: 3.605551275463989
+      Scope: 18
     }
     test.deepEqual(expected, cube.getCell({_ProjectHierarchy: [1]}))
 
@@ -72,7 +68,7 @@ exports.olapTest =
       |[5]     ||    17 |    17      |
     '''
 
-    outString = cube.toString('_ProjectHierarchy', 'Priority', 'Points_sum')
+    outString = cube.toString('_ProjectHierarchy', 'Priority', 'Scope')
     test.equal(expected, outString)
 
     test.done()
@@ -106,8 +102,8 @@ exports.olapTest =
     ]
 
     metrics = [
-      {field: 'field3', metric: 'sum'},
-      {field: 'field4', metric: 'p50'}
+      {field: 'field3', f: 'sum'},
+      {field: 'field4', f: 'p50'}
     ]
 
     expected = [
@@ -157,8 +153,8 @@ exports.olapTest =
     ]
 
     metrics = [
-      {field: 'f3', metric: 'sum'},
-      {field: 'f4', metric: 'p50'}
+      {field: 'f3', f: 'sum'},
+      {field: 'f4', f: 'p50'}
     ]
 
     config = {dimensions, metrics}
@@ -205,7 +201,7 @@ exports.olapTest =
     ]
 
     metrics = [
-      {field: 'field3', metric: 'sum'}
+      {field: 'field3', f: 'sum'}
     ]
 
     config = {dimensions, metrics}
@@ -309,9 +305,9 @@ exports.olapTest =
     ]
 
     metrics = [
-      {field: 'Priority', metric: 'lastValue'},
-      {field: 'Priority', metric: 'min'},
-      {field: 'Priority', metric: 'max'}
+      {field: 'Priority', f: 'lastValue'},
+      {field: 'Priority', f: 'min'},
+      {field: 'Priority', f: 'max'}
     ]
 
     config = {dimensions, metrics}
@@ -345,7 +341,7 @@ exports.olapTest =
 
     dimensions = [{field: 'f1'}]
 
-    metrics = [{field: 'm1', metric: 'p50'}]
+    metrics = [{field: 'm1', f: 'p50'}]
 
     config = {dimensions, metrics}
 

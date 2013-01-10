@@ -3,10 +3,16 @@
 exports.functionsTest =
 
   testExpandMetrics: (test) ->
+
+#    console.log('***')
+#    console.log(functions.expandMetrics.toString())
+#    functions.junk = 'junk'
+#    console.log('***')
+
     metrics = [
-      {metric: 'average', field: 'a'},
-      {metric: 'variance', field: 'b'}
-      {metric: 'standardDeviation', field: 'c'}
+      {f: 'average', field: 'a'},
+      {f: 'variance', field: 'b'}
+      {f: 'standardDeviation', field: 'c'}
     ]
 
     functions.expandMetrics(metrics)
@@ -73,8 +79,8 @@ exports.functionsTest =
 
   testExpandMetricsWithSomeExisting: (test) ->
     metrics = [
-      {metric: 'values', field: 'a'}
-      {metric: 'p50', field: 'a'}
+      {f: 'values', field: 'a'}
+      {f: 'p50', field: 'a'}
     ]
 
     functions.expandMetrics(metrics)
@@ -85,8 +91,8 @@ exports.functionsTest =
 
   testExpandMetricsWithBadOrder: (test) ->
     metrics = [
-      {metric: 'average', field: 'a'}
-      {metric: 'sum', field: 'a'}
+      {f: 'average', field: 'a'}
+      {f: 'sum', field: 'a'}
     ]
 
     f = () ->
@@ -99,13 +105,13 @@ exports.functionsTest =
   testMissingCount: (test) ->
     metrics = functions.expandMetrics(undefined, true)
 
-    test.deepEqual(metrics, [{metric: 'count', field: '', f: functions.count, as: '_count'}])
+    test.deepEqual(metrics, [{metric: 'count', field: '', f: functions.count, as: '_count', metric: 'count'}])
 
     test.done()
 
   testAsProvided: (test) ->
     metrics = [
-      {as: 'scope', field: 'a', metric: 'sum'}
+      {as: 'scope', field: 'a', f: 'sum'}
     ]
 
     functions.expandMetrics(metrics)
@@ -131,7 +137,7 @@ exports.functionsTest =
       {f: myFunc, as: 'hello', field: 'hello'}
     ]
 
-    functions.expandMetrics(metrics)
+    functions.expandMetrics(metrics, undefined, true)
 
     test.deepEqual(metrics[1].f.dependencies, ['values'])
 

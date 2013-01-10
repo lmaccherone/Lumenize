@@ -23,7 +23,7 @@ utils = require('./utils')
 {snapshotArray_To_AtArray} = require('./dataTransform')
 {functions} = require('./functions')
 
-aggregate = (list, config) -&gt;  
+aggregate = (list, userConfig) -&gt;
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-method-aggregate'>  /**
 </span>   * @method aggregate
@@ -61,7 +61,7 @@ aggregate = (list, config) -&gt;
    *     a = aggregate(list, config)
    *     console.log(a)
    * 
-   *     #   { ObjectID_count: 3,
+   *     #   { _count: 3,
    *     #     'Drill-down': [ '1', '2', '3' ], 
    *     #     PlanEstimate_sum: 13,
    *     #     mySum: 13 } 
@@ -73,20 +73,20 @@ aggregate = (list, config) -&gt;
    * Array of values to aggregate) like the `mySum` example in our `config` list above.
    */
 /* &lt;CoffeeScript&gt;
-    
+  config = utils.clone(userConfig)
   output = {}
   for a in config
     valuesArray = []
     for row in list
       valuesArray.push(row[a.field])
       
-    {f, as} = functions.extractFandAs(a)
+    {f, as} = functions.expandFandAs(a)
 
     output[as] = f(valuesArray)
     
   return output
   
-aggregateAt = (atArray, config) -&gt;  # !TODO: Change the name of all of these &quot;At&quot; functions. Mark suggests aggregateEach
+aggregateAt = (atArray, userConfig) -&gt;  # !TODO: Change the name of all of these &quot;At&quot; functions. Mark suggests aggregateEach
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-method-aggregateAt'>  /**
 </span>   * @method aggregateAt
@@ -100,13 +100,14 @@ aggregateAt = (atArray, config) -&gt;  # !TODO: Change the name of all of these 
    * it as using a `map`.
    */
 /* &lt;CoffeeScript&gt;
+  config = utils.clone(userConfig)
   output = []
   for row, idx in atArray
     a = aggregate(row, config)
     output.push(a)
   return output
 
-groupBy = (list, config) -&gt;
+groupBy = (list, userConfig) -&gt;
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-method-groupBy'>  /**
 </span>   * @method groupBy
@@ -148,12 +149,12 @@ groupBy = (list, config) -&gt;
    *     console.log(a)
    * 
    *     #   [ { KanbanState: 'In progress',
-   *     #       ObjectID_count: 1,
+   *     #       _count: 1,
    *     #       'Drill-down': [ '1' ], 
    *     #       PlanEstimate_sum: 5,
    *     #       mySum: 5 },
    *     #     { KanbanState: 'Ready to pull',
-   *     #       ObjectID_count: 2,
+   *     #       _count: 2,
    *     #       'Drill-down': [ '2', '3' ], 
    *     #       PlanEstimate_sum: 8,
    *     #       mySum: 8 } ]
@@ -165,6 +166,7 @@ groupBy = (list, config) -&gt;
    */
 /* &lt;CoffeeScript&gt;
   # Group by config.groupBy
+  config = utils.clone(userConfig)
   grouped = {}
   for row in list
     unless grouped[row[config.groupBy]]?
@@ -182,14 +184,14 @@ groupBy = (list, config) -&gt;
       for row in valuesForThisGroup
         valuesArray.push(row[a.field])
         
-      {f, as} = functions.extractFandAs(a)
+      {f, as} = functions.expandFandAs(a)
 
       outputRow[as] = f(valuesArray)
     
     output.push(outputRow)
   return output
   
-groupByAt = (atArray, config) -&gt;
+groupByAt = (atArray, userConfig) -&gt;
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-method-groupByAt'>  /**
 </span>   * @method groupByAt
@@ -212,6 +214,7 @@ groupByAt = (atArray, config) -&gt;
    * You can use this if you want to do more calculations at the calling site.
    */
 /* &lt;CoffeeScript&gt;
+  config = utils.clone(userConfig)
   temp = []
   for row, idx in atArray
     tempGroupBy = groupBy(row, config)
@@ -233,7 +236,7 @@ groupByAt = (atArray, config) -&gt;
 
   blank = {}
   for a in config.aggregationConfig
-    {f, as} = functions.extractFandAs(a)
+    {f, as} = functions.expandFandAs(a)
     blank[as] = f([])
         
   output = []
@@ -251,7 +254,7 @@ groupByAt = (atArray, config) -&gt;
   return output
 
 
-timeSeriesCalculator = (snapshotArray, config) -&gt;  
+timeSeriesCalculator = (snapshotArray, userConfig) -&gt;
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-method-timeSeriesCalculator'>  /**
 </span>   * @method timeSeriesCalculator
@@ -275,6 +278,8 @@ timeSeriesCalculator = (snapshotArray, config) -&gt;
    * 
    */
 /* &lt;CoffeeScript&gt;
+
+  config = utils.clone(userConfig)
   
   # 1. Figuring out the points for the x-axis (listOfAtCTs) 
   listOfAtCTs = new Timeline(config.timelineConfig).getAll()
@@ -292,7 +297,7 @@ timeSeriesCalculator = (snapshotArray, config) -&gt;
   return {listOfAtCTs, aggregationAtArray}
   
 
-timeSeriesGroupByCalculator = (snapshotArray, config) -&gt; 
+timeSeriesGroupByCalculator = (snapshotArray, userConfig) -&gt;
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-method-timeSeriesGroupByCalculator'>  /**
 </span>   * @method timeSeriesGroupByCalculator
@@ -315,6 +320,8 @@ timeSeriesGroupByCalculator = (snapshotArray, config) -&gt;
    * 
    */
 /* &lt;CoffeeScript&gt;
+
+  config = utils.clone(userConfig)
 
   # 1. Figuring out the points for the x-axis (listOfAtCTs)
   listOfAtCTs = new Timeline(config.timelineConfig).getAll()

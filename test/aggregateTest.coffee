@@ -2,12 +2,12 @@
 
 exports.aggregateTest =
 
-#  testFail: (test) ->
-#    test.ok(false)
-#    test.done()
-
   testPercentile: (test) ->
-  
+
+#    console.log('***')
+#    console.log(functions.expandMetrics.toString())
+#    console.log('***')
+
     a = [15, 20, 35, 40, 50]
     a2 = [3, 5]
     
@@ -46,8 +46,8 @@ exports.aggregateTest =
     }
       
     expected = [
-      { 'ObjectID_count': 1, 'Drill-down': [ '1' ], 'PlanEstimate_sum': 5, mySum: 5, 'KanbanState': 'In progress'},
-      { 'ObjectID_count': 2, 'Drill-down': [ '2', '3' ], 'PlanEstimate_sum': 8, mySum: 8, 'KanbanState': 'Ready to pull' } 
+      { '_count': 1, 'Drill-down': [ '1' ], 'PlanEstimate_sum': 5, mySum: 5, 'KanbanState': 'In progress'},
+      { '_count': 2, 'Drill-down': [ '2', '3' ], 'PlanEstimate_sum': 8, mySum: 8, 'KanbanState': 'Ready to pull' } 
     ]
     
     a = groupBy(list, config)
@@ -81,14 +81,14 @@ exports.aggregateTest =
       
     expected = [ 
       [
-        { 'ObjectID_count': 2, KanbanState: 'Ready to pull' },
-        { 'ObjectID_count': 1, KanbanState: 'In progress' },
-        { 'ObjectID_count': 0, KanbanState: 'In test' } 
+        { '_count': 2, KanbanState: 'Ready to pull' },
+        { '_count': 1, KanbanState: 'In progress' },
+        { '_count': 0, KanbanState: 'In test' } 
       ],
       [ 
-        { 'ObjectID_count': 1, KanbanState: 'Ready to pull' },
-        { 'ObjectID_count': 1, KanbanState: 'In progress' },
-        { 'ObjectID_count': 1, KanbanState: 'In test' } 
+        { '_count': 1, KanbanState: 'Ready to pull' },
+        { '_count': 1, KanbanState: 'In progress' },
+        { '_count': 1, KanbanState: 'In test' } 
       ] 
     ]
     
