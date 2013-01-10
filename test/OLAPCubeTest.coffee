@@ -31,7 +31,6 @@ exports.olapTest =
     config.keepTotals = true
 
     cube = new OLAPCube(config, facts)
-    console.log(cube.getCell({_ProjectHierarchy: [1]}))
 
     expected = {
       _ProjectHierarchy: null,
