@@ -31,6 +31,7 @@ class iCalculator
 /* &lt;CoffeeScript&gt;
 
       The config properties are up to you.
+    throw new Error('iCalculator is an interface not a base class. You must override this constructor.')
 
   addSnapshots: (snapshots, startOn, endBefore) -&gt;
 &lt;/CoffeeScript&gt; */
@@ -47,6 +48,9 @@ class iCalculator
      * @return {iCalculator}
      */
 /* &lt;CoffeeScript&gt;
+    throw new Error('iCalculator is an interface not a base class. You must override this addSnapshots method.')
+
+    # example code follows
     if @upToDate?
       utils.assert(@upToDate == startOn, &quot;startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDate}) to addSnapshots.&quot;)
     @upToDate = endBefore
@@ -62,6 +66,7 @@ class iCalculator
      * @return {Object} The type and format of what it returns is up to you.
      */
 /* &lt;CoffeeScript&gt;
+    throw new Error('iCalculator is an interface not a base class. You must override this getResults method.')
 
   getStateForSaving: (meta) -&gt;
 &lt;/CoffeeScript&gt; */
@@ -76,6 +81,9 @@ class iCalculator
      *   the calculator.
      */
 /* &lt;CoffeeScript&gt;
+    throw new Error('iCalculator is an interface not a base class. You must override this getStateForSaving method.')
+
+    # example code follows
     out = {}
     out.upToDate = @upToDate
     if meta?
@@ -94,6 +102,9 @@ class iCalculator
      * @return {iCalculator}
      */
 /* &lt;CoffeeScript&gt;
+    throw new Error('iCalculator is an interface not a base class. You must override this @newFromSavedState method.')
+
+    # example code follows
     if utils.type(p) is 'string'
       p = JSON.parse(p)
     # calculator = new &lt;your_class_here&gt;(p.config)

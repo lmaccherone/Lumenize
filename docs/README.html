@@ -190,7 +190,7 @@
 <p>Once you have the above installed/configured, make some awesome modification to Lumenize, add tests for your upgrades, add examples in your docstrings, and make sure all test pass and examples work with:
 
 </p>
-<p><code>cake test-all</code>
+<p><code>cake testall</code>
 
 </p>
 <p>Once you have that all working, submit a pull request on GitHub.
@@ -206,7 +206,13 @@
 
 </p>
 <ul>
-<li>0.5.1 - 2013-01-06 <strong>Backward breaking change - not released to npm</strong><ul>
+<li>0.5.2 - 2013-01-13 <ul>
+<li>Added TransitionsCalculator using OLAPCube</li>
+<li>OLAPCube now allows for keepTotals on individual dimensions while still supporting
+the global config.keepTotals    </li>
+</ul>
+</li>
+<li>0.5.1 - 2013-01-06 <strong>Backward breaking change</strong><ul>
 <li>TimeInStateCalculator now requires you to specify <code>config.trackLastValueForTheseFields</code>
 for any fields you want the last value maintained. Previously, the _ValidTo was 
 automatically tracked.</li>
@@ -221,12 +227,11 @@ automatically tracked.</li>
 <li><code>$addToSet()</code> is now <code>uniqueValues()</code></li>
 <li>More parameters are pushed into the config Object parameter</li>
 <li>OLAPCube introduced. It&#39;s a great general purpose calculator and surprisingly it is as
-efficient as the hand-coded calculators. I will reimplemented the TimeInStateCalculator
+efficient as the hand-coded calculators. I reimplemented the TimeInStateCalculator
 to use the OLAPCube, which gave it incremental updating for free.</li>
 <li>ChartTime is now Time, ChartTimeRange is now Timeline, ChartTimeIterator is now 
-TimelineIterator. All three are now moved out to the TZTime package and have various other
-backward breaking changes mostly having to do with defaults, method names, and method
-signatures. There are no semantic changes.</li>
+TimelineIterator. All three have various other backward breaking changes mostly having to
+do with defaults, method names, and method signatures. There are no semantic changes. </li>
 <li>ChartTimeInStateCalculator is now TimeInStateCalculator.</li>
 </ul>
 </li>
@@ -256,7 +261,7 @@ snapshotArray_To_AtArray.</li>
 <li>0.2.7 - 2012-10-10 - <strong>Backward breaking change</strong> to the structure of the data returned by groupBy() to match groupByAt()</li>
 </ul>
 <h2>MIT License</h2>
-<p>Copyright (c) 2011, 2012, Lawrence S. Maccherone, Jr.
+<p>Copyright (c) 2011, 2012, 2013 Lawrence S. Maccherone, Jr.
 
 </p>
 <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 

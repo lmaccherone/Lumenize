@@ -3,9 +3,11 @@
         "name": "Lumenize",
         "groups": [
             {
-                "name": "Primary Functions",
+                "name": "Primary Classes and Functions",
                 "classes": [
-                    "Lumenize"
+                    "Lumenize",
+                    "*.TimeInStateCalculator",
+                    "*.TransitionsCalculator"
                 ]
             },
             {
@@ -19,8 +21,7 @@
                 "classes": [
                     "*.Time",
                     "*.Timeline",
-                    "*.TimelineIterator",
-                    "*.TimeInStateCalculator"
+                    "*.TimelineIterator"
                 ]
             }
         ]

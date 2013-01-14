@@ -12,6 +12,7 @@ class iCalculator
     @param {Object} config
       The config properties are up to you.
     ###
+    throw new Error('iCalculator is an interface not a base class. You must override this constructor.')
 
   addSnapshots: (snapshots, startOn, endBefore) ->
     ###
@@ -25,6 +26,9 @@ class iCalculator
       period of interest.
     @return {iCalculator}
     ###
+    throw new Error('iCalculator is an interface not a base class. You must override this addSnapshots method.')
+
+    # example code follows
     if @upToDate?
       utils.assert(@upToDate == startOn, "startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDate}) to addSnapshots.")
     @upToDate = endBefore
@@ -37,6 +41,7 @@ class iCalculator
       Returns the current state of the calculator
     @return {Object} The type and format of what it returns is up to you.
     ###
+    throw new Error('iCalculator is an interface not a base class. You must override this getResults method.')
 
   getStateForSaving: (meta) ->
     ###
@@ -48,6 +53,9 @@ class iCalculator
       to an object store or LocalCache. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
       the calculator.
     ###
+    throw new Error('iCalculator is an interface not a base class. You must override this getStateForSaving method.')
+
+    # example code follows
     out = {}
     out.upToDate = @upToDate
     if meta?
@@ -63,6 +71,9 @@ class iCalculator
     @param {String/Object} p A String or Object from a previously saved calculator state
     @return {iCalculator}
     ###
+    throw new Error('iCalculator is an interface not a base class. You must override this @newFromSavedState method.')
+
+    # example code follows
     if utils.type(p) is 'string'
       p = JSON.parse(p)
     # calculator = new <your_class_here>(p.config)

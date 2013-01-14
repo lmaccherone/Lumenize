@@ -16,13 +16,12 @@ exports.TimeInStateCalculatorTest =
       { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: '7.0' }  # continues past the range of consideration in this test
     ]
     
-    granularity = 'minute'
+    granularity = lumenize.Time.MINUTE
     tz = 'America/Chicago'
     
     config =    # default work days and holidays
       granularity: granularity
       tz: tz
-      endBefore: '2011-01-11T00:00:00.000'
       workDayStartOn: {hour: 9, minute: 0}  # 15:00 GMT in Chicago
       workDayEndBefore: {hour: 11, minute: 0}  # 17:00 GMT in Chicago.
       validFromField: 'from'

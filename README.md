@@ -85,7 +85,7 @@ To contribute to Lumenize:
 
 Once you have the above installed/configured, make some awesome modification to Lumenize, add tests for your upgrades, add examples in your docstrings, and make sure all test pass and examples work with:
 
-`cake test-all`
+`cake testall`
 
 Once you have that all working, submit a pull request on GitHub.
 
@@ -98,9 +98,11 @@ Once you have that all working, submit a pull request on GitHub.
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
-* 0.5.2 - 2013-01-13 Allows for keepTotals on individual dimensions while still supporting
-  the global config.keepTotals
-* 0.5.1 - 2013-01-06 **Backward breaking change - not released to npm**
+* 0.5.2 - 2013-01-13 
+  * Added TransitionsCalculator using OLAPCube
+  * OLAPCube now allows for keepTotals on individual dimensions while still supporting
+    the global config.keepTotals    
+* 0.5.1 - 2013-01-06 **Backward breaking change**
   * TimeInStateCalculator now requires you to specify `config.trackLastValueForTheseFields`
     for any fields you want the last value maintained. Previously, the _ValidTo was 
     automatically tracked.
@@ -113,12 +115,11 @@ In November of 2012, Lumenize wanted to start keeping old versions around becaus
   * `$addToSet()` is now `uniqueValues()`
   * More parameters are pushed into the config Object parameter
   * OLAPCube introduced. It's a great general purpose calculator and surprisingly it is as
-    efficient as the hand-coded calculators. I will reimplemented the TimeInStateCalculator
+    efficient as the hand-coded calculators. I reimplemented the TimeInStateCalculator
     to use the OLAPCube, which gave it incremental updating for free.
   * ChartTime is now Time, ChartTimeRange is now Timeline, ChartTimeIterator is now 
-    TimelineIterator. All three are now moved out to the TZTime package and have various other
-    backward breaking changes mostly having to do with defaults, method names, and method
-    signatures. There are no semantic changes.
+    TimelineIterator. All three have various other backward breaking changes mostly having to
+    do with defaults, method names, and method signatures. There are no semantic changes. 
   * ChartTimeInStateCalculator is now TimeInStateCalculator.
 * 0.4.8 - 2012-12-08 - Turn off prefer global
 * 0.4.7 - 2012-12-08 - Updated dependencies
@@ -143,7 +144,7 @@ In November of 2012, Lumenize wanted to start keeping old versions around becaus
 
 ## MIT License ##
 
-Copyright (c) 2011, 2012, Lawrence S. Maccherone, Jr.
+Copyright (c) 2011, 2012, 2013 Lawrence S. Maccherone, Jr.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation 

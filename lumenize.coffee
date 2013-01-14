@@ -164,6 +164,7 @@ exports.Timeline = Timeline.Timeline
 
 exports.iCalculator = require('./src/iCalculator').iCalculator
 exports.TimeInStateCalculator = require('./src/TimeInStateCalculator').TimeInStateCalculator
+exports.TransitionsCalculator = require('./src/TransitionsCalculator').TransitionsCalculator
 
 datatransform = require('./src/dataTransform')
 exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps

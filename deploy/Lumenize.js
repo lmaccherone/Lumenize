@@ -4757,6 +4757,8 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
 
   exports.TimeInStateCalculator = require('./src/TimeInStateCalculator').TimeInStateCalculator;
 
+  exports.TransitionsCalculator = require('./src/TransitionsCalculator').TransitionsCalculator;
+
   datatransform = require('./src/dataTransform');
 
   exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps;
@@ -7952,6 +7954,7 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
             The config properties are up to you.
       */
 
+      throw new Error('iCalculator is an interface not a base class. You must override this constructor.');
     }
 
     iCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore) {
@@ -7966,6 +7969,7 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
             period of interest.
           @return {iCalculator}
       */
+      throw new Error('iCalculator is an interface not a base class. You must override this addSnapshots method.');
       if (this.upToDate != null) {
         utils.assert(this.upToDate === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDate + ") to addSnapshots.");
       }
@@ -7979,7 +7983,7 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
             Returns the current state of the calculator
           @return {Object} The type and format of what it returns is up to you.
       */
-
+      throw new Error('iCalculator is an interface not a base class. You must override this getResults method.');
     };
 
     iCalculator.prototype.getStateForSaving = function(meta) {
@@ -7994,6 +7998,7 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
       */
 
       var out;
+      throw new Error('iCalculator is an interface not a base class. You must override this getStateForSaving method.');
       out = {};
       out.upToDate = this.upToDate;
       if (meta != null) {
@@ -8010,6 +8015,7 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
           @param {String/Object} p A String or Object from a previously saved calculator state
           @return {iCalculator}
       */
+      throw new Error('iCalculator is an interface not a base class. You must override this @newFromSavedState method.');
       if (utils.type(p) === 'string') {
         p = JSON.parse(p);
       }
@@ -9674,6 +9680,355 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   };
 
   exports.functions = functions;
+
+}).call(this);
+
+});
+
+require.define("/src/TransitionsCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var OLAPCube, Time, Timeline, TransitionsCalculator, utils;
+
+  utils = require('./utils');
+
+  OLAPCube = require('./OLAPCube').OLAPCube;
+
+  Timeline = require('./Timeline').Timeline;
+
+  Time = require('./Time').Time;
+
+  TransitionsCalculator = (function() {
+    /*
+      @class TransitionsCalculator
+    
+      Used to accumlate counts and sums (and possibly other functions) about transitions into and out of certain logical
+      states.
+      
+      Usage:
+      
+          {TransitionsCalculator, Time} = require('../')
+    
+          snapshots = [
+            { id: 1, from: '2011-01-03T00:00:00.000Z', PlanEstimate: 10 },
+            { id: 1, from: '2011-01-05T00:00:00.000Z', PlanEstimate: 10 },
+            { id: 2, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 20 },
+            { id: 3, from: '2011-01-10T00:00:00.000Z', PlanEstimate: 30 },
+            { id: 4, from: '2011-01-11T00:00:00.000Z', PlanEstimate: 40 },
+            { id: 5, from: '2011-01-17T00:00:00.000Z', PlanEstimate: 50 },
+            { id: 6, from: '2011-02-07T00:00:00.000Z', PlanEstimate: 60 },
+            { id: 7, from: '2011-02-08T00:00:00.000Z', PlanEstimate: 70 },
+          ]
+    
+          snapshotsToSubtract = [
+            { id: 1, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 10 },
+            { id: 7, from: '2011-02-09T00:00:00.000Z', PlanEstimate: 70 },
+          ]
+    
+          granularity = Time.MONTH
+          tz = 'America/Chicago'
+    
+          config =
+            asOf: '2011-02-10'  # Leave this off if you want it to continuously update to today
+            granularity: granularity
+            tz: tz
+            validFromField: 'from'
+            validToField: 'to'
+            uniqueIDField: 'id'
+            fieldsToSum: ['PlanEstimate']
+            asterixToDateTimePeriod: true  # Set to false or leave off if you are going to reformat the timePeriod
+    
+      Note, it will automatically keep track of the count, but you can have it track the sum of any other number field using
+      the `fieldsToSum` configuration property.
+    
+      In most cases, you'll want to leave off the `asOf` configuration property so the data can be continuously updated
+      with new snapshots as they come in. We include it in this example so the output stays stable. If we hadn't, then
+      the rows would continue to grow to encompass today.
+    
+          startOn = '2011-01-02T00:00:00.000Z'
+          endBefore = '2011-02-27T00:00:00.000Z'
+    
+          calculator = new TransitionsCalculator(config)
+          calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
+    
+          console.log(calculator.getResults())
+          # [ { timePeriod: '2011-01', count: 5, PlanEstimate: 150 },
+          #   { timePeriod: '2011-02*', count: 1, PlanEstimate: 60 } ]
+    
+      Now, let's use the same data but aggregate in granularity of weeks.
+    
+          config.granularity = Time.WEEK
+          calculator = new TransitionsCalculator(config)
+          calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
+    
+          console.log(calculator.getResults())
+          # [ { timePeriod: '2010W52', count: 1, PlanEstimate: 10 },
+          #   { timePeriod: '2011W01', count: 2, PlanEstimate: 50 },
+          #   { timePeriod: '2011W02', count: 2, PlanEstimate: 90 },
+          #   { timePeriod: '2011W03', count: 0, PlanEstimate: 0 },
+          #   { timePeriod: '2011W04', count: 0, PlanEstimate: 0 },
+          #   { timePeriod: '2011W05', count: 1, PlanEstimate: 60 },
+          #   { timePeriod: '2011W06*', count: 0, PlanEstimate: 0 } ]
+    
+      Remember, you can easily convert weeks to other granularities for display.
+    
+          weekStartingLabel = 'week starting ' + new Time('2010W52').inGranularity(Time.DAY).toString()
+          console.log(weekStartingLabel)
+          # week starting 2010-12-27
+    
+      If you want to display spinners while the chart is rendering, you can read the calculator's upToDate property and
+      compare it directly to the getResults() row's timePeriod property using code like this:
+    
+          row = {timePeriod: '2011W07'}
+          if calculator.upToDate < row.timePeriod
+            console.log("#{row.timePeriod} not yet calculated.")
+          # 2011W07 not yet calculated.
+    */
+
+    function TransitionsCalculator(config) {
+      /*
+          @constructor
+          @param {Object} config
+          @cfg {String} tz The timezone for analysis
+          @cfg {String} [validFromField = "_ValidFrom"]
+          @cfg {String} [validToField = "_ValidTo"]
+          @cfg {String} [uniqueIDField = "ObjectID"]
+          @cfg {String} granularity 'month', 'week', 'quarter', etc.
+          @cfg {String[]} [fieldsToSum=[]] It will track the count automatically but it can keep a running sum of other fields also
+          @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
+      */
+
+      var cubeConfig, dimensions, f, metrics, _i, _len, _ref, _ref1;
+      this.config = utils.clone(config);
+      if (this.config.validFromField == null) {
+        this.config.validFromField = "_ValidFrom";
+      }
+      if (this.config.validToField == null) {
+        this.config.validToField = "_ValidTo";
+      }
+      if (this.config.uniqueIDField == null) {
+        this.config.uniqueIDField = "ObjectID";
+      }
+      if (this.config.fieldsToSum == null) {
+        this.config.fieldsToSum = [];
+      }
+      if (this.config.asterixToDateTimePeriod == null) {
+        this.config.asterixToDateTimePeriod = false;
+      }
+      utils.assert(this.config.tz != null, "Must provide a timezone to this calculator.");
+      utils.assert(this.config.granularity != null, "Must provide a granularity to this calculator.");
+      if ((_ref = this.config.granularity) === Time.HOUR || _ref === Time.MINUTE || _ref === Time.SECOND || _ref === Time.MILLISECOND) {
+        throw new Error("Transitions calculator is not designed to work on granularities finer than 'day'");
+      }
+      dimensions = [
+        {
+          field: 'timePeriod'
+        }
+      ];
+      metrics = [
+        {
+          field: 'count',
+          f: 'sum'
+        }
+      ];
+      _ref1 = this.config.fieldsToSum;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        f = _ref1[_i];
+        metrics.push({
+          field: f,
+          f: 'sum'
+        });
+      }
+      cubeConfig = {
+        dimensions: dimensions,
+        metrics: metrics
+      };
+      this.cube = new OLAPCube(cubeConfig);
+      this.upToDate = null;
+      this.maxTimeString = null;
+      this.lowestTimePeriod = null;
+    }
+
+    TransitionsCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore, snapshotsToSubtract) {
+      var filteredSnapshots, filteredSnapshotsToSubstract, startOnString;
+      if (snapshotsToSubtract == null) {
+        snapshotsToSubtract = [];
+      }
+      /*
+          @method addSnapshots
+            Allows you to incrementally add snapshots to this calculator.
+          @chainable
+          @param {Object[]} snapshots An array of temporal data model snapshots.
+          @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+            interest. On the second through nth call, this should equal the previous endBefore.
+          @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+            period of interest.
+          @return {TransitionsCalculator}
+      */
+
+      if (this.upToDate != null) {
+        utils.assert(this.upToDate === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDate + ") to addSnapshots.");
+      }
+      this.upToDate = endBefore;
+      if (this.config.asOf != null) {
+        this.maxTimeString = new Time(this.config.asOf, Time.MILLISECOND).getISOStringInTZ(this.config.tz);
+      } else {
+        this.maxTimeString = Time.getISOStringFromJSDate();
+      }
+      startOnString = new Time(startOn, this.config.granularity, this.config.tz).toString();
+      if (this.lowestTimePeriod != null) {
+        if (startOnString < this.lowestTimePeriod) {
+          this.lowestTimePeriod = startOnString;
+        }
+      } else {
+        this.lowestTimePeriod = startOnString;
+      }
+      filteredSnapshots = this._filterSnapshots(snapshots);
+      this.cube.addFacts(filteredSnapshots);
+      filteredSnapshotsToSubstract = this._filterSnapshots(snapshotsToSubtract, -1);
+      this.cube.addFacts(filteredSnapshotsToSubstract);
+      return this;
+    };
+
+    TransitionsCalculator.prototype._filterSnapshots = function(snapshots, sign) {
+      var f, filteredSnapshots, fs, s, _i, _j, _len, _len1, _ref;
+      if (sign == null) {
+        sign = 1;
+      }
+      filteredSnapshots = [];
+      for (_i = 0, _len = snapshots.length; _i < _len; _i++) {
+        s = snapshots[_i];
+        if (s[this.config.validFromField] <= this.maxTimeString) {
+          if (s.count != null) {
+            throw new Error('Snapshots passed into a TransitionsCalculator cannot have a `count` field.');
+          }
+          if (s.timePeriod != null) {
+            throw new Error('Snapshots passed into a TransitionsCalculator cannot have a `timePeriod` field.');
+          }
+          fs = {
+            count: sign * 1
+          };
+          fs.timePeriod = new Time(s[this.config.validFromField], this.config.granularity, this.config.tz).toString();
+          _ref = this.config.fieldsToSum;
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            f = _ref[_j];
+            fs[f] = sign * s[f];
+          }
+          filteredSnapshots.push(fs);
+        }
+      }
+      return filteredSnapshots;
+    };
+
+    TransitionsCalculator.prototype.getResults = function() {
+      /*
+          @method getResults
+            Returns the current state of the calculator
+          @return {Object[]} Returns an Array of Maps like `{timePeriod: '2012-12', count: 10, otherField: 34}`
+      */
+
+      var cell, config, f, filter, out, outRow, t, timeLine, timePeriods, tp, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
+      out = [];
+      this.highestTimePeriod = new Time(this.maxTimeString, this.config.granularity, this.config.tz).toString();
+      config = {
+        startOn: this.lowestTimePeriod,
+        endBefore: this.highestTimePeriod,
+        granularity: this.config.granularity
+      };
+      timeLine = new Timeline(config);
+      timePeriods = (function() {
+        var _i, _len, _ref, _results;
+        _ref = timeLine.getAllRaw();
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          t = _ref[_i];
+          _results.push(t.toString());
+        }
+        return _results;
+      })();
+      timePeriods.push(this.highestTimePeriod);
+      for (_i = 0, _len = timePeriods.length; _i < _len; _i++) {
+        tp = timePeriods[_i];
+        filter = {};
+        filter['timePeriod'] = tp;
+        cell = this.cube.getCell(filter);
+        outRow = {};
+        outRow.timePeriod = tp;
+        if (cell != null) {
+          outRow.count = cell.count_sum;
+          _ref = this.config.fieldsToSum;
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            f = _ref[_j];
+            outRow[f] = cell[f + '_sum'];
+          }
+        } else {
+          outRow.count = 0;
+          _ref1 = this.config.fieldsToSum;
+          for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+            f = _ref1[_k];
+            outRow[f] = 0;
+          }
+        }
+        out.push(outRow);
+      }
+      if (this.config.asterixToDateTimePeriod) {
+        out[out.length - 1].timePeriod += '*';
+      }
+      return out;
+    };
+
+    TransitionsCalculator.prototype.getStateForSaving = function(meta) {
+      /*
+          @method getStateForSaving
+            Enables saving the state of this calculator. See class documentation for a detailed example.
+          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+            within the deserialized calculator.
+          @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+            to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+            the calculator.
+      */
+
+      var out;
+      out = {
+        config: this.config,
+        cubeSavedState: this.cube.getStateForSaving(),
+        upToDate: this.upToDate,
+        maxTimeString: this.maxTimeString,
+        lowestTimePeriod: this.lowestTimePeriod
+      };
+      if (meta != null) {
+        out.meta = meta;
+      }
+      return out;
+    };
+
+    TransitionsCalculator.newFromSavedState = function(p) {
+      /*
+          @method newFromSavedState
+            Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
+          @static
+          @param {String/Object} p A String or Object from a previously saved OLAPCube state
+          @return {TransitionsCalculator}
+      */
+
+      var calculator;
+      if (utils.type(p) === 'string') {
+        p = JSON.parse(p);
+      }
+      calculator = new TransitionsCalculator(p.config);
+      calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState);
+      calculator.upToDate = p.upToDate;
+      calculator.maxTimeString = p.maxTimeString;
+      calculator.lowestTimePeriod = p.lowestTimePeriod;
+      if (p.meta != null) {
+        calculator.meta = p.meta;
+      }
+      return calculator;
+    };
+
+    return TransitionsCalculator;
+
+  })();
+
+  exports.TransitionsCalculator = TransitionsCalculator;
 
 }).call(this);
 
