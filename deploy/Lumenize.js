@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.5.1
+Lumenize version: 0.5.2
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -8406,7 +8406,9 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           config = {dimensions, metrics}
     
       Hierarchy dimensions automatically roll up but you can also tell it to keep all totals by setting config.keepTotals to
-      true. The totals are then kept in the cells where one or more of the dimension values are set to `null`.
+      true. The totals are then kept in the cells where one or more of the dimension values are set to `null`. Note, you
+      can also set keepTotals for individual dimension and should probably use that if you have more than a few dimensions
+      but we're going to set it globally here:
     
           config.keepTotals = true
     
@@ -8527,7 +8529,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     */
 
     function OLAPCube(userConfig, facts) {
-      var d, _i, _len, _ref;
+      var d, _i, _j, _len, _len1, _ref, _ref1;
       this.userConfig = userConfig;
       /*
           @constructor
@@ -8607,6 +8609,15 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       if (!this.config.keepFacts) {
         this.config.keepFacts = false;
       }
+      _ref1 = this.config.dimensions;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        d = _ref1[_j];
+        if (this.config.keepTotals || d.keepTotals) {
+          d.keepTotals = true;
+        } else {
+          d.keepTotals = false;
+        }
+      }
       functions.expandMetrics(this.config.metrics, true, true);
       this.addFacts(facts);
     }
@@ -8668,10 +8679,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       _ref = this.config.dimensions;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         d = _ref[_i];
-        p = OLAPCube._possibilities(fact[d.field], d.type, this.config.keepTotals);
-        if (p == null) {
-          console.log('p is undefined', p);
-        }
+        p = OLAPCube._possibilities(fact[d.field], d.type, d.keepTotals);
         possibilitiesArray.push(p);
         countdownArray.push(p.length - 1);
         rolloverArray.push(p.length - 1);
@@ -8716,7 +8724,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     };
 
     OLAPCube.prototype._mergeExpandedFactArray = function(expandedFactArray) {
-      var d, er, fieldValue, filterString, localValues, m, olapRow, _i, _j, _len, _len1, _ref, _results;
+      var d, er, fieldValue, filterString, m, olapRow, _i, _j, _len, _len1, _ref, _results;
       _results = [];
       for (_i = 0, _len = expandedFactArray.length; _i < _len; _i++) {
         er = expandedFactArray[_i];
@@ -8729,17 +8737,13 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
         filterString = JSON.stringify(OLAPCube._extractFilter(er, this.config.dimensions));
         olapRow = this.cellIndex[filterString];
         if (olapRow != null) {
-          localValues = {};
           _results.push((function() {
             var _k, _len2, _ref1, _results1;
             _ref1 = this.config.metrics;
             _results1 = [];
             for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
               m = _ref1[_k];
-              if (m.metric === 'values') {
-                localValues[m.field] = olapRow[m.as];
-              }
-              _results1.push(olapRow[m.as] = m.f(localValues[m.field], olapRow[m.as], this.currentValues[m.field], olapRow, m.field + '_'));
+              _results1.push(olapRow[m.as] = m.f(olapRow[m.field + '_values'], olapRow[m.as], this.currentValues[m.field], olapRow, m.field + '_'));
             }
             return _results1;
           }).call(this));
@@ -8847,10 +8851,10 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
         if (filter.hasOwnProperty(d.field)) {
           normalizedFilter[d.field] = filter[d.field];
         } else {
-          if (this.config.keepTotals != null) {
+          if (d.keepTotals) {
             normalizedFilter[d.field] = null;
           } else {
-            throw new Error('Must set config.keepTotals = true to use getCell with a partial filter.');
+            throw new Error('Must set keepTotals to use getCell with a partial filter.');
           }
         }
       }

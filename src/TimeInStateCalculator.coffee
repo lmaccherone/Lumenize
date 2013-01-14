@@ -1,3 +1,6 @@
+# !TODO: Add deriveFieldsOnSnapshots with @config.deriveFieldsOnSnapshotsConfig calling deriveFieldsOnFacts in OLAPCube
+# !TODO: Add deriveFieldsOnResults with @config.deriveFieldsOnResultsConfig calling deriveFieldsOnResultsConfig
+
 utils = require('./utils')
 OLAPCube = require('./OLAPCube').OLAPCube
 Timeline = require('./Timeline').Timeline

@@ -1,3 +1,7 @@
+# !TODO: Add deriveFieldsOnFacts with @config.deriveFieldsOnFactsConfig
+# !TODO: Add deriveFieldsOnResults with @config.deriveFieldsOnResultsConfig
+# !TODO: Be smart enough to move dependent metrics to the deriveFieldsOnResultsConfig. This means reintroducing @dirtyCells
+
 utils = require('../src/utils')
 functions = require('./functions').functions
 
@@ -69,7 +73,9 @@ class OLAPCube
       config = {dimensions, metrics}
 
   Hierarchy dimensions automatically roll up but you can also tell it to keep all totals by setting config.keepTotals to
-  true. The totals are then kept in the cells where one or more of the dimension values are set to `null`.
+  true. The totals are then kept in the cells where one or more of the dimension values are set to `null`. Note, you
+  can also set keepTotals for individual dimension and should probably use that if you have more than a few dimensions
+  but we're going to set it globally here:
 
       config.keepTotals = true
 
@@ -263,6 +269,12 @@ class OLAPCube
     unless @config.keepFacts
       @config.keepFacts = false
 
+    for d in @config.dimensions
+      if @config.keepTotals or d.keepTotals
+        d.keepTotals = true
+      else
+        d.keepTotals = false
+
     functions.expandMetrics(@config.metrics, true, true)
 
     @addFacts(facts)
@@ -309,9 +321,7 @@ class OLAPCube
     countdownArray = []
     rolloverArray = []
     for d in @config.dimensions
-      p = OLAPCube._possibilities(fact[d.field], d.type, @config.keepTotals)
-      unless p?
-        console.log('p is undefined', p)
+      p = OLAPCube._possibilities(fact[d.field], d.type, d.keepTotals)
       possibilitiesArray.push(p)
       countdownArray.push(p.length - 1)
       rolloverArray.push(p.length - 1)  # !TODO: If I need some speed, we could calculate the rolloverArray once and make a copy to the countdownArray for each run
@@ -351,11 +361,8 @@ class OLAPCube
       filterString = JSON.stringify(OLAPCube._extractFilter(er, @config.dimensions))
       olapRow = @cellIndex[filterString]
       if olapRow?
-        localValues = {}
         for m in @config.metrics
-          if m.metric is 'values'
-            localValues[m.field] = olapRow[m.as]
-          olapRow[m.as] = m.f(localValues[m.field], olapRow[m.as], @currentValues[m.field], olapRow, m.field + '_')
+          olapRow[m.as] = m.f(olapRow[m.field + '_values'], olapRow[m.as], @currentValues[m.field], olapRow, m.field + '_')
       else
         olapRow = er
         @cellIndex[filterString] = olapRow
@@ -433,10 +440,10 @@ class OLAPCube
       if filter.hasOwnProperty(d.field)
         normalizedFilter[d.field] = filter[d.field]
       else
-        if @config.keepTotals?
+        if d.keepTotals
           normalizedFilter[d.field] = null
         else
-          throw new Error('Must set config.keepTotals = true to use getCell with a partial filter.')
+          throw new Error('Must set keepTotals to use getCell with a partial filter.')
     return @cellIndex[JSON.stringify(normalizedFilter)]
 
   getDimensionValues: (field, descending = false) ->

@@ -72,6 +72,75 @@ exports.olapTest =
 
     test.done()
 
+  testCustomFunctionSumAndKeepTotalsOnOneDimension: (test) ->
+    facts = [
+      {_ProjectHierarchy: [1, 2, 3], Priority: 1, Points: 10},
+      {_ProjectHierarchy: [1, 2, 4], Priority: 2, Points: 5 },
+      {_ProjectHierarchy: [5]      , Priority: 1, Points: 17},
+      {_ProjectHierarchy: [1, 2]   , Priority: 1, Points: 3 },
+    ]
+
+    dimensions = [
+      {field: "_ProjectHierarchy", type: 'hierarchy', keepTotals: true},
+      {field: "Priority"}
+    ]
+
+    mySum = (values) ->
+      temp = 0
+      for v in values
+        temp += v
+      return temp
+
+    metrics = [
+      {field: "Points", as: "Scope", f: mySum}
+    ]
+
+    config = {dimensions, metrics}
+
+    cube = new OLAPCube(config, facts)
+
+    expected = {
+      _ProjectHierarchy: null,
+      Priority: 1,
+      _count: 3,
+      Scope: 30,
+      Points_values: [10, 17, 3]
+    }
+
+    test.deepEqual(expected, cube.getCell({Priority: 1}))
+
+    expected = {
+      _ProjectHierarchy: [ 1 ],
+      Priority: 1,
+      _count: 2,
+      Scope: 13,
+      Points_values: [10, 3]
+    }
+    test.deepEqual(expected, cube.getCell({_ProjectHierarchy: [1], Priority: 1}))
+
+    expected = [null, [1], [1, 2], [1, 2, 3], [1, 2, 4], [5]]
+    test.deepEqual(expected, cube.getDimensionValues('_ProjectHierarchy'))
+
+    expected = [1, 2]
+    test.deepEqual(expected, cube.getDimensionValues('Priority'))
+
+    expected = '''
+               |        ||     1     2|
+               |======================|
+               |Total   ||    30     5|
+               |----------------------|
+               |[1]     ||    13     5|
+               |[1,2]   ||    13     5|
+               |[1,2,3] ||    10      |
+               |[1,2,4] ||           5|
+               |[5]     ||    17      |
+               '''
+
+    outString = cube.toString('_ProjectHierarchy', 'Priority', 'Scope')
+    test.equal(expected, outString)
+
+    test.done()
+
   testPossibilities: (test) ->
     test.deepEqual([null, 'a'], OLAPCube._possibilities('a', undefined, true))
 
