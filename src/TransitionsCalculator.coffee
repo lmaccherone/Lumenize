@@ -1,3 +1,8 @@
+# !TODO: Add deriveFieldsOnSnapshots with @config.deriveFieldsOnSnapshotsConfig calling deriveFieldsOnFacts in OLAPCube
+# !TODO: Add deriveFieldsOnResults with @config.deriveFieldsOnResultsConfig calling deriveFieldsOnResultsConfig
+# !TODO: Add drill-down support with uniqueIDField
+# !TODO: Add series by type support
+
 utils = require('./utils')
 OLAPCube = require('./OLAPCube').OLAPCube
 Timeline = require('./Timeline').Timeline
@@ -7,8 +12,7 @@ class TransitionsCalculator # implements iCalculator
   ###
   @class TransitionsCalculator
 
-  Used to accumlate counts and sums (and possibly other functions) about transitions into and out of certain logical
-  states.
+  Used to accumlate counts and sums about transitions.
   
   Usage:
   
@@ -94,11 +98,11 @@ class TransitionsCalculator # implements iCalculator
     ###
     @constructor
     @param {Object} config
-    @cfg {String} tz The timezone for analysis
+    @cfg {String} tz The timezone for analysis in the form like `America/New_York`
     @cfg {String} [validFromField = "_ValidFrom"]
     @cfg {String} [validToField = "_ValidTo"]
-    @cfg {String} [uniqueIDField = "ObjectID"]
-    @cfg {String} granularity 'month', 'week', 'quarter', etc.
+    @cfg {String} [uniqueIDField = "ObjectID"] Not used right now but when drill-down is added it will be
+    @cfg {String} granularity 'month', 'week', 'quarter', etc. Use Time.MONTH, Time.WEEK, etc.
     @cfg {String[]} [fieldsToSum=[]] It will track the count automatically but it can keep a running sum of other fields also
     @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
     ###
@@ -133,8 +137,14 @@ class TransitionsCalculator # implements iCalculator
     @cube = new OLAPCube(cubeConfig)
 
     @upToDate = null
-    @maxTimeString = null
     @lowestTimePeriod = null
+
+    if @config.asOf?
+      @maxTimeString = new Time(@config.asOf, Time.MILLISECOND).getISOStringInTZ(@config.tz)
+    else
+      @maxTimeString = Time.getISOStringFromJSDate()
+
+    @virgin = true
 
   addSnapshots: (snapshots, startOn, endBefore, snapshotsToSubtract=[]) ->
     ###
@@ -152,11 +162,6 @@ class TransitionsCalculator # implements iCalculator
       utils.assert(@upToDate == startOn, "startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDate}) to addSnapshots.")
     @upToDate = endBefore
 
-    if @config.asOf?
-      @maxTimeString = new Time(@config.asOf, Time.MILLISECOND).getISOStringInTZ(@config.tz)
-    else
-      @maxTimeString = Time.getISOStringFromJSDate()
-
     startOnString = new Time(startOn, @config.granularity, @config.tz).toString()
     if @lowestTimePeriod?
       if startOnString < @lowestTimePeriod
@@ -169,6 +174,8 @@ class TransitionsCalculator # implements iCalculator
 
     filteredSnapshotsToSubstract = @_filterSnapshots(snapshotsToSubtract, -1)
     @cube.addFacts(filteredSnapshotsToSubstract)
+
+    @virgin = false
 
     return this
 
@@ -193,6 +200,9 @@ class TransitionsCalculator # implements iCalculator
       Returns the current state of the calculator
     @return {Object[]} Returns an Array of Maps like `{timePeriod: '2012-12', count: 10, otherField: 34}`
     ###
+    if @virgin
+      return []
+
     out = []
     @highestTimePeriod = new Time(@maxTimeString, @config.granularity, @config.tz).toString()
     config =
@@ -229,7 +239,7 @@ class TransitionsCalculator # implements iCalculator
   getStateForSaving: (meta) ->
     ###
     @method getStateForSaving
-      Enables saving the state of this calculator. See class documentation for a detailed example.
+      Enables saving the state of this calculator. See TimeInStateCalculator documentation for a detailed example.
     @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
       within the deserialized calculator.
     @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
@@ -249,9 +259,9 @@ class TransitionsCalculator # implements iCalculator
   @newFromSavedState: (p) ->
     ###
     @method newFromSavedState
-      Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
+      Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
     @static
-    @param {String/Object} p A String or Object from a previously saved OLAPCube state
+    @param {String/Object} p A String or Object from a previously saved state
     @return {TransitionsCalculator}
     ###
     if utils.type(p) is 'string'

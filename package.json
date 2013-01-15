@@ -1,6 +1,6 @@
 {
   "name": "Lumenize",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "main": "./lumenize",
   "description": "Illuminating the forest AND the trees in your data.",
   "keywords": [
@@ -9,7 +9,11 @@
     "infographics",
     "software engineering",
     "date",
-    "time"
+    "time",
+    "OLAP",
+    "business intelligence",
+    "BI",
+    "statistics"
   ],
   "author": {
     "name": "Larry Maccherone",

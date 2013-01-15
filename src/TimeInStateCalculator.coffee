@@ -231,7 +231,7 @@ class TimeInStateCalculator # implements iCalculator
     @method newFromSavedState
       Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
     @static
-    @param {String/Object} p A String or Object from a previously saved OLAPCube state
+    @param {String/Object} p A String or Object from a previously saved state
     @return {TimeInStateCalculator}
     ###
     if utils.type(p) is 'string'

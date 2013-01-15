@@ -98,6 +98,7 @@ Once you have that all working, submit a pull request on GitHub.
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
+* 0.5.3 - 2013-01-13 - Bug fix to work with Rally's Throughput chart
 * 0.5.2 - 2013-01-13 
   * Added TransitionsCalculator using OLAPCube
   * OLAPCube now allows for keepTotals on individual dimensions while still supporting

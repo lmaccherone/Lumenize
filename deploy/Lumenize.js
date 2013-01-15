@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.5.2
+Lumenize version: 0.5.3
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -7989,7 +7989,7 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
     iCalculator.prototype.getStateForSaving = function(meta) {
       /*
           @method getStateForSaving
-            Enables saving the state of this calculator. See class documentation for a detailed example.
+            Enables saving the state of this calculator. See TimeInStateCalculator for a detailed example.
           @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
             within the deserialized calculator.
           @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
@@ -8010,7 +8010,7 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
     iCalculator.newFromSavedState = function(p) {
       /*
           @method newFromSavedState
-            Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
+            Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
           @static
           @param {String/Object} p A String or Object from a previously saved calculator state
           @return {iCalculator}
@@ -8310,7 +8310,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
           @method newFromSavedState
             Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
           @static
-          @param {String/Object} p A String or Object from a previously saved OLAPCube state
+          @param {String/Object} p A String or Object from a previously saved state
           @return {TimeInStateCalculator}
       */
 
@@ -9700,8 +9700,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
     /*
       @class TransitionsCalculator
     
-      Used to accumlate counts and sums (and possibly other functions) about transitions into and out of certain logical
-      states.
+      Used to accumlate counts and sums about transitions.
       
       Usage:
       
@@ -9787,11 +9786,11 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
       /*
           @constructor
           @param {Object} config
-          @cfg {String} tz The timezone for analysis
+          @cfg {String} tz The timezone for analysis in the form like `America/New_York`
           @cfg {String} [validFromField = "_ValidFrom"]
           @cfg {String} [validToField = "_ValidTo"]
-          @cfg {String} [uniqueIDField = "ObjectID"]
-          @cfg {String} granularity 'month', 'week', 'quarter', etc.
+          @cfg {String} [uniqueIDField = "ObjectID"] Not used right now but when drill-down is added it will be
+          @cfg {String} granularity 'month', 'week', 'quarter', etc. Use Time.MONTH, Time.WEEK, etc.
           @cfg {String[]} [fieldsToSum=[]] It will track the count automatically but it can keep a running sum of other fields also
           @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
       */
@@ -9843,8 +9842,13 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
       };
       this.cube = new OLAPCube(cubeConfig);
       this.upToDate = null;
-      this.maxTimeString = null;
       this.lowestTimePeriod = null;
+      if (this.config.asOf != null) {
+        this.maxTimeString = new Time(this.config.asOf, Time.MILLISECOND).getISOStringInTZ(this.config.tz);
+      } else {
+        this.maxTimeString = Time.getISOStringFromJSDate();
+      }
+      this.virgin = true;
     }
 
     TransitionsCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore, snapshotsToSubtract) {
@@ -9868,11 +9872,6 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
         utils.assert(this.upToDate === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDate + ") to addSnapshots.");
       }
       this.upToDate = endBefore;
-      if (this.config.asOf != null) {
-        this.maxTimeString = new Time(this.config.asOf, Time.MILLISECOND).getISOStringInTZ(this.config.tz);
-      } else {
-        this.maxTimeString = Time.getISOStringFromJSDate();
-      }
       startOnString = new Time(startOn, this.config.granularity, this.config.tz).toString();
       if (this.lowestTimePeriod != null) {
         if (startOnString < this.lowestTimePeriod) {
@@ -9885,6 +9884,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
       this.cube.addFacts(filteredSnapshots);
       filteredSnapshotsToSubstract = this._filterSnapshots(snapshotsToSubtract, -1);
       this.cube.addFacts(filteredSnapshotsToSubstract);
+      this.virgin = false;
       return this;
     };
 
@@ -9926,6 +9926,9 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
       */
 
       var cell, config, f, filter, out, outRow, t, timeLine, timePeriods, tp, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
+      if (this.virgin) {
+        return [];
+      }
       out = [];
       this.highestTimePeriod = new Time(this.maxTimeString, this.config.granularity, this.config.tz).toString();
       config = {
@@ -9978,7 +9981,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
     TransitionsCalculator.prototype.getStateForSaving = function(meta) {
       /*
           @method getStateForSaving
-            Enables saving the state of this calculator. See class documentation for a detailed example.
+            Enables saving the state of this calculator. See TimeInStateCalculator documentation for a detailed example.
           @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
             within the deserialized calculator.
           @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
@@ -10003,9 +10006,9 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
     TransitionsCalculator.newFromSavedState = function(p) {
       /*
           @method newFromSavedState
-            Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
+            Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
           @static
-          @param {String/Object} p A String or Object from a previously saved OLAPCube state
+          @param {String/Object} p A String or Object from a previously saved state
           @return {TransitionsCalculator}
       */
 

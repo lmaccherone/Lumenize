@@ -46,7 +46,7 @@ class iCalculator
   getStateForSaving: (meta) ->
     ###
     @method getStateForSaving
-      Enables saving the state of this calculator. See class documentation for a detailed example.
+      Enables saving the state of this calculator. See TimeInStateCalculator for a detailed example.
     @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
       within the deserialized calculator.
     @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
@@ -66,7 +66,7 @@ class iCalculator
   @newFromSavedState: (p) ->
     ###
     @method newFromSavedState
-      Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
+      Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
     @static
     @param {String/Object} p A String or Object from a previously saved calculator state
     @return {iCalculator}
