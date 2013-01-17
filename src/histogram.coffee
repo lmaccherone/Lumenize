@@ -77,7 +77,7 @@ histogram = (rows, valueField) ->
   chartValues = (row[valueField] for row in rows)
   max = Math.max(chartValues)
   max = Math.max(max, 1)
-  
+
   average = functions.average(chartValues)
   standardDeviation = functions.standardDeviation(chartValues)
   upperBound = average + 2 * standardDeviation
