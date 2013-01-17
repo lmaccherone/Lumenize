@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.5.3
+Lumenize version: 0.5.4
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -5653,8 +5653,8 @@ require.define("/src/Time.coffee",function(require,module,exports,__dirname,__fi
           savings time. The tz rules engine is designed to go in the other direction so we're mis-using it. This means we are using the wrong
           moment in rules-space for that hour. The cost of fixing this issue was deemed to high for chart applications.
       
-              console.log(new Time('2012-01-01').getJSDateFromGMTInTZ('Europe/Berlin'))
-              # Sat Dec 31 2011 20:00:00 GMT-0500 (EST)
+              console.log(new Time('2012-01-01').getJSDateFromGMTInTZ('Europe/Berlin').toISOString())
+              # 2012-01-01T01:00:00.000Z
       */
 
       var ct, newDate, offset, utcMilliseconds;
@@ -7970,10 +7970,10 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
           @return {iCalculator}
       */
       throw new Error('iCalculator is an interface not a base class. You must override this addSnapshots method.');
-      if (this.upToDate != null) {
-        utils.assert(this.upToDate === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDate + ") to addSnapshots.");
+      if (this.upToDateISOString != null) {
+        utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
       }
-      this.upToDate = endBefore;
+      this.upToDateISOString = endBefore;
       return this;
     };
 
@@ -8000,7 +8000,7 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
       var out;
       throw new Error('iCalculator is an interface not a base class. You must override this getStateForSaving method.');
       out = {};
-      out.upToDate = this.upToDate;
+      out.upToDateISOString = this.upToDateISOString;
       if (meta != null) {
         out.meta = meta;
       }
@@ -8022,7 +8022,7 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
       if (p.meta != null) {
         calculator.meta = p.meta;
       }
-      calculator.upToDate = p.upToDate;
+      calculator.upToDateISOString = p.upToDateISOString;
       return calculator;
     };
 
@@ -8218,7 +8218,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
         metrics: metrics
       };
       this.cube = new OLAPCube(cubeConfig);
-      this.upToDate = null;
+      this.upToDateISOString = null;
     }
 
     TimeInStateCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore) {
@@ -8235,10 +8235,10 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
       */
 
       var s, ticks, timeline, timelineConfig, _i, _len;
-      if (this.upToDate != null) {
-        utils.assert(this.upToDate === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDate + ") to addSnapshots.");
+      if (this.upToDateISOString != null) {
+        utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
       }
-      this.upToDate = endBefore;
+      this.upToDateISOString = endBefore;
       timelineConfig = utils.clone(this.config);
       timelineConfig.startOn = new Time(startOn, Time.MILLISECOND, this.config.tz);
       timelineConfig.endBefore = new Time(endBefore, Time.MILLISECOND, this.config.tz);
@@ -8297,7 +8297,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
       out = {
         config: this.config,
         cubeSavedState: this.cube.getStateForSaving(),
-        upToDate: this.upToDate
+        upToDateISOString: this.upToDateISOString
       };
       if (meta != null) {
         out.meta = meta;
@@ -8320,7 +8320,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
       }
       calculator = new TimeInStateCalculator(p.config);
       calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState);
-      calculator.upToDate = p.upToDate;
+      calculator.upToDateISOString = p.upToDateISOString;
       if (p.meta != null) {
         calculator.meta = p.meta;
       }
@@ -8820,7 +8820,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       return output;
     };
 
-    OLAPCube.prototype.getCell = function(filter) {
+    OLAPCube.prototype.getCell = function(filter, defaultValue) {
       /*
           @method getCell
             Returns the single cell matching the supplied filter. Iterating over the unique values for the dimensions of
@@ -8832,7 +8832,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           @return {Object[]} Returns the cell that match the supplied filter
       */
 
-      var d, foundIt, key, normalizedFilter, value, _i, _j, _len, _len1, _ref, _ref1;
+      var cell, d, foundIt, key, normalizedFilter, value, _i, _j, _len, _len1, _ref, _ref1;
       if (filter == null) {
         filter = {};
       }
@@ -8864,7 +8864,12 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           }
         }
       }
-      return this.cellIndex[JSON.stringify(normalizedFilter)];
+      cell = this.cellIndex[JSON.stringify(normalizedFilter)];
+      if (cell != null) {
+        return cell;
+      } else {
+        return defaultValue;
+      }
     };
 
     OLAPCube.prototype.getDimensionValues = function(field, descending) {
@@ -9773,11 +9778,12 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
           console.log(weekStartingLabel)
           # week starting 2010-12-27
     
-      If you want to display spinners while the chart is rendering, you can read the calculator's upToDate property and
-      compare it directly to the getResults() row's timePeriod property using code like this:
+      If you want to display spinners while the chart is rendering, you can read this calculator's upToDateISOString property and
+      compare it directly to the getResults() row's timePeriod property using code like this. Yes, this works eventhough
+      upToDateISOString is an ISOString.
     
           row = {timePeriod: '2011W07'}
-          if calculator.upToDate < row.timePeriod
+          if calculator.upToDateISOString < row.timePeriod
             console.log("#{row.timePeriod} not yet calculated.")
           # 2011W07 not yet calculated.
     */
@@ -9826,6 +9832,12 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
         {
           field: 'count',
           f: 'sum'
+        }, {
+          field: this.config.uniqueIDField,
+          f: 'values'
+        }, {
+          field: 'count',
+          f: 'values'
         }
       ];
       _ref1 = this.config.fieldsToSum;
@@ -9841,7 +9853,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
         metrics: metrics
       };
       this.cube = new OLAPCube(cubeConfig);
-      this.upToDate = null;
+      this.upToDateISOString = null;
       this.lowestTimePeriod = null;
       if (this.config.asOf != null) {
         this.maxTimeString = new Time(this.config.asOf, Time.MILLISECOND).getISOStringInTZ(this.config.tz);
@@ -9868,10 +9880,10 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
           @return {TransitionsCalculator}
       */
 
-      if (this.upToDate != null) {
-        utils.assert(this.upToDate === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDate + ") to addSnapshots.");
+      if (this.upToDateISOString != null) {
+        utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
       }
-      this.upToDate = endBefore;
+      this.upToDateISOString = endBefore;
       startOnString = new Time(startOn, this.config.granularity, this.config.tz).toString();
       if (this.lowestTimePeriod != null) {
         if (startOnString < this.lowestTimePeriod) {
@@ -9903,9 +9915,8 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
           if (s.timePeriod != null) {
             throw new Error('Snapshots passed into a TransitionsCalculator cannot have a `timePeriod` field.');
           }
-          fs = {
-            count: sign * 1
-          };
+          fs = utils.clone(s);
+          fs.count = sign * 1;
           fs.timePeriod = new Time(s[this.config.validFromField], this.config.granularity, this.config.tz).toString();
           _ref = this.config.fieldsToSum;
           for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
@@ -9993,9 +10004,10 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
       out = {
         config: this.config,
         cubeSavedState: this.cube.getStateForSaving(),
-        upToDate: this.upToDate,
+        upToDateISOString: this.upToDateISOString,
         maxTimeString: this.maxTimeString,
-        lowestTimePeriod: this.lowestTimePeriod
+        lowestTimePeriod: this.lowestTimePeriod,
+        virgin: this.virgin
       };
       if (meta != null) {
         out.meta = meta;
@@ -10018,9 +10030,10 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
       }
       calculator = new TransitionsCalculator(p.config);
       calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState);
-      calculator.upToDate = p.upToDate;
+      calculator.upToDateISOString = p.upToDateISOString;
       calculator.maxTimeString = p.maxTimeString;
       calculator.lowestTimePeriod = p.lowestTimePeriod;
+      calculator.virgin = p.virgin;
       if (p.meta != null) {
         calculator.meta = p.meta;
       }
@@ -10966,7 +10979,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     })();
     bucketCount = Math.floor(Math.sqrt(chartValuesMinusOutliers.length));
     if (bucketCount < 3) {
-      return void 0;
+      bucketCount = 3;
     }
     bucketSize = Math.floor(upperBound / bucketCount) + 1;
     upperBound = bucketSize * bucketCount;

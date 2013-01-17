@@ -413,7 +413,7 @@ class OLAPCube
         output.push(c)
     return output
 
-  getCell: (filter) ->
+  getCell: (filter, defaultValue) ->
     ###
     @method getCell
       Returns the single cell matching the supplied filter. Iterating over the unique values for the dimensions of
@@ -444,7 +444,11 @@ class OLAPCube
           normalizedFilter[d.field] = null
         else
           throw new Error('Must set keepTotals to use getCell with a partial filter.')
-    return @cellIndex[JSON.stringify(normalizedFilter)]
+    cell = @cellIndex[JSON.stringify(normalizedFilter)]
+    if cell?
+      return cell
+    else
+      return defaultValue
 
   getDimensionValues: (field, descending = false) ->
     ###

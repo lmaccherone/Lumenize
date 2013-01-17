@@ -85,11 +85,12 @@ class TransitionsCalculator # implements iCalculator
       console.log(weekStartingLabel)
       # week starting 2010-12-27
 
-  If you want to display spinners while the chart is rendering, you can read the calculator's upToDate property and
-  compare it directly to the getResults() row's timePeriod property using code like this:
+  If you want to display spinners while the chart is rendering, you can read this calculator's upToDateISOString property and
+  compare it directly to the getResults() row's timePeriod property using code like this. Yes, this works eventhough
+  upToDateISOString is an ISOString.
 
       row = {timePeriod: '2011W07'}
-      if calculator.upToDate < row.timePeriod
+      if calculator.upToDateISOString < row.timePeriod
         console.log("#{row.timePeriod} not yet calculated.")
       # 2011W07 not yet calculated.
   ###
@@ -128,7 +129,9 @@ class TransitionsCalculator # implements iCalculator
     ]
 
     metrics = [
-      {field: 'count', f: 'sum'}  # We add a count field to each snapshot and use sum so we can also subtract
+      {field: 'count', f: 'sum'},  # We add a count field to each snapshot and use sum so we can also subtract
+      {field: @config.uniqueIDField, f:'values'},
+      {field: 'count', f:'values'}
     ]
     for f in @config.fieldsToSum
       metrics.push({field: f, f: 'sum'})
@@ -136,7 +139,7 @@ class TransitionsCalculator # implements iCalculator
     cubeConfig = {dimensions, metrics}
     @cube = new OLAPCube(cubeConfig)
 
-    @upToDate = null
+    @upToDateISOString = null
     @lowestTimePeriod = null
 
     if @config.asOf?
@@ -158,9 +161,9 @@ class TransitionsCalculator # implements iCalculator
       period of interest.
     @return {TransitionsCalculator}
     ###
-    if @upToDate?
-      utils.assert(@upToDate == startOn, "startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDate}) to addSnapshots.")
-    @upToDate = endBefore
+    if @upToDateISOString?
+      utils.assert(@upToDateISOString == startOn, "startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDateISOString}) to addSnapshots.")
+    @upToDateISOString = endBefore
 
     startOnString = new Time(startOn, @config.granularity, @config.tz).toString()
     if @lowestTimePeriod?
@@ -187,7 +190,8 @@ class TransitionsCalculator # implements iCalculator
           throw new Error('Snapshots passed into a TransitionsCalculator cannot have a `count` field.')
         if s.timePeriod?
           throw new Error('Snapshots passed into a TransitionsCalculator cannot have a `timePeriod` field.')
-        fs = {count: sign * 1}
+        fs = utils.clone(s)
+        fs.count = sign * 1
         fs.timePeriod = new Time(s[@config.validFromField], @config.granularity, @config.tz).toString()
         for f in @config.fieldsToSum
           fs[f] = sign * s[f]
@@ -249,9 +253,10 @@ class TransitionsCalculator # implements iCalculator
     out =
       config: @config
       cubeSavedState: @cube.getStateForSaving()
-      upToDate: @upToDate
+      upToDateISOString: @upToDateISOString
       maxTimeString: @maxTimeString
       lowestTimePeriod: @lowestTimePeriod
+      virgin: @virgin
     if meta?
       out.meta = meta
     return out
@@ -268,9 +273,10 @@ class TransitionsCalculator # implements iCalculator
       p = JSON.parse(p)
     calculator = new TransitionsCalculator(p.config)
     calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState)
-    calculator.upToDate = p.upToDate
+    calculator.upToDateISOString = p.upToDateISOString
     calculator.maxTimeString = p.maxTimeString
     calculator.lowestTimePeriod = p.lowestTimePeriod
+    calculator.virgin = p.virgin
     if p.meta?
       calculator.meta = p.meta
 

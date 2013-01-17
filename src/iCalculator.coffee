@@ -29,9 +29,9 @@ class iCalculator
     throw new Error('iCalculator is an interface not a base class. You must override this addSnapshots method.')
 
     # example code follows
-    if @upToDate?
-      utils.assert(@upToDate == startOn, "startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDate}) to addSnapshots.")
-    @upToDate = endBefore
+    if @upToDateISOString?
+      utils.assert(@upToDateISOString == startOn, "startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDateISOString}) to addSnapshots.")
+    @upToDateISOString = endBefore
     # Do what you need to do
     return this
 
@@ -57,7 +57,7 @@ class iCalculator
 
     # example code follows
     out = {}
-    out.upToDate = @upToDate
+    out.upToDateISOString = @upToDateISOString
     if meta?
       out.meta = meta
     # Add whatever you need to fully serialize the state of the calculator
@@ -80,7 +80,7 @@ class iCalculator
     if p.meta?
       calculator.meta = p.meta
     # Other stuff to restore the calculator state
-    calculator.upToDate = p.upToDate
+    calculator.upToDateISOString = p.upToDateISOString
     return calculator
 
 exports.iCalculator = iCalculator

@@ -713,8 +713,8 @@ class Time
     savings time. The tz rules engine is designed to go in the other direction so we're mis-using it. This means we are using the wrong
     moment in rules-space for that hour. The cost of fixing this issue was deemed to high for chart applications.
 
-        console.log(new Time('2012-01-01').getJSDateFromGMTInTZ('Europe/Berlin'))
-        # Sat Dec 31 2011 20:00:00 GMT-0500 (EST)
+        console.log(new Time('2012-01-01').getJSDateFromGMTInTZ('Europe/Berlin').toISOString())
+        # 2012-01-01T01:00:00.000Z
     ###
     if @beforePastFlag == 'PAST_LAST'
       return new Date(9999, 0, 1)

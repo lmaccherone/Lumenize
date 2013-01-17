@@ -106,7 +106,7 @@ histogram = (rows, valueField) -&gt;
   bucketCount = Math.floor(Math.sqrt(chartValuesMinusOutliers.length))
   
   if bucketCount &lt; 3
-    return undefined  # !TODO: Decide how to handle this
+    bucketCount = 3
   
   bucketSize = Math.floor(upperBound / bucketCount) + 1
   

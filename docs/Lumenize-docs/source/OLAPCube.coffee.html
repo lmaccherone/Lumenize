@@ -438,7 +438,7 @@ class OLAPCube
         output.push(c)
     return output
 
-  getCell: (filter) -&gt;
+  getCell: (filter, defaultValue) -&gt;
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-OLAPCube-method-getCell'>    /**
 </span>     * @method getCell
@@ -472,7 +472,11 @@ class OLAPCube
           normalizedFilter[d.field] = null
         else
           throw new Error('Must set keepTotals to use getCell with a partial filter.')
-    return @cellIndex[JSON.stringify(normalizedFilter)]
+    cell = @cellIndex[JSON.stringify(normalizedFilter)]
+    if cell?
+      return cell
+    else
+      return defaultValue
 
   getDimensionValues: (field, descending = false) -&gt;
 &lt;/CoffeeScript&gt; */

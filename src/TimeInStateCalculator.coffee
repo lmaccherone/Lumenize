@@ -158,7 +158,7 @@ class TimeInStateCalculator # implements iCalculator
         metrics.push(metricObject)
     cubeConfig = {dimensions, metrics}
     @cube = new OLAPCube(cubeConfig)
-    @upToDate = null
+    @upToDateISOString = null
 
   addSnapshots: (snapshots, startOn, endBefore) ->
     ###
@@ -172,9 +172,9 @@ class TimeInStateCalculator # implements iCalculator
       period of interest.
     @return {TimeInStateCalculator}
     ###
-    if @upToDate?
-      utils.assert(@upToDate == startOn, "startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDate}) to addSnapshots.")
-    @upToDate = endBefore
+    if @upToDateISOString?
+      utils.assert(@upToDateISOString == startOn, "startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDateISOString}) to addSnapshots.")
+    @upToDateISOString = endBefore
     timelineConfig = utils.clone(@config)
     timelineConfig.startOn = new Time(startOn, Time.MILLISECOND, @config.tz)
     timelineConfig.endBefore = new Time(endBefore, Time.MILLISECOND, @config.tz)
@@ -221,7 +221,7 @@ class TimeInStateCalculator # implements iCalculator
     out =
       config: @config
       cubeSavedState: @cube.getStateForSaving()
-      upToDate: @upToDate
+      upToDateISOString: @upToDateISOString
     if meta?
       out.meta = meta
     return out
@@ -238,7 +238,7 @@ class TimeInStateCalculator # implements iCalculator
       p = JSON.parse(p)
     calculator = new TimeInStateCalculator(p.config)
     calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState)
-    calculator.upToDate = p.upToDate
+    calculator.upToDateISOString = p.upToDateISOString
     if p.meta?
       calculator.meta = p.meta
 

@@ -136,6 +136,7 @@ exports.TransitionsCalculatorTest =
     test.equal(calculator2.lowestTimePeriod, calculator.lowestTimePeriod)
     test.equal(calculator2.maxTimeString, calculator.maxTimeString)
     test.equal(calculator2.upToDate, calculator.upToDate)
+    test.equal(calculator2.virgin, calculator.virgin)
 
     test.done()
 
