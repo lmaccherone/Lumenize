@@ -26,7 +26,8 @@ exports.histogramTest =
       {age: 25},
     ]
 
-    {buckets, chartMax} = histogram(rows, 'age')
+    histogramResults = histogram(rows, 'age')
+    {buckets, chartMax} = histogramResults
     
     expected = [
       { label: '0-13',  count: 2 },
@@ -65,4 +66,24 @@ exports.histogramTest =
           test.equal(row.age == row.clippedChartValue, false)
           test.ok(row.clippedChartValue <= chartMax)
     
+    test.done()
+
+  testOneRow: (test) ->
+    rows = [
+      {age:  7},
+    ]
+
+    histogramResults = histogram(rows, 'age')
+
+    test.equal(histogramResults.bucketSize, 4)
+
+    test.done()
+
+  testZeroRows: (test) ->
+    rows = []
+
+    histogramResults = histogram(rows, 'age')
+
+    test.equal(histogramResults.bucketSize, 1)
+
     test.done()

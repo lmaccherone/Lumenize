@@ -10953,7 +10953,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
           # 85 84.05555555555556
     */
 
-    var average, b, bucket, bucketCount, bucketSize, buckets, c, chartMax, chartMin, chartValues, chartValuesMinusOutliers, clipped, i, percentile, row, standardDeviation, total, upperBound, valueMax, _i, _j, _k, _l, _len, _len1, _len2;
+    var average, b, bucket, bucketCount, bucketSize, buckets, c, chartMax, chartMin, chartValues, chartValuesMinusOutliers, clipped, i, max, percentile, row, standardDeviation, total, upperBound, valueMax, _i, _j, _k, _l, _len, _len1, _len2;
     chartValues = (function() {
       var _i, _len, _results;
       _results = [];
@@ -10963,6 +10963,8 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
       }
       return _results;
     })();
+    max = Math.max(chartValues);
+    max = Math.max(max, 1);
     average = functions.average(chartValues);
     standardDeviation = functions.standardDeviation(chartValues);
     upperBound = average + 2 * standardDeviation;
@@ -10979,7 +10981,10 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     })();
     bucketCount = Math.floor(Math.sqrt(chartValuesMinusOutliers.length));
     if (bucketCount < 3) {
-      bucketCount = 3;
+      bucketCount = 2;
+    }
+    if (isNaN(upperBound)) {
+      upperBound = max;
     }
     bucketSize = Math.floor(upperBound / bucketCount) + 1;
     upperBound = bucketSize * bucketCount;
@@ -11026,7 +11031,11 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     for (_l = 0, _len2 = buckets.length; _l < _len2; _l++) {
       b = buckets[_l];
       percentile += b.count / total;
-      b.percentile = percentile;
+      if (isNaN(percentile)) {
+        b.percentile = 0;
+      } else {
+        b.percentile = percentile;
+      }
     }
     buckets[buckets.length - 1].percentile = 1.0;
     return {

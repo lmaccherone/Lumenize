@@ -75,6 +75,8 @@ histogram = (rows, valueField) ->
             
   ###
   chartValues = (row[valueField] for row in rows)
+  max = Math.max(chartValues)
+  max = Math.max(max, 1)
   
   average = functions.average(chartValues)
   standardDeviation = functions.standardDeviation(chartValues)
@@ -85,8 +87,11 @@ histogram = (rows, valueField) ->
   bucketCount = Math.floor(Math.sqrt(chartValuesMinusOutliers.length))
   
   if bucketCount < 3
-    bucketCount = 3
-  
+    bucketCount = 2
+
+  if isNaN(upperBound)
+    upperBound = max
+
   bucketSize = Math.floor(upperBound / bucketCount) + 1
   
   upperBound = bucketSize * bucketCount
@@ -133,7 +138,10 @@ histogram = (rows, valueField) ->
   percentile = 0
   for b in buckets
     percentile += b.count / total
-    b.percentile = percentile
+    if isNaN(percentile)
+      b.percentile = 0
+    else
+      b.percentile = percentile
   buckets[buckets.length - 1].percentile = 1.0
     
   return {buckets, bucketSize, chartMax, clipped, valueMax}
