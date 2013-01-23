@@ -87,7 +87,7 @@ exports.TimeSeriesCalculator =
         max = summaryMetrics.TaskUnitScope_max
         increments = seriesData.length - 1
         incrementAmount = max / increments
-        return max - index * incrementAmount
+        return Math.floor(100 * (max - index * incrementAmount)) / 100
       },
       {as: 'Ideal2', f: (row, index, summaryMetrics, seriesData) ->
         if index < summaryMetrics.TaskUnitBurnDown_max_index
@@ -96,7 +96,7 @@ exports.TimeSeriesCalculator =
           max = summaryMetrics.TaskUnitBurnDown_max
           increments = seriesData.length - 1 - summaryMetrics.TaskUnitBurnDown_max_index
           incrementAmount = max / increments
-          return max - (index - summaryMetrics.TaskUnitBurnDown_max_index) * incrementAmount
+          return Math.floor(100 * (max - (index - summaryMetrics.TaskUnitBurnDown_max_index) * incrementAmount)) / 100
       }
     ]
 
@@ -153,7 +153,7 @@ exports.TimeSeriesCalculator =
           TaskUnitBurnDown: 25,
           TaskUnitScope: 51,
           Ideal: 25.5,
-          Ideal2: 29.333333333333336
+          Ideal2: 29.33
         },
         {
           ticks: '2011-01-07T06:00:00.000Z',
@@ -165,7 +165,7 @@ exports.TimeSeriesCalculator =
           TaskUnitBurnDown: 16,
           TaskUnitScope: 51,
           Ideal: 12.75,
-          Ideal2: 14.666666666666668
+          Ideal2: 14.66
         },
         {
           ticks: '2011-01-09T06:00:00.000Z',
@@ -188,5 +188,9 @@ exports.TimeSeriesCalculator =
     }
 
     test.deepEqual(expected, calculator.getResults())
+
+    csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, true)
+
+    console.log(csv)
 
     test.done()

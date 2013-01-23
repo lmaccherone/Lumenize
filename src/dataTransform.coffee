@@ -46,7 +46,7 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
     i++
   return arrayOfMaps
 
-arrayOfMaps_To_CSVStyleArray = (arrayOfMaps) ->
+arrayOfMaps_To_CSVStyleArray = (arrayOfMaps, firstRowFieldNames = true) ->
   ###
   @method arrayOfMaps_To_CSVStyleArray
   @param {Object[]} arrayOfMaps
@@ -80,7 +80,8 @@ arrayOfMaps_To_CSVStyleArray = (arrayOfMaps) ->
   for key, value of arrayOfMaps[0]
     keys.push(key)
     outRow.push(key)
-  csvStyleArray.push(outRow)
+  if firstRowFieldNames
+    csvStyleArray.push(outRow)
   for inRow in arrayOfMaps
     outRow = []
     for key in keys

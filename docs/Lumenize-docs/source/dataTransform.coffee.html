@@ -66,6 +66,51 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) -&gt;
     arrayOfMaps.push(outputRow)
     i++
   return arrayOfMaps
+
+arrayOfMaps_To_CSVStyleArray = (arrayOfMaps) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-method-arrayOfMaps_To_CSVStyleArray'>  /**
+</span>   * @method arrayOfMaps_To_CSVStyleArray
+   * @member Lumenize
+   * @param {Object[]} arrayOfMaps
+   * @return {Array[]} The first row will be the column headers
+   * 
+   * `arrayOfMaps_To_CSVStyleArray` is a convenience function that will convert an array of maps like:
+   * 
+   *     {arrayOfMaps_To_CSVStyleArray} = require('../')
+   * 
+   *     arrayOfMaps = [
+   *       {column1: 10000, column2: 20000},
+   *       {column1: 30000, column2: 40000},
+   *       {column1: 50000, column2: 60000}
+   *     ]
+   * 
+   * to a CSV-style array like this:
+   * 
+   *     console.log(arrayOfMaps_To_CSVStyleArray(arrayOfMaps))
+   * 
+   *     # [ [ 'column1', 'column2' ],
+   *     #   [ 10000, 20000 ],
+   *     #   [ 30000, 40000 ],
+   *     #   [ 50000, 60000 ] ]
+   * `
+   */
+/* &lt;CoffeeScript&gt;
+  if arrayOfMaps.length == 0
+    return []
+  csvStyleArray = []
+  keys = []
+  outRow = []
+  for key, value of arrayOfMaps[0]
+    keys.push(key)
+    outRow.push(key)
+  csvStyleArray.push(outRow)
+  for inRow in arrayOfMaps
+    outRow = []
+    for key in keys
+      outRow.push(inRow[key])
+    csvStyleArray.push(outRow)
+  return csvStyleArray
   
 snapshotArray_To_AtArray = (snapshotArray, listOfAtCTs, validFromField, uniqueIDField, tz, validToField) -&gt;  
 &lt;/CoffeeScript&gt; */
@@ -334,7 +379,7 @@ aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, config) -&gt;  # !
     output.push(outputRow)
   return output
 
-
+exports.arrayOfMaps_To_CSVStyleArray = arrayOfMaps_To_CSVStyleArray
 exports.csvStyleArray_To_ArrayOfMaps = csvStyleArray_To_ArrayOfMaps
 exports.snapshotArray_To_AtArray = snapshotArray_To_AtArray
 exports.groupByAtArray_To_HighChartsSeries = groupByAtArray_To_HighChartsSeries

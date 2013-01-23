@@ -109,6 +109,22 @@ functions.lastValue = (values, oldResult, newValues) -&gt;
   return values[values.length - 1]
 
 &lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-static-method-firstValue'>/**
+</span> * @method firstValue
+ * @member Lumenize.functions
+ * @static
+ * @param {Number[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] Not used. It is included to make the interface consistent.
+ * @return {Number} The first value
+ */
+/* &lt;CoffeeScript&gt;
+functions.firstValue = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    return oldResult
+  return values[0]
+
+&lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-count'>/**
 </span> * @method count
  * @member Lumenize.functions
@@ -306,7 +322,6 @@ functions.expandFandAs = (a) -&gt;
    * @return {Object} returns the expanded specification
    */
 /* &lt;CoffeeScript&gt;
-  utils.assert(a.field? or a.f == 'count', &quot;'field' missing from specification: \n#{JSON.stringify(a, undefined, 4)}&quot;)
   utils.assert(a.f?, &quot;'f' missing from specification: \n#{JSON.stringify(a, undefined, 4)}&quot;)
   if utils.type(a.f) == 'function'
     utils.assert(a.as?, 'Must provide &quot;as&quot; field with your aggregation when providing a user defined function')
@@ -329,6 +344,7 @@ functions.expandFandAs = (a) -&gt;
       a.field = ''
       a.metric = 'count'
     a.as = &quot;#{a.field}_#{a.metric}&quot;
+    utils.assert(a.field? or a.f == 'count', &quot;'field' missing from specification: \n#{JSON.stringify(a, undefined, 4)}&quot;)
   return a
 
 functions.expandMetrics = (metrics = [], addCountIfMissing = false, addValuesForCustomFunctions = false) -&gt;
