@@ -165,8 +165,10 @@ exports.Timeline = Timeline.Timeline
 exports.iCalculator = require('./src/iCalculator').iCalculator
 exports.TimeInStateCalculator = require('./src/TimeInStateCalculator').TimeInStateCalculator
 exports.TransitionsCalculator = require('./src/TransitionsCalculator').TransitionsCalculator
+exports.TimeSeriesCalculator = require('./src/TimeSeriesCalculator').TimeSeriesCalculator
 
 datatransform = require('./src/dataTransform')
+exports.arrayOfMaps_To_CSVStyleArray = datatransform.arrayOfMaps_To_CSVStyleArray
 exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps
 exports.snapshotArray_To_AtArray = datatransform.snapshotArray_To_AtArray
 exports.groupByAtArray_To_HighChartsSeries = datatransform.groupByAtArray_To_HighChartsSeries

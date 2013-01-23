@@ -80,6 +80,19 @@ functions.lastValue = (values, oldResult, newValues) ->
   return values[values.length - 1]
 
 ###
+@method firstValue
+@static
+@param {Number[]} values
+@param {Number} [oldResult] for incremental calculation
+@param {Number[]} [newValues] Not used. It is included to make the interface consistent.
+@return {Number} The first value
+###
+functions.firstValue = (values, oldResult, newValues) ->
+  if oldResult?
+    return oldResult
+  return values[0]
+
+###
 @method count
 @static
 @param {Number[]} values
@@ -247,7 +260,6 @@ functions.expandFandAs = (a) ->
   @param {Object} a Will look like this `{as: 'mySum', f: 'sum', field: 'Points'}`
   @return {Object} returns the expanded specification
   ###
-  utils.assert(a.field? or a.f == 'count', "'field' missing from specification: \n#{JSON.stringify(a, undefined, 4)}")
   utils.assert(a.f?, "'f' missing from specification: \n#{JSON.stringify(a, undefined, 4)}")
   if utils.type(a.f) == 'function'
     utils.assert(a.as?, 'Must provide "as" field with your aggregation when providing a user defined function')
@@ -270,6 +282,7 @@ functions.expandFandAs = (a) ->
       a.field = ''
       a.metric = 'count'
     a.as = "#{a.field}_#{a.metric}"
+    utils.assert(a.field? or a.f == 'count', "'field' missing from specification: \n#{JSON.stringify(a, undefined, 4)}")
   return a
 
 functions.expandMetrics = (metrics = [], addCountIfMissing = false, addValuesForCustomFunctions = false) ->

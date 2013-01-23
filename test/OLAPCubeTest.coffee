@@ -433,3 +433,56 @@ exports.olapTest =
     test.deepEqual(cube.getCell(filter), newCube.getCell(filter))
 
     test.done()
+
+  testDerivedFields: (test) ->
+    aCSVStyle = [
+      ['field1', 'field3',],
+      ['a'     , 3        ],
+      ['b'     , 30       ],
+      ['c'     , 40       ],
+      ['b'     , 4        ],
+      ['b'     , 7        ],
+      ['b'     , 13       ],
+      ['b'     , 15       ],
+      ['c'     , 17       ],
+      ['b'     , 22       ],
+      ['b'     , 2        ]
+    ]
+
+    facts = csvStyleArray_To_ArrayOfMaps(aCSVStyle)
+
+    dimensions = [
+      {field: 'field1', keepTotals: true}
+    ]
+
+    metrics = [
+      {field: 'field3', f: 'sum'},
+      {field: 'timesTwo', f: 'sum'}
+    ]
+
+    deriveFieldsOnInput = [
+      {as: 'timesTwo', f: (row) ->
+        return row.field3 * 2
+      }
+    ]
+
+    deriveFieldsOnOutput = [
+      {as: 'timesTwoAgain', f: (row) ->
+        return row.timesTwo_sum * 2
+      }
+    ]
+
+    config = {dimensions, metrics, deriveFieldsOnInput, deriveFieldsOnOutput}
+
+    cube = new OLAPCube(config, facts)
+
+    expected = [
+      { field1: 'a', _count: 1, field3_sum: 3, timesTwo_sum: 6, timesTwoAgain: 12 },
+      { field1: null, _count: 10, field3_sum: 153, timesTwo_sum: 306, timesTwoAgain: 612 },
+      { field1: 'b', _count: 7, field3_sum: 93, timesTwo_sum: 186, timesTwoAgain: 372 },
+      { field1: 'c', _count: 2, field3_sum: 57, timesTwo_sum: 114, timesTwoAgain: 228 }
+    ]
+
+    test.deepEqual(expected, cube.getCells())
+
+    test.done()

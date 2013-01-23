@@ -1,5 +1,6 @@
 # !TODO: Add deriveFieldsOnSnapshots with @config.deriveFieldsOnSnapshotsConfig calling deriveFieldsOnFacts in OLAPCube
 # !TODO: Add deriveFieldsOnResults with @config.deriveFieldsOnResultsConfig calling deriveFieldsOnResultsConfig
+# !TODO: Add drill-down support with uniqueIDField or maybe keepFacts = true
 
 utils = require('./utils')
 OLAPCube = require('./OLAPCube').OLAPCube

@@ -1,6 +1,6 @@
 # !TODO: Add deriveFieldsOnSnapshots with @config.deriveFieldsOnSnapshotsConfig calling deriveFieldsOnFacts in OLAPCube
 # !TODO: Add deriveFieldsOnResults with @config.deriveFieldsOnResultsConfig calling deriveFieldsOnResultsConfig
-# !TODO: Add drill-down support with uniqueIDField
+# !TODO: Add drill-down support with uniqueIDField or maybe keepFacts = true
 # !TODO: Add series by type support
 
 utils = require('./utils')
@@ -129,9 +129,7 @@ class TransitionsCalculator # implements iCalculator
     ]
 
     metrics = [
-      {field: 'count', f: 'sum'},  # We add a count field to each snapshot and use sum so we can also subtract
-      {field: @config.uniqueIDField, f:'values'},
-      {field: 'count', f:'values'}
+      {field: 'count', f: 'sum'}  # We add a count field to each snapshot and use sum so we can also subtract
     ]
     for f in @config.fieldsToSum
       metrics.push({field: f, f: 'sum'})

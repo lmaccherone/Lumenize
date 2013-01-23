@@ -446,6 +446,8 @@ class Time
 
   _inBoundsCheck: () ->
     if @beforePastFlag == '' or !@beforePastFlag?
+      unless @granularity
+        throw new Error('@granularity should be set before _inBoundsCheck is ever called.')
       segments = Time._granularitySpecs[@granularity].segments
       for segment in segments
         gs = Time._granularitySpecs[segment]

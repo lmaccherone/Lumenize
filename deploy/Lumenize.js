@@ -4759,7 +4759,11 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
 
   exports.TransitionsCalculator = require('./src/TransitionsCalculator').TransitionsCalculator;
 
+  exports.TimeSeriesCalculator = require('./src/TimeSeriesCalculator').TimeSeriesCalculator;
+
   datatransform = require('./src/dataTransform');
+
+  exports.arrayOfMaps_To_CSVStyleArray = datatransform.arrayOfMaps_To_CSVStyleArray;
 
   exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps;
 
@@ -5319,6 +5323,9 @@ require.define("/src/Time.coffee",function(require,module,exports,__dirname,__fi
     Time.prototype._inBoundsCheck = function() {
       var gs, lowest, rolloverValue, segment, segments, temp, _i, _len, _results;
       if (this.beforePastFlag === '' || !(this.beforePastFlag != null)) {
+        if (!this.granularity) {
+          throw new Error('@granularity should be set before _inBoundsCheck is ever called.');
+        }
         segments = Time._granularitySpecs[this.granularity].segments;
         _results = [];
         for (_i = 0, _len = segments.length; _i < _len; _i++) {
@@ -8338,11 +8345,13 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
 });
 
 require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var OLAPCube, functions, utils;
+  var OLAPCube, arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, functions, utils, _ref;
 
-  utils = require('../src/utils');
+  utils = require('./utils');
 
   functions = require('./functions').functions;
+
+  _ref = require('./dataTransform'), arrayOfMaps_To_CSVStyleArray = _ref.arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps = _ref.csvStyleArray_To_ArrayOfMaps;
 
   OLAPCube = (function() {
     /*
@@ -8535,7 +8544,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     */
 
     function OLAPCube(userConfig, facts) {
-      var d, _i, _j, _len, _len1, _ref, _ref1;
+      var d, _i, _j, _len, _len1, _ref1, _ref2;
       this.userConfig = userConfig;
       /*
           @constructor
@@ -8585,7 +8594,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
             Note, if the metric has dependencies (e.g. average depends upon count and sum) it will automatically add those to
             your metric definition. If you've already added a dependency but put it under a different "as", it's not smart
             enough to sense that and it will add it again. Either live with the slight inefficiency and duplication or leave
-            dependent metrics named their default by not providing an "as" field.
+            dependency metrics named their default by not providing an "as" field.
       
           @cfg {Boolean} [keepTotals=false] Setting this will add an additional total row (indicated with field: null) along
             all dimensions. This setting can have a significant impact on the memory usage and performance of the OLAPCube so
@@ -8593,6 +8602,13 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           @cfg {Boolean} [keepFacts=false] Setting this will cause the OLAPCube to keep track of the facts that contributed to
             the metrics for each cell by adding an automatic 'facts' metric. Note, facts are restored after deserialization
             as you would expect, but they are no longer tied to the original facts.
+          @cfg {Object[]} deriveFieldsOnInput An Array of Maps in the form `{field:'myField', f:(fact)->...}`
+          @cfg {Object[]} deriveFieldsOnOutput same format as deriveFieldsOnInput, except the callback is in the form `f(row)`
+            This is only called for dirty rows that were effected by the latest round of addFacts. It's more efficient to calculate things
+            like standard deviation and percentile coverage here than in config.metrics. You just have to remember to include the dependencies
+            in config.metrics. Standard deviation depends upon `sum` and `sumSquares`. Percentile coverage depends upon `values`.
+            In fact, if you are going to capture values anyway, all of the functions are most efficiently calculated here.
+            Maybe some day, I'll write the code to analyze your metrics and move them out to here if it improves efficiency.
       */
 
       this.config = utils.clone(this.userConfig);
@@ -8604,9 +8620,9 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       this.cellIndex = {};
       this.currentValues = {};
       this._dimensionValues = {};
-      _ref = this.config.dimensions;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        d = _ref[_i];
+      _ref1 = this.config.dimensions;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        d = _ref1[_i];
         this._dimensionValues[d.field] = {};
       }
       if (!this.config.keepTotals) {
@@ -8615,9 +8631,9 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       if (!this.config.keepFacts) {
         this.config.keepFacts = false;
       }
-      _ref1 = this.config.dimensions;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        d = _ref1[_j];
+      _ref2 = this.config.dimensions;
+      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+        d = _ref2[_j];
         if (this.config.keepTotals || d.keepTotals) {
           d.keepTotals = true;
         } else {
@@ -8625,6 +8641,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
         }
       }
       functions.expandMetrics(this.config.metrics, true, true);
+      this.summaryMetrics = {};
       this.addFacts(facts);
     }
 
@@ -8678,39 +8695,39 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     };
 
     OLAPCube.prototype._expandFact = function(fact) {
-      var countdownArray, d, index, m, more, out, outRow, p, possibilitiesArray, rolloverArray, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3;
+      var countdownArray, d, index, m, more, out, outRow, p, possibilitiesArray, rolloverArray, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref1, _ref2, _ref3, _ref4;
       possibilitiesArray = [];
       countdownArray = [];
       rolloverArray = [];
-      _ref = this.config.dimensions;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        d = _ref[_i];
+      _ref1 = this.config.dimensions;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        d = _ref1[_i];
         p = OLAPCube._possibilities(fact[d.field], d.type, d.keepTotals);
         possibilitiesArray.push(p);
         countdownArray.push(p.length - 1);
         rolloverArray.push(p.length - 1);
       }
-      _ref1 = this.config.metrics;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        m = _ref1[_j];
+      _ref2 = this.config.metrics;
+      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+        m = _ref2[_j];
         this.currentValues[m.field] = [fact[m.field]];
       }
       out = [];
       more = true;
       while (more) {
         outRow = {};
-        _ref2 = this.config.dimensions;
-        for (index = _k = 0, _len2 = _ref2.length; _k < _len2; index = ++_k) {
-          d = _ref2[index];
+        _ref3 = this.config.dimensions;
+        for (index = _k = 0, _len2 = _ref3.length; _k < _len2; index = ++_k) {
+          d = _ref3[index];
           outRow[d.field] = possibilitiesArray[index][countdownArray[index]];
         }
         outRow._count = 1;
         if (this.config.keepFacts) {
           outRow._facts = [fact];
         }
-        _ref3 = this.config.metrics;
-        for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-          m = _ref3[_l];
+        _ref4 = this.config.metrics;
+        for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
+          m = _ref4[_l];
           outRow[m.as] = m.f([fact[m.field]], void 0, void 0, outRow, m.field + '_');
         }
         out.push(outRow);
@@ -8730,34 +8747,30 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     };
 
     OLAPCube.prototype._mergeExpandedFactArray = function(expandedFactArray) {
-      var d, er, fieldValue, filterString, m, olapRow, _i, _j, _len, _len1, _ref, _results;
+      var d, er, fieldValue, filterString, m, olapRow, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _results;
       _results = [];
       for (_i = 0, _len = expandedFactArray.length; _i < _len; _i++) {
         er = expandedFactArray[_i];
-        _ref = this.config.dimensions;
-        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-          d = _ref[_j];
+        _ref1 = this.config.dimensions;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          d = _ref1[_j];
           fieldValue = er[d.field];
           this._dimensionValues[d.field][JSON.stringify(fieldValue)] = fieldValue;
         }
         filterString = JSON.stringify(OLAPCube._extractFilter(er, this.config.dimensions));
         olapRow = this.cellIndex[filterString];
         if (olapRow != null) {
-          _results.push((function() {
-            var _k, _len2, _ref1, _results1;
-            _ref1 = this.config.metrics;
-            _results1 = [];
-            for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-              m = _ref1[_k];
-              _results1.push(olapRow[m.as] = m.f(olapRow[m.field + '_values'], olapRow[m.as], this.currentValues[m.field], olapRow, m.field + '_'));
-            }
-            return _results1;
-          }).call(this));
+          _ref2 = this.config.metrics;
+          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+            m = _ref2[_k];
+            olapRow[m.as] = m.f(olapRow[m.field + '_values'], olapRow[m.as], this.currentValues[m.field], olapRow, m.field + '_');
+          }
         } else {
           olapRow = er;
           this.cellIndex[filterString] = olapRow;
-          _results.push(this.cells.push(olapRow));
+          this.cells.push(olapRow);
         }
+        _results.push(this.dirtyRows[filterString] = olapRow);
       }
       return _results;
     };
@@ -8772,7 +8785,8 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
             and the values are the field values (e.g. `{field1: 'a', field2: 5}`).
       */
 
-      var expandedFactArray, fact, _i, _len;
+      var d, dirtyRow, expandedFactArray, fact, fieldName, filterString, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref1, _ref2, _ref3;
+      this.dirtyRows = {};
       if (utils.type(facts) === 'array') {
         if (facts.length <= 0) {
           return;
@@ -8784,12 +8798,44 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           return;
         }
       }
-      for (_i = 0, _len = facts.length; _i < _len; _i++) {
-        fact = facts[_i];
+      if (this.config.deriveFieldsOnInput) {
+        for (_i = 0, _len = facts.length; _i < _len; _i++) {
+          fact = facts[_i];
+          _ref1 = this.config.deriveFieldsOnInput;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            d = _ref1[_j];
+            if (d.as != null) {
+              fieldName = d.as;
+            } else {
+              fieldName = d.field;
+            }
+            fact[fieldName] = d.f(fact);
+          }
+        }
+      }
+      for (_k = 0, _len2 = facts.length; _k < _len2; _k++) {
+        fact = facts[_k];
         this.currentValues = {};
         expandedFactArray = this._expandFact(fact);
         this._mergeExpandedFactArray(expandedFactArray);
       }
+      if (this.config.deriveFieldsOnOutput != null) {
+        _ref2 = this.dirtyRows;
+        for (filterString in _ref2) {
+          dirtyRow = _ref2[filterString];
+          _ref3 = this.config.deriveFieldsOnOutput;
+          for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+            d = _ref3[_l];
+            if (d.as != null) {
+              fieldName = d.as;
+            } else {
+              fieldName = d.field;
+            }
+            dirtyRow[fieldName] = d.f(dirtyRow);
+          }
+        }
+      }
+      this.dirtyRows = {};
       return this;
     };
 
@@ -8805,14 +8851,14 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           @return {Object[]} Returns the cells that match the supplied filter
       */
 
-      var c, output, _i, _len, _ref;
+      var c, output, _i, _len, _ref1;
       if (filterObject == null) {
         return this.cells;
       }
       output = [];
-      _ref = this.cells;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        c = _ref[_i];
+      _ref1 = this.cells;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        c = _ref1[_i];
         if (utils.filterMatch(filterObject, c)) {
           output.push(c);
         }
@@ -8832,16 +8878,16 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           @return {Object[]} Returns the cell that match the supplied filter
       */
 
-      var cell, d, foundIt, key, normalizedFilter, value, _i, _j, _len, _len1, _ref, _ref1;
+      var cell, d, foundIt, key, normalizedFilter, value, _i, _j, _len, _len1, _ref1, _ref2;
       if (filter == null) {
         filter = {};
       }
       for (key in filter) {
         value = filter[key];
         foundIt = false;
-        _ref = this.config.dimensions;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          d = _ref[_i];
+        _ref1 = this.config.dimensions;
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          d = _ref1[_i];
           if (d.field === key) {
             foundIt = true;
           }
@@ -8851,9 +8897,9 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
         }
       }
       normalizedFilter = {};
-      _ref1 = this.config.dimensions;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        d = _ref1[_j];
+      _ref2 = this.config.dimensions;
+      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+        d = _ref2[_j];
         if (filter.hasOwnProperty(d.field)) {
           normalizedFilter[d.field] = filter[d.field];
         } else {
@@ -8950,16 +8996,16 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           @param {String} [metric='count']
       */
 
-      var c, cell, cellString, columnValueStrings, columnValues, field, filter, fullWidth, index, indexColumn, indexRow, maxColumnWidth, r, rowLabelWidth, rowValueStrings, rowValues, s, valueStrings, valueStringsRow, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref;
+      var c, cell, cellString, columnValueStrings, columnValues, field, filter, fullWidth, index, indexColumn, indexRow, maxColumnWidth, r, rowLabelWidth, rowValueStrings, rowValues, s, valueStrings, valueStringsRow, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref1;
       if (metric == null) {
         metric = '_count';
       }
       if (this.config.dimensions.length === 1) {
         field = this.config.dimensions[0].field;
         s = OLAPCube._padToWidth(field, 15) + OLAPCube._padToWidth(metric, 27);
-        _ref = this.getDimensionValues(field);
-        for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
-          r = _ref[index];
+        _ref1 = this.getDimensionValues(field);
+        for (index = _i = 0, _len = _ref1.length; _i < _len; index = ++_i) {
+          r = _ref1[index];
           filter = {};
           filter[field] = r;
           cell = this.getCell(filter);
@@ -9140,7 +9186,8 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       var out;
       out = {
         config: this.userConfig,
-        cells: this.cells
+        cells: this.cells,
+        summaryMetrics: this.summaryMetrics
       };
       if (meta != null) {
         out.meta = meta;
@@ -9163,30 +9210,31 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           @return {OLAPCube}
       */
 
-      var c, cube, d, fieldValue, filterString, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+      var c, cube, d, fieldValue, filterString, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _ref3;
       if (utils.type(p) === 'string') {
         p = JSON.parse(p);
       }
       cube = new OLAPCube(p.config);
+      cube.summaryMetrics = p.summaryMetrics;
       if (p.meta != null) {
         cube.meta = p.meta;
       }
       cube.cells = p.cells;
       cube.cellIndex = {};
       cube._dimensionValues = {};
-      _ref = cube.config.dimensions;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        d = _ref[_i];
+      _ref1 = cube.config.dimensions;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        d = _ref1[_i];
         cube._dimensionValues[d.field] = {};
       }
-      _ref1 = cube.cells;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        c = _ref1[_j];
+      _ref2 = cube.cells;
+      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+        c = _ref2[_j];
         filterString = JSON.stringify(OLAPCube._extractFilter(c, cube.config.dimensions));
         cube.cellIndex[filterString] = c;
-        _ref2 = cube.config.dimensions;
-        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-          d = _ref2[_k];
+        _ref3 = cube.config.dimensions;
+        for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+          d = _ref3[_k];
           fieldValue = c[d.field];
           cube._dimensionValues[d.field][JSON.stringify(fieldValue)] = fieldValue;
         }
@@ -9319,6 +9367,23 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
       return newValues[newValues.length - 1];
     }
     return values[values.length - 1];
+  };
+
+  /*
+  @method firstValue
+  @static
+  @param {Number[]} values
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] Not used. It is included to make the interface consistent.
+  @return {Number} The first value
+  */
+
+
+  functions.firstValue = function(values, oldResult, newValues) {
+    if (oldResult != null) {
+      return oldResult;
+    }
+    return values[0];
   };
 
   /*
@@ -9545,7 +9610,6 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     */
 
     var p;
-    utils.assert((a.field != null) || a.f === 'count', "'field' missing from specification: \n" + (JSON.stringify(a, void 0, 4)));
     utils.assert(a.f != null, "'f' missing from specification: \n" + (JSON.stringify(a, void 0, 4)));
     if (utils.type(a.f) === 'function') {
       utils.assert(a.as != null, 'Must provide "as" field with your aggregation when providing a user defined function');
@@ -9569,6 +9633,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
         a.metric = 'count';
       }
       a.as = "" + a.field + "_" + a.metric;
+      utils.assert((a.field != null) || a.f === 'count', "'field' missing from specification: \n" + (JSON.stringify(a, void 0, 4)));
     }
     return a;
   };
@@ -9690,368 +9755,8 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
 
 });
 
-require.define("/src/TransitionsCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var OLAPCube, Time, Timeline, TransitionsCalculator, utils;
-
-  utils = require('./utils');
-
-  OLAPCube = require('./OLAPCube').OLAPCube;
-
-  Timeline = require('./Timeline').Timeline;
-
-  Time = require('./Time').Time;
-
-  TransitionsCalculator = (function() {
-    /*
-      @class TransitionsCalculator
-    
-      Used to accumlate counts and sums about transitions.
-      
-      Usage:
-      
-          {TransitionsCalculator, Time} = require('../')
-    
-          snapshots = [
-            { id: 1, from: '2011-01-03T00:00:00.000Z', PlanEstimate: 10 },
-            { id: 1, from: '2011-01-05T00:00:00.000Z', PlanEstimate: 10 },
-            { id: 2, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 20 },
-            { id: 3, from: '2011-01-10T00:00:00.000Z', PlanEstimate: 30 },
-            { id: 4, from: '2011-01-11T00:00:00.000Z', PlanEstimate: 40 },
-            { id: 5, from: '2011-01-17T00:00:00.000Z', PlanEstimate: 50 },
-            { id: 6, from: '2011-02-07T00:00:00.000Z', PlanEstimate: 60 },
-            { id: 7, from: '2011-02-08T00:00:00.000Z', PlanEstimate: 70 },
-          ]
-    
-          snapshotsToSubtract = [
-            { id: 1, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 10 },
-            { id: 7, from: '2011-02-09T00:00:00.000Z', PlanEstimate: 70 },
-          ]
-    
-          granularity = Time.MONTH
-          tz = 'America/Chicago'
-    
-          config =
-            asOf: '2011-02-10'  # Leave this off if you want it to continuously update to today
-            granularity: granularity
-            tz: tz
-            validFromField: 'from'
-            validToField: 'to'
-            uniqueIDField: 'id'
-            fieldsToSum: ['PlanEstimate']
-            asterixToDateTimePeriod: true  # Set to false or leave off if you are going to reformat the timePeriod
-    
-      Note, it will automatically keep track of the count, but you can have it track the sum of any other number field using
-      the `fieldsToSum` configuration property.
-    
-      In most cases, you'll want to leave off the `asOf` configuration property so the data can be continuously updated
-      with new snapshots as they come in. We include it in this example so the output stays stable. If we hadn't, then
-      the rows would continue to grow to encompass today.
-    
-          startOn = '2011-01-02T00:00:00.000Z'
-          endBefore = '2011-02-27T00:00:00.000Z'
-    
-          calculator = new TransitionsCalculator(config)
-          calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
-    
-          console.log(calculator.getResults())
-          # [ { timePeriod: '2011-01', count: 5, PlanEstimate: 150 },
-          #   { timePeriod: '2011-02*', count: 1, PlanEstimate: 60 } ]
-    
-      Now, let's use the same data but aggregate in granularity of weeks.
-    
-          config.granularity = Time.WEEK
-          calculator = new TransitionsCalculator(config)
-          calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
-    
-          console.log(calculator.getResults())
-          # [ { timePeriod: '2010W52', count: 1, PlanEstimate: 10 },
-          #   { timePeriod: '2011W01', count: 2, PlanEstimate: 50 },
-          #   { timePeriod: '2011W02', count: 2, PlanEstimate: 90 },
-          #   { timePeriod: '2011W03', count: 0, PlanEstimate: 0 },
-          #   { timePeriod: '2011W04', count: 0, PlanEstimate: 0 },
-          #   { timePeriod: '2011W05', count: 1, PlanEstimate: 60 },
-          #   { timePeriod: '2011W06*', count: 0, PlanEstimate: 0 } ]
-    
-      Remember, you can easily convert weeks to other granularities for display.
-    
-          weekStartingLabel = 'week starting ' + new Time('2010W52').inGranularity(Time.DAY).toString()
-          console.log(weekStartingLabel)
-          # week starting 2010-12-27
-    
-      If you want to display spinners while the chart is rendering, you can read this calculator's upToDateISOString property and
-      compare it directly to the getResults() row's timePeriod property using code like this. Yes, this works eventhough
-      upToDateISOString is an ISOString.
-    
-          row = {timePeriod: '2011W07'}
-          if calculator.upToDateISOString < row.timePeriod
-            console.log("#{row.timePeriod} not yet calculated.")
-          # 2011W07 not yet calculated.
-    */
-
-    function TransitionsCalculator(config) {
-      /*
-          @constructor
-          @param {Object} config
-          @cfg {String} tz The timezone for analysis in the form like `America/New_York`
-          @cfg {String} [validFromField = "_ValidFrom"]
-          @cfg {String} [validToField = "_ValidTo"]
-          @cfg {String} [uniqueIDField = "ObjectID"] Not used right now but when drill-down is added it will be
-          @cfg {String} granularity 'month', 'week', 'quarter', etc. Use Time.MONTH, Time.WEEK, etc.
-          @cfg {String[]} [fieldsToSum=[]] It will track the count automatically but it can keep a running sum of other fields also
-          @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
-      */
-
-      var cubeConfig, dimensions, f, metrics, _i, _len, _ref, _ref1;
-      this.config = utils.clone(config);
-      if (this.config.validFromField == null) {
-        this.config.validFromField = "_ValidFrom";
-      }
-      if (this.config.validToField == null) {
-        this.config.validToField = "_ValidTo";
-      }
-      if (this.config.uniqueIDField == null) {
-        this.config.uniqueIDField = "ObjectID";
-      }
-      if (this.config.fieldsToSum == null) {
-        this.config.fieldsToSum = [];
-      }
-      if (this.config.asterixToDateTimePeriod == null) {
-        this.config.asterixToDateTimePeriod = false;
-      }
-      utils.assert(this.config.tz != null, "Must provide a timezone to this calculator.");
-      utils.assert(this.config.granularity != null, "Must provide a granularity to this calculator.");
-      if ((_ref = this.config.granularity) === Time.HOUR || _ref === Time.MINUTE || _ref === Time.SECOND || _ref === Time.MILLISECOND) {
-        throw new Error("Transitions calculator is not designed to work on granularities finer than 'day'");
-      }
-      dimensions = [
-        {
-          field: 'timePeriod'
-        }
-      ];
-      metrics = [
-        {
-          field: 'count',
-          f: 'sum'
-        }, {
-          field: this.config.uniqueIDField,
-          f: 'values'
-        }, {
-          field: 'count',
-          f: 'values'
-        }
-      ];
-      _ref1 = this.config.fieldsToSum;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        f = _ref1[_i];
-        metrics.push({
-          field: f,
-          f: 'sum'
-        });
-      }
-      cubeConfig = {
-        dimensions: dimensions,
-        metrics: metrics
-      };
-      this.cube = new OLAPCube(cubeConfig);
-      this.upToDateISOString = null;
-      this.lowestTimePeriod = null;
-      if (this.config.asOf != null) {
-        this.maxTimeString = new Time(this.config.asOf, Time.MILLISECOND).getISOStringInTZ(this.config.tz);
-      } else {
-        this.maxTimeString = Time.getISOStringFromJSDate();
-      }
-      this.virgin = true;
-    }
-
-    TransitionsCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore, snapshotsToSubtract) {
-      var filteredSnapshots, filteredSnapshotsToSubstract, startOnString;
-      if (snapshotsToSubtract == null) {
-        snapshotsToSubtract = [];
-      }
-      /*
-          @method addSnapshots
-            Allows you to incrementally add snapshots to this calculator.
-          @chainable
-          @param {Object[]} snapshots An array of temporal data model snapshots.
-          @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
-            interest. On the second through nth call, this should equal the previous endBefore.
-          @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
-            period of interest.
-          @return {TransitionsCalculator}
-      */
-
-      if (this.upToDateISOString != null) {
-        utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
-      }
-      this.upToDateISOString = endBefore;
-      startOnString = new Time(startOn, this.config.granularity, this.config.tz).toString();
-      if (this.lowestTimePeriod != null) {
-        if (startOnString < this.lowestTimePeriod) {
-          this.lowestTimePeriod = startOnString;
-        }
-      } else {
-        this.lowestTimePeriod = startOnString;
-      }
-      filteredSnapshots = this._filterSnapshots(snapshots);
-      this.cube.addFacts(filteredSnapshots);
-      filteredSnapshotsToSubstract = this._filterSnapshots(snapshotsToSubtract, -1);
-      this.cube.addFacts(filteredSnapshotsToSubstract);
-      this.virgin = false;
-      return this;
-    };
-
-    TransitionsCalculator.prototype._filterSnapshots = function(snapshots, sign) {
-      var f, filteredSnapshots, fs, s, _i, _j, _len, _len1, _ref;
-      if (sign == null) {
-        sign = 1;
-      }
-      filteredSnapshots = [];
-      for (_i = 0, _len = snapshots.length; _i < _len; _i++) {
-        s = snapshots[_i];
-        if (s[this.config.validFromField] <= this.maxTimeString) {
-          if (s.count != null) {
-            throw new Error('Snapshots passed into a TransitionsCalculator cannot have a `count` field.');
-          }
-          if (s.timePeriod != null) {
-            throw new Error('Snapshots passed into a TransitionsCalculator cannot have a `timePeriod` field.');
-          }
-          fs = utils.clone(s);
-          fs.count = sign * 1;
-          fs.timePeriod = new Time(s[this.config.validFromField], this.config.granularity, this.config.tz).toString();
-          _ref = this.config.fieldsToSum;
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            f = _ref[_j];
-            fs[f] = sign * s[f];
-          }
-          filteredSnapshots.push(fs);
-        }
-      }
-      return filteredSnapshots;
-    };
-
-    TransitionsCalculator.prototype.getResults = function() {
-      /*
-          @method getResults
-            Returns the current state of the calculator
-          @return {Object[]} Returns an Array of Maps like `{timePeriod: '2012-12', count: 10, otherField: 34}`
-      */
-
-      var cell, config, f, filter, out, outRow, t, timeLine, timePeriods, tp, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
-      if (this.virgin) {
-        return [];
-      }
-      out = [];
-      this.highestTimePeriod = new Time(this.maxTimeString, this.config.granularity, this.config.tz).toString();
-      config = {
-        startOn: this.lowestTimePeriod,
-        endBefore: this.highestTimePeriod,
-        granularity: this.config.granularity
-      };
-      timeLine = new Timeline(config);
-      timePeriods = (function() {
-        var _i, _len, _ref, _results;
-        _ref = timeLine.getAllRaw();
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          t = _ref[_i];
-          _results.push(t.toString());
-        }
-        return _results;
-      })();
-      timePeriods.push(this.highestTimePeriod);
-      for (_i = 0, _len = timePeriods.length; _i < _len; _i++) {
-        tp = timePeriods[_i];
-        filter = {};
-        filter['timePeriod'] = tp;
-        cell = this.cube.getCell(filter);
-        outRow = {};
-        outRow.timePeriod = tp;
-        if (cell != null) {
-          outRow.count = cell.count_sum;
-          _ref = this.config.fieldsToSum;
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            f = _ref[_j];
-            outRow[f] = cell[f + '_sum'];
-          }
-        } else {
-          outRow.count = 0;
-          _ref1 = this.config.fieldsToSum;
-          for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-            f = _ref1[_k];
-            outRow[f] = 0;
-          }
-        }
-        out.push(outRow);
-      }
-      if (this.config.asterixToDateTimePeriod) {
-        out[out.length - 1].timePeriod += '*';
-      }
-      return out;
-    };
-
-    TransitionsCalculator.prototype.getStateForSaving = function(meta) {
-      /*
-          @method getStateForSaving
-            Enables saving the state of this calculator. See TimeInStateCalculator documentation for a detailed example.
-          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
-            within the deserialized calculator.
-          @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
-            to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
-            the calculator.
-      */
-
-      var out;
-      out = {
-        config: this.config,
-        cubeSavedState: this.cube.getStateForSaving(),
-        upToDateISOString: this.upToDateISOString,
-        maxTimeString: this.maxTimeString,
-        lowestTimePeriod: this.lowestTimePeriod,
-        virgin: this.virgin
-      };
-      if (meta != null) {
-        out.meta = meta;
-      }
-      return out;
-    };
-
-    TransitionsCalculator.newFromSavedState = function(p) {
-      /*
-          @method newFromSavedState
-            Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
-          @static
-          @param {String/Object} p A String or Object from a previously saved state
-          @return {TransitionsCalculator}
-      */
-
-      var calculator;
-      if (utils.type(p) === 'string') {
-        p = JSON.parse(p);
-      }
-      calculator = new TransitionsCalculator(p.config);
-      calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState);
-      calculator.upToDateISOString = p.upToDateISOString;
-      calculator.maxTimeString = p.maxTimeString;
-      calculator.lowestTimePeriod = p.lowestTimePeriod;
-      calculator.virgin = p.virgin;
-      if (p.meta != null) {
-        calculator.meta = p.meta;
-      }
-      return calculator;
-    };
-
-    return TransitionsCalculator;
-
-  })();
-
-  exports.TransitionsCalculator = TransitionsCalculator;
-
-}).call(this);
-
-});
-
 require.define("/src/dataTransform.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var Time, aggregationAtArray_To_HighChartsSeries, csvStyleArray_To_ArrayOfMaps, groupByAtArray_To_HighChartsSeries, snapshotArray_To_AtArray, utils;
+  var Time, aggregationAtArray_To_HighChartsSeries, arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, groupByAtArray_To_HighChartsSeries, snapshotArray_To_AtArray, utils;
 
   Time = require('./Time').Time;
 
@@ -10107,6 +9812,59 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
       i++;
     }
     return arrayOfMaps;
+  };
+
+  arrayOfMaps_To_CSVStyleArray = function(arrayOfMaps) {
+    /*
+      @method arrayOfMaps_To_CSVStyleArray
+      @param {Object[]} arrayOfMaps
+      @return {Array[]} The first row will be the column headers
+    
+      `arrayOfMaps_To_CSVStyleArray` is a convenience function that will convert an array of maps like:
+    
+          {arrayOfMaps_To_CSVStyleArray} = require('../')
+    
+          arrayOfMaps = [
+            {column1: 10000, column2: 20000},
+            {column1: 30000, column2: 40000},
+            {column1: 50000, column2: 60000}
+          ]
+    
+      to a CSV-style array like this:
+    
+          console.log(arrayOfMaps_To_CSVStyleArray(arrayOfMaps))
+    
+          # [ [ 'column1', 'column2' ],
+          #   [ 10000, 20000 ],
+          #   [ 30000, 40000 ],
+          #   [ 50000, 60000 ] ]
+      `
+    */
+
+    var csvStyleArray, inRow, key, keys, outRow, value, _i, _j, _len, _len1, _ref;
+    if (arrayOfMaps.length === 0) {
+      return [];
+    }
+    csvStyleArray = [];
+    keys = [];
+    outRow = [];
+    _ref = arrayOfMaps[0];
+    for (key in _ref) {
+      value = _ref[key];
+      keys.push(key);
+      outRow.push(key);
+    }
+    csvStyleArray.push(outRow);
+    for (_i = 0, _len = arrayOfMaps.length; _i < _len; _i++) {
+      inRow = arrayOfMaps[_i];
+      outRow = [];
+      for (_j = 0, _len1 = keys.length; _j < _len1; _j++) {
+        key = keys[_j];
+        outRow.push(inRow[key]);
+      }
+      csvStyleArray.push(outRow);
+    }
+    return csvStyleArray;
   };
 
   snapshotArray_To_AtArray = function(snapshotArray, listOfAtCTs, validFromField, uniqueIDField, tz, validToField) {
@@ -10411,6 +10169,8 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     return output;
   };
 
+  exports.arrayOfMaps_To_CSVStyleArray = arrayOfMaps_To_CSVStyleArray;
+
   exports.csvStyleArray_To_ArrayOfMaps = csvStyleArray_To_ArrayOfMaps;
 
   exports.snapshotArray_To_AtArray = snapshotArray_To_AtArray;
@@ -10418,6 +10178,634 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
   exports.groupByAtArray_To_HighChartsSeries = groupByAtArray_To_HighChartsSeries;
 
   exports.aggregationAtArray_To_HighChartsSeries = aggregationAtArray_To_HighChartsSeries;
+
+}).call(this);
+
+});
+
+require.define("/src/TransitionsCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var OLAPCube, Time, Timeline, TransitionsCalculator, utils;
+
+  utils = require('./utils');
+
+  OLAPCube = require('./OLAPCube').OLAPCube;
+
+  Timeline = require('./Timeline').Timeline;
+
+  Time = require('./Time').Time;
+
+  TransitionsCalculator = (function() {
+    /*
+      @class TransitionsCalculator
+    
+      Used to accumlate counts and sums about transitions.
+      
+      Usage:
+      
+          {TransitionsCalculator, Time} = require('../')
+    
+          snapshots = [
+            { id: 1, from: '2011-01-03T00:00:00.000Z', PlanEstimate: 10 },
+            { id: 1, from: '2011-01-05T00:00:00.000Z', PlanEstimate: 10 },
+            { id: 2, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 20 },
+            { id: 3, from: '2011-01-10T00:00:00.000Z', PlanEstimate: 30 },
+            { id: 4, from: '2011-01-11T00:00:00.000Z', PlanEstimate: 40 },
+            { id: 5, from: '2011-01-17T00:00:00.000Z', PlanEstimate: 50 },
+            { id: 6, from: '2011-02-07T00:00:00.000Z', PlanEstimate: 60 },
+            { id: 7, from: '2011-02-08T00:00:00.000Z', PlanEstimate: 70 },
+          ]
+    
+          snapshotsToSubtract = [
+            { id: 1, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 10 },
+            { id: 7, from: '2011-02-09T00:00:00.000Z', PlanEstimate: 70 },
+          ]
+    
+          granularity = Time.MONTH
+          tz = 'America/Chicago'
+    
+          config =
+            asOf: '2011-02-10'  # Leave this off if you want it to continuously update to today
+            granularity: granularity
+            tz: tz
+            validFromField: 'from'
+            validToField: 'to'
+            uniqueIDField: 'id'
+            fieldsToSum: ['PlanEstimate']
+            asterixToDateTimePeriod: true  # Set to false or leave off if you are going to reformat the timePeriod
+    
+      Note, it will automatically keep track of the count, but you can have it track the sum of any other number field using
+      the `fieldsToSum` configuration property.
+    
+      In most cases, you'll want to leave off the `asOf` configuration property so the data can be continuously updated
+      with new snapshots as they come in. We include it in this example so the output stays stable. If we hadn't, then
+      the rows would continue to grow to encompass today.
+    
+          startOn = '2011-01-02T00:00:00.000Z'
+          endBefore = '2011-02-27T00:00:00.000Z'
+    
+          calculator = new TransitionsCalculator(config)
+          calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
+    
+          console.log(calculator.getResults())
+          # [ { timePeriod: '2011-01', count: 5, PlanEstimate: 150 },
+          #   { timePeriod: '2011-02*', count: 1, PlanEstimate: 60 } ]
+    
+      Now, let's use the same data but aggregate in granularity of weeks.
+    
+          config.granularity = Time.WEEK
+          calculator = new TransitionsCalculator(config)
+          calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
+    
+          console.log(calculator.getResults())
+          # [ { timePeriod: '2010W52', count: 1, PlanEstimate: 10 },
+          #   { timePeriod: '2011W01', count: 2, PlanEstimate: 50 },
+          #   { timePeriod: '2011W02', count: 2, PlanEstimate: 90 },
+          #   { timePeriod: '2011W03', count: 0, PlanEstimate: 0 },
+          #   { timePeriod: '2011W04', count: 0, PlanEstimate: 0 },
+          #   { timePeriod: '2011W05', count: 1, PlanEstimate: 60 },
+          #   { timePeriod: '2011W06*', count: 0, PlanEstimate: 0 } ]
+    
+      Remember, you can easily convert weeks to other granularities for display.
+    
+          weekStartingLabel = 'week starting ' + new Time('2010W52').inGranularity(Time.DAY).toString()
+          console.log(weekStartingLabel)
+          # week starting 2010-12-27
+    
+      If you want to display spinners while the chart is rendering, you can read this calculator's upToDateISOString property and
+      compare it directly to the getResults() row's timePeriod property using code like this. Yes, this works eventhough
+      upToDateISOString is an ISOString.
+    
+          row = {timePeriod: '2011W07'}
+          if calculator.upToDateISOString < row.timePeriod
+            console.log("#{row.timePeriod} not yet calculated.")
+          # 2011W07 not yet calculated.
+    */
+
+    function TransitionsCalculator(config) {
+      /*
+          @constructor
+          @param {Object} config
+          @cfg {String} tz The timezone for analysis in the form like `America/New_York`
+          @cfg {String} [validFromField = "_ValidFrom"]
+          @cfg {String} [validToField = "_ValidTo"]
+          @cfg {String} [uniqueIDField = "ObjectID"] Not used right now but when drill-down is added it will be
+          @cfg {String} granularity 'month', 'week', 'quarter', etc. Use Time.MONTH, Time.WEEK, etc.
+          @cfg {String[]} [fieldsToSum=[]] It will track the count automatically but it can keep a running sum of other fields also
+          @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
+      */
+
+      var cubeConfig, dimensions, f, metrics, _i, _len, _ref, _ref1;
+      this.config = utils.clone(config);
+      if (this.config.validFromField == null) {
+        this.config.validFromField = "_ValidFrom";
+      }
+      if (this.config.validToField == null) {
+        this.config.validToField = "_ValidTo";
+      }
+      if (this.config.uniqueIDField == null) {
+        this.config.uniqueIDField = "ObjectID";
+      }
+      if (this.config.fieldsToSum == null) {
+        this.config.fieldsToSum = [];
+      }
+      if (this.config.asterixToDateTimePeriod == null) {
+        this.config.asterixToDateTimePeriod = false;
+      }
+      utils.assert(this.config.tz != null, "Must provide a timezone to this calculator.");
+      utils.assert(this.config.granularity != null, "Must provide a granularity to this calculator.");
+      if ((_ref = this.config.granularity) === Time.HOUR || _ref === Time.MINUTE || _ref === Time.SECOND || _ref === Time.MILLISECOND) {
+        throw new Error("Transitions calculator is not designed to work on granularities finer than 'day'");
+      }
+      dimensions = [
+        {
+          field: 'timePeriod'
+        }
+      ];
+      metrics = [
+        {
+          field: 'count',
+          f: 'sum'
+        }
+      ];
+      _ref1 = this.config.fieldsToSum;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        f = _ref1[_i];
+        metrics.push({
+          field: f,
+          f: 'sum'
+        });
+      }
+      cubeConfig = {
+        dimensions: dimensions,
+        metrics: metrics
+      };
+      this.cube = new OLAPCube(cubeConfig);
+      this.upToDateISOString = null;
+      this.lowestTimePeriod = null;
+      if (this.config.asOf != null) {
+        this.maxTimeString = new Time(this.config.asOf, Time.MILLISECOND).getISOStringInTZ(this.config.tz);
+      } else {
+        this.maxTimeString = Time.getISOStringFromJSDate();
+      }
+      this.virgin = true;
+    }
+
+    TransitionsCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore, snapshotsToSubtract) {
+      var filteredSnapshots, filteredSnapshotsToSubstract, startOnString;
+      if (snapshotsToSubtract == null) {
+        snapshotsToSubtract = [];
+      }
+      /*
+          @method addSnapshots
+            Allows you to incrementally add snapshots to this calculator.
+          @chainable
+          @param {Object[]} snapshots An array of temporal data model snapshots.
+          @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+            interest. On the second through nth call, this should equal the previous endBefore.
+          @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+            period of interest.
+          @return {TransitionsCalculator}
+      */
+
+      if (this.upToDateISOString != null) {
+        utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
+      }
+      this.upToDateISOString = endBefore;
+      startOnString = new Time(startOn, this.config.granularity, this.config.tz).toString();
+      if (this.lowestTimePeriod != null) {
+        if (startOnString < this.lowestTimePeriod) {
+          this.lowestTimePeriod = startOnString;
+        }
+      } else {
+        this.lowestTimePeriod = startOnString;
+      }
+      filteredSnapshots = this._filterSnapshots(snapshots);
+      this.cube.addFacts(filteredSnapshots);
+      filteredSnapshotsToSubstract = this._filterSnapshots(snapshotsToSubtract, -1);
+      this.cube.addFacts(filteredSnapshotsToSubstract);
+      this.virgin = false;
+      return this;
+    };
+
+    TransitionsCalculator.prototype._filterSnapshots = function(snapshots, sign) {
+      var f, filteredSnapshots, fs, s, _i, _j, _len, _len1, _ref;
+      if (sign == null) {
+        sign = 1;
+      }
+      filteredSnapshots = [];
+      for (_i = 0, _len = snapshots.length; _i < _len; _i++) {
+        s = snapshots[_i];
+        if (s[this.config.validFromField] <= this.maxTimeString) {
+          if (s.count != null) {
+            throw new Error('Snapshots passed into a TransitionsCalculator cannot have a `count` field.');
+          }
+          if (s.timePeriod != null) {
+            throw new Error('Snapshots passed into a TransitionsCalculator cannot have a `timePeriod` field.');
+          }
+          fs = utils.clone(s);
+          fs.count = sign * 1;
+          fs.timePeriod = new Time(s[this.config.validFromField], this.config.granularity, this.config.tz).toString();
+          _ref = this.config.fieldsToSum;
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            f = _ref[_j];
+            fs[f] = sign * s[f];
+          }
+          filteredSnapshots.push(fs);
+        }
+      }
+      return filteredSnapshots;
+    };
+
+    TransitionsCalculator.prototype.getResults = function() {
+      /*
+          @method getResults
+            Returns the current state of the calculator
+          @return {Object[]} Returns an Array of Maps like `{timePeriod: '2012-12', count: 10, otherField: 34}`
+      */
+
+      var cell, config, f, filter, out, outRow, t, timeLine, timePeriods, tp, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
+      if (this.virgin) {
+        return [];
+      }
+      out = [];
+      this.highestTimePeriod = new Time(this.maxTimeString, this.config.granularity, this.config.tz).toString();
+      config = {
+        startOn: this.lowestTimePeriod,
+        endBefore: this.highestTimePeriod,
+        granularity: this.config.granularity
+      };
+      timeLine = new Timeline(config);
+      timePeriods = (function() {
+        var _i, _len, _ref, _results;
+        _ref = timeLine.getAllRaw();
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          t = _ref[_i];
+          _results.push(t.toString());
+        }
+        return _results;
+      })();
+      timePeriods.push(this.highestTimePeriod);
+      for (_i = 0, _len = timePeriods.length; _i < _len; _i++) {
+        tp = timePeriods[_i];
+        filter = {};
+        filter['timePeriod'] = tp;
+        cell = this.cube.getCell(filter);
+        outRow = {};
+        outRow.timePeriod = tp;
+        if (cell != null) {
+          outRow.count = cell.count_sum;
+          _ref = this.config.fieldsToSum;
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            f = _ref[_j];
+            outRow[f] = cell[f + '_sum'];
+          }
+        } else {
+          outRow.count = 0;
+          _ref1 = this.config.fieldsToSum;
+          for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+            f = _ref1[_k];
+            outRow[f] = 0;
+          }
+        }
+        out.push(outRow);
+      }
+      if (this.config.asterixToDateTimePeriod) {
+        out[out.length - 1].timePeriod += '*';
+      }
+      return out;
+    };
+
+    TransitionsCalculator.prototype.getStateForSaving = function(meta) {
+      /*
+          @method getStateForSaving
+            Enables saving the state of this calculator. See TimeInStateCalculator documentation for a detailed example.
+          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+            within the deserialized calculator.
+          @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+            to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+            the calculator.
+      */
+
+      var out;
+      out = {
+        config: this.config,
+        cubeSavedState: this.cube.getStateForSaving(),
+        upToDateISOString: this.upToDateISOString,
+        maxTimeString: this.maxTimeString,
+        lowestTimePeriod: this.lowestTimePeriod,
+        virgin: this.virgin
+      };
+      if (meta != null) {
+        out.meta = meta;
+      }
+      return out;
+    };
+
+    TransitionsCalculator.newFromSavedState = function(p) {
+      /*
+          @method newFromSavedState
+            Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
+          @static
+          @param {String/Object} p A String or Object from a previously saved state
+          @return {TransitionsCalculator}
+      */
+
+      var calculator;
+      if (utils.type(p) === 'string') {
+        p = JSON.parse(p);
+      }
+      calculator = new TransitionsCalculator(p.config);
+      calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState);
+      calculator.upToDateISOString = p.upToDateISOString;
+      calculator.maxTimeString = p.maxTimeString;
+      calculator.lowestTimePeriod = p.lowestTimePeriod;
+      calculator.virgin = p.virgin;
+      if (p.meta != null) {
+        calculator.meta = p.meta;
+      }
+      return calculator;
+    };
+
+    return TransitionsCalculator;
+
+  })();
+
+  exports.TransitionsCalculator = TransitionsCalculator;
+
+}).call(this);
+
+});
+
+require.define("/src/TimeSeriesCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var OLAPCube, Time, TimeSeriesCalculator, Timeline, functions, utils;
+
+  utils = require('./utils');
+
+  OLAPCube = require('./OLAPCube').OLAPCube;
+
+  Timeline = require('./Timeline').Timeline;
+
+  Time = require('./Time').Time;
+
+  functions = require('./functions').functions;
+
+  TimeSeriesCalculator = (function() {
+    /*
+    */
+
+    function TimeSeriesCalculator(config) {
+      /*
+          @constructor
+          @param {Object} config
+          @cfg {String} tz The timezone for analysis
+          @cfg {String} [validFromField = "_ValidFrom"]
+          @cfg {String} [validToField = "_ValidTo"]
+          @cfg {String} [uniqueIDField = "ObjectID"]
+          @cfg {String} granularity 'month', 'week', 'quarter', 'day', etc. Use Time.MONTH, Time.WEEK, etc.
+          @cfg {String[]/String} [workDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']] List of days of the week that you work on. You can specify this as an Array of Strings
+             (['Monday', 'Tuesday', ...]) or a single comma seperated String ("Monday,Tuesday,...").
+          @cfg {Object[]} [holidays] An optional Array containing rows that are either ISOStrings or JavaScript Objects
+            (mix and match). Example: `[{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, "2012-12-24"]`
+             Notice how you can leave off the year if the holiday falls on the same day every year.
+          @cfg {Object} [workDayStartOn] An optional object in the form {hour: 8, minute: 15}. If minute is zero it can be omitted.
+             If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
+             hours span midnight. If tickGranularity is "hour" or finer, you probably want to set this; if tickGranularity is
+             "day" or coarser, probably not.
+          @cfg {Object} [workDayEndBefore] An optional object in the form {hour: 17, minute: 0}. If minute is zero it can be omitted.
+             The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
+             Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
+             than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
+             the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
+      
+          @cfg {Object[]} [metrics=[]] (required) Array which specifies the metrics to calculate for tick in time.
+      
+            Example:
+      
+              config = {}
+              config.metrics = [
+                {field: 'field3'},                                      # defaults to metrics: ['sum']
+                {field: 'field4', metrics: [
+                  {f: 'sum'},                                           # will add a metric named field4_sum
+                  {as: 'median4', f: 'p50'},                            # renamed p50 to median4 from default of field4_p50
+                  {as: 'myCount', f: (values) -> return values.length}  # user-supplied function
+                ]}
+              ]
+      
+            If you specify a field without any metrics, it will assume you want the sum but it will not automatically
+            add the sum metric to fields with a metrics specification. User-supplied aggregation functions are also supported as
+            shown in the 'myCount' metric above.
+      
+            Note, if the metric has dependencies (e.g. average depends upon count and sum) it will automatically add those to
+            your metric definition. If you've already added a dependency but put it under a different "as", it's not smart
+            enough to sense that and it will add it again. Either live with the duplication or leave
+            dependency metrics named their default by not providing an "as" field.
+          @cfg {Object[]} deriveFieldsOnInput An Array of Maps in the form `{field:'myField', f:(fact)->...}`
+          @cfg {Object[]} deriveFieldsOnOutput same format at deriveFieldsOnInput, except the callback is in the form `f(row)`
+            This is only called for dirty rows that were effected by the latest round of additions in an incremental calculation.
+          @cfg {Object[]} [summaryMetricsConfig] Allows you to specify a list of metrics to calculate on the results before returning.
+            These can either be in the form of `{as: 'myMetric', field: 'field4`, f:'sum'}` which would extract all of the values
+            for field `field4` and pass it as the values parameter to the `f` (`sum` in this example) function (from Lumenize.functions), or
+            it can be in the form of `{as: 'myMetric', f:(@seriesData, @summaryMetrics) -> ...}`. Note, they are calculated
+            in order, so you can use the result of an earlier summaryMetric to calculate a later one.
+          @cfg {Object[]} deriveFieldsAfterSummary same format at deriveFieldsOnInput, except the callback is in the form `f(row, index, @summaryMetrics, @seriesData)`
+            This is called on all rows every time you call getResults() so it's less efficient than deriveFieldsOnOutput. Only use it if you need
+            the @summaryMetrics in your calculation.
+      */
+
+      var cubeConfig, dimensions, field, fieldsMap, inputCubeDimensions, inputCubeMetrics, m, _i, _j, _len, _len1, _ref, _ref1;
+      this.config = utils.clone(config);
+      if (this.config.validFromField == null) {
+        this.config.validFromField = "_ValidFrom";
+      }
+      if (this.config.validToField == null) {
+        this.config.validToField = "_ValidTo";
+      }
+      if (this.config.uniqueIDField == null) {
+        this.config.uniqueIDField = "ObjectID";
+      }
+      utils.assert(this.config.tz != null, "Must provide a timezone to this calculator.");
+      utils.assert(this.config.granularity != null, "Must provide a granularity to this calculator.");
+      inputCubeDimensions = [
+        {
+          field: this.config.uniqueIDField
+        }, {
+          field: 'ticks'
+        }
+      ];
+      fieldsMap = {};
+      _ref = this.config.metrics;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        m = _ref[_i];
+        if (m.field != null) {
+          fieldsMap[m.field] = true;
+        }
+      }
+      inputCubeMetrics = [];
+      for (field in fieldsMap) {
+        inputCubeMetrics.push({
+          field: field,
+          f: 'firstValue',
+          as: field
+        });
+      }
+      this.inputCubeConfig = {
+        dimensions: inputCubeDimensions,
+        metrics: inputCubeMetrics,
+        deriveFieldsOnInput: this.config.deriveFieldsOnInput
+      };
+      dimensions = [
+        {
+          field: 'ticks'
+        }
+      ];
+      cubeConfig = {
+        dimensions: dimensions,
+        metrics: this.config.metrics,
+        deriveFieldsOnOutput: this.config.deriveFieldsOnOutput
+      };
+      this.cube = new OLAPCube(cubeConfig);
+      this.upToDateISOString = null;
+      if (this.config.summaryMetricsConfig != null) {
+        _ref1 = this.config.summaryMetricsConfig;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          m = _ref1[_j];
+          functions.expandFandAs(m);
+        }
+      }
+    }
+
+    TimeSeriesCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore) {
+      /*
+          @method addSnapshots
+            Allows you to incrementally add snapshots to this calculator.
+          @chainable
+          @param {Object[]} snapshots An array of temporal data model snapshots.
+          @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+            interest. On the second through nth call, this should equal the previous endBefore.
+          @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+            period of interest.
+          @return {TimeInStateCalculator}
+      */
+
+      var inputCube, s, ticks, timeline, timelineConfig, validSnapshots, _i, _len;
+      if (this.upToDateISOString != null) {
+        utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
+      }
+      this.upToDateISOString = endBefore;
+      timelineConfig = utils.clone(this.config);
+      timelineConfig.startOn = new Time(startOn, Time.MILLISECOND, this.config.tz);
+      timelineConfig.endBefore = new Time(endBefore, Time.MILLISECOND, this.config.tz);
+      timeline = new Timeline(timelineConfig);
+      validSnapshots = [];
+      for (_i = 0, _len = snapshots.length; _i < _len; _i++) {
+        s = snapshots[_i];
+        ticks = timeline.ticksThatIntersect(s[this.config.validFromField], s[this.config.validToField], this.config.tz);
+        if (ticks.length > 0) {
+          s.ticks = ticks;
+          validSnapshots.push(s);
+        }
+      }
+      inputCube = new OLAPCube(this.inputCubeConfig, validSnapshots);
+      this.cube.addFacts(inputCube.getCells());
+      return this;
+    };
+
+    TimeSeriesCalculator.prototype.getResults = function() {
+      /*
+          @method getResults
+            Returns the current state of the calculator
+          @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
+      */
+
+      var d, index, row, summaryMetric, ticks, values, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3;
+      ticks = this.cube.getDimensionValues('ticks');
+      this.seriesData = this.cube.getCells();
+      if (this.config.summaryMetricsConfig != null) {
+        this.summaryMetrics = {};
+        _ref = this.config.summaryMetricsConfig;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          summaryMetric = _ref[_i];
+          if (summaryMetric.field != null) {
+            values = [];
+            _ref1 = this.seriesData;
+            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+              row = _ref1[_j];
+              values.push(row[summaryMetric.field]);
+            }
+            this.summaryMetrics[summaryMetric.as] = summaryMetric.f(values);
+          } else {
+            this.summaryMetrics[summaryMetric.as] = summaryMetric.f(this.seriesData, this.summaryMetrics);
+          }
+        }
+      }
+      if (this.config.deriveFieldsAfterSummary != null) {
+        _ref2 = this.seriesData;
+        for (index = _k = 0, _len2 = _ref2.length; _k < _len2; index = ++_k) {
+          row = _ref2[index];
+          _ref3 = this.config.deriveFieldsAfterSummary;
+          for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+            d = _ref3[_l];
+            row[d.as] = d.f(row, index, this.summaryMetrics, this.seriesData);
+          }
+        }
+      }
+      return {
+        seriesData: this.seriesData,
+        summaryMetrics: this.summaryMetrics
+      };
+    };
+
+    TimeSeriesCalculator.prototype.getStateForSaving = function(meta) {
+      /*
+          @method getStateForSaving
+            Enables saving the state of this calculator. See class documentation for a detailed example.
+          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+            within the deserialized calculator.
+          @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+            to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+            the calculator.
+      */
+
+      var out;
+      out = {
+        config: this.config,
+        cubeSavedState: this.cube.getStateForSaving(),
+        upToDateISOString: this.upToDateISOString
+      };
+      if (meta != null) {
+        out.meta = meta;
+      }
+      return out;
+    };
+
+    TimeSeriesCalculator.newFromSavedState = function(p) {
+      /*
+          @method newFromSavedState
+            Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
+          @static
+          @param {String/Object} p A String or Object from a previously saved state
+          @return {TimeInStateCalculator}
+      */
+
+      var calculator;
+      if (utils.type(p) === 'string') {
+        p = JSON.parse(p);
+      }
+      calculator = new TimeInStateCalculator(p.config);
+      calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState);
+      calculator.upToDateISOString = p.upToDateISOString;
+      if (p.meta != null) {
+        calculator.meta = p.meta;
+      }
+      return calculator;
+    };
+
+    return TimeSeriesCalculator;
+
+  })();
+
+  exports.TimeSeriesCalculator = TimeSeriesCalculator;
 
 }).call(this);
 

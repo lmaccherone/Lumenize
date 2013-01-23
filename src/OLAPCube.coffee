@@ -1,9 +1,9 @@
-# !TODO: Add deriveFieldsOnFacts with @config.deriveFieldsOnFactsConfig
-# !TODO: Add deriveFieldsOnResults with @config.deriveFieldsOnResultsConfig
-# !TODO: Be smart enough to move dependent metrics to the deriveFieldsOnResultsConfig. This means reintroducing @dirtyCells
+# !TODO: Add summary metrics
+# !TODO: Be smart enough to move dependent metrics to the deriveFieldsOnOutput
 
-utils = require('../src/utils')
+utils = require('./utils')
 functions = require('./functions').functions
+{arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps} = require('./dataTransform')
 
 class OLAPCube
   ###
@@ -244,7 +244,7 @@ class OLAPCube
       Note, if the metric has dependencies (e.g. average depends upon count and sum) it will automatically add those to
       your metric definition. If you've already added a dependency but put it under a different "as", it's not smart
       enough to sense that and it will add it again. Either live with the slight inefficiency and duplication or leave
-      dependent metrics named their default by not providing an "as" field.
+      dependency metrics named their default by not providing an "as" field.
 
     @cfg {Boolean} [keepTotals=false] Setting this will add an additional total row (indicated with field: null) along
       all dimensions. This setting can have a significant impact on the memory usage and performance of the OLAPCube so
@@ -252,6 +252,13 @@ class OLAPCube
     @cfg {Boolean} [keepFacts=false] Setting this will cause the OLAPCube to keep track of the facts that contributed to
       the metrics for each cell by adding an automatic 'facts' metric. Note, facts are restored after deserialization
       as you would expect, but they are no longer tied to the original facts.
+    @cfg {Object[]} deriveFieldsOnInput An Array of Maps in the form `{field:'myField', f:(fact)->...}`
+    @cfg {Object[]} deriveFieldsOnOutput same format as deriveFieldsOnInput, except the callback is in the form `f(row)`
+      This is only called for dirty rows that were effected by the latest round of addFacts. It's more efficient to calculate things
+      like standard deviation and percentile coverage here than in config.metrics. You just have to remember to include the dependencies
+      in config.metrics. Standard deviation depends upon `sum` and `sumSquares`. Percentile coverage depends upon `values`.
+      In fact, if you are going to capture values anyway, all of the functions are most efficiently calculated here.
+      Maybe some day, I'll write the code to analyze your metrics and move them out to here if it improves efficiency.
     ###
     @config = utils.clone(@userConfig)
     utils.assert(@config.dimensions?, 'Must provide config.dimensions.')
@@ -276,6 +283,8 @@ class OLAPCube
         d.keepTotals = false
 
     functions.expandMetrics(@config.metrics, true, true)
+
+    @summaryMetrics = {}
 
     @addFacts(facts)
   
@@ -367,6 +376,7 @@ class OLAPCube
         olapRow = er
         @cellIndex[filterString] = olapRow
         @cells.push(olapRow)
+      @dirtyRows[filterString] = olapRow
 
   addFacts: (facts) ->
     ###
@@ -377,6 +387,8 @@ class OLAPCube
     @param {Object[]} facts An Array of facts to be aggregated into OLAPCube. Each fact is a Map where the keys are the field names
       and the values are the field values (e.g. `{field1: 'a', field2: 5}`).
     ###
+    @dirtyRows = {}
+
     if utils.type(facts) == 'array'
       if facts.length <= 0
         return
@@ -386,10 +398,30 @@ class OLAPCube
       else
         return
 
+    if @config.deriveFieldsOnInput
+      for fact in facts
+        for d in @config.deriveFieldsOnInput
+          if d.as?
+            fieldName = d.as
+          else
+            fieldName = d.field
+          fact[fieldName] = d.f(fact)
+
     for fact in facts
       @currentValues = {}
       expandedFactArray = @_expandFact(fact)
       @_mergeExpandedFactArray(expandedFactArray)
+
+    # deriveFieldsOnOutput for @dirtyRows
+    if @config.deriveFieldsOnOutput?
+      for filterString, dirtyRow of @dirtyRows
+        for d in @config.deriveFieldsOnOutput
+          if d.as?
+            fieldName = d.as
+          else
+            fieldName = d.field
+          dirtyRow[fieldName] = d.f(dirtyRow)
+    @dirtyRows = {}
 
     return this
 
@@ -627,7 +659,9 @@ class OLAPCube
     ###
     out =
       config: @userConfig
+#      cells: arrayOfMaps_To_CSVStyleArray(@cells)
       cells: @cells
+      summaryMetrics: @summaryMetrics
     if meta?
       out.meta = meta
     return out
@@ -649,8 +683,10 @@ class OLAPCube
     if utils.type(p) is 'string'
       p = JSON.parse(p)
     cube = new OLAPCube(p.config)
+    cube.summaryMetrics = p.summaryMetrics
     if p.meta?
       cube.meta = p.meta
+#    cube.cells = csvStyleArray_To_ArrayOfMaps(p.cells)
     cube.cells = p.cells
     cube.cellIndex = {}
     cube._dimensionValues = {}
