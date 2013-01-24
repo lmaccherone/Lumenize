@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.5.5
+Lumenize version: 0.5.6
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -9857,7 +9857,9 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
       keys.push(key);
       outRow.push(key);
     }
-    csvStyleArray.push(outRow);
+    if (firstRowFieldNames) {
+      csvStyleArray.push(outRow);
+    }
     for (_i = 0, _len = arrayOfMaps.length; _i < _len; _i++) {
       inRow = arrayOfMaps[_i];
       outRow = [];
@@ -10556,7 +10558,10 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
   TimeSeriesCalculator = (function() {
     /*
       @class TimeSeriesCalculator
-      This calculator is used to...
+      This calculator is used to convert snapshot data into time series aggregations.
+    
+      Below is a detailed example. Let's start with a fairly large set of snapshots and create a bunch of series for
+      a burn (up/down) chart.
     
           lumenize = require('../')
           {TimeSeriesCalculator, Time} = lumenize
@@ -10564,17 +10569,17 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           snapshotsCSV = [
             ["ObjectID", "_ValidFrom",               "_ValidTo",                 "ScheduleState", "PlanEstimate", "TaskRemainingTotal", "TaskEstimateTotal"],
     
-            [1,          "2010-10-10T15:00:00.000Z", "2011-01-02T13:00:00.000Z", "Ready to pull", 5             , 15                  , 15],  # Shouldn't show up, 2010 before start
+            [1,          "2010-10-10T15:00:00.000Z", "2011-01-02T13:00:00.000Z", "Ready to pull", 5             , 15                  , 15],
     
-            [1,          "2011-01-02T13:00:00.000Z", "2011-01-02T15:10:00.000Z", "Ready to pull", 5             , 15                  , 15],  # !TODO: Should get the same results even without this line
-            [1,          "2011-01-02T15:10:00.000Z", "2011-01-03T15:00:00.000Z", "In progress"  , 5             , 20                  , 15],  # Testing it starting at one state and switching later to another
+            [1,          "2011-01-02T13:00:00.000Z", "2011-01-02T15:10:00.000Z", "Ready to pull", 5             , 15                  , 15],
+            [1,          "2011-01-02T15:10:00.000Z", "2011-01-03T15:00:00.000Z", "In progress"  , 5             , 20                  , 15],
             [2,          "2011-01-02T15:00:00.000Z", "2011-01-03T15:00:00.000Z", "Ready to pull", 3             , 5                   , 5],
             [3,          "2011-01-02T15:00:00.000Z", "2011-01-03T15:00:00.000Z", "Ready to pull", 5             , 12                  , 12],
     
             [2,          "2011-01-03T15:00:00.000Z", "2011-01-04T15:00:00.000Z", "In progress"  , 3             , 5                   , 5],
             [3,          "2011-01-03T15:00:00.000Z", "2011-01-04T15:00:00.000Z", "Ready to pull", 5             , 12                  , 12],
             [4,          "2011-01-03T15:00:00.000Z", "2011-01-04T15:00:00.000Z", "Ready to pull", 5             , 15                  , 15],
-            [1,          "2011-01-03T15:10:00.000Z", "2011-01-04T15:00:00.000Z", "In progress"  , 5             , 12                  , 15],  # Testing later change
+            [1,          "2011-01-03T15:10:00.000Z", "2011-01-04T15:00:00.000Z", "In progress"  , 5             , 12                  , 15],
     
             [1,          "2011-01-04T15:00:00.000Z", "2011-01-06T15:00:00.000Z", "Accepted"     , 5             , 0                   , 15],
             [2,          "2011-01-04T15:00:00.000Z", "2011-01-06T15:00:00.000Z", "In test"      , 3             , 1                   , 5],
@@ -10597,11 +10602,16 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     
           snapshots = lumenize.csvStyleArray_To_ArrayOfMaps(snapshotsCSV)
     
+      Now that we have the data, let's configure our analysis by starting with the granularity, timezone, and holidays.
+    
           granularity = lumenize.Time.DAY
           tz = 'America/Chicago'
           holidays = [
             {year: 2011, month: 1, day: 5}  # Made up holiday to test knockout
           ]
+    
+      Now, let's add our first aggregation specification. These derived fields will act as filters for the determining
+      what stories are counted in the AcceptedStoryCount and AcceptedStoryPoints metrics.
     
           deriveFieldsOnInput = [
             {field: 'AcceptedStoryCount', f: (row) ->
@@ -10618,6 +10628,10 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
             }
           ]
     
+      Next, we use the native fields in the snapshots, plus the two derived fields above to calculate most of the chart
+      series. Sums and counts are bread and butter, but all Lumenize.functions functions are supported (standardDeviation,
+      median, percentile coverage, etc.)
+    
           metrics = [
             {as: 'StoryUnitScope', field: 'PlanEstimate', f: 'sum'},
             {as: 'StoryCountScope', f: 'count'},
@@ -10626,6 +10640,9 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
             {as: 'TaskUnitBurnDown', field: 'TaskRemainingTotal', f: 'sum'},
             {as: 'TaskUnitScope', field: 'TaskEstimateTotal', f: 'sum'}  # Note, we don't have the task count denormalized in stories so we can't have TaskCountScope nor TaskUnitBurnDown
           ]
+    
+      Next, we specify the summary metrics for the chart. We're not really interested in displaying any summary metrics for
+      this chart but we need to calculate the max values of two of the existing series in order to add the two ideal line series.
     
           summaryMetricsConfig = [
             {field: 'TaskUnitScope', f: 'max'},
@@ -10637,12 +10654,15 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
             }
           ]
     
+      The calculations from the summary metrics above are passed into the calculations for derived fields after summary.
+      Here is where we calculate two alternatives for the burn down ideal line.
+    
           deriveFieldsAfterSummary = [
             {as: 'Ideal', f: (row, index, summaryMetrics, seriesData) ->
               max = summaryMetrics.TaskUnitScope_max
               increments = seriesData.length - 1
               incrementAmount = max / increments
-              return max - index * incrementAmount
+              return Math.floor(100 * (max - index * incrementAmount)) / 100
             },
             {as: 'Ideal2', f: (row, index, summaryMetrics, seriesData) ->
               if index < summaryMetrics.TaskUnitBurnDown_max_index
@@ -10651,9 +10671,11 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
                 max = summaryMetrics.TaskUnitBurnDown_max
                 increments = seriesData.length - 1 - summaryMetrics.TaskUnitBurnDown_max_index
                 incrementAmount = max / increments
-                return max - (index - summaryMetrics.TaskUnitBurnDown_max_index) * incrementAmount
+                return Math.floor(100 * (max - (index - summaryMetrics.TaskUnitBurnDown_max_index) * incrementAmount)) / 100
             }
           ]
+    
+      Finally, we build the config Object from the above specifications, instantiate the calculator, and show the results.
     
           config =  # default workDays
             deriveFieldsOnInput: deriveFieldsOnInput
@@ -10672,7 +10694,27 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     
           calculator.addSnapshots(snapshots, startOn, endBefore)
     
-          outArray =
+          csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, true)
+    
+          console.log(csv)
+          #  [ [ 'tick',
+          #      '_count',
+          #      'StoryUnitScope',
+          #      'StoryCountScope',
+          #      'StoryCountBurnUp',
+          #      'StoryUnitBurnUp',
+          #      'TaskUnitBurnDown',
+          #      'TaskUnitScope',
+          #      'Ideal',
+          #      'Ideal2' ],
+          #    [ '2011-01-03T06:00:00.000Z', 1, 13, 3, 0, 0, 37, 32, 51, null ],
+          #    [ '2011-01-04T06:00:00.000Z', 1, 18, 4, 0, 0, 44, 47, 38.25, 44 ],
+          #    [ '2011-01-06T06:00:00.000Z', 1, 20, 5, 1, 5, 25, 51, 25.5, 29.33 ],
+          #    [ '2011-01-07T06:00:00.000Z', 1, 20, 5, 2, 8, 16, 51, 12.75, 14.66 ],
+          #    [ '2011-01-09T06:00:00.000Z', 1, 18, 4, 3, 13, 3, 47, 0, 0 ] ]
+    
+      Note, the `_count` field should always be 1 indicating that each row in the output is for 1 tick. This is an artifact
+      of the underlying OLAPCube calculator and can be ignored.
     */
 
     function TimeSeriesCalculator(config) {
@@ -10751,7 +10793,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         {
           field: this.config.uniqueIDField
         }, {
-          field: 'ticks'
+          field: 'tick'
         }
       ];
       fieldsMap = {};
@@ -10777,7 +10819,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       };
       dimensions = [
         {
-          field: 'ticks'
+          field: 'tick'
         }
       ];
       cubeConfig = {
@@ -10823,7 +10865,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         s = snapshots[_i];
         ticks = timeline.ticksThatIntersect(s[this.config.validFromField], s[this.config.validToField], this.config.tz);
         if (ticks.length > 0) {
-          s.ticks = ticks;
+          s.tick = ticks;
           validSnapshots.push(s);
         }
       }

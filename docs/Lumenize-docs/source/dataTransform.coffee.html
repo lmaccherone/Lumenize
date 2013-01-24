@@ -67,7 +67,7 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) -&gt;
     i++
   return arrayOfMaps
 
-arrayOfMaps_To_CSVStyleArray = (arrayOfMaps) -&gt;
+arrayOfMaps_To_CSVStyleArray = (arrayOfMaps, firstRowFieldNames = true) -&gt;
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-method-arrayOfMaps_To_CSVStyleArray'>  /**
 </span>   * @method arrayOfMaps_To_CSVStyleArray
@@ -104,7 +104,8 @@ arrayOfMaps_To_CSVStyleArray = (arrayOfMaps) -&gt;
   for key, value of arrayOfMaps[0]
     keys.push(key)
     outRow.push(key)
-  csvStyleArray.push(outRow)
+  if firstRowFieldNames
+    csvStyleArray.push(outRow)
   for inRow in arrayOfMaps
     outRow = []
     for key in keys

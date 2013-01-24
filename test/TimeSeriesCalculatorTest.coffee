@@ -120,7 +120,7 @@ exports.TimeSeriesCalculator =
     expected = {
       seriesData: [
         {
-          ticks: '2011-01-03T06:00:00.000Z',
+          tick: '2011-01-03T06:00:00.000Z',
           _count: 1,
           StoryUnitScope: 13,
           StoryCountScope: 3,
@@ -132,7 +132,7 @@ exports.TimeSeriesCalculator =
           Ideal2: null
         },
         {
-          ticks: '2011-01-04T06:00:00.000Z',
+          tick: '2011-01-04T06:00:00.000Z',
           _count: 1,
           StoryUnitScope: 18,
           StoryCountScope: 4,
@@ -144,7 +144,7 @@ exports.TimeSeriesCalculator =
           Ideal2: 44
         },
         {
-          ticks: '2011-01-06T06:00:00.000Z',
+          tick: '2011-01-06T06:00:00.000Z',
           _count: 1,
           StoryUnitScope: 20,
           StoryCountScope: 5,
@@ -156,7 +156,7 @@ exports.TimeSeriesCalculator =
           Ideal2: 29.33
         },
         {
-          ticks: '2011-01-07T06:00:00.000Z',
+          tick: '2011-01-07T06:00:00.000Z',
           _count: 1,
           StoryUnitScope: 20,
           StoryCountScope: 5,
@@ -168,7 +168,7 @@ exports.TimeSeriesCalculator =
           Ideal2: 14.66
         },
         {
-          ticks: '2011-01-09T06:00:00.000Z',
+          tick: '2011-01-09T06:00:00.000Z',
           _count: 1,
           StoryUnitScope: 18,
           StoryCountScope: 4,
@@ -188,9 +188,5 @@ exports.TimeSeriesCalculator =
     }
 
     test.deepEqual(expected, calculator.getResults())
-
-    csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, true)
-
-    console.log(csv)
 
     test.done()
