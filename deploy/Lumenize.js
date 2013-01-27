@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.5.6
+Lumenize version: 0.5.7
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -9843,14 +9843,11 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     return arrayOfMaps;
   };
 
-  arrayOfMaps_To_CSVStyleArray = function(arrayOfMaps, firstRowFieldNames) {
-    var csvStyleArray, inRow, key, keys, outRow, value, _i, _j, _len, _len1, _ref;
-    if (firstRowFieldNames == null) {
-      firstRowFieldNames = true;
-    }
+  arrayOfMaps_To_CSVStyleArray = function(arrayOfMaps, keys) {
     /*
       @method arrayOfMaps_To_CSVStyleArray
       @param {Object[]} arrayOfMaps
+      @param {Object} [keys] If not provided, it will use the first row and get all fields
       @return {Array[]} The first row will be the column headers
     
       `arrayOfMaps_To_CSVStyleArray` is a convenience function that will convert an array of maps like:
@@ -9874,21 +9871,21 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
       `
     */
 
+    var csvStyleArray, inRow, key, outRow, value, _i, _j, _len, _len1, _ref;
     if (arrayOfMaps.length === 0) {
       return [];
     }
     csvStyleArray = [];
-    keys = [];
     outRow = [];
-    _ref = arrayOfMaps[0];
-    for (key in _ref) {
-      value = _ref[key];
-      keys.push(key);
-      outRow.push(key);
+    if (keys == null) {
+      keys = [];
+      _ref = arrayOfMaps[0];
+      for (key in _ref) {
+        value = _ref[key];
+        keys.push(key);
+      }
     }
-    if (firstRowFieldNames) {
-      csvStyleArray.push(outRow);
-    }
+    csvStyleArray.push(keys);
     for (_i = 0, _len = arrayOfMaps.length; _i < _len; _i++) {
       inRow = arrayOfMaps[_i];
       outRow = [];
@@ -10716,15 +10713,27 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     
           calculator = new TimeSeriesCalculator(config)
     
-          startOn = new Time('2011-01-03').getISOStringInTZ(tz)
+          startOn = new Time('2011-01-02').getISOStringInTZ(tz)
           endBefore = new Time('2011-01-10').getISOStringInTZ(tz)
     
           calculator.addSnapshots(snapshots, startOn, endBefore)
     
-          csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, true)
+          keys = [
+            'label',
+            'StoryUnitScope',
+            'StoryCountScope',
+            'StoryCountBurnUp',
+            'StoryUnitBurnUp',
+            'TaskUnitBurnDown',
+            'TaskUnitScope',
+            'Ideal',
+            'Ideal2'
+          ]
+    
+          csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
     
           console.log(csv)
-          #  [ [ 'tick',
+          #  [ [ 'label',
           #      'StoryUnitScope',
           #      'StoryCountScope',
           #      'StoryCountBurnUp',
@@ -10733,11 +10742,12 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           #      'TaskUnitScope',
           #      'Ideal',
           #      'Ideal2' ],
-          #    [ '2011-01-03T06:00:00.000Z', 1, 13, 3, 0, 0, 37, 32, 51, null ],
-          #    [ '2011-01-04T06:00:00.000Z', 1, 18, 4, 0, 0, 44, 47, 38.25, 44 ],
-          #    [ '2011-01-06T06:00:00.000Z', 1, 20, 5, 1, 5, 25, 51, 25.5, 29.33 ],
-          #    [ '2011-01-07T06:00:00.000Z', 1, 20, 5, 2, 8, 16, 51, 12.75, 14.66 ],
-          #    [ '2011-01-09T06:00:00.000Z', 1, 18, 4, 3, 13, 3, 47, 0, 0 ] ]
+          #    [ '2011-01-03', 13, 3, 0, 0, 37, 32, 51, null ],
+          #    [ '2011-01-04', 18, 4, 0, 0, 44, 47, 40.79, 44 ],
+          #    [ '2011-01-06', 20, 5, 1, 5, 25, 51, 30.6, 33 ],
+          #    [ '2011-01-07', 20, 5, 2, 8, 16, 51, 20.4, 22 ],
+          #    [ '2011-01-09', 18, 4, 3, 13, 3, 47, 10.2, 11 ],
+          #    [ '2011-01-10', 18, 4, 3, 13, 3, 47, 0, 0 ] ]
     */
 
     function TimeSeriesCalculator(config) {
@@ -11015,7 +11025,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         if (this.allLabels != null) {
           cell.label = this.allLabels[tickIndex];
         } else {
-          cell.label = cell.tick;
+          cell.label = new Time(cell.tick, this.config.granularity, this.config.tz).toString();
         }
         seriesData.push(cell);
       }

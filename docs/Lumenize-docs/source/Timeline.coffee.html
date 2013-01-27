@@ -372,7 +372,7 @@ class Timeline
       @memoizedTicks[parameterKey] = ticks
     return ticks
 
-  ticksThatIntersect: (startOn, endBefore, tz) -&gt;
+  ticksThatIntersect: (startOn, endBefore, tz, returnEnd = false) -&gt;
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-Timeline-method-ticksThatIntersect'>    /**
 </span>     * @method ticksThatIntersect
@@ -393,6 +393,21 @@ class Timeline
       utils.assert(isoDateRegExp.test(startOn), 'startOn must be in form ####-##-##T##:##:##.###Z')
       utils.assert(isoDateRegExp.test(endBefore), 'endBefore must be in form ####-##-##T##:##:##.###Z')
       utils.assert(tz?, &quot;Must specify parameter tz when submitting ISO string boundaries.&quot;)
+
+#      ticksUnshifted = @getAll()
+#      ticks = (tick.add(1, @granularity).toString() for tick in ticksUnshifted)
+#      if ticks[0] &gt;= endBefore or ticks[ticks.length - 1] &lt; startOn
+#        out = []
+#      else
+#        i = 0
+#        ticksLength = ticks.length
+#        while i &lt; ticksLength and ticks[i] &lt; startOn
+#          i++
+#        while i &lt; ticksLength and ticks[i] &lt; endBefore
+#          out.push(ticksUnshifted[i].toString())
+#          i++
+
+
       ticks = @getAll('ISOString', tz)
       if ticks[0] &gt;= endBefore or ticks[ticks.length - 1] &lt; startOn
         out = []
@@ -404,6 +419,8 @@ class Timeline
         while i &lt; ticksLength and ticks[i] &lt; endBefore
           out.push(ticks[i])
           i++
+
+
     else if startOn instanceof Time
       utils.assert(endBefore instanceof Time, 'The type for startOn and endBefore must match.')
       startOn = startOn.inGranularity(@granularity)

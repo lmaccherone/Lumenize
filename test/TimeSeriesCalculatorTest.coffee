@@ -118,78 +118,84 @@ exports.TimeSeriesCalculator =
     calculator.addSnapshots(snapshots, startOn, endBefore)
 
     expected = {
-      seriesData: [
+      "seriesData": [
         {
-          tick: '2011-01-02',
-          StoryUnitScope: 13,
-          StoryCountScope: 3,
-          StoryCountBurnUp: 0,
-          StoryUnitBurnUp: 0,
-          TaskUnitBurnDown: 37,
-          TaskUnitScope: 32,
-          Ideal: 51,
-          Ideal2: null
+          "tick": "2011-01-02T06:00:00.000Z",
+          "StoryUnitScope": 5,
+          "StoryCountScope": 1,
+          "StoryCountBurnUp": 0,
+          "StoryUnitBurnUp": 0,
+          "TaskUnitBurnDown": 15,
+          "TaskUnitScope": 15,
+          "label": "2011-01-02",
+          "Ideal": 51,
+          "Ideal2": null
         },
         {
-          tick: '2011-01-03',
-          StoryUnitScope: 18,
-          StoryCountScope: 4,
-          StoryCountBurnUp: 0,
-          StoryUnitBurnUp: 0,
-          TaskUnitBurnDown: 44,
-          TaskUnitScope: 47,
-          Ideal: 40.79,
-          Ideal2: 44
+          "tick": "2011-01-03T06:00:00.000Z",
+          "StoryUnitScope": 13,
+          "StoryCountScope": 3,
+          "StoryCountBurnUp": 0,
+          "StoryUnitBurnUp": 0,
+          "TaskUnitBurnDown": 37,
+          "TaskUnitScope": 32,
+          "label": "2011-01-03",
+          "Ideal": 40.79,
+          "Ideal2": null
         },
         {
-          tick: '2011-01-04',
-          StoryUnitScope: 20,
-          StoryCountScope: 5,
-          StoryCountBurnUp: 1,
-          StoryUnitBurnUp: 5,
-          TaskUnitBurnDown: 30,
-          TaskUnitScope: 51,
-          Ideal: 30.6,
-          Ideal2: 33
+          "tick": "2011-01-04T06:00:00.000Z",
+          "StoryUnitScope": 18,
+          "StoryCountScope": 4,
+          "StoryCountBurnUp": 0,
+          "StoryUnitBurnUp": 0,
+          "TaskUnitBurnDown": 44,
+          "TaskUnitScope": 47,
+          "label": "2011-01-04",
+          "Ideal": 30.6,
+          "Ideal2": 44
         },
         {
-          tick: '2011-01-06',
-          StoryUnitScope: 20,
-          StoryCountScope: 5,
-          StoryCountBurnUp: 2,
-          StoryUnitBurnUp: 8,
-          TaskUnitBurnDown: 16,
-          TaskUnitScope: 51,
-          Ideal: 20.4,
-          Ideal2: 22
+          "tick": "2011-01-06T06:00:00.000Z",
+          "StoryUnitScope": 20,
+          "StoryCountScope": 5,
+          "StoryCountBurnUp": 1,
+          "StoryUnitBurnUp": 5,
+          "TaskUnitBurnDown": 25,
+          "TaskUnitScope": 51,
+          "label": "2011-01-06",
+          "Ideal": 20.4,
+          "Ideal2": 29.33
         },
         {
-          tick: "2011-01-07",
-          StoryUnitScope: 18,
-          StoryCountScope: 4,
-          StoryCountBurnUp: 3,
-          StoryUnitBurnUp: 13,
-          TaskUnitBurnDown: 3,
-          TaskUnitScope: 47,
-          Ideal: 10.2,
-          Ideal2: 11
+          "tick": "2011-01-07T06:00:00.000Z",
+          "StoryUnitScope": 20,
+          "StoryCountScope": 5,
+          "StoryCountBurnUp": 2,
+          "StoryUnitBurnUp": 8,
+          "TaskUnitBurnDown": 16,
+          "TaskUnitScope": 51,
+          "label": "2011-01-07",
+          "Ideal": 10.2,
+          "Ideal2": 14.66
         },
         {
-          tick: '2011-01-09',
-          StoryUnitScope: 18,
-          StoryCountScope: 4,
-          StoryCountBurnUp: 3,
-          StoryUnitBurnUp: 13,
-          TaskUnitBurnDown: 3,
-          TaskUnitScope: 47,
-          Ideal: 0,
-          Ideal2: 0
+          "tick": "2011-01-09T06:00:00.000Z",
+          "StoryUnitScope": 18,
+          "StoryCountScope": 4,
+          "StoryCountBurnUp": 3,
+          "StoryUnitBurnUp": 13,
+          "TaskUnitBurnDown": 3,
+          "TaskUnitScope": 47,
+          "label": "2011-01-09",
+          "Ideal": 0,
+          "Ideal2": 0
         }
       ],
-      summaryMetrics: {
-        TaskUnitScope_max: 51,
-        TaskUnitBurnDown_max: 44,
-        TaskUnitBurnDown_max_index: 1
+      "summaryMetrics": {
+        "TaskUnitScope_max": 51,
+        "TaskUnitBurnDown_max": 44,
+        "TaskUnitBurnDown_max_index": 2
       }
     }
 

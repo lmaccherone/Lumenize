@@ -142,15 +142,27 @@ class TimeSeriesCalculator # implements iCalculator
 
       calculator = new TimeSeriesCalculator(config)
 
-      startOn = new Time('2011-01-03').getISOStringInTZ(tz)
+      startOn = new Time('2011-01-02').getISOStringInTZ(tz)
       endBefore = new Time('2011-01-10').getISOStringInTZ(tz)
 
       calculator.addSnapshots(snapshots, startOn, endBefore)
 
-      csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, true)
+      keys = [
+        'label',
+        'StoryUnitScope',
+        'StoryCountScope',
+        'StoryCountBurnUp',
+        'StoryUnitBurnUp',
+        'TaskUnitBurnDown',
+        'TaskUnitScope',
+        'Ideal',
+        'Ideal2'
+      ]
+
+      csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
 
       console.log(csv)
-      #  [ [ 'tick',
+      #  [ [ 'label',
       #      'StoryUnitScope',
       #      'StoryCountScope',
       #      'StoryCountBurnUp',
@@ -159,11 +171,12 @@ class TimeSeriesCalculator # implements iCalculator
       #      'TaskUnitScope',
       #      'Ideal',
       #      'Ideal2' ],
-      #    [ '2011-01-03T06:00:00.000Z', 1, 13, 3, 0, 0, 37, 32, 51, null ],
-      #    [ '2011-01-04T06:00:00.000Z', 1, 18, 4, 0, 0, 44, 47, 38.25, 44 ],
-      #    [ '2011-01-06T06:00:00.000Z', 1, 20, 5, 1, 5, 25, 51, 25.5, 29.33 ],
-      #    [ '2011-01-07T06:00:00.000Z', 1, 20, 5, 2, 8, 16, 51, 12.75, 14.66 ],
-      #    [ '2011-01-09T06:00:00.000Z', 1, 18, 4, 3, 13, 3, 47, 0, 0 ] ]
+      #    [ '2011-01-03', 13, 3, 0, 0, 37, 32, 51, null ],
+      #    [ '2011-01-04', 18, 4, 0, 0, 44, 47, 40.79, 44 ],
+      #    [ '2011-01-06', 20, 5, 1, 5, 25, 51, 30.6, 33 ],
+      #    [ '2011-01-07', 20, 5, 2, 8, 16, 51, 20.4, 22 ],
+      #    [ '2011-01-09', 18, 4, 3, 13, 3, 47, 10.2, 11 ],
+      #    [ '2011-01-10', 18, 4, 3, 13, 3, 47, 0, 0 ] ]
 
   ###
 
@@ -393,7 +406,7 @@ class TimeSeriesCalculator # implements iCalculator
       if @allLabels?
         cell.label = @allLabels[tickIndex]
       else
-        cell.label = cell.tick
+        cell.label = new Time(cell.tick, @config.granularity, @config.tz).toString()
       seriesData.push(cell)
 
     # derive summary metrics

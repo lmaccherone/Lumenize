@@ -46,10 +46,11 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
     i++
   return arrayOfMaps
 
-arrayOfMaps_To_CSVStyleArray = (arrayOfMaps, firstRowFieldNames = true) ->
+arrayOfMaps_To_CSVStyleArray = (arrayOfMaps, keys) ->
   ###
   @method arrayOfMaps_To_CSVStyleArray
   @param {Object[]} arrayOfMaps
+  @param {Object} [keys] If not provided, it will use the first row and get all fields
   @return {Array[]} The first row will be the column headers
 
   `arrayOfMaps_To_CSVStyleArray` is a convenience function that will convert an array of maps like:
@@ -75,13 +76,13 @@ arrayOfMaps_To_CSVStyleArray = (arrayOfMaps, firstRowFieldNames = true) ->
   if arrayOfMaps.length == 0
     return []
   csvStyleArray = []
-  keys = []
   outRow = []
-  for key, value of arrayOfMaps[0]
-    keys.push(key)
-    outRow.push(key)
-  if firstRowFieldNames
-    csvStyleArray.push(outRow)
+  unless keys?
+    keys = []
+    for key, value of arrayOfMaps[0]
+      keys.push(key)
+  csvStyleArray.push(keys)
+
   for inRow in arrayOfMaps
     outRow = []
     for key in keys

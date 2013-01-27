@@ -28,8 +28,8 @@ functions = require('./functions').functions
 
 class TimeSeriesCalculator # implements iCalculator
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-TimeSeriesCalculator-method-constructor'><span id='Lumenize-TimeSeriesCalculator-cfg-deriveFieldsAfterSummary'><span id='Lumenize-TimeSeriesCalculator-cfg-summaryMetricsConfig'><span id='Lumenize-TimeSeriesCalculator-cfg-deriveFieldsOnOutput'><span id='Lumenize-TimeSeriesCalculator-cfg-deriveFieldsOnInput'><span id='Lumenize-TimeSeriesCalculator-cfg-metrics'><span id='Lumenize-TimeSeriesCalculator-cfg-workDayEndBefore'><span id='Lumenize-TimeSeriesCalculator-cfg-workDayStartOn'><span id='Lumenize-TimeSeriesCalculator-cfg-holidays'><span id='Lumenize-TimeSeriesCalculator-cfg-workDays'><span id='Lumenize-TimeSeriesCalculator-cfg-granularity'><span id='Lumenize-TimeSeriesCalculator-cfg-uniqueIDField'><span id='Lumenize-TimeSeriesCalculator-cfg-validToField'><span id='Lumenize-TimeSeriesCalculator-cfg-validFromField'><span id='Lumenize-TimeSeriesCalculator-cfg-tz'><span id='Lumenize-TimeSeriesCalculator'>  /**
-</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>   * @class Lumenize.TimeSeriesCalculator
+<span id='Lumenize-TimeSeriesCalculator-method-constructor'><span id='Lumenize-TimeSeriesCalculator-cfg-endBefore'><span id='Lumenize-TimeSeriesCalculator-cfg-startOn'><span id='Lumenize-TimeSeriesCalculator-cfg-deriveFieldsAfterSummary'><span id='Lumenize-TimeSeriesCalculator-cfg-summaryMetricsConfig'><span id='Lumenize-TimeSeriesCalculator-cfg-deriveFieldsOnOutput'><span id='Lumenize-TimeSeriesCalculator-cfg-deriveFieldsOnInput'><span id='Lumenize-TimeSeriesCalculator-cfg-metrics'><span id='Lumenize-TimeSeriesCalculator-cfg-workDayEndBefore'><span id='Lumenize-TimeSeriesCalculator-cfg-workDayStartOn'><span id='Lumenize-TimeSeriesCalculator-cfg-holidays'><span id='Lumenize-TimeSeriesCalculator-cfg-workDays'><span id='Lumenize-TimeSeriesCalculator-cfg-granularity'><span id='Lumenize-TimeSeriesCalculator-cfg-uniqueIDField'><span id='Lumenize-TimeSeriesCalculator-cfg-validToField'><span id='Lumenize-TimeSeriesCalculator-cfg-validFromField'><span id='Lumenize-TimeSeriesCalculator-cfg-tz'><span id='Lumenize-TimeSeriesCalculator'>  /**
+</span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span></span>   * @class Lumenize.TimeSeriesCalculator
    * This calculator is used to convert snapshot data into time series aggregations.
    * 
    * Below is a detailed example. Let's start with a fairly large set of snapshots and create a bunch of series for
@@ -161,16 +161,27 @@ class TimeSeriesCalculator # implements iCalculator
    * 
    *     calculator = new TimeSeriesCalculator(config)
    * 
-   *     startOn = new Time('2011-01-03').getISOStringInTZ(tz)
+   *     startOn = new Time('2011-01-02').getISOStringInTZ(tz)
    *     endBefore = new Time('2011-01-10').getISOStringInTZ(tz)
    * 
    *     calculator.addSnapshots(snapshots, startOn, endBefore)
    * 
-   *     csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, true)
+   *     keys = [
+   *       'label',
+   *       'StoryUnitScope',
+   *       'StoryCountScope',
+   *       'StoryCountBurnUp',
+   *       'StoryUnitBurnUp',
+   *       'TaskUnitBurnDown',
+   *       'TaskUnitScope',
+   *       'Ideal',
+   *       'Ideal2'
+   *     ]
+   * 
+   *     csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
    * 
    *     console.log(csv)
-   *     #  [ [ 'tick',
-   *     #      '_count',
+   *     #  [ [ 'label',
    *     #      'StoryUnitScope',
    *     #      'StoryCountScope',
    *     #      'StoryCountBurnUp',
@@ -179,14 +190,12 @@ class TimeSeriesCalculator # implements iCalculator
    *     #      'TaskUnitScope',
    *     #      'Ideal',
    *     #      'Ideal2' ],
-   *     #    [ '2011-01-03T06:00:00.000Z', 1, 13, 3, 0, 0, 37, 32, 51, null ],
-   *     #    [ '2011-01-04T06:00:00.000Z', 1, 18, 4, 0, 0, 44, 47, 38.25, 44 ],
-   *     #    [ '2011-01-06T06:00:00.000Z', 1, 20, 5, 1, 5, 25, 51, 25.5, 29.33 ],
-   *     #    [ '2011-01-07T06:00:00.000Z', 1, 20, 5, 2, 8, 16, 51, 12.75, 14.66 ],
-   *     #    [ '2011-01-09T06:00:00.000Z', 1, 18, 4, 3, 13, 3, 47, 0, 0 ] ]
-   * 
-   * Note, the `_count` field should always be 1 indicating that each row in the output is for 1 tick. This is an artifact
-   * of the underlying OLAPCube calculator and can be ignored.
+   *     #    [ '2011-01-03', 13, 3, 0, 0, 37, 32, 51, null ],
+   *     #    [ '2011-01-04', 18, 4, 0, 0, 44, 47, 40.79, 44 ],
+   *     #    [ '2011-01-06', 20, 5, 1, 5, 25, 51, 30.6, 33 ],
+   *     #    [ '2011-01-07', 20, 5, 2, 8, 16, 51, 20.4, 22 ],
+   *     #    [ '2011-01-09', 18, 4, 3, 13, 3, 47, 10.2, 11 ],
+   *     #    [ '2011-01-10', 18, 4, 3, 13, 3, 47, 0, 0 ] ]
    * 
    * 
    * @constructor
@@ -239,15 +248,19 @@ class TimeSeriesCalculator # implements iCalculator
    * @cfg {Object[]} [summaryMetricsConfig] Allows you to specify a list of metrics to calculate on the results before returning.
    *   These can either be in the form of `{as: 'myMetric', field: 'field4`, f:'sum'}` which would extract all of the values
    *   for field `field4` and pass it as the values parameter to the `f` (`sum` in this example) function (from Lumenize.functions), or
-   *   it can be in the form of `{as: 'myMetric', f:(@seriesData, @summaryMetrics) -&gt; ...}`. Note, they are calculated
+   *   it can be in the form of `{as: 'myMetric', f:(seriesData, summaryMetrics) -&gt; ...}`. Note, they are calculated
    *   in order, so you can use the result of an earlier summaryMetric to calculate a later one.
-   * @cfg {Object[]} deriveFieldsAfterSummary same format at deriveFieldsOnInput, except the callback is in the form `f(row, index, @summaryMetrics, @seriesData)`
+   * @cfg {Object[]} deriveFieldsAfterSummary same format at deriveFieldsOnInput, except the callback is in the form `f(row, index, summaryMetrics, seriesData)`
    *   This is called on all rows every time you call getResults() so it's less efficient than deriveFieldsOnOutput. Only use it if you need
-   *   the @summaryMetrics in your calculation.
+   *   the summaryMetrics in your calculation.
+   * @cfg {String/Date/Lumenize.Time} [startOn=-infinity] This becomes the master startOn for the entire calculator limiting
+   *   the calculator to only emit ticks equal to this or later
+   * @cfg {String/Date/Lumenize.Time} [endBefore=infinity] This becomes the master endBefore for the entire calculator
+   *   limiting the calculator to only emit ticks before this
    */
 /* &lt;CoffeeScript&gt;
 
-      the @summaryMetrics in your calculation.
+      limiting the calculator to only emit ticks before this
     @config = utils.clone(config)
     # Assert that the configuration object is self-consistent and required parameters are present
     unless @config.validFromField?
@@ -280,17 +293,45 @@ class TimeSeriesCalculator # implements iCalculator
 
     dimensions = [{field: 'tick'}]
 
-    cubeConfig =
+    @cubeConfig =
       dimensions: dimensions
       metrics: @config.metrics
       deriveFieldsOnOutput: @config.deriveFieldsOnOutput
 
-    @cube = new OLAPCube(cubeConfig)
+    @toDateCubeConfig = utils.clone(@cubeConfig)
+    @toDateCubeConfig.deriveFieldsOnInput = @config.deriveFieldsOnInput
+
+    @cube = new OLAPCube(@cubeConfig)
     @upToDateISOString = null
 
     if @config.summaryMetricsConfig?
       for m in @config.summaryMetricsConfig
         functions.expandFandAs(m)
+
+    if config.startOn?
+      @masterStartOnTime = new Time(config.startOn).inGranularity(@config.granularity).addInPlace(1)
+    else
+      @masterStartOnTime = new Time('BEFORE_FIRST', @config.granularity)
+    if config.endBefore?
+      @masterEndBeforeTime = new Time(config.endBefore).inGranularity(@config.granularity)
+    else
+      @masterEndBeforeTime = new Time('PAST_LAST', @config.granularity)
+
+    if config.startOn? and config.endBefore?
+      timelineConfig = utils.clone(@config)
+      timelineConfig.startOn = @masterStartOnTime
+      timelineConfig.endBefore = @masterEndBeforeTime
+      timeline = new Timeline(timelineConfig)
+      ticksUnshifted = timeline.getAll('ISOString', @config.tz)
+      @allTicks = (tick for tick in ticksUnshifted)
+      timelineConfig.startOn = @masterStartOnTime.add(-1)
+      timelineConfig.endBefore = @masterEndBeforeTime.add(-1)
+      labelTimeline = new Timeline(timelineConfig)
+      labels = labelTimeline.getAll()
+      @allLabels = (tick.toString() for tick in labels)
+    else
+      @allTicks = undefined
+      @allLabels = undefined
 
   addSnapshots: (snapshots, startOn, endBefore) -&gt;
 &lt;/CoffeeScript&gt; */
@@ -311,13 +352,25 @@ class TimeSeriesCalculator # implements iCalculator
       utils.assert(@upToDateISOString == startOn, &quot;startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDateISOString}) to addSnapshots.&quot;)
     @upToDateISOString = endBefore
     timelineConfig = utils.clone(@config)
-    timelineConfig.startOn = new Time(startOn, Time.MILLISECOND, @config.tz)
-    timelineConfig.endBefore = new Time(endBefore, Time.MILLISECOND, @config.tz)
+
+    startOnTime = new Time(startOn).inGranularity(@config.granularity).addInPlace(1)
+    endBeforeTime = new Time(endBefore).inGranularity(@config.granularity).addInPlace(1)
+
+    if startOnTime.greaterThan(@masterStartOnTime)
+      timelineConfig.startOn = startOnTime
+    else
+      timelineConfig.startOn = @masterStartOnTime
+
+    if endBeforeTime.lessThan(@masterEndBeforeTime)
+      timelineConfig.endBefore = endBeforeTime
+    else
+      timelineConfig.endBefore = @masterEndBeforeTime
+
     timeline = new Timeline(timelineConfig)
 
     validSnapshots = []
     for s in snapshots
-      ticks = timeline.ticksThatIntersect(s[@config.validFromField], s[@config.validToField], @config.tz)
+      ticks = timeline.ticksThatIntersect(s[@config.validFromField], s[@config.validToField], @config.tz, true)
       if ticks.length &gt; 0
         s.tick = ticks
         validSnapshots.push(s)
@@ -325,6 +378,14 @@ class TimeSeriesCalculator # implements iCalculator
     inputCube = new OLAPCube(@inputCubeConfig, validSnapshots)
 
     @cube.addFacts(inputCube.getCells())
+
+    if @masterEndBeforeTime.greaterThanOrEqual(endBeforeTime)
+      @toDateSnapshots = []
+      for s in snapshots
+        if s[@config.validToField] &gt; @upToDateISOString
+          @toDateSnapshots.push(s)
+    else
+      @toDateSnapshots = undefined
 
     return this
 
@@ -337,30 +398,62 @@ class TimeSeriesCalculator # implements iCalculator
      * @return {Object[]} Returns an Array of Maps like `{&lt;uniqueIDField&gt;: &lt;id&gt;, ticks: &lt;ticks&gt;, lastValidTo: &lt;lastValidTo&gt;}`
      */
 /* &lt;CoffeeScript&gt;
-    ticks = @cube.getDimensionValues('ticks')
+    if @allTicks?
+      ticks = @allTicks
+    else
+      ticks = @cube.getDimensionValues('tick')
 
-    @seriesData = @cube.getCells()
+    # Calculate metrics for @toDateSnapshots
+    if @toDateSnapshots?
+      for s in @toDateSnapshots
+        s.tick = 'To Date'
+      toDateCube = new OLAPCube(@toDateCubeConfig, @toDateSnapshots)
+      toDateCell = toDateCube.getCells()[0]
+      delete toDateCell._count
+
+    # Expand to @allTicks and include @allLabels
+    seriesData = []
+    foundFirstNullCell = false
+    for t, tickIndex in ticks
+      cell = utils.clone(@cube.getCell({tick: t}))
+      if cell?
+        delete cell._count
+      else
+        if foundFirstNullCell or ! @toDateSnapshots?
+          cell = {}
+          for m in @config.metrics
+            cell[m.as] = null
+        else
+          cell = toDateCell
+          foundFirstNullCell = true
+        cell.tick = t
+
+      if @allLabels?
+        cell.label = @allLabels[tickIndex]
+      else
+        cell.label = new Time(cell.tick, @config.granularity, @config.tz).toString()
+      seriesData.push(cell)
 
     # derive summary metrics
     if @config.summaryMetricsConfig?
-      @summaryMetrics = {}
+      summaryMetrics = {}
       for summaryMetric in @config.summaryMetricsConfig
         if summaryMetric.field?
           # get all values of that field. Note, includes total rows (hierarchy and tags) so the callback might have to be careful about that. A sum might include more than you bargain for.
           values = []
-          for row in @seriesData
+          for row in seriesData
             values.push(row[summaryMetric.field])
-          @summaryMetrics[summaryMetric.as] = summaryMetric.f(values)
+          summaryMetrics[summaryMetric.as] = summaryMetric.f(values)
         else
-          @summaryMetrics[summaryMetric.as] = summaryMetric.f(@seriesData, @summaryMetrics)
+          summaryMetrics[summaryMetric.as] = summaryMetric.f(seriesData, summaryMetrics)
 
     # deriveFieldsAfterSummaryMetrics - This is more expensive than deriveFieldsOnOutput so only use it if you must.
     if @config.deriveFieldsAfterSummary?
-      for row, index in @seriesData
+      for row, index in seriesData
         for d in @config.deriveFieldsAfterSummary
-          row[d.as] = d.f(row, index, @summaryMetrics, @seriesData)
+          row[d.as] = d.f(row, index, summaryMetrics, seriesData)
 
-    return {@seriesData, @summaryMetrics}
+    return {seriesData, summaryMetrics}
 
   getStateForSaving: (meta) -&gt;
 &lt;/CoffeeScript&gt; */
@@ -396,7 +489,7 @@ class TimeSeriesCalculator # implements iCalculator
 /* &lt;CoffeeScript&gt;
     if utils.type(p) is 'string'
       p = JSON.parse(p)
-    calculator = new TimeInStateCalculator(p.config)
+    calculator = new TimeSeriesCalculator(p.config)
     calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState)
     calculator.upToDateISOString = p.upToDateISOString
     if p.meta?
