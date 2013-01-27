@@ -261,12 +261,15 @@ class TimeSeriesCalculator # implements iCalculator
 
     dimensions = [{field: 'tick'}]
 
-    cubeConfig =
+    @cubeConfig =
       dimensions: dimensions
       metrics: @config.metrics
       deriveFieldsOnOutput: @config.deriveFieldsOnOutput
 
-    @cube = new OLAPCube(cubeConfig)
+    @toDateCubeConfig = utils.clone(@cubeConfig)
+    @toDateCubeConfig.deriveFieldsOnInput = @config.deriveFieldsOnInput
+
+    @cube = new OLAPCube(@cubeConfig)
     @upToDateISOString = null
 
     if @config.summaryMetricsConfig?
@@ -341,6 +344,14 @@ class TimeSeriesCalculator # implements iCalculator
 
     @cube.addFacts(inputCube.getCells())
 
+    if @masterEndBeforeTime.greaterThanOrEqual(endBeforeTime)
+      @toDateSnapshots = []
+      for s in snapshots
+        if s[@config.validToField] > @upToDateISOString
+          @toDateSnapshots.push(s)
+    else
+      @toDateSnapshots = undefined
+
     return this
 
   getResults: () ->
@@ -354,15 +365,31 @@ class TimeSeriesCalculator # implements iCalculator
     else
       ticks = @cube.getDimensionValues('tick')
 
+    # Calculate metrics for @toDateSnapshots
+    if @toDateSnapshots?
+      for s in @toDateSnapshots
+        s.tick = 'To Date'
+      toDateCube = new OLAPCube(@toDateCubeConfig, @toDateSnapshots)
+      toDateCell = toDateCube.getCells()[0]
+      delete toDateCell._count
+
+    # Expand to @allTicks and include @allLabels
     seriesData = []
+    foundFirstNullCell = false
     for t, tickIndex in ticks
       cell = utils.clone(@cube.getCell({tick: t}))
       if cell?
         delete cell._count
       else
-        cell = {tick: t}
-        for m in @config.metrics
-          cell[m.as] = null
+        if foundFirstNullCell or ! @toDateSnapshots?
+          cell = {}
+          for m in @config.metrics
+            cell[m.as] = null
+        else
+          cell = toDateCell
+          foundFirstNullCell = true
+        cell.tick = t
+
       if @allLabels?
         cell.label = @allLabels[tickIndex]
       else

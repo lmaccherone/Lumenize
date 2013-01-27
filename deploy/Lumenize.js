@@ -10803,7 +10803,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
             limiting the calculator to only emit ticks before this
       */
 
-      var cubeConfig, dimensions, field, fieldsMap, inputCubeDimensions, inputCubeMetrics, labelTimeline, labels, m, tick, ticksUnshifted, timeline, timelineConfig, _i, _j, _len, _len1, _ref, _ref1;
+      var dimensions, field, fieldsMap, inputCubeDimensions, inputCubeMetrics, labelTimeline, labels, m, tick, ticksUnshifted, timeline, timelineConfig, _i, _j, _len, _len1, _ref, _ref1;
       this.config = utils.clone(config);
       if (this.config.validFromField == null) {
         this.config.validFromField = "_ValidFrom";
@@ -10849,12 +10849,14 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           field: 'tick'
         }
       ];
-      cubeConfig = {
+      this.cubeConfig = {
         dimensions: dimensions,
         metrics: this.config.metrics,
         deriveFieldsOnOutput: this.config.deriveFieldsOnOutput
       };
-      this.cube = new OLAPCube(cubeConfig);
+      this.toDateCubeConfig = utils.clone(this.cubeConfig);
+      this.toDateCubeConfig.deriveFieldsOnInput = this.config.deriveFieldsOnInput;
+      this.cube = new OLAPCube(this.cubeConfig);
       this.upToDateISOString = null;
       if (this.config.summaryMetricsConfig != null) {
         _ref1 = this.config.summaryMetricsConfig;
@@ -10920,7 +10922,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           @return {TimeInStateCalculator}
       */
 
-      var endBeforeTime, inputCube, s, startOnTime, ticks, timeline, timelineConfig, validSnapshots, _i, _len;
+      var endBeforeTime, inputCube, s, startOnTime, ticks, timeline, timelineConfig, validSnapshots, _i, _j, _len, _len1;
       if (this.upToDateISOString != null) {
         utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
       }
@@ -10950,6 +10952,17 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       }
       inputCube = new OLAPCube(this.inputCubeConfig, validSnapshots);
       this.cube.addFacts(inputCube.getCells());
+      if (this.masterEndBeforeTime.greaterThanOrEqual(endBeforeTime)) {
+        this.toDateSnapshots = [];
+        for (_j = 0, _len1 = snapshots.length; _j < _len1; _j++) {
+          s = snapshots[_j];
+          if (s[this.config.validToField] > this.upToDateISOString) {
+            this.toDateSnapshots.push(s);
+          }
+        }
+      } else {
+        this.toDateSnapshots = void 0;
+      }
       return this;
     };
 
@@ -10960,14 +10973,25 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
       */
 
-      var cell, d, index, m, row, seriesData, summaryMetric, summaryMetrics, t, tickIndex, ticks, values, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref, _ref1, _ref2;
+      var cell, d, foundFirstNullCell, index, m, row, s, seriesData, summaryMetric, summaryMetrics, t, tickIndex, ticks, toDateCell, toDateCube, values, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _m, _n, _o, _ref, _ref1, _ref2, _ref3;
       if (this.allTicks != null) {
         ticks = this.allTicks;
       } else {
         ticks = this.cube.getDimensionValues('tick');
       }
+      if (this.toDateSnapshots != null) {
+        _ref = this.toDateSnapshots;
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          s = _ref[_i];
+          s.tick = 'To Date';
+        }
+        toDateCube = new OLAPCube(this.toDateCubeConfig, this.toDateSnapshots);
+        toDateCell = toDateCube.getCells()[0];
+        delete toDateCell._count;
+      }
       seriesData = [];
-      for (tickIndex = _i = 0, _len = ticks.length; _i < _len; tickIndex = ++_i) {
+      foundFirstNullCell = false;
+      for (tickIndex = _j = 0, _len1 = ticks.length; _j < _len1; tickIndex = ++_j) {
         t = ticks[tickIndex];
         cell = utils.clone(this.cube.getCell({
           tick: t
@@ -10975,14 +10999,18 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         if (cell != null) {
           delete cell._count;
         } else {
-          cell = {
-            tick: t
-          };
-          _ref = this.config.metrics;
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            m = _ref[_j];
-            cell[m.as] = null;
+          if (foundFirstNullCell || !(this.toDateSnapshots != null)) {
+            cell = {};
+            _ref1 = this.config.metrics;
+            for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+              m = _ref1[_k];
+              cell[m.as] = null;
+            }
+          } else {
+            cell = toDateCell;
+            foundFirstNullCell = true;
           }
+          cell.tick = t;
         }
         if (this.allLabels != null) {
           cell.label = this.allLabels[tickIndex];
@@ -10993,13 +11021,13 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       }
       if (this.config.summaryMetricsConfig != null) {
         summaryMetrics = {};
-        _ref1 = this.config.summaryMetricsConfig;
-        for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-          summaryMetric = _ref1[_k];
+        _ref2 = this.config.summaryMetricsConfig;
+        for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
+          summaryMetric = _ref2[_l];
           if (summaryMetric.field != null) {
             values = [];
-            for (_l = 0, _len3 = seriesData.length; _l < _len3; _l++) {
-              row = seriesData[_l];
+            for (_m = 0, _len4 = seriesData.length; _m < _len4; _m++) {
+              row = seriesData[_m];
               values.push(row[summaryMetric.field]);
             }
             summaryMetrics[summaryMetric.as] = summaryMetric.f(values);
@@ -11009,11 +11037,11 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         }
       }
       if (this.config.deriveFieldsAfterSummary != null) {
-        for (index = _m = 0, _len4 = seriesData.length; _m < _len4; index = ++_m) {
+        for (index = _n = 0, _len5 = seriesData.length; _n < _len5; index = ++_n) {
           row = seriesData[index];
-          _ref2 = this.config.deriveFieldsAfterSummary;
-          for (_n = 0, _len5 = _ref2.length; _n < _len5; _n++) {
-            d = _ref2[_n];
+          _ref3 = this.config.deriveFieldsAfterSummary;
+          for (_o = 0, _len6 = _ref3.length; _o < _len6; _o++) {
+            d = _ref3[_o];
             row[d.as] = d.f(row, index, summaryMetrics, seriesData);
           }
         }
