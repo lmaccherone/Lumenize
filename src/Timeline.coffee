@@ -344,7 +344,7 @@ class Timeline
       @memoizedTicks[parameterKey] = ticks
     return ticks
 
-  ticksThatIntersect: (startOn, endBefore, tz) ->
+  ticksThatIntersect: (startOn, endBefore, tz, returnEnd = false) ->
     ###
     @method ticksThatIntersect
     @param {Time/ISOString} startOn The start of the time period of interest
@@ -362,6 +362,21 @@ class Timeline
       utils.assert(isoDateRegExp.test(startOn), 'startOn must be in form ####-##-##T##:##:##.###Z')
       utils.assert(isoDateRegExp.test(endBefore), 'endBefore must be in form ####-##-##T##:##:##.###Z')
       utils.assert(tz?, "Must specify parameter tz when submitting ISO string boundaries.")
+
+#      ticksUnshifted = @getAll()
+#      ticks = (tick.add(1, @granularity).toString() for tick in ticksUnshifted)
+#      if ticks[0] >= endBefore or ticks[ticks.length - 1] < startOn
+#        out = []
+#      else
+#        i = 0
+#        ticksLength = ticks.length
+#        while i < ticksLength and ticks[i] < startOn
+#          i++
+#        while i < ticksLength and ticks[i] < endBefore
+#          out.push(ticksUnshifted[i].toString())
+#          i++
+
+
       ticks = @getAll('ISOString', tz)
       if ticks[0] >= endBefore or ticks[ticks.length - 1] < startOn
         out = []
@@ -373,6 +388,8 @@ class Timeline
         while i < ticksLength and ticks[i] < endBefore
           out.push(ticks[i])
           i++
+
+
     else if startOn instanceof Time
       utils.assert(endBefore instanceof Time, 'The type for startOn and endBefore must match.')
       startOn = startOn.inGranularity(@granularity)

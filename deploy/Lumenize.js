@@ -6549,9 +6549,28 @@ require.define("/src/utils.coffee",function(require,module,exports,__dirname,__f
   })();
 
   clone = function(obj) {
-    var key, newInstance;
+    var flags, key, newInstance;
     if (!(obj != null) || typeof obj !== 'object') {
       return obj;
+    }
+    if (obj instanceof Date) {
+      return new Date(obj.getTime());
+    }
+    if (obj instanceof RegExp) {
+      flags = '';
+      if (obj.global != null) {
+        flags += 'g';
+      }
+      if (obj.ignoreCase != null) {
+        flags += 'i';
+      }
+      if (obj.multiline != null) {
+        flags += 'm';
+      }
+      if (obj.sticky != null) {
+        flags += 'y';
+      }
+      return new RegExp(obj.source, flags);
     }
     newInstance = new obj.constructor();
     for (key in obj) {
@@ -7624,7 +7643,11 @@ require.define("/src/Timeline.coffee",function(require,module,exports,__dirname,
       return ticks;
     };
 
-    Timeline.prototype.ticksThatIntersect = function(startOn, endBefore, tz) {
+    Timeline.prototype.ticksThatIntersect = function(startOn, endBefore, tz, returnEnd) {
+      var en, i, isoDateRegExp, out, st, ticks, ticksLength;
+      if (returnEnd == null) {
+        returnEnd = false;
+      }
       /*
           @method ticksThatIntersect
           @param {Time/ISOString} startOn The start of the time period of interest
@@ -7635,7 +7658,6 @@ require.define("/src/Timeline.coffee",function(require,module,exports,__dirname,
           startOn and endBefore.
       */
 
-      var en, i, isoDateRegExp, out, st, ticks, ticksLength;
       utils.assert(this.limit === utils.MAX_INT, 'Cannot call `ticksThatIntersect()` on Timelines specified with `limit`.');
       out = [];
       if (utils.type(startOn) === 'string') {
@@ -8412,11 +8434,13 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           ]
     
       You can use any of the aggregation functions found in Lumenize.functions except `count`. The count metric is
-      automatically tracked for each cell. Notice how the `as` specification can be excluded. It will build the name of the
-      resulting metric from the field name and the function. So the second metric in the example above is named
-      "Points_standardDeviation".
+      automatically tracked for each cell. The `as` specification is optional unless you provide a custom function. If missing,
+      it will build the name of the resulting metric from the field name and the function. So without the `as: "Scope"` the
+      second metric in the example above would have been named "Points_sum".
     
-      The dimensions and metrics specifications are required fields in the OLAPCube config parameter.
+      You can also use custom functions in the form of `f(values) -> return <some function of values>`.
+    
+      Next, we build the config parameter from our dimension and metrics specifications.
     
           config = {dimensions, metrics}
     
@@ -8570,8 +8594,11 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
               config.dimensions = [
                 {field: 'dimensionField'},
                 {field: 'hierarchicalDimensionField', type: 'hierarchy'},
-                {field: 'tagDimensionField'}
+                {field: 'tagDimensionField', keepTotals: true}
               ]
+      
+            Notice how a keepTotals can be set for an individual dimension. This is preferable to setting it for the entire
+            cube in cases where you don't want totals in all dimensions.
       
           @cfg {Object[]} [metrics=[]] (required) Array which specifies the metrics to calculate for each cell in the cube.
       
@@ -8597,11 +8624,13 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
             dependency metrics named their default by not providing an "as" field.
       
           @cfg {Boolean} [keepTotals=false] Setting this will add an additional total row (indicated with field: null) along
-            all dimensions. This setting can have a significant impact on the memory usage and performance of the OLAPCube so
-            if things are tight, only use it if you really need it.
+            all dimensions. This setting can have an impact on the memory usage and performance of the OLAPCube so
+            if things are tight, only use it if you really need it. If you don't need it for all dimension, you can specify
+            keepTotals for individual dimensions.
           @cfg {Boolean} [keepFacts=false] Setting this will cause the OLAPCube to keep track of the facts that contributed to
             the metrics for each cell by adding an automatic 'facts' metric. Note, facts are restored after deserialization
-            as you would expect, but they are no longer tied to the original facts.
+            as you would expect, but they are no longer tied to the original facts. This feature, especially after a restore
+            can eat up memory.
           @cfg {Object[]} deriveFieldsOnInput An Array of Maps in the form `{field:'myField', f:(fact)->...}`
           @cfg {Object[]} deriveFieldsOnOutput same format as deriveFieldsOnInput, except the callback is in the form `f(row)`
             This is only called for dirty rows that were effected by the latest round of addFacts. It's more efficient to calculate things
@@ -10145,13 +10174,11 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
       a = config[_i];
       seriesNames.push(a.name);
     }
-    for (_j = 0, _len1 = aggregationAtArray.length; _j < _len1; _j++) {
-      aggregationRow = aggregationAtArray[_j];
-      for (_k = 0, _len2 = seriesNames.length; _k < _len2; _k++) {
-        s = seriesNames[_k];
-        if (preOutput[s] == null) {
-          preOutput[s] = [];
-        }
+    for (_j = 0, _len1 = seriesNames.length; _j < _len1; _j++) {
+      s = seriesNames[_j];
+      preOutput[s] = [];
+      for (_k = 0, _len2 = aggregationAtArray.length; _k < _len2; _k++) {
+        aggregationRow = aggregationAtArray[_k];
         preOutput[s].push(aggregationRow[s]);
       }
     }
@@ -10698,7 +10725,6 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     
           console.log(csv)
           #  [ [ 'tick',
-          #      '_count',
           #      'StoryUnitScope',
           #      'StoryCountScope',
           #      'StoryCountBurnUp',
@@ -10712,9 +10738,6 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           #    [ '2011-01-06T06:00:00.000Z', 1, 20, 5, 1, 5, 25, 51, 25.5, 29.33 ],
           #    [ '2011-01-07T06:00:00.000Z', 1, 20, 5, 2, 8, 16, 51, 12.75, 14.66 ],
           #    [ '2011-01-09T06:00:00.000Z', 1, 18, 4, 3, 13, 3, 47, 0, 0 ] ]
-    
-      Note, the `_count` field should always be 1 indicating that each row in the output is for 1 tick. This is an artifact
-      of the underlying OLAPCube calculator and can be ignored.
     */
 
     function TimeSeriesCalculator(config) {
@@ -10769,14 +10792,18 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           @cfg {Object[]} [summaryMetricsConfig] Allows you to specify a list of metrics to calculate on the results before returning.
             These can either be in the form of `{as: 'myMetric', field: 'field4`, f:'sum'}` which would extract all of the values
             for field `field4` and pass it as the values parameter to the `f` (`sum` in this example) function (from Lumenize.functions), or
-            it can be in the form of `{as: 'myMetric', f:(@seriesData, @summaryMetrics) -> ...}`. Note, they are calculated
+            it can be in the form of `{as: 'myMetric', f:(seriesData, summaryMetrics) -> ...}`. Note, they are calculated
             in order, so you can use the result of an earlier summaryMetric to calculate a later one.
-          @cfg {Object[]} deriveFieldsAfterSummary same format at deriveFieldsOnInput, except the callback is in the form `f(row, index, @summaryMetrics, @seriesData)`
+          @cfg {Object[]} deriveFieldsAfterSummary same format at deriveFieldsOnInput, except the callback is in the form `f(row, index, summaryMetrics, seriesData)`
             This is called on all rows every time you call getResults() so it's less efficient than deriveFieldsOnOutput. Only use it if you need
-            the @summaryMetrics in your calculation.
+            the summaryMetrics in your calculation.
+          @cfg {String/Date/Lumenize.Time} [startOn=-infinity] This becomes the master startOn for the entire calculator limiting
+            the calculator to only emit ticks equal to this or later
+          @cfg {String/Date/Lumenize.Time} [endBefore=infinity] This becomes the master endBefore for the entire calculator
+            limiting the calculator to only emit ticks before this
       */
 
-      var cubeConfig, dimensions, field, fieldsMap, inputCubeDimensions, inputCubeMetrics, m, _i, _j, _len, _len1, _ref, _ref1;
+      var cubeConfig, dimensions, field, fieldsMap, inputCubeDimensions, inputCubeMetrics, labelTimeline, labels, m, tick, ticksUnshifted, timeline, timelineConfig, _i, _j, _len, _len1, _ref, _ref1;
       this.config = utils.clone(config);
       if (this.config.validFromField == null) {
         this.config.validFromField = "_ValidFrom";
@@ -10836,6 +10863,48 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           functions.expandFandAs(m);
         }
       }
+      if (config.startOn != null) {
+        this.masterStartOnTime = new Time(config.startOn).inGranularity(this.config.granularity).addInPlace(1);
+      } else {
+        this.masterStartOnTime = new Time('BEFORE_FIRST', this.config.granularity);
+      }
+      if (config.endBefore != null) {
+        this.masterEndBeforeTime = new Time(config.endBefore).inGranularity(this.config.granularity);
+      } else {
+        this.masterEndBeforeTime = new Time('PAST_LAST', this.config.granularity);
+      }
+      if ((config.startOn != null) && (config.endBefore != null)) {
+        timelineConfig = utils.clone(this.config);
+        timelineConfig.startOn = this.masterStartOnTime;
+        timelineConfig.endBefore = this.masterEndBeforeTime;
+        timeline = new Timeline(timelineConfig);
+        ticksUnshifted = timeline.getAll('ISOString', this.config.tz);
+        this.allTicks = (function() {
+          var _k, _len2, _results;
+          _results = [];
+          for (_k = 0, _len2 = ticksUnshifted.length; _k < _len2; _k++) {
+            tick = ticksUnshifted[_k];
+            _results.push(tick);
+          }
+          return _results;
+        })();
+        timelineConfig.startOn = this.masterStartOnTime.add(-1);
+        timelineConfig.endBefore = this.masterEndBeforeTime.add(-1);
+        labelTimeline = new Timeline(timelineConfig);
+        labels = labelTimeline.getAll();
+        this.allLabels = (function() {
+          var _k, _len2, _results;
+          _results = [];
+          for (_k = 0, _len2 = labels.length; _k < _len2; _k++) {
+            tick = labels[_k];
+            _results.push(tick.toString());
+          }
+          return _results;
+        })();
+      } else {
+        this.allTicks = void 0;
+        this.allLabels = void 0;
+      }
     }
 
     TimeSeriesCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore) {
@@ -10851,19 +10920,29 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           @return {TimeInStateCalculator}
       */
 
-      var inputCube, s, ticks, timeline, timelineConfig, validSnapshots, _i, _len;
+      var endBeforeTime, inputCube, s, startOnTime, ticks, timeline, timelineConfig, validSnapshots, _i, _len;
       if (this.upToDateISOString != null) {
         utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
       }
       this.upToDateISOString = endBefore;
       timelineConfig = utils.clone(this.config);
-      timelineConfig.startOn = new Time(startOn, Time.MILLISECOND, this.config.tz);
-      timelineConfig.endBefore = new Time(endBefore, Time.MILLISECOND, this.config.tz);
+      startOnTime = new Time(startOn).inGranularity(this.config.granularity).addInPlace(1);
+      endBeforeTime = new Time(endBefore).inGranularity(this.config.granularity).addInPlace(1);
+      if (startOnTime.greaterThan(this.masterStartOnTime)) {
+        timelineConfig.startOn = startOnTime;
+      } else {
+        timelineConfig.startOn = this.masterStartOnTime;
+      }
+      if (endBeforeTime.lessThan(this.masterEndBeforeTime)) {
+        timelineConfig.endBefore = endBeforeTime;
+      } else {
+        timelineConfig.endBefore = this.masterEndBeforeTime;
+      }
       timeline = new Timeline(timelineConfig);
       validSnapshots = [];
       for (_i = 0, _len = snapshots.length; _i < _len; _i++) {
         s = snapshots[_i];
-        ticks = timeline.ticksThatIntersect(s[this.config.validFromField], s[this.config.validToField], this.config.tz);
+        ticks = timeline.ticksThatIntersect(s[this.config.validFromField], s[this.config.validToField], this.config.tz, true);
         if (ticks.length > 0) {
           s.tick = ticks;
           validSnapshots.push(s);
@@ -10881,41 +10960,67 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
       */
 
-      var d, index, row, summaryMetric, ticks, values, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3;
-      ticks = this.cube.getDimensionValues('ticks');
-      this.seriesData = this.cube.getCells();
+      var cell, d, index, m, row, seriesData, summaryMetric, summaryMetrics, t, tickIndex, ticks, values, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref, _ref1, _ref2;
+      if (this.allTicks != null) {
+        ticks = this.allTicks;
+      } else {
+        ticks = this.cube.getDimensionValues('tick');
+      }
+      seriesData = [];
+      for (tickIndex = _i = 0, _len = ticks.length; _i < _len; tickIndex = ++_i) {
+        t = ticks[tickIndex];
+        cell = utils.clone(this.cube.getCell({
+          tick: t
+        }));
+        if (cell != null) {
+          delete cell._count;
+        } else {
+          cell = {
+            tick: t
+          };
+          _ref = this.config.metrics;
+          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
+            m = _ref[_j];
+            cell[m.as] = null;
+          }
+        }
+        if (this.allLabels != null) {
+          cell.label = this.allLabels[tickIndex];
+        } else {
+          cell.label = cell.tick;
+        }
+        seriesData.push(cell);
+      }
       if (this.config.summaryMetricsConfig != null) {
-        this.summaryMetrics = {};
-        _ref = this.config.summaryMetricsConfig;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          summaryMetric = _ref[_i];
+        summaryMetrics = {};
+        _ref1 = this.config.summaryMetricsConfig;
+        for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
+          summaryMetric = _ref1[_k];
           if (summaryMetric.field != null) {
             values = [];
-            _ref1 = this.seriesData;
-            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-              row = _ref1[_j];
+            for (_l = 0, _len3 = seriesData.length; _l < _len3; _l++) {
+              row = seriesData[_l];
               values.push(row[summaryMetric.field]);
             }
-            this.summaryMetrics[summaryMetric.as] = summaryMetric.f(values);
+            summaryMetrics[summaryMetric.as] = summaryMetric.f(values);
           } else {
-            this.summaryMetrics[summaryMetric.as] = summaryMetric.f(this.seriesData, this.summaryMetrics);
+            summaryMetrics[summaryMetric.as] = summaryMetric.f(seriesData, summaryMetrics);
           }
         }
       }
       if (this.config.deriveFieldsAfterSummary != null) {
-        _ref2 = this.seriesData;
-        for (index = _k = 0, _len2 = _ref2.length; _k < _len2; index = ++_k) {
-          row = _ref2[index];
-          _ref3 = this.config.deriveFieldsAfterSummary;
-          for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-            d = _ref3[_l];
-            row[d.as] = d.f(row, index, this.summaryMetrics, this.seriesData);
+        for (index = _m = 0, _len4 = seriesData.length; _m < _len4; index = ++_m) {
+          row = seriesData[index];
+          _ref2 = this.config.deriveFieldsAfterSummary;
+          for (_n = 0, _len5 = _ref2.length; _n < _len5; _n++) {
+            d = _ref2[_n];
+            row[d.as] = d.f(row, index, summaryMetrics, seriesData);
           }
         }
       }
       return {
-        seriesData: this.seriesData,
-        summaryMetrics: this.summaryMetrics
+        seriesData: seriesData,
+        summaryMetrics: summaryMetrics
       };
     };
 
@@ -10955,7 +11060,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       if (utils.type(p) === 'string') {
         p = JSON.parse(p);
       }
-      calculator = new TimeInStateCalculator(p.config);
+      calculator = new TimeSeriesCalculator(p.config);
       calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState);
       calculator.upToDateISOString = p.upToDateISOString;
       if (p.meta != null) {

@@ -330,10 +330,9 @@ aggregationAtArray_To_HighChartsSeries = (aggregationAtArray, config) ->  # !TOD
   for a in config
     seriesNames.push(a.name)
 
-  for aggregationRow in aggregationAtArray
-    for s in seriesNames
-      unless preOutput[s]?
-        preOutput[s] = []
+  for s in seriesNames
+    preOutput[s] = []
+    for aggregationRow in aggregationAtArray
       preOutput[s].push(aggregationRow[s])
 
   # Squash the nameField into each sub row       

@@ -306,6 +306,7 @@ class Time
           jsDate = newCT.getJSDateFromGMTInTZ(tz)
         unless tz?
           tz = 'GMT'
+
       when 'object'
         config = value
         if tz?

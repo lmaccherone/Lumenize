@@ -64,11 +64,13 @@ class OLAPCube
       ]
 
   You can use any of the aggregation functions found in Lumenize.functions except `count`. The count metric is
-  automatically tracked for each cell. Notice how the `as` specification can be excluded. It will build the name of the
-  resulting metric from the field name and the function. So the second metric in the example above is named
-  "Points_standardDeviation".
+  automatically tracked for each cell. The `as` specification is optional unless you provide a custom function. If missing,
+  it will build the name of the resulting metric from the field name and the function. So without the `as: "Scope"` the
+  second metric in the example above would have been named "Points_sum".
 
-  The dimensions and metrics specifications are required fields in the OLAPCube config parameter.
+  You can also use custom functions in the form of `f(values) -> return <some function of values>`.
+
+  Next, we build the config parameter from our dimension and metrics specifications.
 
       config = {dimensions, metrics}
 
@@ -220,8 +222,11 @@ class OLAPCube
         config.dimensions = [
           {field: 'dimensionField'},
           {field: 'hierarchicalDimensionField', type: 'hierarchy'},
-          {field: 'tagDimensionField'}
+          {field: 'tagDimensionField', keepTotals: true}
         ]
+
+      Notice how a keepTotals can be set for an individual dimension. This is preferable to setting it for the entire
+      cube in cases where you don't want totals in all dimensions.
 
     @cfg {Object[]} [metrics=[]] (required) Array which specifies the metrics to calculate for each cell in the cube.
 
@@ -247,11 +252,13 @@ class OLAPCube
       dependency metrics named their default by not providing an "as" field.
 
     @cfg {Boolean} [keepTotals=false] Setting this will add an additional total row (indicated with field: null) along
-      all dimensions. This setting can have a significant impact on the memory usage and performance of the OLAPCube so
-      if things are tight, only use it if you really need it.
+      all dimensions. This setting can have an impact on the memory usage and performance of the OLAPCube so
+      if things are tight, only use it if you really need it. If you don't need it for all dimension, you can specify
+      keepTotals for individual dimensions.
     @cfg {Boolean} [keepFacts=false] Setting this will cause the OLAPCube to keep track of the facts that contributed to
       the metrics for each cell by adding an automatic 'facts' metric. Note, facts are restored after deserialization
-      as you would expect, but they are no longer tied to the original facts.
+      as you would expect, but they are no longer tied to the original facts. This feature, especially after a restore
+      can eat up memory.
     @cfg {Object[]} deriveFieldsOnInput An Array of Maps in the form `{field:'myField', f:(fact)->...}`
     @cfg {Object[]} deriveFieldsOnOutput same format as deriveFieldsOnInput, except the callback is in the form `f(row)`
       This is only called for dirty rows that were effected by the latest round of addFacts. It's more efficient to calculate things

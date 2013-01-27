@@ -151,7 +151,6 @@ class TimeSeriesCalculator # implements iCalculator
 
       console.log(csv)
       #  [ [ 'tick',
-      #      '_count',
       #      'StoryUnitScope',
       #      'StoryCountScope',
       #      'StoryCountBurnUp',
@@ -165,9 +164,6 @@ class TimeSeriesCalculator # implements iCalculator
       #    [ '2011-01-06T06:00:00.000Z', 1, 20, 5, 1, 5, 25, 51, 25.5, 29.33 ],
       #    [ '2011-01-07T06:00:00.000Z', 1, 20, 5, 2, 8, 16, 51, 12.75, 14.66 ],
       #    [ '2011-01-09T06:00:00.000Z', 1, 18, 4, 3, 13, 3, 47, 0, 0 ] ]
-
-  Note, the `_count` field should always be 1 indicating that each row in the output is for 1 tick. This is an artifact
-  of the underlying OLAPCube calculator and can be ignored.
 
   ###
 
@@ -223,11 +219,15 @@ class TimeSeriesCalculator # implements iCalculator
     @cfg {Object[]} [summaryMetricsConfig] Allows you to specify a list of metrics to calculate on the results before returning.
       These can either be in the form of `{as: 'myMetric', field: 'field4`, f:'sum'}` which would extract all of the values
       for field `field4` and pass it as the values parameter to the `f` (`sum` in this example) function (from Lumenize.functions), or
-      it can be in the form of `{as: 'myMetric', f:(@seriesData, @summaryMetrics) -> ...}`. Note, they are calculated
+      it can be in the form of `{as: 'myMetric', f:(seriesData, summaryMetrics) -> ...}`. Note, they are calculated
       in order, so you can use the result of an earlier summaryMetric to calculate a later one.
-    @cfg {Object[]} deriveFieldsAfterSummary same format at deriveFieldsOnInput, except the callback is in the form `f(row, index, @summaryMetrics, @seriesData)`
+    @cfg {Object[]} deriveFieldsAfterSummary same format at deriveFieldsOnInput, except the callback is in the form `f(row, index, summaryMetrics, seriesData)`
       This is called on all rows every time you call getResults() so it's less efficient than deriveFieldsOnOutput. Only use it if you need
-      the @summaryMetrics in your calculation.
+      the summaryMetrics in your calculation.
+    @cfg {String/Date/Lumenize.Time} [startOn=-infinity] This becomes the master startOn for the entire calculator limiting
+      the calculator to only emit ticks equal to this or later
+    @cfg {String/Date/Lumenize.Time} [endBefore=infinity] This becomes the master endBefore for the entire calculator
+      limiting the calculator to only emit ticks before this
     ###
     @config = utils.clone(config)
     # Assert that the configuration object is self-consistent and required parameters are present
@@ -273,6 +273,31 @@ class TimeSeriesCalculator # implements iCalculator
       for m in @config.summaryMetricsConfig
         functions.expandFandAs(m)
 
+    if config.startOn?
+      @masterStartOnTime = new Time(config.startOn).inGranularity(@config.granularity).addInPlace(1)
+    else
+      @masterStartOnTime = new Time('BEFORE_FIRST', @config.granularity)
+    if config.endBefore?
+      @masterEndBeforeTime = new Time(config.endBefore).inGranularity(@config.granularity)
+    else
+      @masterEndBeforeTime = new Time('PAST_LAST', @config.granularity)
+
+    if config.startOn? and config.endBefore?
+      timelineConfig = utils.clone(@config)
+      timelineConfig.startOn = @masterStartOnTime
+      timelineConfig.endBefore = @masterEndBeforeTime
+      timeline = new Timeline(timelineConfig)
+      ticksUnshifted = timeline.getAll('ISOString', @config.tz)
+      @allTicks = (tick for tick in ticksUnshifted)
+      timelineConfig.startOn = @masterStartOnTime.add(-1)
+      timelineConfig.endBefore = @masterEndBeforeTime.add(-1)
+      labelTimeline = new Timeline(timelineConfig)
+      labels = labelTimeline.getAll()
+      @allLabels = (tick.toString() for tick in labels)
+    else
+      @allTicks = undefined
+      @allLabels = undefined
+
   addSnapshots: (snapshots, startOn, endBefore) ->
     ###
     @method addSnapshots
@@ -289,13 +314,25 @@ class TimeSeriesCalculator # implements iCalculator
       utils.assert(@upToDateISOString == startOn, "startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDateISOString}) to addSnapshots.")
     @upToDateISOString = endBefore
     timelineConfig = utils.clone(@config)
-    timelineConfig.startOn = new Time(startOn, Time.MILLISECOND, @config.tz)
-    timelineConfig.endBefore = new Time(endBefore, Time.MILLISECOND, @config.tz)
+
+    startOnTime = new Time(startOn).inGranularity(@config.granularity).addInPlace(1)
+    endBeforeTime = new Time(endBefore).inGranularity(@config.granularity).addInPlace(1)
+
+    if startOnTime.greaterThan(@masterStartOnTime)
+      timelineConfig.startOn = startOnTime
+    else
+      timelineConfig.startOn = @masterStartOnTime
+
+    if endBeforeTime.lessThan(@masterEndBeforeTime)
+      timelineConfig.endBefore = endBeforeTime
+    else
+      timelineConfig.endBefore = @masterEndBeforeTime
+
     timeline = new Timeline(timelineConfig)
 
     validSnapshots = []
     for s in snapshots
-      ticks = timeline.ticksThatIntersect(s[@config.validFromField], s[@config.validToField], @config.tz)
+      ticks = timeline.ticksThatIntersect(s[@config.validFromField], s[@config.validToField], @config.tz, true)
       if ticks.length > 0
         s.tick = ticks
         validSnapshots.push(s)
@@ -312,30 +349,46 @@ class TimeSeriesCalculator # implements iCalculator
       Returns the current state of the calculator
     @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
     ###
-    ticks = @cube.getDimensionValues('ticks')
+    if @allTicks?
+      ticks = @allTicks
+    else
+      ticks = @cube.getDimensionValues('tick')
 
-    @seriesData = @cube.getCells()
+    seriesData = []
+    for t, tickIndex in ticks
+      cell = utils.clone(@cube.getCell({tick: t}))
+      if cell?
+        delete cell._count
+      else
+        cell = {tick: t}
+        for m in @config.metrics
+          cell[m.as] = null
+      if @allLabels?
+        cell.label = @allLabels[tickIndex]
+      else
+        cell.label = cell.tick
+      seriesData.push(cell)
 
     # derive summary metrics
     if @config.summaryMetricsConfig?
-      @summaryMetrics = {}
+      summaryMetrics = {}
       for summaryMetric in @config.summaryMetricsConfig
         if summaryMetric.field?
           # get all values of that field. Note, includes total rows (hierarchy and tags) so the callback might have to be careful about that. A sum might include more than you bargain for.
           values = []
-          for row in @seriesData
+          for row in seriesData
             values.push(row[summaryMetric.field])
-          @summaryMetrics[summaryMetric.as] = summaryMetric.f(values)
+          summaryMetrics[summaryMetric.as] = summaryMetric.f(values)
         else
-          @summaryMetrics[summaryMetric.as] = summaryMetric.f(@seriesData, @summaryMetrics)
+          summaryMetrics[summaryMetric.as] = summaryMetric.f(seriesData, summaryMetrics)
 
     # deriveFieldsAfterSummaryMetrics - This is more expensive than deriveFieldsOnOutput so only use it if you must.
     if @config.deriveFieldsAfterSummary?
-      for row, index in @seriesData
+      for row, index in seriesData
         for d in @config.deriveFieldsAfterSummary
-          row[d.as] = d.f(row, index, @summaryMetrics, @seriesData)
+          row[d.as] = d.f(row, index, summaryMetrics, seriesData)
 
-    return {@seriesData, @summaryMetrics}
+    return {seriesData, summaryMetrics}
 
   getStateForSaving: (meta) ->
     ###
@@ -365,7 +418,7 @@ class TimeSeriesCalculator # implements iCalculator
     ###
     if utils.type(p) is 'string'
       p = JSON.parse(p)
-    calculator = new TimeInStateCalculator(p.config)
+    calculator = new TimeSeriesCalculator(p.config)
     calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState)
     calculator.upToDateISOString = p.upToDateISOString
     if p.meta?
