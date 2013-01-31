@@ -246,22 +246,16 @@ class TimeSeriesCalculator # implements iCalculator
 
     # add to deriveFieldsOnInput for filteredCount and filteredSum
     for a in @config.metrics
-      if a.f == 'filteredCount'
-        f = filteredCountCreator(a.filterField, a.filterValues)
+      if a.f in ['filteredCount', 'filteredSum']
+        if a.f == 'filteredCount'
+          f = filteredCountCreator(a.filterField, a.filterValues)
+        else
+          f = filteredSumCreator(a.field, a.filterField, a.filterValues)
         unless a.as?
-          throw new Error('Must provide `as` field for `filteredCount` metric.')
+          throw new Error("Must provide `as` specification for a `#{a.f}` metric.")
         unless @config.deriveFieldsOnInput?
           @config.deriveFieldsOnInput = []
         @config.deriveFieldsOnInput.push({as: a.as, f: f})
-        a.f = 'sum'
-        a.field = a.as
-      else if a.f == 'filteredSum'
-        f2 = filteredSumCreator(a.field, a.filterField, a.filterValues)
-        unless a.as?
-          throw new Error('Must provide `as` field for `filteredSum` metric.')
-        unless @config.deriveFieldsOnInput?
-          @config.deriveFieldsOnInput = []
-        @config.deriveFieldsOnInput.push({as: a.as, f: f2})
         a.f = 'sum'
         a.field = a.as
 

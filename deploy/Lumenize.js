@@ -10723,10 +10723,8 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     
       Let's print out our results and see what we have.
     
-          keys = ['label', 'StoryUnitScope', 'StoryCountScope', 'StoryCountBurnUp', 'StoryUnitBurnUp', 'TaskUnitBurnDown', 'TaskUnitScope', 'Ideal',
-            'Ideal2',
-            'MedianPercentRemaining'
-          ]
+          keys = ['label', 'StoryUnitScope', 'StoryCountScope', 'StoryCountBurnUp',
+            'StoryUnitBurnUp', 'TaskUnitBurnDown', 'TaskUnitScope', 'Ideal', 'Ideal2', 'MedianPercentRemaining']
     
           csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
     
@@ -10802,7 +10800,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
             limiting the calculator to only emit ticks before this
       */
 
-      var a, dimensions, f, f2, field, fieldsMap, filteredCountCreator, filteredSumCreator, inputCubeDimensions, inputCubeMetrics, labelTimeline, labels, m, tick, ticksUnshifted, timeline, timelineConfig, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
+      var a, dimensions, f, field, fieldsMap, filteredCountCreator, filteredSumCreator, inputCubeDimensions, inputCubeMetrics, labelTimeline, labels, m, tick, ticksUnshifted, timeline, timelineConfig, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
       this.config = utils.clone(config);
       if (this.config.validFromField == null) {
         this.config.validFromField = "_ValidFrom";
@@ -10842,10 +10840,14 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       _ref = this.config.metrics;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         a = _ref[_i];
-        if (a.f === 'filteredCount') {
-          f = filteredCountCreator(a.filterField, a.filterValues);
+        if ((_ref1 = a.f) === 'filteredCount' || _ref1 === 'filteredSum') {
+          if (a.f === 'filteredCount') {
+            f = filteredCountCreator(a.filterField, a.filterValues);
+          } else {
+            f = filteredSumCreator(a.field, a.filterField, a.filterValues);
+          }
           if (a.as == null) {
-            throw new Error('Must provide `as` field for `filteredCount` metric.');
+            throw new Error("Must provide `as` field for `" + a.f + "` metric.");
           }
           if (this.config.deriveFieldsOnInput == null) {
             this.config.deriveFieldsOnInput = [];
@@ -10853,20 +10855,6 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           this.config.deriveFieldsOnInput.push({
             as: a.as,
             f: f
-          });
-          a.f = 'sum';
-          a.field = a.as;
-        } else if (a.f === 'filteredSum') {
-          f2 = filteredSumCreator(a.field, a.filterField, a.filterValues);
-          if (a.as == null) {
-            throw new Error('Must provide `as` field for `filteredSum` metric.');
-          }
-          if (this.config.deriveFieldsOnInput == null) {
-            this.config.deriveFieldsOnInput = [];
-          }
-          this.config.deriveFieldsOnInput.push({
-            as: a.as,
-            f: f2
           });
           a.f = 'sum';
           a.field = a.as;
@@ -10880,9 +10868,9 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         }
       ];
       fieldsMap = {};
-      _ref1 = this.config.metrics;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        m = _ref1[_j];
+      _ref2 = this.config.metrics;
+      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+        m = _ref2[_j];
         if (m.field != null) {
           fieldsMap[m.field] = true;
         }
@@ -10915,9 +10903,9 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       this.cube = new OLAPCube(this.cubeConfig);
       this.upToDateISOString = null;
       if (this.config.summaryMetricsConfig != null) {
-        _ref2 = this.config.summaryMetricsConfig;
-        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-          m = _ref2[_k];
+        _ref3 = this.config.summaryMetricsConfig;
+        for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+          m = _ref3[_k];
           functions.expandFandAs(m);
         }
       }
