@@ -6,6 +6,7 @@
                 "name": "Primary Classes and Functions",
                 "classes": [
                     "Lumenize",
+                    "*.TimeSeriesCalculator",
                     "*.TimeInStateCalculator",
                     "*.TransitionsCalculator"
                 ]

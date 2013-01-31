@@ -306,3 +306,60 @@ exports.TimeSeriesCalculator =
     test.deepEqual(calculator.getResults(), expected)
 
     test.done()
+
+  testGroupBy: (test) ->
+
+    allowedValues = ['Ready to pull', 'In progress', 'In test', 'Accepted', 'Released']
+
+    metrics = [
+      {f: 'groupBySum', field: 'PlanEstimate', groupByField: 'ScheduleState', allowedValues: allowedValues},
+      {f: 'groupByCount', groupByField: 'ScheduleState', allowedValues: allowedValues, prefix: 'Count '},
+      {as: 'MedianTaskRemainingTotal', field: 'TaskRemainingTotal', f: 'median'}  # An example of how you might overlay a line series
+    ]
+
+    holidays = [
+      {year: 2011, month: 1, day: 5}  # Made up holiday to test knockout
+    ]
+
+    config =  # default workDays
+      metrics: metrics
+      granularity: lumenize.Time.DAY
+      tz: 'America/Chicago'
+      holidays: holidays
+      workDays: 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday' # They work on Sundays
+
+    calculator = new TimeSeriesCalculator(config)
+
+    startOn = new Time('2011-01-01').getISOStringInTZ(config.tz)
+    endBefore = new Time('2011-01-09').getISOStringInTZ(config.tz)
+    calculator.addSnapshots(snapshots, startOn, endBefore)
+
+    keys = ['label'].concat(allowedValues)
+
+    csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
+
+    expected = [
+      [ '2011-01-02', 5, 0, 0, 0, 0 ],
+      [ '2011-01-03', 8, 5, 0, 0, 0 ],
+      [ '2011-01-04', 10, 8, 0, 0, 0 ],
+      [ '2011-01-06', 7, 0, 8, 5, 0 ],
+      [ '2011-01-07', 2, 5, 5, 3, 5 ],
+      [ '2011-01-09', 0, 0, 5, 5, 8 ]
+    ]
+    test.deepEqual(csv.slice(1), expected)
+
+    keys = ['label'].concat('Count ' + a for a in allowedValues)
+
+    csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
+
+    expected = [
+      [ '2011-01-02', 1, 0, 0, 0, 0 ],
+      [ '2011-01-03', 2, 1, 0, 0, 0 ],
+      [ '2011-01-04', 2, 2, 0, 0, 0 ],
+      [ '2011-01-06', 2, 0, 2, 1, 0 ],
+      [ '2011-01-07', 1, 1, 1, 1, 1 ],
+      [ '2011-01-09', 0, 0, 1, 1, 2 ]
+    ]
+    test.deepEqual(csv.slice(1), expected)
+
+    test.done()

@@ -234,6 +234,32 @@ class TimeSeriesCalculator # implements iCalculator
     utils.assert(@config.tz?, "Must provide a timezone to this calculator.")
     utils.assert(@config.granularity?, "Must provide a granularity to this calculator.")
 
+    # translate groupByCount and groupBySum into deriveFieldsOnInput so
+    #   {field: 'PlanEstimate', groupByField: 'ScheduleState', f: 'groupBySum', allowedValues: ["a", "b"]} becomes in the deriveFieldsOnInput array
+    #     {as: "a", field: 'PlanEstimate', f: 'filteredSum', filterField: 'ScheduleState', filterValues: ["a"]}
+    #     {as: "b", field: 'PlanEstimate', f: 'filteredSum', filterField: 'ScheduleState', filterValues: ["b"]}
+    newMetrics = []
+    for a in @config.metrics
+      if a.f in ['groupBySum', 'groupByCount']
+        unless a.prefix?
+          a.prefix = ''
+        for filterValue in a.allowedValues
+          row = {
+            as: a.prefix + filterValue,
+            filterField: a.groupByField,
+            filterValues: [filterValue]
+          }
+          if a.f == 'groupBySum'
+            row.field = a.field
+            row.f = 'filteredSum'
+          else
+            row.f = 'filteredCount'
+          newMetrics.push(row)
+      else
+        newMetrics.push(a)
+
+    @config.metrics = newMetrics
+
     filteredCountCreator = (filterField, filterValues) ->
       f = (row) ->
         if row[filterField] in filterValues then return 1 else return 0
@@ -279,6 +305,7 @@ class TimeSeriesCalculator # implements iCalculator
       deriveFieldsOnInput: @config.deriveFieldsOnInput
 
     dimensions = [{field: 'tick'}]
+
 
     @cubeConfig =
       dimensions: dimensions

@@ -348,6 +348,13 @@ functions.expandFandAs = (a) -&gt;
   return a
 
 functions.expandMetrics = (metrics = [], addCountIfMissing = false, addValuesForCustomFunctions = false) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-method-expandMetrics'>  /**
+</span>   * @method expandMetrics
+   * @member Lumenize.functions
+   * @private
+   */
+/* &lt;CoffeeScript&gt;
   confirmMetricAbove = (m, fieldName, aboveThisIndex) -&gt;
     if m is 'count'
       lookingFor = '_' + m
@@ -404,7 +411,6 @@ functions.expandMetrics = (metrics = [], addCountIfMissing = false, addValuesFor
     countRow = {f: 'count'}
     functions.expandFandAs(countRow)
     metrics.unshift(countRow)
-
 
   index = 0
   while index &lt; metrics.length  # intentionally not caching length because the loop can add rows

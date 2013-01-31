@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.5.7
+Lumenize version: 0.5.8
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -10800,7 +10800,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
             limiting the calculator to only emit ticks before this
       */
 
-      var a, dimensions, f, field, fieldsMap, filteredCountCreator, filteredSumCreator, inputCubeDimensions, inputCubeMetrics, labelTimeline, labels, m, tick, ticksUnshifted, timeline, timelineConfig, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
+      var a, dimensions, f, field, fieldsMap, filterValue, filteredCountCreator, filteredSumCreator, inputCubeDimensions, inputCubeMetrics, labelTimeline, labels, m, newMetrics, row, tick, ticksUnshifted, timeline, timelineConfig, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
       this.config = utils.clone(config);
       if (this.config.validFromField == null) {
         this.config.validFromField = "_ValidFrom";
@@ -10813,11 +10813,40 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       }
       utils.assert(this.config.tz != null, "Must provide a timezone to this calculator.");
       utils.assert(this.config.granularity != null, "Must provide a granularity to this calculator.");
+      newMetrics = [];
+      _ref = this.config.metrics;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        a = _ref[_i];
+        if ((_ref1 = a.f) === 'groupBySum' || _ref1 === 'groupByCount') {
+          if (a.prefix == null) {
+            a.prefix = '';
+          }
+          _ref2 = a.allowedValues;
+          for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+            filterValue = _ref2[_j];
+            row = {
+              as: a.prefix + filterValue,
+              filterField: a.groupByField,
+              filterValues: [filterValue]
+            };
+            if (a.f === 'groupBySum') {
+              row.field = a.field;
+              row.f = 'filteredSum';
+            } else {
+              row.f = 'filteredCount';
+            }
+            newMetrics.push(row);
+          }
+        } else {
+          newMetrics.push(a);
+        }
+      }
+      this.config.metrics = newMetrics;
       filteredCountCreator = function(filterField, filterValues) {
         var f;
         f = function(row) {
-          var _ref;
-          if (_ref = row[filterField], __indexOf.call(filterValues, _ref) >= 0) {
+          var _ref3;
+          if (_ref3 = row[filterField], __indexOf.call(filterValues, _ref3) >= 0) {
             return 1;
           } else {
             return 0;
@@ -10828,8 +10857,8 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       filteredSumCreator = function(field, filterField, filterValues) {
         var f;
         f = function(row) {
-          var _ref;
-          if (_ref = row[filterField], __indexOf.call(filterValues, _ref) >= 0) {
+          var _ref3;
+          if (_ref3 = row[filterField], __indexOf.call(filterValues, _ref3) >= 0) {
             return row[field];
           } else {
             return 0;
@@ -10837,17 +10866,17 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         };
         return f;
       };
-      _ref = this.config.metrics;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        a = _ref[_i];
-        if ((_ref1 = a.f) === 'filteredCount' || _ref1 === 'filteredSum') {
+      _ref3 = this.config.metrics;
+      for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+        a = _ref3[_k];
+        if ((_ref4 = a.f) === 'filteredCount' || _ref4 === 'filteredSum') {
           if (a.f === 'filteredCount') {
             f = filteredCountCreator(a.filterField, a.filterValues);
           } else {
             f = filteredSumCreator(a.field, a.filterField, a.filterValues);
           }
           if (a.as == null) {
-            throw new Error("Must provide `as` field for `" + a.f + "` metric.");
+            throw new Error("Must provide `as` specification for a `" + a.f + "` metric.");
           }
           if (this.config.deriveFieldsOnInput == null) {
             this.config.deriveFieldsOnInput = [];
@@ -10868,9 +10897,9 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         }
       ];
       fieldsMap = {};
-      _ref2 = this.config.metrics;
-      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-        m = _ref2[_j];
+      _ref5 = this.config.metrics;
+      for (_l = 0, _len3 = _ref5.length; _l < _len3; _l++) {
+        m = _ref5[_l];
         if (m.field != null) {
           fieldsMap[m.field] = true;
         }
@@ -10903,9 +10932,9 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       this.cube = new OLAPCube(this.cubeConfig);
       this.upToDateISOString = null;
       if (this.config.summaryMetricsConfig != null) {
-        _ref3 = this.config.summaryMetricsConfig;
-        for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
-          m = _ref3[_k];
+        _ref6 = this.config.summaryMetricsConfig;
+        for (_m = 0, _len4 = _ref6.length; _m < _len4; _m++) {
+          m = _ref6[_m];
           functions.expandFandAs(m);
         }
       }
@@ -10926,10 +10955,10 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         timeline = new Timeline(timelineConfig);
         ticksUnshifted = timeline.getAll('ISOString', this.config.tz);
         this.allTicks = (function() {
-          var _l, _len3, _results;
+          var _len5, _n, _results;
           _results = [];
-          for (_l = 0, _len3 = ticksUnshifted.length; _l < _len3; _l++) {
-            tick = ticksUnshifted[_l];
+          for (_n = 0, _len5 = ticksUnshifted.length; _n < _len5; _n++) {
+            tick = ticksUnshifted[_n];
             _results.push(tick);
           }
           return _results;
@@ -10939,10 +10968,10 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         labelTimeline = new Timeline(timelineConfig);
         labels = labelTimeline.getAll();
         this.allLabels = (function() {
-          var _l, _len3, _results;
+          var _len5, _n, _results;
           _results = [];
-          for (_l = 0, _len3 = labels.length; _l < _len3; _l++) {
-            tick = labels[_l];
+          for (_n = 0, _len5 = labels.length; _n < _len5; _n++) {
+            tick = labels[_n];
             _results.push(tick.toString());
           }
           return _results;
