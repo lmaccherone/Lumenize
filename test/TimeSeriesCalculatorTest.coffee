@@ -49,13 +49,13 @@ exports.TimeSeriesCalculator =
     ]
 
     deriveFieldsOnInput = [
-      {field: 'AcceptedStoryCount', f: (row) ->
+      {as: 'AcceptedStoryCount', f: (row) ->
         if row.ScheduleState in ['Accepted', 'Released']
           return 1
         else
           return 0
       },
-      {field: 'AcceptedStoryPoints', f: (row) ->
+      {as: 'AcceptedStoryPoints', f: (row) ->
         if row.ScheduleState in ['Accepted', 'Released']
           return row.PlanEstimate
         else
@@ -212,13 +212,13 @@ exports.TimeSeriesCalculator =
     ]
 
     deriveFieldsOnInput = [
-      {field: 'AcceptedStoryCount', f: (row) ->
+      {as: 'AcceptedStoryCount', f: (row) ->
         if row.ScheduleState in ['Accepted', 'Released']
           return 1
         else
           return 0
       },
-      {field: 'AcceptedStoryPoints', f: (row) ->
+      {as: 'AcceptedStoryPoints', f: (row) ->
         if row.ScheduleState in ['Accepted', 'Released']
           return row.PlanEstimate
         else
@@ -255,13 +255,54 @@ exports.TimeSeriesCalculator =
     startOn = new Time('2011-01-03').getISOStringInTZ(tz)
     endBefore = new Time('2011-01-05').getISOStringInTZ(tz)
     calculator2.addSnapshots(snapshots.slice(0, 9), startOn, endBefore)
-#    calculator2.addSnapshots(snapshots, startOn, endBefore)
 
     startOn = endBefore
     endBefore = new Time('2011-01-10').getISOStringInTZ(tz)
     calculator2.addSnapshots(snapshots.slice(5), startOn, endBefore)
-#    calculator2.addSnapshots(snapshots, startOn, endBefore)
 
     test.deepEqual(calculator.getResults(), calculator2.getResults())
+
+    test.done()
+
+  testFilteredCountAndSum: (test) ->
+
+    acceptedValues = ['Accepted', 'Released']
+
+    metrics = [
+      {as: 'StoryCountBurnUp', f: 'filteredCount', filterField: 'ScheduleState', filterValues: acceptedValues},
+      {as: 'StoryUnitBurnUp', field: 'PlanEstimate', f: 'filteredSum', filterField: 'ScheduleState', filterValues: acceptedValues}
+    ]
+
+    holidays = [
+      {year: 2011, month: 1, day: 5}  # Made up holiday to test knockout
+    ]
+
+    config =  # default workDays
+      metrics: metrics
+      granularity: lumenize.Time.DAY
+      tz: 'America/Chicago'
+      holidays: holidays
+      workDays: 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday' # They work on Sundays
+
+    calculator = new TimeSeriesCalculator(config)
+
+    startOn = new Time('2011-01-01').getISOStringInTZ(config.tz)
+    endBefore = new Time('2011-01-09').getISOStringInTZ(config.tz)
+
+    calculator.addSnapshots(snapshots, startOn, endBefore)
+
+    expected = {
+      seriesData: [
+        {tick: '2011-01-02T06:00:00.000Z', StoryCountBurnUp: 0, StoryUnitBurnUp: 0, label: '2011-01-02'},
+        {tick: '2011-01-03T06:00:00.000Z', StoryCountBurnUp: 0, StoryUnitBurnUp: 0, label: '2011-01-03'},
+        {tick: '2011-01-04T06:00:00.000Z', StoryCountBurnUp: 0, StoryUnitBurnUp: 0, label: '2011-01-04'},
+        {tick: '2011-01-06T06:00:00.000Z', StoryCountBurnUp: 1, StoryUnitBurnUp: 5, label: '2011-01-06'},
+        {tick: '2011-01-07T06:00:00.000Z', StoryCountBurnUp: 2, StoryUnitBurnUp: 8, label: '2011-01-07'},
+        {tick: '2011-01-09T06:00:00.000Z', StoryCountBurnUp: 3, StoryUnitBurnUp: 13, label: '2011-01-09'}
+      ],
+      summaryMetrics: undefined
+    }
+
+    test.deepEqual(calculator.getResults(), expected)
 
     test.done()

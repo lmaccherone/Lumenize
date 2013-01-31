@@ -286,6 +286,10 @@ functions.expandFandAs = (a) ->
   return a
 
 functions.expandMetrics = (metrics = [], addCountIfMissing = false, addValuesForCustomFunctions = false) ->
+  ###
+  @method expandMetrics This is called internally by several Lumenize Calculators. You should probably not call it.
+  @private
+  ###
   confirmMetricAbove = (m, fieldName, aboveThisIndex) ->
     if m is 'count'
       lookingFor = '_' + m
@@ -342,7 +346,6 @@ functions.expandMetrics = (metrics = [], addCountIfMissing = false, addValuesFor
     countRow = {f: 'count'}
     functions.expandFandAs(countRow)
     metrics.unshift(countRow)
-
 
   index = 0
   while index < metrics.length  # intentionally not caching length because the loop can add rows

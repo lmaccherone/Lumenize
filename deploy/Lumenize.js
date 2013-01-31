@@ -9678,6 +9678,11 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     if (addValuesForCustomFunctions == null) {
       addValuesForCustomFunctions = false;
     }
+    /*
+      @method expandMetrics This is called internally by several Lumenize Calculators. You should probably not call it.
+      @private
+    */
+
     confirmMetricAbove = function(m, fieldName, aboveThisIndex) {
       var currentRow, i, lookingFor, metricsLength;
       if (m === 'count') {
@@ -10567,7 +10572,8 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
 });
 
 require.define("/src/TimeSeriesCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var OLAPCube, Time, TimeSeriesCalculator, Timeline, functions, utils;
+  var OLAPCube, Time, TimeSeriesCalculator, Timeline, functions, utils,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   utils = require('./utils');
 
@@ -10626,43 +10632,26 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     
           snapshots = lumenize.csvStyleArray_To_ArrayOfMaps(snapshotsCSV)
     
-      Now that we have the data, let's configure our analysis by starting with the granularity, timezone, and holidays.
-    
-          granularity = lumenize.Time.DAY
-          tz = 'America/Chicago'
-          holidays = [
-            {year: 2011, month: 1, day: 5}  # Made up holiday to test knockout
-          ]
-    
-      Now, let's add our first aggregation specification. These derived fields will act as filters for the determining
-      what stories are counted in the AcceptedStoryCount and AcceptedStoryPoints metrics.
+      Let's add our first aggregation specification. You can add virtual fields to the input rows by providing your own callback function.
     
           deriveFieldsOnInput = [
-            {field: 'AcceptedStoryCount', f: (row) ->
-              if row.ScheduleState in ['Accepted', 'Released']
-                return 1
-              else
-                return 0
-            },
-            {field: 'AcceptedStoryPoints', f: (row) ->
-              if row.ScheduleState in ['Accepted', 'Released']
-                return row.PlanEstimate
-              else
-                return 0
-            }
+            {as: 'PercentRemaining', f: (row) -> 100 * row.TaskRemainingTotal / row.TaskEstimateTotal }
           ]
     
-      Next, we use the native fields in the snapshots, plus the two derived fields above to calculate most of the chart
+      Next, we use the native fields in the snapshots, plus our derived field above to calculate most of the chart
       series. Sums and counts are bread and butter, but all Lumenize.functions functions are supported (standardDeviation,
       median, percentile coverage, etc.)
     
+          acceptedValues = ['Accepted', 'Released']
+    
           metrics = [
+            {as: 'StoryCountBurnUp', f: 'filteredCount', filterField: 'ScheduleState', filterValues: acceptedValues},
+            {as: 'StoryUnitBurnUp', field: 'PlanEstimate', f: 'filteredSum', filterField: 'ScheduleState', filterValues: acceptedValues},
             {as: 'StoryUnitScope', field: 'PlanEstimate', f: 'sum'},
             {as: 'StoryCountScope', f: 'count'},
-            {as: 'StoryCountBurnUp', field: 'AcceptedStoryCount', f: 'sum'},
-            {as: 'StoryUnitBurnUp', field: 'AcceptedStoryPoints', f: 'sum'},
             {as: 'TaskUnitBurnDown', field: 'TaskRemainingTotal', f: 'sum'},
-            {as: 'TaskUnitScope', field: 'TaskEstimateTotal', f: 'sum'}  # Note, we don't have the task count denormalized in stories so we can't have TaskCountScope nor TaskUnitBurnDown
+            {as: 'TaskUnitScope', field: 'TaskEstimateTotal', f: 'sum'},
+            {as: 'MedianPercentRemaining', field: 'PercentRemaining', f: 'median'}
           ]
     
       Next, we specify the summary metrics for the chart. We're not really interested in displaying any summary metrics for
@@ -10699,55 +10688,55 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
             }
           ]
     
-      Finally, we build the config Object from the above specifications, instantiate the calculator, and show the results.
+      Just like all Lumenize Calculators, we can set holidays to be knocked out of the results.
+    
+          holidays = [
+            {year: 2011, month: 1, day: 5}  # Made up holiday to test knockout
+          ]
+    
+      Let's build the config Object from the above specifications and instantiate the calculator.
     
           config =  # default workDays
             deriveFieldsOnInput: deriveFieldsOnInput
             metrics: metrics
             summaryMetricsConfig: summaryMetricsConfig
             deriveFieldsAfterSummary: deriveFieldsAfterSummary
-            granularity: granularity
-            tz: tz
+            granularity: lumenize.Time.DAY
+            tz: 'America/Chicago'
             holidays: holidays
             workDays: 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday' # They work on Sundays
     
           calculator = new TimeSeriesCalculator(config)
     
-          startOn = new Time('2011-01-02').getISOStringInTZ(tz)
-          endBefore = new Time('2011-01-10').getISOStringInTZ(tz)
+      We can now send our snapshots into the calculator. Note, you must specify a startOn and endBefore. If you send in another
+      round of snapshots, the new startOn must match the endBefore of the prior call to addSnapshots(). This is a key to
+      making sure that incremental calculations don't skip or double count anything. You can even send in the same snapshots
+      in a later round and they won't be double counted as long as there are no gaps or overlaps in the time period of coverage as
+      specified by startOn and endBefore. If you restore the calculator from a saved state, the upToDate property will contain
+      the prior endBefore. You can use this to compose a query that gets all of the snapshots necessary for the update. Just
+      query with _ValidTo: {$gte: upToDate}. Note, this will refetch all the snapshots that were still active the last time
+      you updated the calculator. This is expected and necessary.
     
+          startOn = new Time('2011-01-02').getISOStringInTZ(config.tz)
+          endBefore = new Time('2011-01-10').getISOStringInTZ(config.tz)
           calculator.addSnapshots(snapshots, startOn, endBefore)
     
-          keys = [
-            'label',
-            'StoryUnitScope',
-            'StoryCountScope',
-            'StoryCountBurnUp',
-            'StoryUnitBurnUp',
-            'TaskUnitBurnDown',
-            'TaskUnitScope',
-            'Ideal',
-            'Ideal2'
+      Let's print out our results and see what we have.
+    
+          keys = ['label', 'StoryUnitScope', 'StoryCountScope', 'StoryCountBurnUp', 'StoryUnitBurnUp', 'TaskUnitBurnDown', 'TaskUnitScope', 'Ideal',
+            'Ideal2',
+            'MedianPercentRemaining'
           ]
     
           csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
     
-          console.log(csv)
-          #  [ [ 'label',
-          #      'StoryUnitScope',
-          #      'StoryCountScope',
-          #      'StoryCountBurnUp',
-          #      'StoryUnitBurnUp',
-          #      'TaskUnitBurnDown',
-          #      'TaskUnitScope',
-          #      'Ideal',
-          #      'Ideal2' ],
-          #    [ '2011-01-03', 13, 3, 0, 0, 37, 32, 51, null ],
-          #    [ '2011-01-04', 18, 4, 0, 0, 44, 47, 40.79, 44 ],
-          #    [ '2011-01-06', 20, 5, 1, 5, 25, 51, 30.6, 33 ],
-          #    [ '2011-01-07', 20, 5, 2, 8, 16, 51, 20.4, 22 ],
-          #    [ '2011-01-09', 18, 4, 3, 13, 3, 47, 10.2, 11 ],
-          #    [ '2011-01-10', 18, 4, 3, 13, 3, 47, 0, 0 ] ]
+          console.log(csv.slice(1))
+          #  [ [ '2011-01-03', 13, 3, 0, 0, 37, 32, 51, null, 100 ],
+          #    [ '2011-01-04', 18, 4, 0, 0, 44, 47, 40.79, 44, 100 ],
+          #    [ '2011-01-06', 20, 5, 1, 5, 25, 51, 30.6, 33, 41.666666666666664 ],
+          #    [ '2011-01-07', 20, 5, 2, 8, 16, 51, 20.4, 22, 41.666666666666664 ],
+          #    [ '2011-01-09', 18, 4, 3, 13, 3, 47, 10.2, 11, 0 ],
+          #    [ '2011-01-10', 18, 4, 3, 13, 3, 47, 0, 0, 0 ] ]
     */
 
     function TimeSeriesCalculator(config) {
@@ -10813,7 +10802,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
             limiting the calculator to only emit ticks before this
       */
 
-      var dimensions, field, fieldsMap, inputCubeDimensions, inputCubeMetrics, labelTimeline, labels, m, tick, ticksUnshifted, timeline, timelineConfig, _i, _j, _len, _len1, _ref, _ref1;
+      var a, dimensions, f, f2, field, fieldsMap, filteredCountCreator, filteredSumCreator, inputCubeDimensions, inputCubeMetrics, labelTimeline, labels, m, tick, ticksUnshifted, timeline, timelineConfig, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
       this.config = utils.clone(config);
       if (this.config.validFromField == null) {
         this.config.validFromField = "_ValidFrom";
@@ -10826,6 +10815,63 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       }
       utils.assert(this.config.tz != null, "Must provide a timezone to this calculator.");
       utils.assert(this.config.granularity != null, "Must provide a granularity to this calculator.");
+      filteredCountCreator = function(filterField, filterValues) {
+        var f;
+        f = function(row) {
+          var _ref;
+          if (_ref = row[filterField], __indexOf.call(filterValues, _ref) >= 0) {
+            return 1;
+          } else {
+            return 0;
+          }
+        };
+        return f;
+      };
+      filteredSumCreator = function(field, filterField, filterValues) {
+        var f;
+        f = function(row) {
+          var _ref;
+          if (_ref = row[filterField], __indexOf.call(filterValues, _ref) >= 0) {
+            return row[field];
+          } else {
+            return 0;
+          }
+        };
+        return f;
+      };
+      _ref = this.config.metrics;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        a = _ref[_i];
+        if (a.f === 'filteredCount') {
+          f = filteredCountCreator(a.filterField, a.filterValues);
+          if (a.as == null) {
+            throw new Error('Must provide `as` field for `filteredCount` metric.');
+          }
+          if (this.config.deriveFieldsOnInput == null) {
+            this.config.deriveFieldsOnInput = [];
+          }
+          this.config.deriveFieldsOnInput.push({
+            as: a.as,
+            f: f
+          });
+          a.f = 'sum';
+          a.field = a.as;
+        } else if (a.f === 'filteredSum') {
+          f2 = filteredSumCreator(a.field, a.filterField, a.filterValues);
+          if (a.as == null) {
+            throw new Error('Must provide `as` field for `filteredSum` metric.');
+          }
+          if (this.config.deriveFieldsOnInput == null) {
+            this.config.deriveFieldsOnInput = [];
+          }
+          this.config.deriveFieldsOnInput.push({
+            as: a.as,
+            f: f2
+          });
+          a.f = 'sum';
+          a.field = a.as;
+        }
+      }
       inputCubeDimensions = [
         {
           field: this.config.uniqueIDField
@@ -10834,9 +10880,9 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         }
       ];
       fieldsMap = {};
-      _ref = this.config.metrics;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        m = _ref[_i];
+      _ref1 = this.config.metrics;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        m = _ref1[_j];
         if (m.field != null) {
           fieldsMap[m.field] = true;
         }
@@ -10869,9 +10915,9 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       this.cube = new OLAPCube(this.cubeConfig);
       this.upToDateISOString = null;
       if (this.config.summaryMetricsConfig != null) {
-        _ref1 = this.config.summaryMetricsConfig;
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          m = _ref1[_j];
+        _ref2 = this.config.summaryMetricsConfig;
+        for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+          m = _ref2[_k];
           functions.expandFandAs(m);
         }
       }
@@ -10892,10 +10938,10 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         timeline = new Timeline(timelineConfig);
         ticksUnshifted = timeline.getAll('ISOString', this.config.tz);
         this.allTicks = (function() {
-          var _k, _len2, _results;
+          var _l, _len3, _results;
           _results = [];
-          for (_k = 0, _len2 = ticksUnshifted.length; _k < _len2; _k++) {
-            tick = ticksUnshifted[_k];
+          for (_l = 0, _len3 = ticksUnshifted.length; _l < _len3; _l++) {
+            tick = ticksUnshifted[_l];
             _results.push(tick);
           }
           return _results;
@@ -10905,10 +10951,10 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         labelTimeline = new Timeline(timelineConfig);
         labels = labelTimeline.getAll();
         this.allLabels = (function() {
-          var _k, _len2, _results;
+          var _l, _len3, _results;
           _results = [];
-          for (_k = 0, _len2 = labels.length; _k < _len2; _k++) {
-            tick = labels[_k];
+          for (_l = 0, _len3 = labels.length; _l < _len3; _l++) {
+            tick = labels[_l];
             _results.push(tick.toString());
           }
           return _results;
@@ -10966,7 +11012,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         this.toDateSnapshots = [];
         for (_j = 0, _len1 = snapshots.length; _j < _len1; _j++) {
           s = snapshots[_j];
-          if (s[this.config.validToField] > this.upToDateISOString) {
+          if (s[this.config.validToField] >= this.upToDateISOString) {
             this.toDateSnapshots.push(s);
           }
         }
