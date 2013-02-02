@@ -1,6 +1,5 @@
-# !TODO: Add deriveFieldsOnInput with @config.deriveFieldsOnInputConfig calling deriveFieldsOnInput in OLAPCube
-# !TODO: Add deriveFieldsOnOutput with @config.deriveFieldsOnOutputConfig calling deriveFieldsOnOutputConfig
 # !TODO: Add drill-down support with uniqueIDField or maybe keepFacts = true
+# !TODO: Add support for projection series that will actually add ticks to the timeline
 
 utils = require('./utils')
 OLAPCube = require('./OLAPCube').OLAPCube
@@ -13,8 +12,12 @@ class TimeSeriesCalculator # implements iCalculator
   @class TimeSeriesCalculator
   This calculator is used to convert snapshot data into time series aggregations.
 
-  Below is a detailed example. Let's start with a fairly large set of snapshots and create a bunch of series for
-  a burn (up/down) chart.
+  Below are two examples of using the TimeSeriesCalculator. The first is a detailed example showing how you would create
+  a set of single-metric series (line, spline, or column). The second, is an example of creating a set of group-by series
+  (like you would use to create a stacked column or stacked area chart). You can mix and match these on the same chart, but
+  one type (a set of single-metric series versus a single group-by meta-series) typically dominates.
+
+  Let's start with a fairly large set of snapshots and create a set of series for a burn (up/down) chart.
 
       lumenize = require('../')
       {TimeSeriesCalculator, Time} = lumenize
@@ -61,9 +64,13 @@ class TimeSeriesCalculator # implements iCalculator
         {as: 'PercentRemaining', f: (row) -> 100 * row.TaskRemainingTotal / row.TaskEstimateTotal }
       ]
 
+  You can have as many of these derived fields as you wish. They are calculated in order to it's OK to use an earlier
+  derived field when calculating a later one.
+
   Next, we use the native fields in the snapshots, plus our derived field above to calculate most of the chart
   series. Sums and counts are bread and butter, but all Lumenize.functions functions are supported (standardDeviation,
-  median, percentile coverage, etc.)
+  median, percentile coverage, etc.) and Lumenize includes some functions specifically well suited to burn chart
+  calculations (filteredSum, and filteredCount) as we shall now demonstrate.
 
       acceptedValues = ['Accepted', 'Released']
 
@@ -77,8 +84,16 @@ class TimeSeriesCalculator # implements iCalculator
         {as: 'MedianPercentRemaining', field: 'PercentRemaining', f: 'median'}
       ]
 
+  Let's break this down. The first series uses a `filteredCount` function. What this says is "count the number of items
+  where the ScheduleState is either 'Accepted' or 'Released' and store that in a series named 'StoryCountBurnUp'. The
+  second series is very similar but instead of counting, we are summing the PlanEstimate field and sticking it in
+  the StoryUnitBurnUp series. The next four series are simple sums or counts (no filtering) and the final series
+  is a gratuitous use of the 'median' function least you forget that it can do more than counts and sums.
+
   Next, we specify the summary metrics for the chart. We're not really interested in displaying any summary metrics for
   this chart but we need to calculate the max values of two of the existing series in order to add the two ideal line series.
+  Notice how the summary metric for TaskUnitBurnDown_max_index uses an earlier summary metric. They are calculated
+  in order and made avalable in the scope of the callback function to enable this.
 
       summaryMetricsConfig = [
         {field: 'TaskUnitScope', f: 'max'},
@@ -90,7 +105,7 @@ class TimeSeriesCalculator # implements iCalculator
         }
       ]
 
-  The calculations from the summary metrics above are passed into the calculations for derived fields after summary.
+  The calculations from the summary metrics above are passed into the calculations for 'deriveFieldsAfterSummary'.
   Here is where we calculate two alternatives for the burn down ideal line.
 
       deriveFieldsAfterSummary = [
@@ -111,6 +126,12 @@ class TimeSeriesCalculator # implements iCalculator
         }
       ]
 
+  The two above series ignore the row values and simply key off of the index and summaryMetrics, but you could have
+  used the row values to, for instance, add two existing series to create a third.
+
+  Notice how the entire seriesData is available inside of your provided callback. This would allow you to derive a metric
+  off of rows other than the current row like you would for a sliding-window calculation (Shewarts method).
+
   Just like all Lumenize Calculators, we can set holidays to be knocked out of the results.
 
       holidays = [
@@ -119,7 +140,7 @@ class TimeSeriesCalculator # implements iCalculator
 
   Let's build the config Object from the above specifications and instantiate the calculator.
 
-      config =  # default workDays
+      config =
         deriveFieldsOnInput: deriveFieldsOnInput
         metrics: metrics
         summaryMetricsConfig: summaryMetricsConfig
@@ -131,18 +152,20 @@ class TimeSeriesCalculator # implements iCalculator
 
       calculator = new TimeSeriesCalculator(config)
 
-  We can now send our snapshots into the calculator. Note, you must specify a startOn and endBefore. If you send in another
-  round of snapshots, the new startOn must match the endBefore of the prior call to addSnapshots(). This is a key to
-  making sure that incremental calculations don't skip or double count anything. You can even send in the same snapshots
-  in a later round and they won't be double counted as long as there are no gaps or overlaps in the time period of coverage as
-  specified by startOn and endBefore. If you restore the calculator from a saved state, the upToDate property will contain
-  the prior endBefore. You can use this to compose a query that gets all of the snapshots necessary for the update. Just
-  query with _ValidTo: {$gte: upToDate}. Note, this will refetch all the snapshots that were still active the last time
-  you updated the calculator. This is expected and necessary.
+  We can now send our snapshots into the calculator.
 
       startOn = new Time('2011-01-02').getISOStringInTZ(config.tz)
       endBefore = new Time('2011-01-10').getISOStringInTZ(config.tz)
       calculator.addSnapshots(snapshots, startOn, endBefore)
+
+  Note, you must specify a startOn and endBefore. If you send in another round of snapshots, the new startOn must match
+  the endBefore of the prior call to addSnapshots(). This is the key to  making sure that incremental calculations don't
+  skip or double count anything. You can even send in the same snapshots in a later round and they won't be double
+  counted. This idempotency property is also accomplished by the precise startOn (current) endBefore (prior) alignment.
+  If you restore the calculator from a saved state, the upToDate property will contain the prior endBefore. You can use
+  this to compose a query that gets all of the snapshots necessary for the update. Just query with
+  `_ValidTo: {$gte: upToDate}`. Note, this will refetch all the snapshots that were still active the last time
+  you updated the calculator. This is expected and necessary.
 
   Let's print out our results and see what we have.
 
@@ -234,10 +257,12 @@ class TimeSeriesCalculator # implements iCalculator
     utils.assert(@config.tz?, "Must provide a timezone to this calculator.")
     utils.assert(@config.granularity?, "Must provide a granularity to this calculator.")
 
-    # translate groupByCount and groupBySum into deriveFieldsOnInput so
-    #   {field: 'PlanEstimate', groupByField: 'ScheduleState', f: 'groupBySum', allowedValues: ["a", "b"]} becomes in the deriveFieldsOnInput array
-    #     {as: "a", field: 'PlanEstimate', f: 'filteredSum', filterField: 'ScheduleState', filterValues: ["a"]}
-    #     {as: "b", field: 'PlanEstimate', f: 'filteredSum', filterField: 'ScheduleState', filterValues: ["b"]}
+    # translate groupByCount and groupBySum into deriveFieldsOnInput so:
+    #   {field: 'PlanEstimate', groupByField: 'ScheduleState', f: 'groupBySum', allowedValues: ["a", "b"]}
+    #
+    # becomes in the deriveFieldsOnInput array:
+    #   {as: "a", field: 'PlanEstimate', f: 'filteredSum', filterField: 'ScheduleState', filterValues: ["a"]}
+    #   {as: "b", field: 'PlanEstimate', f: 'filteredSum', filterField: 'ScheduleState', filterValues: ["b"]}
     newMetrics = []
     for a in @config.metrics
       if a.f in ['groupBySum', 'groupByCount']
@@ -305,7 +330,6 @@ class TimeSeriesCalculator # implements iCalculator
       deriveFieldsOnInput: @config.deriveFieldsOnInput
 
     dimensions = [{field: 'tick'}]
-
 
     @cubeConfig =
       dimensions: dimensions
@@ -447,7 +471,7 @@ class TimeSeriesCalculator # implements iCalculator
       summaryMetrics = {}
       for summaryMetric in @config.summaryMetricsConfig
         if summaryMetric.field?
-          # get all values of that field. Note, includes total rows (hierarchy and tags) so the callback might have to be careful about that. A sum might include more than you bargain for.
+          # get all values of that field
           values = []
           for row in seriesData
             values.push(row[summaryMetric.field])

@@ -206,8 +206,37 @@
 
 </p>
 <ul>
-<li>0.5.8 - 2013-01-31 - TimeSeriesCalculator now includes groupBy support. There will be
-no TimeSeriesGroupByCalculator.</li>
+<li><p>0.6.0 - 2013-02-03 <strong>Major backward breaking changes</strong> </p>
+<ul>
+<li>Time and Timeline have been split out to their own package, TZTime</li>
+<li>Lumenize has been simplfified down to four main classes: TimeSeriesCalculator, 
+TransitionsCalculator, TimeInStateCalculator, and OLAPCube</li>
+<li>There are still a few addional helpers for data transformation and a histogram calculator 
+function. </li>
+<li>The three main calculators implement the same interface and take similar config objects. </li>
+<li>They provide a superset of all of the functionality previously found in Lumenize. </li>
+<li>They all use the OLAPCube abstraction so they are much easier to understand, maintain, and 
+upgrade. </li>
+<li>They now all support incremental updating, and serialization so you can cache results of 
+an earlier calculation and restart justfeeding in the updated information. </li>
+<li>All this AND significant performance gains.</li>
+</ul>
+<p>Things removed:</p>
+<ul>
+<li>Removed the concept of an &quot;AtArray&quot; and any functions that used it including 
+deriveFieldsAt, aggregationAtArray_To_HighChartsSeries, 
+groupByAtArray_To_HighChartsSeries, and snapshotArray_To_AtArray </li>
+<li>Similarly, the function-form of timeSeriesCalculator and timeSeriesGroupByCalculator have
+been removed. Use the class-form replacement.</li>
+<li>GroupBy functionality is now contained in the TimeSeriesCalculator. There is no seperate
+class for it like there was a seperate function for it before.</li>
+<li>Removed aggregate, derive, and groupBy. Their functionality is now contained in the 3 main
+calculators.</li>
+</ul>
+</li>
+<li><p>0.5.8 - 2013-01-31 - TimeSeriesCalculator now includes groupBy support. There will be
+no TimeSeriesGroupByCalculator.</p>
+</li>
 <li>0.5.7 - 2013-01-27 - TimeSeriesCalculator evolved based upon learning from Burn Chart</li>
 <li>0.5.6 - 2013-01-24 - TimeSeriesCalculator class introduced (incremental, OLAP, etc.)</li>
 <li>0.5.5 - 2013-01-17 - Histogram now works all the way down to 0</li>
@@ -250,22 +279,27 @@ do with defaults, method names, and method signatures. There are no semantic cha
 <li>0.4.3 - 2012-11-28 - Cleaning up doc issues</li>
 <li>0.4.2 - 2012-11-28 - Playing with using git tags for keeping old versions</li>
 <li>0.4.1 - 2012-11-28 - Playing with using git branches for keeping old versions</li>
-<li>0.4.0 - 2012-11-27<ul>
-<li><strong>Backward breaking change</strong> No longer required/allowed to call Time.setTZPath()</li>
+<li>0.4.0 - 2012-11-27 <strong>Backward breaking change</strong> <ul>
+<li>No longer required/allowed to call Time.setTZPath()</li>
 <li>Using JSDuck for documentation now</li>
 <li>Build system now keeps old deploy versions</li>
 <li>Pre-compiled directory removed</li>
-<li>Bug fix for TimeInStateCalculator and snapshotArray_To_AtArray. They now sort (correctly). snapshotArray_To_AtArray will now also 
-propertly remove from later ticks any entity that falls out of scope. Previously, deletions were not registered correctly by
+<li>Bug fix for TimeInStateCalculator and snapshotArray_To_AtArray. They now sort (correctly). 
+snapshotArray_To_AtArray will now also propertly remove from later ticks any entity that
+falls out of scope. Previously, deletions were not registered correctly by
 snapshotArray_To_AtArray.</li>
 </ul>
 </li>
 <li>0.3.0 - 2012-10-13<ul>
-<li>Support for instantiating Time objects relative to now using strings (e.g. &#39;this day in Pacific/Fiji&#39;)</li>
+<li>Support for instantiating Time objects relative to now using strings (e.g. &#39;this day in
+Pacific/Fiji&#39;)</li>
 <li>Added tests and fixed some bugs for timelineConfigs</li>
 </ul>
 </li>
-<li>0.2.7 - 2012-10-10 - <strong>Backward breaking change</strong> to the structure of the data returned by groupBy() to match groupByAt()</li>
+<li>0.2.7 - 2012-10-10 <strong>Backward breaking change</strong> <ul>
+<li>Change to the structure of the data returned by groupBy() to match groupByAt()</li>
+</ul>
+</li>
 </ul>
 <h2>MIT License</h2>
 <p>Copyright (c) 2011, 2012, 2013 Lawrence S. Maccherone, Jr.

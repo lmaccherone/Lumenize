@@ -1,7 +1,7 @@
 [![build status](https://secure.travis-ci.org/lmaccherone/Lumenize.png)](http://travis-ci.org/lmaccherone/Lumenize)
 # Lumenize #
 
-Copyright (c) 2009-2012, Lawrence S. Maccherone, Jr.
+Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.
 
 _Illuminating the forest AND the trees in your data._
 
@@ -98,6 +98,32 @@ Once you have that all working, submit a pull request on GitHub.
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
+* 0.6.0 - 2013-02-03 **Major backward breaking changes** 
+  * Time and Timeline have been split out to their own package, TZTime
+  * Lumenize has been simplfified down to four main classes: TimeSeriesCalculator, 
+    TransitionsCalculator, TimeInStateCalculator, and OLAPCube
+  * There are still a few addional helpers for data transformation and a histogram calculator 
+    function. 
+  * The three main calculators implement the same interface and take similar config objects. 
+  * They provide a superset of all of the functionality previously found in Lumenize. 
+  * They all use the OLAPCube abstraction so they are much easier to understand, maintain, and 
+    upgrade. 
+  * They now all support incremental updating, and serialization so you can cache results of 
+    an earlier calculation and restart justfeeding in the updated information. 
+  * All this AND significant performance gains.
+  
+  Things removed:
+  
+  * Removed the concept of an "AtArray" and any functions that used it including 
+    deriveFieldsAt, aggregationAtArray_To_HighChartsSeries, 
+    groupByAtArray_To_HighChartsSeries, and snapshotArray_To_AtArray 
+  * Similarly, the function-form of timeSeriesCalculator and timeSeriesGroupByCalculator have
+    been removed. Use the class-form replacement.
+  * GroupBy functionality is now contained in the TimeSeriesCalculator. There is no seperate
+    class for it like there was a seperate function for it before.
+  * Removed aggregate, derive, and groupBy. Their functionality is now contained in the 3 main
+    calculators.
+    
 * 0.5.8 - 2013-01-31 - TimeSeriesCalculator now includes groupBy support. There will be
   no TimeSeriesGroupByCalculator.
 * 0.5.7 - 2013-01-27 - TimeSeriesCalculator evolved based upon learning from Burn Chart
@@ -136,18 +162,21 @@ In November of 2012, Lumenize wanted to start keeping old versions around becaus
 * 0.4.3 - 2012-11-28 - Cleaning up doc issues
 * 0.4.2 - 2012-11-28 - Playing with using git tags for keeping old versions
 * 0.4.1 - 2012-11-28 - Playing with using git branches for keeping old versions
-* 0.4.0 - 2012-11-27
-  * **Backward breaking change** No longer required/allowed to call Time.setTZPath()
+* 0.4.0 - 2012-11-27 **Backward breaking change** 
+  * No longer required/allowed to call Time.setTZPath()
   * Using JSDuck for documentation now
   * Build system now keeps old deploy versions
   * Pre-compiled directory removed
-  * Bug fix for TimeInStateCalculator and snapshotArray_To_AtArray. They now sort (correctly). snapshotArray_To_AtArray will now also 
-    propertly remove from later ticks any entity that falls out of scope. Previously, deletions were not registered correctly by
+  * Bug fix for TimeInStateCalculator and snapshotArray_To_AtArray. They now sort (correctly). 
+    snapshotArray_To_AtArray will now also propertly remove from later ticks any entity that
+    falls out of scope. Previously, deletions were not registered correctly by
     snapshotArray_To_AtArray.
 * 0.3.0 - 2012-10-13
-  * Support for instantiating Time objects relative to now using strings (e.g. 'this day in Pacific/Fiji')
+  * Support for instantiating Time objects relative to now using strings (e.g. 'this day in
+    Pacific/Fiji')
   * Added tests and fixed some bugs for timelineConfigs
-* 0.2.7 - 2012-10-10 - **Backward breaking change** to the structure of the data returned by groupBy() to match groupByAt()
+* 0.2.7 - 2012-10-10 **Backward breaking change** 
+  * Change to the structure of the data returned by groupBy() to match groupByAt()
 
 ## MIT License ##
 

@@ -3,12 +3,18 @@
         "name": "Lumenize",
         "groups": [
             {
+                "name": "Overview, Data Transform, and Histogram",
+                "classes": [
+                    "Lumenize"
+                ]
+            },
+            {
                 "name": "Primary Classes and Functions",
                 "classes": [
-                    "Lumenize",
                     "*.TimeSeriesCalculator",
                     "*.TimeInStateCalculator",
-                    "*.TransitionsCalculator"
+                    "*.TransitionsCalculator",
+                    "*.OLAPCube"
                 ]
             },
             {

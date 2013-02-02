@@ -3,13 +3,16 @@ utils = require('./utils')
 ###
 @class functions
 
-Rules about dependencies
+Rules about dependencies:
+
   * If a function can be calculated incrementally from an oldResult and newValues, then you do not need to specify dependencies
   * If a funciton can be calculated from other incrementally calculable results, then you need only specify those dependencies
-  * If a function a full list of values to be calculated (like percentile coverage), then you must specify 'values'
-  * To support the direct passing in of OLAP cube cells, you can provide a prefix (field name) so the key in dependentValues can be generated
+  * If a function needs the full list of values to be calculated (like percentile coverage), then you must specify 'values'
+  * To support the direct passing in of OLAP cube cells, you can provide a prefix (field name) so the key in dependentValues
+    can be generated
   * 'count' is special and does not use a prefix because it is not dependent up a particular field
-  * You should calculate the dependencies before you calculate the thing that is depedent. The OLAP cube does some checking to confirm you've done this.
+  * You should calculate the dependencies before you calculate the thing that is depedent. The OLAP cube does some
+    checking to confirm you've done this.
 ###
 functions = {}
 
@@ -255,10 +258,15 @@ functions.percentileCreator = (p) ->
 
 functions.expandFandAs = (a) ->
   ###
-  @method expandFandAs Takes specifications for functions and expands them to include the actual function and 'as'
+  @method expandFandAs
   @static
   @param {Object} a Will look like this `{as: 'mySum', f: 'sum', field: 'Points'}`
   @return {Object} returns the expanded specification
+
+  Takes specifications for functions and expands them to include the actual function and 'as'. If you do not provide
+  an 'as' property, it will build it from the field name and function with an underscore between. Also, if the
+  'f' provided is a string, it is copied over to the 'metric' property before the 'f' property is replaced with the
+  actual function. `{field: 'a', f: 'sum'}` would expand to `{as: 'a_sum', field: 'a', metric: 'sum', f: [Function]}`.
   ###
   utils.assert(a.f?, "'f' missing from specification: \n#{JSON.stringify(a, undefined, 4)}")
   if utils.type(a.f) == 'function'
@@ -287,8 +295,11 @@ functions.expandFandAs = (a) ->
 
 functions.expandMetrics = (metrics = [], addCountIfMissing = false, addValuesForCustomFunctions = false) ->
   ###
-  @method expandMetrics This is called internally by several Lumenize Calculators. You should probably not call it.
+  @method expandMetrics
+  @static
   @private
+
+  This is called internally by several Lumenize Calculators. You should probably not call it.
   ###
   confirmMetricAbove = (m, fieldName, aboveThisIndex) ->
     if m is 'count'

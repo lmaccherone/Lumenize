@@ -38,8 +38,8 @@ class TimeInStateCalculator # implements iCalculator
         granularity: granularity
         tz: tz
         endBefore: '2011-01-11T00:00:00.000'
-        workDayStartOn: {hour: 9, minute: 0}  # 15:00 GMT in Chicago
-        workDayEndBefore: {hour: 11, minute: 0}  # 17:00 GMT in Chicago.
+        workDayStartOn: {hour: 9, minute: 0}  # 09:00 in Chicago is 15:00 in GMT
+        workDayEndBefore: {hour: 11, minute: 0}  # 11:00 in Chicago is 17:00 in GMT  # !TODO: Change this to 5pm when I change the samples above
         validFromField: 'from'
         validToField: 'to'
         uniqueIDField: 'id'

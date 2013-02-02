@@ -323,11 +323,14 @@ class Timeline
     @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
        required if `emit` is 'Date' or 'ISOString'.
     @param {String} [childGranularity] When emit is 'Timeline', this is the granularity for the startOn and endBefore of the
-       Timeline that is emitted.
+       Timeline object that is emitted.
     @return {Time[]/Date[]/Timeline[]/String[]}
 
     Returns all of the points in the timeline in chronological order. If you want them in the order specified by `step`
-    then use getAllRaw().
+    then use getAllRaw(). Note, the output of this function is memoized so that subsequent calls to getAll() for the
+    same Timeline instance with the same parameters will return the previously calculated values. This makes it safe
+    to call it repeatedly within loops and means you don't need to worry about holding onto the result on the client
+    side.
     ###
     parameterKeyObject = {emit}
     if tz?

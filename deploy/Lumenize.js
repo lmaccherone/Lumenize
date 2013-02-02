@@ -4588,162 +4588,33 @@ require.define("/lumenize.coffee",function(require,module,exports,__dirname,__fi
 
 # Lumenize #
 
-Lumenize provides tools for aggregating data and creating timezone-precise timelines for visualizations.
+Lumenize provides tools for aggregating data and creating time series and other temporal visualizations.
 
-Below, is a somewhat long example that utilizes most of Lumenize's functionality. It should provid a good introduction
-to its capabilities.
+The primary time-series aggregating functionality is provided by:
+  * Lumenize.TimeSeriesCalculator - Sets of single-metric series or group-by series
+  * Lumenize.TransitionsCalculator - Counts or sums for items moving from one state to another
+  * Lumenize.TimeInStateCalculator - Cumulative amount of time unique work items spend in a particular state
 
-The first line below "requires" Lumenize. If you are using the browserified package or creating an App with Rally's
-App SDK, you will not need this line. Lumenize will already be available in the current scope.
+Simple group-by, 2D pivot-table and even multi-dimensional aggregations (OLAP cube) are provided by:
+  * Lumenize.OLAPCube - Used by above three Calculators but also useful stand-alone, particularly for hierarchical roll-ups
 
-    Lumenize = require('../')
+All of the above use the mathematical and statistical functions provided by:
+  * Lumenize.functions - count, sum, standardDeviation, p75, p99, p??, min, max, etc.
 
-Next, let's create some sample data. The example below creates a simple burnup chart. The data in the snapshots*
-variables below simulate data for various work items changing over time. It is shown here in tabular "CSVStyle".
+Three transformation functions are provided:
+  * Lumenize.arrayOfMaps_To_CSVStyleArray - Used to transform from record to table format
+  * Lumenize.csvStyleArray_To_ArrayOfMaps - Used to transform from table to record format
+  * Lumenize.arrayOfMaps_To_HighChartsSeries - Used to transform from record format to the format expected by the
+    HighCharts charting library
 
-    snapshotsCSVStyle = [
-      ["ObjectID", "_ValidFrom",           "_ValidTo",             "ScheduleState", "PlanEstimate"],
-
-      [1,          "2010-10-10T15:00:00Z", "2011-01-02T13:00:00Z", "Ready to pull", 5             ],
-
-      [1,          "2011-01-02T15:10:00Z", "2011-01-04T15:00:00Z", "In progress"  , 5             ],
-      [2,          "2011-01-02T15:00:00Z", "2011-01-03T15:00:00Z", "Ready to pull", 3             ],
-      [3,          "2011-01-02T15:00:00Z", "2011-01-03T15:00:00Z", "Ready to pull", 5             ],
-
-      [2,          "2011-01-03T15:00:00Z", "2011-01-04T15:00:00Z", "In progress"  , 3             ],
-      [3,          "2011-01-03T15:00:00Z", "2011-01-04T15:00:00Z", "Ready to pull", 5             ],
-      [4,          "2011-01-03T15:00:00Z", "2011-01-04T15:00:00Z", "Ready to pull", 5             ],
-      [1,          "2011-01-03T15:10:00Z", "2011-01-04T15:00:00Z", "In progress"  , 5             ],
-
-      [1,          "2011-01-04T15:00:00Z", "2011-01-06T15:00:00Z", "Accepted"     , 5             ],
-      [2,          "2011-01-04T15:00:00Z", "2011-01-06T15:00:00Z", "In test"      , 3             ],
-      [3,          "2011-01-04T15:00:00Z", "2011-01-05T15:00:00Z", "In progress"  , 5             ],
-      [4,          "2011-01-04T15:00:00Z", "2011-01-06T15:00:00Z", "Ready to pull", 5             ],
-      [5,          "2011-01-04T15:00:00Z", "2011-01-06T15:00:00Z", "Ready to pull", 2             ],
-
-      [3,          "2011-01-05T15:00:00Z", "2011-01-07T15:00:00Z", "In test"      , 5             ],
-
-      [1,          "2011-01-06T15:00:00Z", "2011-01-07T15:00:00Z", "Released"     , 5             ],
-      [2,          "2011-01-06T15:00:00Z", "2011-01-07T15:00:00Z", "Accepted"     , 3             ],
-      [4,          "2011-01-06T15:00:00Z", "2011-01-07T15:00:00Z", "In progress"  , 5             ],
-      [5,          "2011-01-06T15:00:00Z", "2011-01-07T15:00:00Z", "Ready to pull", 2             ],
-
-      [1,          "2011-01-07T15:00:00Z", "9999-01-01T00:00:00Z", "Released"     , 5             ],
-      [2,          "2011-01-07T15:00:00Z", "9999-01-01T00:00:00Z", "Released"     , 3             ],
-      [3,          "2011-01-07T15:00:00Z", "9999-01-01T00:00:00Z", "Accepted"     , 5             ],
-      [4,          "2011-01-07T15:00:00Z", "9999-01-01T00:00:00Z", "In test"      , 5             ],
-      [5,          "2011-01-07T15:00:00Z", "9999-01-01T00:00:00Z", "In progress"  , 2             ]
-    ]
-
-However, Lumenize assumes the data is in the form of an "Array of Maps" like Rally's LookbackAPI would emit. The
-`Lumenize.csvStyleArray_To_ArrayOfMaps` convenience function will convert it to the expected form.
-
-    snapshotArray = Lumenize.csvStyleArray_To_ArrayOfMaps(snapshotsCSVStyle)
-
-The `timelineConfig` defines the specification for the x-axis. Notice how you can exclude weekends and holidays. Here we
-specify a `startOn` and a `endBefore`. However, it's fairly common in charts to specify `endBefore: "this day"` and
-`limit: 60` (no `startOn`). A number of human readable dates like `"next month"` or `"previous week"` are supported. You
-need to specify any 2 of startOn, endBefore, or limit.
-
-    timelineConfig = {
-      startOn: "2011-01-02"
-      endBefore: "2011-01-08",
-      workDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],  # Also supports "Monday, Tuesday, ..."
-      holidays: [
-        {"month": 1, "day": 1},
-        {"month": 12, "day": 25},
-        "2011-01-05"  # Made up holiday to demo holiday knockout
-      ]
-    }
-
-If you think of the list of snapshots as a table of data, then `derivedFields` is just like adding a virtual column
-to the table. Simply specify a name and a callback function "f".
-
-    derivedFields = [
-      {
-      "name": "accepted",
-      "f": (row) ->
-        if row.ScheduleState in ["Accepted", "Released"]
-          return 1
-        else
-          return 0
-      }
-    ]
-
-The `aggregationConfig` supports a number of functions including sum, count, addToSet, standardDeviation,
-p50 (for median), and p?? (for any quartile/percentile). It will also allow you to specify a callback function
-like in derivedFields above if none of the built-in functions serves.
-
-    aggregationConfig = [
-      {"as": "scope", "f": "count", "field": "ObjectID"},
-      {"as": "accepted", "f": "sum", "field": "accepted"}
-    ]
-
-Since Lumenize was designed to work with other temporal data models besides Rally's, you must tell it what fields
-are used for the valid from, valid to, and unique id. You must also tell it what timezone to use for the boundaries
-of your x-axis values. The snapshot data is in Zulu time, but the start of the day in New York is shifted by 4 or 5
-hours depending upon the time of year. Specifying a timezone, allows Lumenize to shift the raw Zulu dates into
-the timezone of your choosing.
-
-    config = {
-      snapshotValidFromField: '_ValidFrom',
-      snapshotValidToField: '_ValidTo',
-      snapshotUniqueID: 'ObjectID',
-      timezone: 'America/New_York',
-      timelineConfig: timelineConfig,
-      derivedFields: derivedFields,
-      aggregationConfig: aggregationConfig
-    }
-
-Next, we call `Lumenize.timeSeriesCalculator` with the snapshots as well as the config object that we just built.
-It will calculate the time-series data according to our specifications. It returns two values. A list of Time
-objects specifying the x-axis (`listOfAtCTs`) and our calculations (`aggregationAtArray`).
-
-    {listOfAtCTs, aggregationAtArray} = Lumenize.timeSeriesCalculator(snapshotArray, config)
-
-You could graph this output to render a burnup chart by story count.
-
-    for value, index in listOfAtCTs
-      console.log(value.toString(), aggregationAtArray[index])
-
-    # 2011-01-03 { scope: 3, accepted: 0 }
-    # 2011-01-04 { scope: 4, accepted: 0 }
-    # 2011-01-06 { scope: 5, accepted: 1 }
-    # 2011-01-07 { scope: 5, accepted: 2 }
-
-Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). So let's modify our configuration to use
-`PlanEstimate`.
-
-    config.derivedFields = [
-      {
-      "name": "accepted",
-      "f": (row) ->
-        if row.ScheduleState in ["Accepted", "Released"]
-          return row.PlanEstimate;
-        else
-          return 0
-      }
-    ]
-
-    config.aggregationConfig = [
-      {"as": "scope", "f": "sum", "field": "PlanEstimate"},
-      {"as": "accepted", "f": "sum", "field": "accepted"}
-    ]
-
-    {listOfAtCTs, aggregationAtArray} = Lumenize.timeSeriesCalculator(snapshotArray, config)
-
-    for value, index in listOfAtCTs
-      console.log(value.toString(), aggregationAtArray[index])
-
-    # 2011-01-03 { scope: 13, accepted: 0 }
-    # 2011-01-04 { scope: 18, accepted: 0 }
-    # 2011-01-06 { scope: 20, accepted: 5 }
-    # 2011-01-07 { scope: 20, accepted: 8 }
+And last, additional functionality is provided by:
+  * Lumenize.histogram - create a histogram of scatter data
+  * Lumenize.utils - utility methods used by the rest of Lumenize (type, clone, array/object functions, etc.)
 */
 
 
 (function() {
-  var Timeline, aggregate, datatransform, derive;
+  var Timeline, datatransform;
 
   exports.Time = require('./src/Time').Time;
 
@@ -4767,33 +4638,9 @@ Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). 
 
   exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps;
 
-  exports.snapshotArray_To_AtArray = datatransform.snapshotArray_To_AtArray;
-
-  exports.groupByAtArray_To_HighChartsSeries = datatransform.groupByAtArray_To_HighChartsSeries;
-
-  exports.aggregationAtArray_To_HighChartsSeries = datatransform.aggregationAtArray_To_HighChartsSeries;
-
-  aggregate = require('./src/aggregate');
-
-  exports.aggregate = aggregate.aggregate;
-
-  exports.aggregateAt = aggregate.aggregateAt;
-
-  exports.groupBy = aggregate.groupBy;
-
-  exports.groupByAt = aggregate.groupByAt;
-
-  exports.timeSeriesCalculator = aggregate.timeSeriesCalculator;
-
-  exports.timeSeriesGroupByCalculator = aggregate.timeSeriesGroupByCalculator;
+  exports.arrayOfMaps_To_HighChartsSeries = datatransform.arrayOfMaps_To_HighChartsSeries;
 
   exports.functions = require('./src/functions').functions;
-
-  derive = require('./src/derive');
-
-  exports.deriveFields = derive.deriveFields;
-
-  exports.deriveFieldsAt = derive.deriveFieldsAt;
 
   exports.histogram = require('./src/histogram').histogram;
 
@@ -7613,11 +7460,14 @@ require.define("/src/Timeline.coffee",function(require,module,exports,__dirname,
           @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
              required if `emit` is 'Date' or 'ISOString'.
           @param {String} [childGranularity] When emit is 'Timeline', this is the granularity for the startOn and endBefore of the
-             Timeline that is emitted.
+             Timeline object that is emitted.
           @return {Time[]/Date[]/Timeline[]/String[]}
       
           Returns all of the points in the timeline in chronological order. If you want them in the order specified by `step`
-          then use getAllRaw().
+          then use getAllRaw(). Note, the output of this function is memoized so that subsequent calls to getAll() for the
+          same Timeline instance with the same parameters will return the previously calculated values. This makes it safe
+          to call it repeatedly within loops and means you don't need to worry about holding onto the result on the client
+          side.
       */
 
       parameterKeyObject = {
@@ -8107,8 +7957,8 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
             granularity: granularity
             tz: tz
             endBefore: '2011-01-11T00:00:00.000'
-            workDayStartOn: {hour: 9, minute: 0}  # 15:00 GMT in Chicago
-            workDayEndBefore: {hour: 11, minute: 0}  # 17:00 GMT in Chicago.
+            workDayStartOn: {hour: 9, minute: 0}  # 09:00 in Chicago is 15:00 in GMT
+            workDayEndBefore: {hour: 11, minute: 0}  # 11:00 in Chicago is 17:00 in GMT  # !TODO: Change this to 5pm when I change the samples above
             validFromField: 'from'
             validToField: 'to'
             uniqueIDField: 'id'
@@ -9289,13 +9139,16 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @class functions
   
-  Rules about dependencies
+  Rules about dependencies:
+  
     * If a function can be calculated incrementally from an oldResult and newValues, then you do not need to specify dependencies
     * If a funciton can be calculated from other incrementally calculable results, then you need only specify those dependencies
-    * If a function a full list of values to be calculated (like percentile coverage), then you must specify 'values'
-    * To support the direct passing in of OLAP cube cells, you can provide a prefix (field name) so the key in dependentValues can be generated
+    * If a function needs the full list of values to be calculated (like percentile coverage), then you must specify 'values'
+    * To support the direct passing in of OLAP cube cells, you can provide a prefix (field name) so the key in dependentValues
+      can be generated
     * 'count' is special and does not use a prefix because it is not dependent up a particular field
-    * You should calculate the dependencies before you calculate the thing that is depedent. The OLAP cube does some checking to confirm you've done this.
+    * You should calculate the dependencies before you calculate the thing that is depedent. The OLAP cube does some
+      checking to confirm you've done this.
   */
 
 
@@ -9632,10 +9485,15 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
 
   functions.expandFandAs = function(a) {
     /*
-      @method expandFandAs Takes specifications for functions and expands them to include the actual function and 'as'
+      @method expandFandAs
       @static
       @param {Object} a Will look like this `{as: 'mySum', f: 'sum', field: 'Points'}`
       @return {Object} returns the expanded specification
+    
+      Takes specifications for functions and expands them to include the actual function and 'as'. If you do not provide
+      an 'as' property, it will build it from the field name and function with an underscore between. Also, if the
+      'f' provided is a string, it is copied over to the 'metric' property before the 'f' property is replaced with the
+      actual function. `{field: 'a', f: 'sum'}` would expand to `{as: 'a_sum', field: 'a', metric: 'sum', f: [Function]}`.
     */
 
     var p;
@@ -9679,8 +9537,11 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
       addValuesForCustomFunctions = false;
     }
     /*
-      @method expandMetrics This is called internally by several Lumenize Calculators. You should probably not call it.
+      @method expandMetrics
+      @static
       @private
+    
+      This is called internally by several Lumenize Calculators. You should probably not call it.
     */
 
     confirmMetricAbove = function(m, fieldName, aboveThisIndex) {
@@ -9790,7 +9651,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
 });
 
 require.define("/src/dataTransform.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var Time, aggregationAtArray_To_HighChartsSeries, arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, groupByAtArray_To_HighChartsSeries, snapshotArray_To_AtArray, utils;
+  var Time, arrayOfMaps_To_CSVStyleArray, arrayOfMaps_To_HighChartsSeries, csvStyleArray_To_ArrayOfMaps, utils;
 
   Time = require('./Time').Time;
 
@@ -9903,252 +9764,19 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     return csvStyleArray;
   };
 
-  snapshotArray_To_AtArray = function(snapshotArray, listOfAtCTs, validFromField, uniqueIDField, tz, validToField) {
+  arrayOfMaps_To_HighChartsSeries = function(arrayOfMaps, config) {
     /*
-      @method snapshotArray_To_AtArray
-      @param {Object[]} snapshotArray Array of snapshots
-      @param {Array[]} listOfAtCTs Array of Time objects representing the moments we want the snapshots at
-      @param {String} validFromField Specifies the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
-      @param {String} validToField Same except for the end of the snapshot's active time.
-        Defaults to '_ValidTo' for backward compatibility reasons.
-      @param {String} uniqueIDField Specifies the field that holds the unique ID. Note, no matter the input type, they will come
-         out the other side as Strings. I could fix this if it ever became a problem.
-      @param {String} tz timezone like "America/New_York"
-      @return {Array[]}
-    
-      If you have a list of snapshots representing the changes in a set of work items over time, this function will return the state of
-      each item at each moments of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
-      the values at particular moments in time (the times in listOfAtCTs).
-      
-      Since this transformation is timezone dependent, you'll need to initialize Time with the path to the tz files.
-      Note, that if you use the browserified version of Lumenize, you still need to call setTZPath with some dummy path.
-      I'm hoping to fix this at some point.
-    
-          {snapshotArray_To_AtArray, Time} = require('../')
-    
-      It will convert an snapshotArray like:
-    
-          snapshotArray = [
-            {_ValidFrom: '1999-01-01T12:00:00.000Z', _ValidTo:'2010-01-02T12:00:00.000Z', ObjectID: 0, someColumn: 'some value'},
-            {_ValidFrom: '2011-01-01T12:00:00.000Z', _ValidTo:'2011-01-02T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
-            {_ValidFrom: '2011-01-02T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 2, someColumn: 'some value 2'},      
-            {_ValidFrom: '2011-01-02T12:00:00.000Z', _ValidTo:'2011-01-03T12:00:00.000Z', ObjectID: 3, someColumn: 'some value'},
-            {_ValidFrom: '2011-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
-            {_ValidFrom: '2222-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 99, someColumn: 'some value'},
-          ]
-          
-      And a listOfAtCTs like:
-      
-          listOfAtCTs = [new Time('2011-01-02'), new Time('2011-01-03'), new Time('2011-01-07')]
-          
-      To an atArray with the value of each ObjectID at each of the points in the listOfAtCTs like:
-      
-          a = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, '_ValidFrom', 'ObjectID', 'America/New_York', '_ValidTo')
-          
-          console.log(a)
-      
-          # [ [ { _ValidFrom: '2011-01-01T12:00:00.000Z',
-          #       _ValidTo: '2011-01-02T12:00:00.000Z',
-          #       ObjectID: '1',
-          #       someColumn: 'some value' } ],
-          #   [ { _ValidFrom: '2011-01-02T12:00:00.000Z',
-          #       _ValidTo: '9999-01-01T12:00:00.000Z',
-          #       ObjectID: '2',
-          #       someColumn: 'some value 2' },
-          #     { _ValidFrom: '2011-01-02T12:00:00.000Z',
-          #       _ValidTo: '2011-01-03T12:00:00.000Z',
-          #       ObjectID: '3',
-          #       someColumn: 'some value' } ],
-          #   [ { _ValidFrom: '2011-01-05T12:00:00.000Z',
-          #       _ValidTo: '9999-01-01T12:00:00.000Z',
-          #       ObjectID: '1',
-          #       someColumn: 'some value' },
-          #     { _ValidFrom: '2011-01-02T12:00:00.000Z',
-          #       _ValidTo: '9999-01-01T12:00:00.000Z',
-          #       ObjectID: '2',
-          #       someColumn: 'some value 2' } ] ]
-    */
-
-    var atCT, atLength, atPointer, atRow, atString, atValue, currentAtString, currentRow, currentSnapshot, currentSnapshotValidFrom, d, granularity, index, key, listOfAtStrings, output, outputRow, preOutput, snapshotLength, snapshotPointer, toDelete, uniqueID, validToString, value, _i, _j, _k, _l, _len, _len1, _len2, _len3;
-    if (validToField == null) {
-      validToField = '_ValidTo';
-    }
-    snapshotArray.sort(function(a, b) {
-      if (a[validFromField] > b[validFromField]) {
-        return 1;
-      } else if (a[validFromField] === b[validFromField]) {
-        return 0;
-      } else {
-        return -1;
-      }
-    });
-    atLength = listOfAtCTs.length;
-    snapshotLength = snapshotArray.length;
-    preOutput = [];
-    if (atLength <= 0 || snapshotLength <= 0) {
-      return preOutput;
-    }
-    granularity = listOfAtCTs[0].granularity;
-    atPointer = 0;
-    snapshotPointer = 0;
-    currentSnapshot = snapshotArray[snapshotPointer];
-    currentRow = {};
-    listOfAtStrings = [];
-    for (_i = 0, _len = listOfAtCTs.length; _i < _len; _i++) {
-      atCT = listOfAtCTs[_i];
-      listOfAtStrings.push(atCT.getISOStringInTZ(tz));
-    }
-    currentAtString = listOfAtStrings[atPointer];
-    currentSnapshotValidFrom = currentSnapshot[validFromField];
-    while (snapshotPointer < snapshotLength) {
-      if (currentSnapshotValidFrom >= currentAtString) {
-        preOutput.push(currentRow);
-        currentRow = utils.clone(currentRow);
-        atPointer++;
-        if (atPointer < atLength) {
-          currentAtString = listOfAtStrings[atPointer];
-        } else {
-          break;
-        }
-      } else {
-        if (currentRow[uniqueIDField] == null) {
-          currentRow[currentSnapshot[uniqueIDField]] = {};
-        }
-        for (key in currentSnapshot) {
-          value = currentSnapshot[key];
-          currentRow[currentSnapshot[uniqueIDField]][key] = value;
-        }
-        snapshotPointer++;
-        if (snapshotPointer < snapshotLength) {
-          currentSnapshot = snapshotArray[snapshotPointer];
-          currentSnapshotValidFrom = currentSnapshot[validFromField];
-        } else {
-          while (atPointer < atLength) {
-            preOutput.push(currentRow);
-            atPointer++;
-          }
-        }
-      }
-    }
-    for (index = _j = 0, _len1 = preOutput.length; _j < _len1; index = ++_j) {
-      atRow = preOutput[index];
-      toDelete = [];
-      atString = listOfAtStrings[index];
-      for (uniqueID in atRow) {
-        atValue = atRow[uniqueID];
-        validToString = atValue[validToField];
-        if (validToString < atString) {
-          toDelete.push(uniqueID);
-        }
-      }
-      for (_k = 0, _len2 = toDelete.length; _k < _len2; _k++) {
-        d = toDelete[_k];
-        delete atRow[d];
-      }
-    }
-    output = [];
-    for (_l = 0, _len3 = preOutput.length; _l < _len3; _l++) {
-      atRow = preOutput[_l];
-      outputRow = [];
-      for (key in atRow) {
-        value = atRow[key];
-        value[uniqueIDField] = key;
-        outputRow.push(value);
-      }
-      output.push(outputRow);
-    }
-    return output;
-  };
-
-  groupByAtArray_To_HighChartsSeries = function(groupByAtArray, nameField, valueField, nameFieldValues, returnPreOutput) {
-    var f, groupByRow, name, output, outputRow, perNameValueRow, preOutput, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref;
-    if (returnPreOutput == null) {
-      returnPreOutput = false;
-    }
-    /*
-      @method groupByAtArray_To_HighChartsSeries
-      @param {Array[]} groupByAtArray result of calling groupByAt()
-      @param {String} nameField
-      @param {String} valueField
-      @pararm {String[]} nameFieldValues
-      @param {Boolean} [returnPreOutput] if true, this function returns the map prior to squishing the name into the rows
-      @return {Array/Object}
-    
-      Takes an array of arrays that came from groupByAt and looks like this:
-    
-          {groupByAtArray_To_HighChartsSeries} = require('../')
-    
-          groupByAtArray = [
-            [
-              { 'CFDField': 8, KanbanState: 'Ready to pull' },
-              { 'CFDField': 5, KanbanState: 'In progress' },
-              { 'CFDField': 9, KanbanState: 'Accepted' },
-            ],
-            [
-              { 'CFDField': 2, KanbanState: 'Ready to pull' },
-              { 'CFDField': 3, KanbanState: 'In progress' },
-              { 'CFDField': 17, KanbanState: 'Accepted' },
-            ]
-          ]
-      
-      and optionally a list of nameFieldValues
-      
-          nameFieldValues = ['Ready to pull', 'In progress']  # Note, Accepted is missing
-          
-      and extracts the `valueField` under nameField to give us this
-      
-          console.log(groupByAtArray_To_HighChartsSeries(groupByAtArray, 'KanbanState', 'CFDField', nameFieldValues))
-          # [ { name: 'Ready to pull', data: [ 8, 2 ] },
-          #   { name: 'In progress', data: [ 5, 3 ] } ]
-    */
-
-    preOutput = {};
-    if (nameFieldValues == null) {
-      nameFieldValues = [];
-      _ref = groupByAtArray[0];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        f = _ref[_i];
-        nameFieldValues.push(f[nameField]);
-      }
-    }
-    for (_j = 0, _len1 = groupByAtArray.length; _j < _len1; _j++) {
-      groupByRow = groupByAtArray[_j];
-      for (_k = 0, _len2 = groupByRow.length; _k < _len2; _k++) {
-        perNameValueRow = groupByRow[_k];
-        if (preOutput[perNameValueRow[nameField]] == null) {
-          preOutput[perNameValueRow[nameField]] = [];
-        }
-        preOutput[perNameValueRow[nameField]].push(perNameValueRow[valueField]);
-      }
-    }
-    if (returnPreOutput) {
-      return preOutput;
-    }
-    output = [];
-    for (_l = 0, _len3 = nameFieldValues.length; _l < _len3; _l++) {
-      name = nameFieldValues[_l];
-      outputRow = {
-        name: name,
-        data: preOutput[name]
-      };
-      output.push(outputRow);
-    }
-    return output;
-  };
-
-  aggregationAtArray_To_HighChartsSeries = function(aggregationAtArray, config) {
-    /*
-      @method aggregationAtArray_To_HighChartsSeries
-      @param {Array[]} aggregationAtArray
+      @method arrayOfMaps_To_HighChartsSeries
+      @param {Array[]} arrayOfMaps
       @param {Object} config You can use the same config you used to call aggregateAt() as long as it includes
         your yAxis specifications
       @return {Object[]} in HighCharts form
     
       Takes an array of arrays that came from a call to aggregateAt() and looks like this:
     
-          {aggregationAtArray_To_HighChartsSeries} = require('../')
+          {arrayOfMaps_To_HighChartsSeries} = require('../')
     
-          aggregationAtArray = [
+          arrayOfMaps = [
             {"Series 1": 8, "Series 2": 5, "Series3": 10},
             {"Series 1": 2, "Series 2": 3, "Series3": 20}
           ]
@@ -10162,7 +9790,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
           
       and extracts the data into seperate series
       
-          console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, config))
+          console.log(arrayOfMaps_To_HighChartsSeries(arrayOfMaps, config))
           # [ { name: 'Series 1', data: [ 8, 2 ], yAxis: 1 },
           #   { name: 'Series 2', data: [ 5, 3 ] } ]
           
@@ -10179,8 +9807,8 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     for (_j = 0, _len1 = seriesNames.length; _j < _len1; _j++) {
       s = seriesNames[_j];
       preOutput[s] = [];
-      for (_k = 0, _len2 = aggregationAtArray.length; _k < _len2; _k++) {
-        aggregationRow = aggregationAtArray[_k];
+      for (_k = 0, _len2 = arrayOfMaps.length; _k < _len2; _k++) {
+        aggregationRow = arrayOfMaps[_k];
         preOutput[s].push(aggregationRow[s]);
       }
     }
@@ -10207,11 +9835,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
 
   exports.csvStyleArray_To_ArrayOfMaps = csvStyleArray_To_ArrayOfMaps;
 
-  exports.snapshotArray_To_AtArray = snapshotArray_To_AtArray;
-
-  exports.groupByAtArray_To_HighChartsSeries = groupByAtArray_To_HighChartsSeries;
-
-  exports.aggregationAtArray_To_HighChartsSeries = aggregationAtArray_To_HighChartsSeries;
+  exports.arrayOfMaps_To_HighChartsSeries = arrayOfMaps_To_HighChartsSeries;
 
 }).call(this);
 
@@ -10233,9 +9857,13 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
       @class TransitionsCalculator
     
       Used to accumlate counts and sums about transitions.
-      
-      Usage:
-      
+    
+      Let's say that you want to create a throughput or velocity chart where each column on the chart represents the
+      number of work items that cross over from one state into another state in a given month/week/quarter/etc. You would
+      send a transitions to a temporal data store like Rally's Lookback API specifying both the current values and the
+      previous values. For instance, the work items crossing from "In Progress" to "Completed" could be found
+      with this query clause `"_PreviousValues.ScheduleState": {"$lte": "In Progress"}, "ScheduleState": {"$gt": "In Progress"}`
+    
           {TransitionsCalculator, Time} = require('../')
     
           snapshots = [
@@ -10249,26 +9877,38 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
             { id: 7, from: '2011-02-08T00:00:00.000Z', PlanEstimate: 70 },
           ]
     
+      But that's not the entire story. What if something crosses over into "Completed" and beyond but crosses back. It could
+      do this several times and get counted multiple times. That would be bad. The way we deal with this is to also
+      look for the list of snapshots that pass backwards across the boundary and subract thier impact on the final calculations.
+    
+      One can think of alternative aproaches for avoiding this double counting. You could, for instance, only count the last
+      transition for each unique work item. The problem with this approach is that the backward moving transition might
+      occur in a different time period from the forward moving one. A later snapshot could invalidate an earlier calculation
+      which is bad for incremental calculation and caching. To complicate matters, the field values being summed by the
+      calculator might have changed between subsequent forward/backward transitions. The chosen algorithm is the only way I know to
+      preserve the idempotency and cachable incremental calculation properties.
+    
           snapshotsToSubtract = [
             { id: 1, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 10 },
             { id: 7, from: '2011-02-09T00:00:00.000Z', PlanEstimate: 70 },
           ]
     
-          granularity = Time.MONTH
-          tz = 'America/Chicago'
+      The calculator will keep track of the count of items automatically (think throughput), but if you want to sum up a
+      particular field (think velocity), you can specify that with the 'fieldsToSum' config property.
+    
+          fieldsToSum = ['PlanEstimate']
+    
+      Now let's build our config object.
     
           config =
             asOf: '2011-02-10'  # Leave this off if you want it to continuously update to today
-            granularity: granularity
-            tz: tz
+            granularity: Time.MONTH
+            tz: 'America/Chicago'
             validFromField: 'from'
             validToField: 'to'
             uniqueIDField: 'id'
-            fieldsToSum: ['PlanEstimate']
+            fieldsToSum: fieldsToSum
             asterixToDateTimePeriod: true  # Set to false or leave off if you are going to reformat the timePeriod
-    
-      Note, it will automatically keep track of the count, but you can have it track the sum of any other number field using
-      the `fieldsToSum` configuration property.
     
       In most cases, you'll want to leave off the `asOf` configuration property so the data can be continuously updated
       with new snapshots as they come in. We include it in this example so the output stays stable. If we hadn't, then
@@ -10283,6 +9923,10 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
           console.log(calculator.getResults())
           # [ { timePeriod: '2011-01', count: 5, PlanEstimate: 150 },
           #   { timePeriod: '2011-02*', count: 1, PlanEstimate: 60 } ]
+    
+      The asterix on the last row in the results is to indicate that it is a to-date value. As more snapshots come in, this
+      last row will change. The caching and incremental calcuation capability of this Calculator are designed to take
+      this into account.
     
       Now, let's use the same data but aggregate in granularity of weeks.
     
@@ -10590,8 +10234,12 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       @class TimeSeriesCalculator
       This calculator is used to convert snapshot data into time series aggregations.
     
-      Below is a detailed example. Let's start with a fairly large set of snapshots and create a bunch of series for
-      a burn (up/down) chart.
+      Below are two examples of using the TimeSeriesCalculator. The first is a detailed example showing how you would create
+      a set of single-metric series (line, spline, or column). The second, is an example of creating a set of group-by series
+      (like you would use to create a stacked column or stacked area chart). You can mix and match these on the same chart, but
+      one type (a set of single-metric series versus a single group-by meta-series) typically dominates.
+    
+      Let's start with a fairly large set of snapshots and create a set of series for a burn (up/down) chart.
     
           lumenize = require('../')
           {TimeSeriesCalculator, Time} = lumenize
@@ -10638,9 +10286,13 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
             {as: 'PercentRemaining', f: (row) -> 100 * row.TaskRemainingTotal / row.TaskEstimateTotal }
           ]
     
+      You can have as many of these derived fields as you wish. They are calculated in order to it's OK to use an earlier
+      derived field when calculating a later one.
+    
       Next, we use the native fields in the snapshots, plus our derived field above to calculate most of the chart
       series. Sums and counts are bread and butter, but all Lumenize.functions functions are supported (standardDeviation,
-      median, percentile coverage, etc.)
+      median, percentile coverage, etc.) and Lumenize includes some functions specifically well suited to burn chart
+      calculations (filteredSum, and filteredCount) as we shall now demonstrate.
     
           acceptedValues = ['Accepted', 'Released']
     
@@ -10654,8 +10306,16 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
             {as: 'MedianPercentRemaining', field: 'PercentRemaining', f: 'median'}
           ]
     
+      Let's break this down. The first series uses a `filteredCount` function. What this says is "count the number of items
+      where the ScheduleState is either 'Accepted' or 'Released' and store that in a series named 'StoryCountBurnUp'. The
+      second series is very similar but instead of counting, we are summing the PlanEstimate field and sticking it in
+      the StoryUnitBurnUp series. The next four series are simple sums or counts (no filtering) and the final series
+      is a gratuitous use of the 'median' function least you forget that it can do more than counts and sums.
+    
       Next, we specify the summary metrics for the chart. We're not really interested in displaying any summary metrics for
       this chart but we need to calculate the max values of two of the existing series in order to add the two ideal line series.
+      Notice how the summary metric for TaskUnitBurnDown_max_index uses an earlier summary metric. They are calculated
+      in order and made avalable in the scope of the callback function to enable this.
     
           summaryMetricsConfig = [
             {field: 'TaskUnitScope', f: 'max'},
@@ -10667,7 +10327,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
             }
           ]
     
-      The calculations from the summary metrics above are passed into the calculations for derived fields after summary.
+      The calculations from the summary metrics above are passed into the calculations for 'deriveFieldsAfterSummary'.
       Here is where we calculate two alternatives for the burn down ideal line.
     
           deriveFieldsAfterSummary = [
@@ -10688,6 +10348,12 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
             }
           ]
     
+      The two above series ignore the row values and simply key off of the index and summaryMetrics, but you could have
+      used the row values to, for instance, add two existing series to create a third.
+    
+      Notice how the entire seriesData is available inside of your provided callback. This would allow you to derive a metric
+      off of rows other than the current row like you would for a sliding-window calculation (Shewarts method).
+    
       Just like all Lumenize Calculators, we can set holidays to be knocked out of the results.
     
           holidays = [
@@ -10696,7 +10362,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     
       Let's build the config Object from the above specifications and instantiate the calculator.
     
-          config =  # default workDays
+          config =
             deriveFieldsOnInput: deriveFieldsOnInput
             metrics: metrics
             summaryMetricsConfig: summaryMetricsConfig
@@ -10708,18 +10374,20 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     
           calculator = new TimeSeriesCalculator(config)
     
-      We can now send our snapshots into the calculator. Note, you must specify a startOn and endBefore. If you send in another
-      round of snapshots, the new startOn must match the endBefore of the prior call to addSnapshots(). This is a key to
-      making sure that incremental calculations don't skip or double count anything. You can even send in the same snapshots
-      in a later round and they won't be double counted as long as there are no gaps or overlaps in the time period of coverage as
-      specified by startOn and endBefore. If you restore the calculator from a saved state, the upToDate property will contain
-      the prior endBefore. You can use this to compose a query that gets all of the snapshots necessary for the update. Just
-      query with _ValidTo: {$gte: upToDate}. Note, this will refetch all the snapshots that were still active the last time
-      you updated the calculator. This is expected and necessary.
+      We can now send our snapshots into the calculator.
     
           startOn = new Time('2011-01-02').getISOStringInTZ(config.tz)
           endBefore = new Time('2011-01-10').getISOStringInTZ(config.tz)
           calculator.addSnapshots(snapshots, startOn, endBefore)
+    
+      Note, you must specify a startOn and endBefore. If you send in another round of snapshots, the new startOn must match
+      the endBefore of the prior call to addSnapshots(). This is the key to  making sure that incremental calculations don't
+      skip or double count anything. You can even send in the same snapshots in a later round and they won't be double
+      counted. This idempotency property is also accomplished by the precise startOn (current) endBefore (prior) alignment.
+      If you restore the calculator from a saved state, the upToDate property will contain the prior endBefore. You can use
+      this to compose a query that gets all of the snapshots necessary for the update. Just query with
+      `_ValidTo: {$gte: upToDate}`. Note, this will refetch all the snapshots that were still active the last time
+      you updated the calculator. This is expected and necessary.
     
       Let's print out our results and see what we have.
     
@@ -11175,457 +10843,6 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
   })();
 
   exports.TimeSeriesCalculator = TimeSeriesCalculator;
-
-}).call(this);
-
-});
-
-require.define("/src/aggregate.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var Time, Timeline, TimelineIterator, aggregate, aggregateAt, deriveFieldsAt, functions, groupBy, groupByAt, snapshotArray_To_AtArray, timeSeriesCalculator, timeSeriesGroupByCalculator, utils, _ref,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-
-  utils = require('./utils');
-
-  Time = require('./Time').Time;
-
-  _ref = require('./Timeline'), Timeline = _ref.Timeline, TimelineIterator = _ref.TimelineIterator;
-
-  deriveFieldsAt = require('./derive').deriveFieldsAt;
-
-  snapshotArray_To_AtArray = require('./dataTransform').snapshotArray_To_AtArray;
-
-  functions = require('./functions').functions;
-
-  aggregate = function(list, userConfig) {
-    /*
-      @method aggregate
-      @param {Object[]} list An Array or arbitrary rows
-      @param {Object} config
-      @return {Object}
-    
-      Takes a list like this:
-          
-          {aggregate} = require('../')
-      
-          list = [
-            { ObjectID: '1', KanbanState: 'In progress', PlanEstimate: 5, TaskRemainingTotal: 20 },
-            { ObjectID: '2', KanbanState: 'Ready to pull', PlanEstimate: 3, TaskRemainingTotal: 5 },
-            { ObjectID: '3', KanbanState: 'Ready to pull', PlanEstimate: 5, TaskRemainingTotal: 12 }
-          ]
-          
-      and a list of config like this:
-    
-          config = [
-            {field: 'ObjectID', f: 'count'}
-            {as: 'Drill-down', field:'ObjectID', f:'values'}
-            {field: 'PlanEstimate', f: 'sum'}
-            {as: 'mySum', field: 'PlanEstimate', f: (values) ->
-              temp = 0
-              for v in values
-                temp += v
-              return temp
-            }
-          ]
-          
-      and returns the aggregations like this:
-        
-          a = aggregate(list, config)
-          console.log(a)
-     
-          #   { _count: 3,
-          #     'Drill-down': [ '1', '2', '3' ], 
-          #     PlanEstimate_sum: 13,
-          #     mySum: 13 } 
-          
-      For each aggregation, you must provide a `field` and `f` (function) value. You can optionally 
-      provide an alias for the aggregation with the 'as` field. There are a number of built in functions.
-      
-      Alternatively, you can provide your own function (it takes one parameter, which is an
-      Array of values to aggregate) like the `mySum` example in our `config` list above.
-    */
-
-    var a, as, config, f, output, row, valuesArray, _i, _j, _len, _len1, _ref1;
-    config = utils.clone(userConfig);
-    output = {};
-    for (_i = 0, _len = config.length; _i < _len; _i++) {
-      a = config[_i];
-      valuesArray = [];
-      for (_j = 0, _len1 = list.length; _j < _len1; _j++) {
-        row = list[_j];
-        valuesArray.push(row[a.field]);
-      }
-      _ref1 = functions.expandFandAs(a), f = _ref1.f, as = _ref1.as;
-      output[as] = f(valuesArray);
-    }
-    return output;
-  };
-
-  aggregateAt = function(atArray, userConfig) {
-    /*
-      @method aggregateAt
-      @param {Array[]} atArray
-      @param {Object[]} config
-      @return {Object[]}
-    
-      Each sub-Array in atArray is passed to the `aggregate` function and the results are collected into a single array output.
-      This is essentially a wrapper around the aggregate function so the config parameter is the same. You can think of
-      it as using a `map`.
-    */
-
-    var a, config, idx, output, row, _i, _len;
-    config = utils.clone(userConfig);
-    output = [];
-    for (idx = _i = 0, _len = atArray.length; _i < _len; idx = ++_i) {
-      row = atArray[idx];
-      a = aggregate(row, config);
-      output.push(a);
-    }
-    return output;
-  };
-
-  groupBy = function(list, userConfig) {
-    /*
-      @method groupBy
-      @param {Object[]} list An Array of rows
-      @param {Object} config
-      @return {Object[]}
-    
-      Takes a list like this:
-          
-          {groupBy} = require('../')
-      
-          list = [
-            { ObjectID: '1', KanbanState: 'In progress', PlanEstimate: 5, TaskRemainingTotal: 20 },
-            { ObjectID: '2', KanbanState: 'Ready to pull', PlanEstimate: 3, TaskRemainingTotal: 5 },
-            { ObjectID: '3', KanbanState: 'Ready to pull', PlanEstimate: 5, TaskRemainingTotal: 12 }
-          ]
-          
-      and a config like this:
-    
-          config = {
-            groupBy: 'KanbanState',
-            aggregationConfig: [
-              {field: 'ObjectID', f: 'count'}
-              {as: 'Drill-down', field:'ObjectID', f:'values'}
-              {field: 'PlanEstimate', f: 'sum'}
-              {as: 'mySum', field: 'PlanEstimate', f: (values) ->
-                temp = 0
-                for v in values
-                  temp += v
-                return temp
-              }
-            ]
-          }
-            
-      Returns the aggregations like this:
-        
-          a = groupBy(list, config)
-          console.log(a)
-    
-          #   [ { KanbanState: 'In progress',
-          #       _count: 1,
-          #       'Drill-down': [ '1' ], 
-          #       PlanEstimate_sum: 5,
-          #       mySum: 5 },
-          #     { KanbanState: 'Ready to pull',
-          #       _count: 2,
-          #       'Drill-down': [ '2', '3' ], 
-          #       PlanEstimate_sum: 8,
-          #       mySum: 8 } ]
-          
-      The first element of this specification is the `groupBy` field. This is analagous to
-      the `GROUP BY` column in an SQL expression.
-      
-      Uses the same aggregation functions as the `aggregate` function.
-    */
-
-    var a, as, config, f, groupByValue, grouped, output, outputRow, row, valuesArray, valuesForThisGroup, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2;
-    config = utils.clone(userConfig);
-    grouped = {};
-    for (_i = 0, _len = list.length; _i < _len; _i++) {
-      row = list[_i];
-      if (grouped[row[config.groupBy]] == null) {
-        grouped[row[config.groupBy]] = [];
-      }
-      grouped[row[config.groupBy]].push(row);
-    }
-    output = [];
-    for (groupByValue in grouped) {
-      valuesForThisGroup = grouped[groupByValue];
-      outputRow = {};
-      outputRow[config.groupBy] = groupByValue;
-      _ref1 = config.aggregationConfig;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        a = _ref1[_j];
-        valuesArray = [];
-        for (_k = 0, _len2 = valuesForThisGroup.length; _k < _len2; _k++) {
-          row = valuesForThisGroup[_k];
-          valuesArray.push(row[a.field]);
-        }
-        _ref2 = functions.expandFandAs(a), f = _ref2.f, as = _ref2.as;
-        outputRow[as] = f(valuesArray);
-      }
-      output.push(outputRow);
-    }
-    return output;
-  };
-
-  groupByAt = function(atArray, userConfig) {
-    /*
-      @method groupByAt
-      @param {Array[]} atArray
-      @param {Object} config
-      @return {Array[]}
-    
-      Each row in atArray is passed to the `groupBy` function and the results are collected into a single output.
-      
-      This function also finds all the unique groupBy values in all rows of the output and pads the output with blank/zero rows to cover
-      each unique groupBy value.
-      
-      This is essentially a wrapper around the groupBy function so the config parameter is the same with the addition of the `uniqueValues` field.
-      The ordering specified in `config.uniqueValues` (optional) will be honored. Any additional unique values that aggregateAt finds will be added to
-      the uniqueValues list at the end. This gives you the best of both worlds. The ability to specify the order without the risk of the
-      data containing more values than you originally thought when you created config.uniqueValues.
-      
-      Note: `groupByAt` has the side-effect that `config.uniqueValues` are upgraded with the missing values.
-      You can use this if you want to do more calculations at the calling site.
-    */
-
-    var a, as, blank, config, f, idx, key, newRow, output, row, t, temp, tempGroupBy, tempKey, tempRow, tgb, u, uniqueValues, value, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref1, _ref2;
-    config = utils.clone(userConfig);
-    temp = [];
-    for (idx = _i = 0, _len = atArray.length; _i < _len; idx = ++_i) {
-      row = atArray[idx];
-      tempGroupBy = groupBy(row, config);
-      tempRow = {};
-      for (_j = 0, _len1 = tempGroupBy.length; _j < _len1; _j++) {
-        tgb = tempGroupBy[_j];
-        tempKey = tgb[config.groupBy];
-        delete tgb[config.groupBy];
-        tempRow[tempKey] = tgb;
-      }
-      temp.push(tempRow);
-    }
-    if (config.uniqueValues != null) {
-      uniqueValues = config.uniqueValues;
-    } else {
-      uniqueValues = [];
-    }
-    for (_k = 0, _len2 = temp.length; _k < _len2; _k++) {
-      t = temp[_k];
-      for (key in t) {
-        value = t[key];
-        if (__indexOf.call(uniqueValues, key) < 0) {
-          uniqueValues.push(key);
-        }
-      }
-    }
-    blank = {};
-    _ref1 = config.aggregationConfig;
-    for (_l = 0, _len3 = _ref1.length; _l < _len3; _l++) {
-      a = _ref1[_l];
-      _ref2 = functions.expandFandAs(a), f = _ref2.f, as = _ref2.as;
-      blank[as] = f([]);
-    }
-    output = [];
-    for (_m = 0, _len4 = temp.length; _m < _len4; _m++) {
-      t = temp[_m];
-      row = [];
-      for (_n = 0, _len5 = uniqueValues.length; _n < _len5; _n++) {
-        u = uniqueValues[_n];
-        if (t[u] != null) {
-          t[u][config.groupBy] = u;
-          row.push(t[u]);
-        } else {
-          newRow = utils.clone(blank);
-          newRow[config.groupBy] = u;
-          row.push(newRow);
-        }
-      }
-      output.push(row);
-    }
-    return output;
-  };
-
-  timeSeriesCalculator = function(snapshotArray, userConfig) {
-    /*
-      @method timeSeriesCalculator
-      @param {Object[]} snapshotArray
-      @param {Object} config
-      @return {Object} Returns an Object {listOfAtCTs, aggregationAtArray}
-    
-      Takes an MVCC style `snapshotArray` array and returns the time series calculations `At` each moment specified by
-      the Timeline config (`timelineConfig`) within the config object.
-      
-      This is really just a thin wrapper around various other calculations, so look at the documentation for each of
-      those to get the detail picture of what this timeSeriesCalculator does. The general flow is:
-      
-      1. Use `Timeline.getTimeline()` against `config.timelineConfig` to find the points for the x-axis.
-         The output of this work is a `listOfAtCTs` array.
-      2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
-         The output of this operation is called an `atArray`
-      3. Use `deriveFieldsAt` to add fields in each object in the `atArray` whose values are derived from the other fields in the object.
-      4. Use `aggregateAt` to calculate aggregations into an `aggregationAtArray` which contains chartable values.
-    */
-
-    var aggregationAtArray, atArray, config, listOfAtCTs;
-    config = utils.clone(userConfig);
-    listOfAtCTs = new Timeline(config.timelineConfig).getAll();
-    utils.assert(listOfAtCTs.length > 0, "Timeline has no data points.");
-    atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField);
-    deriveFieldsAt(atArray, config.derivedFields);
-    aggregationAtArray = aggregateAt(atArray, config.aggregationConfig);
-    return {
-      listOfAtCTs: listOfAtCTs,
-      aggregationAtArray: aggregationAtArray
-    };
-  };
-
-  timeSeriesGroupByCalculator = function(snapshotArray, userConfig) {
-    /*
-      @method timeSeriesGroupByCalculator
-      @param {Object[]} snapshotArray
-      @param {Object} config
-      @return {Object} Returns an Object {listOfAtCTs, groupByAtArray, uniqueValues}
-    
-      Takes an MVCC style `snapshotArray` array and returns the data groupedBy a particular field `At` each moment specified by
-      the Timeline config (`timelineConfig`) within the config object.
-      
-      This is really just a thin wrapper around various other calculations, so look at the documentation for each of
-      those to get the detail picture of what this timeSeriesGroupByCalculator does. The general flow is:
-      
-      1. Use `Timeline` and `TimelineIterator` against `config.timelineConfig` to find the points for the x-axis.
-         The output of this work is a `listOfAtCTs` array.
-      2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
-         The output of this operation is called an `atArray`
-      3. Use `groupByAt` to create a `groupByAtArray` of grouped aggregations to chart
-    */
-
-    var aggregationConfig, atArray, config, groupByAtArray, listOfAtCTs;
-    config = utils.clone(userConfig);
-    listOfAtCTs = new Timeline(config.timelineConfig).getAll();
-    utils.assert(listOfAtCTs.length > 0, "Timeline has no data points.");
-    atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField);
-    aggregationConfig = {
-      groupBy: config.groupByField,
-      uniqueValues: utils.clone(config.groupByFieldValues),
-      aggregationConfig: [
-        {
-          as: 'GroupBy',
-          field: config.aggregationField,
-          f: config.aggregationFunction
-        }, {
-          as: 'Count',
-          field: 'ObjectID',
-          f: 'count'
-        }, {
-          as: 'DrillDown',
-          field: 'ObjectID',
-          f: 'push'
-        }
-      ]
-    };
-    groupByAtArray = groupByAt(atArray, aggregationConfig);
-    return {
-      listOfAtCTs: listOfAtCTs,
-      groupByAtArray: groupByAtArray,
-      uniqueValues: utils.clone(aggregationConfig.uniqueValues)
-    };
-  };
-
-  exports.aggregate = aggregate;
-
-  exports.aggregateAt = aggregateAt;
-
-  exports.groupBy = groupBy;
-
-  exports.groupByAt = groupByAt;
-
-  exports.timeSeriesCalculator = timeSeriesCalculator;
-
-  exports.timeSeriesGroupByCalculator = timeSeriesGroupByCalculator;
-
-}).call(this);
-
-});
-
-require.define("/src/derive.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var deriveFields, deriveFieldsAt;
-
-  deriveFields = function(list, config) {
-    /*
-      @method deriveFields
-      @param {Object[]} list
-      @param {Object[]} config
-    
-      This function works on the list in place meaning that it's all side effect.
-    
-      To use this, you must `require` it
-      
-          {deriveFields, deriveFieldsAt} = require('../')
-    
-      Takes a list like:
-    
-          list = [
-            {a: 1, b: 2},
-            {a: 3, b: 4}
-          ]
-          
-      and a list of derivations like:
-      
-          derivations = [
-            {name: 'sum', f: (row) -> row.a + row.b}
-          ]
-      
-      and upgrades the list in place with the derived fields like:
-      
-          deriveFields(list, derivations)
-          
-          console.log(list)
-          # [ { a: 1, b: 2, sum: 3 }, { a: 3, b: 4, sum: 7 } ]
-    
-      Note: the derivations are calculated in order so you can use the output of one derivation as the input to one
-      that appears later in the config list.
-    */
-
-    var d, row, _i, _len, _results;
-    _results = [];
-    for (_i = 0, _len = list.length; _i < _len; _i++) {
-      row = list[_i];
-      _results.push((function() {
-        var _j, _len1, _results1;
-        _results1 = [];
-        for (_j = 0, _len1 = config.length; _j < _len1; _j++) {
-          d = config[_j];
-          _results1.push(row[d.name] = d.f(row));
-        }
-        return _results1;
-      })());
-    }
-    return _results;
-  };
-
-  deriveFieldsAt = function(atArray, config) {
-    /*
-      @method deriveFieldsAt
-      @param {Array[]} atArray
-      @param {Object[]} config
-      @return {Array[]}
-      Sends every sub-array in atArray to deriveFields upgrading the atArray in place.
-    */
-
-    var a, _i, _len, _results;
-    _results = [];
-    for (_i = 0, _len = atArray.length; _i < _len; _i++) {
-      a = atArray[_i];
-      _results.push(deriveFields(a, config));
-    }
-    return _results;
-  };
-
-  exports.deriveFields = deriveFields;
-
-  exports.deriveFieldsAt = deriveFieldsAt;
 
 }).call(this);
 
