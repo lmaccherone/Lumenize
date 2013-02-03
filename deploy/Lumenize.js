@@ -4604,8 +4604,7 @@ All of the above use the mathematical and statistical functions provided by:
 Three transformation functions are provided:
   * Lumenize.arrayOfMaps_To_CSVStyleArray - Used to transform from record to table format
   * Lumenize.csvStyleArray_To_ArrayOfMaps - Used to transform from table to record format
-  * Lumenize.arrayOfMaps_To_HighChartsSeries - Used to transform from record format to the format expected by the
-    HighCharts charting library
+  * Lumenize.arrayOfMaps_To_HighChartsSeries - Used to transform from record format to the format expected by the HighCharts charting library
 
 And last, additional functionality is provided by:
   * Lumenize.histogram - create a histogram of scatter data

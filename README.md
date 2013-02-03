@@ -96,7 +96,7 @@ In November of 2012, Lumenize wanted to start keeping old versions around becaus
     an earlier calculation and restart justfeeding in the updated information. 
   * All this AND significant performance gains.
   
-  Things removed:
+  Things removed and gone forever:
   
   * Removed the concept of an "AtArray" and any functions that used it including 
     deriveFieldsAt, aggregationAtArray_To_HighChartsSeries, 
