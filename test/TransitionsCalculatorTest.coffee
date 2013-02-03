@@ -1,6 +1,5 @@
-lumenize = require('../')
-Time = lumenize.Time
-{TransitionsCalculator} = lumenize
+{Time} = require('tztime')
+{TransitionsCalculator} = require('../')
 
 exports.TransitionsCalculatorTest =
 

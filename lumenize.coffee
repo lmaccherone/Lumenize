@@ -26,12 +26,11 @@ And last, additional functionality is provided by:
   * Lumenize.utils - utility methods used by the rest of Lumenize (type, clone, array/object functions, etc.)
 
 ###
-
-exports.Time = require('./src/Time').Time
-
-Timeline = require('./src/Timeline')
-exports.TimelineIterator = Timeline.TimelineIterator
-exports.Timeline = Timeline.Timeline
+tzTime = require('tztime')
+exports.Time = tzTime.Time
+exports.TimelineIterator = tzTime.TimelineIterator
+exports.Timeline = tzTime.Timeline
+exports.utils = tzTime.utils
 
 exports.iCalculator = require('./src/iCalculator').iCalculator
 exports.TimeInStateCalculator = require('./src/TimeInStateCalculator').TimeInStateCalculator
@@ -48,6 +47,3 @@ exports.functions = require('./src/functions').functions
 exports.histogram = require('./src/histogram').histogram
 
 exports.OLAPCube = require('./src/OLAPCube').OLAPCube
-
-exports.utils = require('./src/utils')
-

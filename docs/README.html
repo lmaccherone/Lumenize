@@ -81,7 +81,7 @@
 <p><a href="http://travis-ci.org/lmaccherone/Lumenize"><img src="https://secure.travis-ci.org/lmaccherone/Lumenize.png" alt="build status"></a>
 </p>
 <h1>Lumenize</h1>
-<p>Copyright (c) 2009-2012, Lawrence S. Maccherone, Jr.
+<p>Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.
 
 </p>
 <p><em>Illuminating the forest AND the trees in your data.</em>
@@ -92,22 +92,20 @@
 </p>
 <h2>Features</h2>
 <ul>
-<li>Create time-series axis for charts<ul>
-<li>Knockout weekends, holidays, non-workhours</li>
-<li>Work with timezone precision</li>
-<li>Work in any granularity<ul>
-<li>Year, quarter, week, day, hour, etc.</li>
-<li>No more recording <code>2012-03-05T00:00:00.000Z</code> when you really just mean <code>2012-03-05</code></li>
-<li>Create and use custom granularities: <code>R02I04-07</code> = Seventh day of fourth iteration in second release</li>
+<li>Fast, light, flexible client-side OLAP Cube with hierarchical rollup support</li>
+<li>Create aggregations from temporal data models like Rally&#39;s Lookback API<ul>
+<li>TimeSeriesCalculator - Show how performance changed over time. Visualize cumulative flow.</li>
+<li>TimeInStateCalculator - Calculate the ratio of wait to touch time. Find 98 percentile
+of lead time to set serice level agreements.</li>
+<li>TransitionsCalculator - Throughput. Velocity. </li>
 </ul>
 </li>
-</ul>
-</li>
-<li>Create aggregations from temporal data models like Rally&#39;s Lookback API</li>
-<li>Tested - Over 300 tests</li>
-<li><a href="http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html">Documented</a> - Robust documentation for an open source library</li>
-<li><a href="https://github.com/lmaccherone/coffeedoctest">DocTested</a> - The examples will always match the code because it fails automated testing
- when they don&#39;t</li>
+<li>Bundled with the <a href="https://github.com/lmaccherone/tzTime">tzTime</a> library (same author) for
+timezone precise x-axis. Knockout weekends, holidays, non-work hours, etc.</li>
+<li>Tested - Over 400 tests (including tzTime)</li>
+<li><a href="http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html">Documented (Lumenize)</a> <a href="http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html">(tzTime)</a> - Robust documentation and examples</li>
+<li><a href="https://github.com/lmaccherone/coffeedoctest">DocTested</a> - The examples will always match 
+the code because it fails automated testing when they don&#39;t</li>
 </ul>
 <h2>Credits</h2>
 <p>Authors:
@@ -121,7 +119,8 @@
 
 </p>
 <ul>
-<li><a href="https://github.com/mde/timezone-js">timezoneJS</a> - library for <a href="http://www.twinsun.com/tz/tz-link.htm">tz file</a> parsing. Although I haven&#39;t touched the actual tz file parsing code, I have modified timezoneJS fairly significantly. The original included a drop-in replacement for JavaScript&#39;s Date object which I have removed. I also modified it to work on node.js and in the browser once &quot;browserified&quot; by bundling the tz files.</li>
+<li><a href="https://github.com/lmaccherone/tzTime">tzTime</a> (by Larry Maccherone with Olson file
+parsing from <a href="https://github.com/mde/timezone-js">timezoneJS</a>)</li>
 </ul>
 <p>Used when developing:
 
@@ -136,7 +135,7 @@
 <li><a href="https://github.com/ryanmcgrath/wrench-js">wrench</a></li>
 <li><a href="https://github.com/chjj/marked">marked</a></li>
 </ul>
-<h2>Using from a browser</h2>
+<h2>Usage in a browser</h2>
 <p>To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
 
 </p>
@@ -146,54 +145,30 @@
 <p>Replace <code>{{version}}</code> with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:
 
 </p>
-<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://raw.github.com/lmaccherone/Lumenize/v0.4.3/deploy/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code>
+<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://raw.github.com/lmaccherone/Lumenize/v0.6.1/deploy/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code>
 
 </p>
-<p>The package is fairly large ~212KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip the package so it&#39;s only ~45KB over the wire.
+<p>The package is fairly large ~204KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip the package so it&#39;s only ~45KB over the wire.
 
 </p>
 <p>Then at the top of the javascript where you want to call it, put the following:
 
 </p>
 <p><code>var lumenize = require(&#39;./lumenize&#39;);</code>
+<code>var stdDev = lumenize.functions.standardDeviation([20, 30, 50]);</code>
 
 </p>
-<p>Then to use it, you can either create local aliases like:
-
-</p>
-<p><code>var Time = lumenize.Time;</code>
-
-</p>
-<p>or you can just use the lumenize namespace:
-
-</p>
-<p><code>var stdDev = lumenize.functions.standardDeviation([20, 30, 50]);</code>
-
-</p>
-<h2>Installation for node.js usage</h2>
+<h2>Usage in node.js</h2>
 <p>To install, run the following from the root folder of your project:
 
 </p>
 <p><code>npm install Lumenize --save</code>
 
 </p>
-<h2>Contributing to Lumenize</h2>
-<p>To contribute to Lumenize:
+<p>Then in your code:
 
 </p>
-<ol>
-<li>Fork Lumenize on GitHub.</li>
-<li>Clone your fork to your local computer.</li>
-<li>Run <code>npm install</code> to install all of the development dependencies.</li>
-<li>Add the relative path <code>./node_modules/.bin/</code> to your PATH. I&#39;ve struggled with various ways to accomplish this on my various computers. On my Mac, I used to modify ~./bash_profile, but I now understand that the best thing to do is to modify <code>/etc/launchd.conf</code> by adding a line like this: <code>setenv PATH /usr/bin:/bin:/usr/sbin:/sbin:./node_modules/.bin/</code>. The beginning part of the line I found by typeing <code>launchctl export</code>. I just added the <code>:./node_modules/.bin/</code>.</li>
-</ol>
-<p>Once you have the above installed/configured, make some awesome modification to Lumenize, add tests for your upgrades, add examples in your docstrings, and make sure all test pass and examples work with:
-
-</p>
-<p><code>cake testall</code>
-
-</p>
-<p>Once you have that all working, submit a pull request on GitHub.
+<p><code>var lumenize = require(&#39;lumenize&#39;)</code>
 
 </p>
 <h2>Documentation and source code</h2>
@@ -208,7 +183,8 @@
 <ul>
 <li><p>0.6.0 - 2013-02-03 <strong>Major backward breaking changes</strong> </p>
 <ul>
-<li>Time and Timeline have been split out to their own package, TZTime</li>
+<li>Time, Timeline, and TimelineIterator have been split out to their own package, 
+<a href="https://github.com/lmaccherone/tzTime">tzTime</a></li>
 <li>Lumenize has been simplfified down to four main classes: TimeSeriesCalculator, 
 TransitionsCalculator, TimeInStateCalculator, and OLAPCube</li>
 <li>There are still a few addional helpers for data transformation and a histogram calculator 

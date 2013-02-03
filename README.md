@@ -9,18 +9,18 @@ Lumenize is a collection of tools for making awesome visualizations out of your 
 
 ## Features ##
 
-* Create time-series axis for charts
-  * Knockout weekends, holidays, non-workhours
-  * Work with timezone precision
-  * Work in any granularity
-    * Year, quarter, week, day, hour, etc.
-    * No more recording `2012-03-05T00:00:00.000Z` when you really just mean `2012-03-05`
-    * Create and use custom granularities: `R02I04-07` = Seventh day of fourth iteration in second release
+* Fast, light, flexible client-side OLAP Cube with hierarchical rollup support
 * Create aggregations from temporal data models like Rally's Lookback API
-* Tested - Over 300 tests
-* [Documented](http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html) - Robust documentation for an open source library
-* [DocTested](https://github.com/lmaccherone/coffeedoctest) - The examples will always match the code because it fails automated testing
-   when they don't
+  * TimeSeriesCalculator - Show how performance changed over time. Visualize cumulative flow.
+  * TimeInStateCalculator - Calculate the ratio of wait to touch time. Find 98 percentile
+    of lead time to set serice level agreements.
+  * TransitionsCalculator - Throughput. Velocity. 
+* Bundled with the [tzTime](https://github.com/lmaccherone/tzTime) library (same author) for
+  timezone precise x-axis. Knockout weekends, holidays, non-work hours, etc.
+* Tested - Over 400 tests (including tzTime)
+* [Documented (Lumenize)](http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html) [(tzTime)](http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html) - Robust documentation and examples
+* [DocTested](https://github.com/lmaccherone/coffeedoctest) - The examples will always match 
+  the code because it fails automated testing when they don't
 
 ## Credits ##
 
@@ -31,7 +31,8 @@ Authors:
 
 Used when running:
 
-* [timezoneJS](https://github.com/mde/timezone-js) - library for [tz file](http://www.twinsun.com/tz/tz-link.htm) parsing. Although I haven't touched the actual tz file parsing code, I have modified timezoneJS fairly significantly. The original included a drop-in replacement for JavaScript's Date object which I have removed. I also modified it to work on node.js and in the browser once "browserified" by bundling the tz files.
+* [tzTime](https://github.com/lmaccherone/tzTime) (by Larry Maccherone with Olson file
+  parsing from [timezoneJS](https://github.com/mde/timezone-js))
 
 Used when developing:
 
@@ -44,7 +45,7 @@ Used when developing:
 * [wrench](https://github.com/ryanmcgrath/wrench-js)
 * [marked](https://github.com/chjj/marked)
 
-## Using from a browser ##
+## Usage in a browser ##
 
 To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
 
@@ -52,42 +53,24 @@ To use in a browser, either host it on your own site, or if your volume is low e
 
 Replace `{{version}}` with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:
 
-`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/v0.4.3/deploy/Lumenize-min.js"></script>`
+`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/v0.6.1/deploy/Lumenize-min.js"></script>`
 
-The package is fairly large ~212KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip the package so it's only ~45KB over the wire.
+The package is fairly large ~204KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip the package so it's only ~45KB over the wire.
 
 Then at the top of the javascript where you want to call it, put the following:
 
 `var lumenize = require('./lumenize');`
-
-Then to use it, you can either create local aliases like:
-
-`var Time = lumenize.Time;`
-
-or you can just use the lumenize namespace:
-
 `var stdDev = lumenize.functions.standardDeviation([20, 30, 50]);`
     
-## Installation for node.js usage ##
+## Usage in node.js ##
 
 To install, run the following from the root folder of your project:
 
 `npm install Lumenize --save`
 
-## Contributing to Lumenize ##
-    
-To contribute to Lumenize:
+Then in your code:
 
-1. Fork Lumenize on GitHub.
-2. Clone your fork to your local computer.
-3. Run `npm install` to install all of the development dependencies.
-4. Add the relative path `./node_modules/.bin/` to your PATH. I've struggled with various ways to accomplish this on my various computers. On my Mac, I used to modify ~./bash_profile, but I now understand that the best thing to do is to modify `/etc/launchd.conf` by adding a line like this: `setenv PATH /usr/bin:/bin:/usr/sbin:/sbin:./node_modules/.bin/`. The beginning part of the line I found by typeing `launchctl export`. I just added the `:./node_modules/.bin/`.
-
-Once you have the above installed/configured, make some awesome modification to Lumenize, add tests for your upgrades, add examples in your docstrings, and make sure all test pass and examples work with:
-
-`cake testall`
-
-Once you have that all working, submit a pull request on GitHub.
+`var lumenize = require('lumenize')`
 
 ## Documentation and source code ##
 
@@ -99,7 +82,8 @@ Once you have that all working, submit a pull request on GitHub.
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
 * 0.6.0 - 2013-02-03 **Major backward breaking changes** 
-  * Time and Timeline have been split out to their own package, TZTime
+  * Time, Timeline, and TimelineIterator have been split out to their own package, 
+    [tzTime](https://github.com/lmaccherone/tzTime)
   * Lumenize has been simplfified down to four main classes: TimeSeriesCalculator, 
     TransitionsCalculator, TimeInStateCalculator, and OLAPCube
   * There are still a few addional helpers for data transformation and a histogram calculator 

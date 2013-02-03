@@ -1,6 +1,5 @@
-Time = require('./Time').Time
-utils = require('./utils')
-    
+{utils, Time} = require('tztime')
+
 csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
   ###
   @method csvStyleArray_To_ArrayOfMaps

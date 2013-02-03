@@ -1,6 +1,6 @@
 OLAPCube = require('../src/OLAPCube').OLAPCube
 {csvStyleArray_To_ArrayOfMaps} = require('../')
-utils = require('../src/utils')
+{utils} = require('tztime')
 
 ###
 Test to-do

@@ -4614,15 +4614,17 @@ And last, additional functionality is provided by:
 
 
 (function() {
-  var Timeline, datatransform;
+  var datatransform, tzTime;
 
-  exports.Time = require('./src/Time').Time;
+  tzTime = require('tztime');
 
-  Timeline = require('./src/Timeline');
+  exports.Time = tzTime.Time;
 
-  exports.TimelineIterator = Timeline.TimelineIterator;
+  exports.TimelineIterator = tzTime.TimelineIterator;
 
-  exports.Timeline = Timeline.Timeline;
+  exports.Timeline = tzTime.Timeline;
+
+  exports.utils = tzTime.utils;
 
   exports.iCalculator = require('./src/iCalculator').iCalculator;
 
@@ -4646,13 +4648,130 @@ And last, additional functionality is provided by:
 
   exports.OLAPCube = require('./src/OLAPCube').OLAPCube;
 
+}).call(this);
+
+});
+
+require.define("/node_modules/tztime/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./tzTime"}
+});
+
+require.define("/node_modules/tztime/tzTime.coffee",function(require,module,exports,__dirname,__filename,process,global){
+/*
+# tzTime #
+
+_Timezone transformations in the browser and node.js plus timezone precise timeline creation for charting._
+
+## Features ##
+
+* Transform into any (and I mean any) timezone
+* Generate the values for time series chart axis
+* Knockout weekends and holidays (TimelineIterator)
+* Knockout non-work hours (TimelineIterator)
+* Work with precision around timezone differences
+* Month is 1-indexed (rather than 0-indexed like Javascript's Date object)
+* Date/Time math (add 3 months, subtract 2 weeks, etc.)
+* Work with ISO-8601 formatted strings (called 'ISOString' in this library)
+   * Added: Quarter form (e.g. 2012Q3 equates to 2012-07-01)
+   * Not supported: Ordinal form (e.g. 2012-001 for 2012-01-01, 2011-365 for 2012-12-31) not supported
+* Allows for custom granularities like release/iteration/iteration_day
+* Tested
+* Documented
+
+## Granularity ##
+
+Each Time object has a granularity. This means that you never have to
+worry about any bits lower than your specified granularity. A day has only
+year, month, and day segments. You are never tempted to specify 11:59pm
+to specify the end of a day-long timebox.
+
+Time supports the following granularities:
+
+* `year`
+    * `month`
+        * `day`
+            * `hour`
+               * `minute`
+                   * `second`
+                       * `millisecond`
+    * `quarter` (but not quarter_month, day, etc.)
+    * `week` (ISO-8601 style week numbering)
+       * `week_day` (Monday = 1, Sunday = 7)
+
+Also, you can define your own custom hierarchical granularities, for example...
+
+* `release`
+   * `iteration`
+      * `iteration_day`
+
+## Timezone precision ##
+
+It's very hard to do filtering and grouping of time-series data with timezone precision.
+
+For instance, 11pm in California on December 25 (Christmas holiday) is 2am December 26 (not a holiday)
+in New York. This also happens to be 7am December 26 GMT. If you have an event that occurs at
+2011-12-26T07:00:00.000Z, then you need to decide what timezone to use as your context before you
+decide if that event occured on Christmas day or not. It's not just holidays where this can burn you.
+Deciding if a piece of work finished in one time range versus another can make a difference for
+you metrics. The time range metrics for a distributed team should look the same regardless
+of whether those metrics were generated in New York versus Los Angeles... versus Bangalore.
+
+The javascript Date object lets you work in either the local time or Zulu (GMT/UTC) time but it doesn't let you
+control the timezone. Do you know the correct way to apply the timezone shift to a JavaScript Date Object?
+Do you know when Daylight Savings Time kicks in and New York is 4 hours shifted from GMT instead of 5? Will
+you remember to do it perfectly every time it's needed in your code?
+
+If you need this precision, Time helps by clearly delineating the moment when you need to do
+timezone manipulation... the moment you need to compare/query timestamped data. You can do all of your
+holiday/weekend knockout manipulation without regard to timezone and only consider the timezone
+upon query submission or comparison.
+
+## Month is 1-indexed as you would expect ##
+
+Javascript's date object uses 0 for January and 11 for December. Time uses 1 for January and 12 for December...
+which is what ISO-8601 uses and what humans expect. Everyone who works with the javascript Date Object at one
+point or another gets burned by this.
+
+## Week support ##
+
+Time follows ISO-8601 week support where ever it makes sense. Implications of using this ISO format (paraphrased
+info from wikipedia):
+
+* All weeks have 7 days (i.e. there are no fractional weeks).
+* Any given day falls into a single week which means that incrementing across the year boundary in week
+  granularity is without gaps or repeats.
+* Weeks are contained within a single year. (i.e. weeks are never spit over two years).
+* The above two implications also mean that we have to warp the boundaries of the year to accomplish this. In week
+  granularity dates may appear in a different year than you would expect and some years have 53 weeks.
+* The date directly tells the weekday.
+* All years start with a Monday and end with a Sunday.
+* Dates represented as yyyyWww-d can be sorted as strings.
+
+**In general, it just greatly simplifies the use of week granularity in a chart situation.**
+
+The only real downside to this approach is that USA folks expect the week to start on Sunday. However, the ISO-8601 spec starts
+each week on Monday. Following ISO-8601, Time uses 1 for Monday and 7 for Sunday which aligns with
+the US standard for every day except Sunday. The US standard is to use 0 for Sunday.
+*/
+
+
+(function() {
+  var Timeline;
+
+  exports.Time = require('./src/Time').Time;
+
+  Timeline = require('./src/Timeline');
+
+  exports.TimelineIterator = Timeline.TimelineIterator;
+
+  exports.Timeline = Timeline.Timeline;
+
   exports.utils = require('./src/utils');
 
 }).call(this);
 
 });
 
-require.define("/src/Time.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+require.define("/node_modules/tztime/src/Time.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
   var Time, timezoneJS, utils,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -4663,100 +4782,7 @@ require.define("/src/Time.coffee",function(require,module,exports,__dirname,__fi
   Time = (function() {
     /*
       @class Time
-      # Time #
-      
-      _Time axis creation/manipulation for charts_
-      
-      ## Features ##
-      
-      * Generate the values for time series chart axis
-      * Knockout weekends and holidays (TimelineIterator)
-      * Knockout non-work hours (TimelineIterator)
-      * Work with precision around timezone differences
-      * Month is 1-indexed (rather than 0-indexed like Javascript's Date object)
-      * Date/Time math (add 3 months, subtract 2 weeks, etc.)
-      * Work with ISO-8601 formatted strings (called 'ISOString' in this library)
-         * Added: Quarter form (e.g. 2012Q3 equates to 2012-07-01)
-         * Not supported: Ordinal form (e.g. 2012-001 for 2012-01-01, 2011-365 for 2012-12-31) not supported
-      * Allows for custom granularities like release/iteration/iteration_day
-      * Tested
-      * Documented
-      
-      ## Granularity ##
-      
-      Each Time object has a granularity. This means that you never have to
-      worry about any bits lower than your specified granularity. A day has only
-      year, month, and day segments. You are never tempted to specify 11:59pm
-      to specify the end of a day-long timebox.
-      
-      Time supports the following granularities:
-      
-      * `year`
-          * `month`
-              * `day`
-                  * `hour`
-                     * `minute`
-                         * `second`
-                             * `millisecond`
-          * `quarter` (but not quarter_month, day, etc.)
-          * `week` (ISO-8601 style week numbering)
-             * `week_day` (Monday = 1, Sunday = 7)
-      
-      Also, you can define your own custom hierarchical granularities, for example...
-      
-      * `release`
-         * `iteration`
-            * `iteration_day`
-        
-      ## Timezone precision ##
-      
-      It's very hard to do filtering and grouping of time-series data with timezone precision. 
-      
-      For instance, 11pm in California on December 25 (Christmas holiday) is 2am December 26 (not a holiday)
-      in New York. This also happens to be 7am December 26 GMT. If you have an event that occurs at 
-      2011-12-26T07:00:00.000Z, then you need to decide what timezone to use as your context before you 
-      decide if that event occured on Christmas day or not. It's not just holidays where this can burn you.
-      Deciding if a piece of work finished in one time range versus another can make a difference for
-      you metrics. The time range metrics for a distributed team should look the same regardless
-      of whether those metrics were generated in New York versus Los Angeles... versus Bangalore.
-      
-      The javascript Date object lets you work in either the local time or Zulu (GMT/UTC) time but it doesn't let you
-      control the timezone. Do you know the correct way to apply the timezone shift to a JavaScript Date Object? 
-      Do you know when Daylight Savings Time kicks in and New York is 4 hours shifted from GMT instead of 5? Will
-      you remember to do it perfectly every time it's needed in your code?
-      
-      If you need this precision, Time helps by clearly delineating the moment when you need to do
-      timezone manipulation... the moment you need to compare/query timestamped data. You can do all of your
-      holiday/weekend knockout manipulation without regard to timezone and only consider the timezone
-      upon query submission or comparison.
-      
-      ## Month is 1-indexed as you would expect ##
-      
-      Javascript's date object uses 0 for January and 11 for December. Time uses 1 for January and 12 for December...
-      which is what ISO-8601 uses and what humans expect. Everyone who works with the javascript Date Object at one
-      point or another gets burned by this.
-      
-      ## Week support ##
-      
-      Time follows ISO-8601 week support where ever it makes sense. Implications of using this ISO format (paraphrased
-      info from wikipedia):
-      
-      * All weeks have 7 days (i.e. there are no fractional weeks).
-      * Any given day falls into a single week which means that incrementing across the year boundary in week
-        granularity is without gaps or repeats.
-      * Weeks are contained within a single year. (i.e. weeks are never spit over two years).
-      * The above two implications also mean that we have to warp the boundaries of the year to accomplish this. In week
-        granularity dates may appear in a different year than you would expect and some years have 53 weeks.
-      * The date directly tells the weekday.
-      * All years start with a Monday and end with a Sunday.
-      * Dates represented as yyyyWww-d can be sorted as strings.
-      
-      **In general, it just greatly simplifies the use of week granularity in a chart situation.**
-      
-      The only real downside to this approach is that USA folks expect the week to start on Sunday. However, the ISO-8601 spec starts
-      each week on Monday. Following ISO-8601, Time uses 1 for Monday and 7 for Sunday which aligns with
-      the US standard for every day except Sunday. The US standard is to use 0 for Sunday.
-      
+    
       ## Basic usage ##
       
           {TimelineIterator, Timeline, Time} = require('../')
@@ -4838,13 +4864,10 @@ require.define("/src/Time.coffee",function(require,module,exports,__dirname,__fi
           
       ## Timezones ##
       
-      Time does timezone sensitive conversions. You must set the path to the tz files before doing any timezone sensitive comparisons.
-      Note, if you are using one of the pre-packaged Lumenize.js or Lumenize-min.js, then you can supply any string in this call. It will
-      ignore what you provide and load the time zone data from the files included in the package. We would like to remove the requirement
-      for this initialization when running one of these packages, but for now, you still need the dummy call.
+      Time does timezone sensitive conversions.
       
-          console.log(new Time('2011-01-01').getJSDate('America/Denver').toUTCString())
-          # Sat, 01 Jan 2011 07:00:00 GMT
+          console.log(new Time('2011-01-01').getJSDate('America/Denver').toISOString())
+          # 2011-01-01T07:00:00.000Z
     */
 
     var g, spec, _ref;
@@ -6264,7 +6287,7 @@ require.define("/src/Time.coffee",function(require,module,exports,__dirname,__fi
 
 });
 
-require.define("/src/utils.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+require.define("/node_modules/tztime/src/utils.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
   var AssertException, ErrorBase, assert, clone, exactMatch, filterMatch, isArray, keys, match, startsWith, trim, type, values,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -6478,7 +6501,7 @@ require.define("/src/utils.coffee",function(require,module,exports,__dirname,__f
 
 });
 
-require.define("/src/timezone-js.js",function(require,module,exports,__dirname,__filename,process,global){/*
+require.define("/node_modules/tztime/src/timezone-js.js",function(require,module,exports,__dirname,__filename,process,global){/*
  * Copyright 2010 Matthew Eernisse (mde@fleegix.org)
  * and Open Source Applications Foundation
  *
@@ -7087,7 +7110,7 @@ require.define("fs",function(require,module,exports,__dirname,__filename,process
 
 });
 
-require.define("/src/Timeline.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+require.define("/node_modules/tztime/src/Timeline.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
   var Time, Timeline, TimelineIterator, timezoneJS, utils,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -7916,15 +7939,11 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
 });
 
 require.define("/src/TimeInStateCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var OLAPCube, Time, TimeInStateCalculator, Timeline, utils;
-
-  utils = require('./utils');
+  var OLAPCube, Time, TimeInStateCalculator, Timeline, utils, _ref;
 
   OLAPCube = require('./OLAPCube').OLAPCube;
 
-  Timeline = require('./Timeline').Timeline;
-
-  Time = require('./Time').Time;
+  _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time, Timeline = _ref.Timeline;
 
   TimeInStateCalculator = (function() {
     /*
@@ -8056,7 +8075,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
           @cfg {String[]} [trackLastValueForTheseFields] If provided, the last value of these fields will be tracked.
       */
 
-      var cubeConfig, dimensions, fieldName, metricObject, metrics, _i, _len, _ref;
+      var cubeConfig, dimensions, fieldName, metricObject, metrics, _i, _len, _ref1;
       this.config = utils.clone(config);
       if (this.config.validFromField == null) {
         this.config.validFromField = "_ValidFrom";
@@ -8082,9 +8101,9 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
         }
       ];
       if (this.config.trackLastValueForTheseFields != null) {
-        _ref = this.config.trackLastValueForTheseFields;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          fieldName = _ref[_i];
+        _ref1 = this.config.trackLastValueForTheseFields;
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          fieldName = _ref1[_i];
           metricObject = {
             f: 'lastValue',
             field: fieldName
@@ -8138,7 +8157,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
           @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
       */
 
-      var cell, fieldName, filter, id, out, outRow, uniqueIDs, _i, _j, _len, _len1, _ref;
+      var cell, fieldName, filter, id, out, outRow, uniqueIDs, _i, _j, _len, _len1, _ref1;
       out = [];
       uniqueIDs = this.cube.getDimensionValues(this.config.uniqueIDField);
       for (_i = 0, _len = uniqueIDs.length; _i < _len; _i++) {
@@ -8150,9 +8169,9 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
         outRow[this.config.uniqueIDField] = id;
         outRow.ticks = cell.ticks;
         if (this.config.trackLastValueForTheseFields != null) {
-          _ref = this.config.trackLastValueForTheseFields;
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            fieldName = _ref[_j];
+          _ref1 = this.config.trackLastValueForTheseFields;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            fieldName = _ref1[_j];
             outRow[fieldName + '_lastValue'] = cell[fieldName + '_lastValue'];
           }
         }
@@ -8219,7 +8238,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
 require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
   var OLAPCube, arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, functions, utils, _ref;
 
-  utils = require('./utils');
+  utils = require('tztime').utils;
 
   functions = require('./functions').functions;
 
@@ -9134,7 +9153,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
 require.define("/src/functions.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
   var functions, utils, _populateDependentValues;
 
-  utils = require('./utils');
+  utils = require('tztime').utils;
 
   /*
   @class functions
@@ -9651,11 +9670,9 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
 });
 
 require.define("/src/dataTransform.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var Time, arrayOfMaps_To_CSVStyleArray, arrayOfMaps_To_HighChartsSeries, csvStyleArray_To_ArrayOfMaps, utils;
+  var Time, arrayOfMaps_To_CSVStyleArray, arrayOfMaps_To_HighChartsSeries, csvStyleArray_To_ArrayOfMaps, utils, _ref;
 
-  Time = require('./Time').Time;
-
-  utils = require('./utils');
+  _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time;
 
   csvStyleArray_To_ArrayOfMaps = function(csvStyleArray, rowKeys) {
     /*
@@ -9737,7 +9754,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
       `
     */
 
-    var csvStyleArray, inRow, key, outRow, value, _i, _j, _len, _len1, _ref;
+    var csvStyleArray, inRow, key, outRow, value, _i, _j, _len, _len1, _ref1;
     if (arrayOfMaps.length === 0) {
       return [];
     }
@@ -9745,9 +9762,9 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     outRow = [];
     if (keys == null) {
       keys = [];
-      _ref = arrayOfMaps[0];
-      for (key in _ref) {
-        value = _ref[key];
+      _ref1 = arrayOfMaps[0];
+      for (key in _ref1) {
+        value = _ref1[key];
         keys.push(key);
       }
     }
@@ -9842,15 +9859,11 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
 });
 
 require.define("/src/TransitionsCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var OLAPCube, Time, Timeline, TransitionsCalculator, utils;
-
-  utils = require('./utils');
+  var OLAPCube, Time, Timeline, TransitionsCalculator, utils, _ref;
 
   OLAPCube = require('./OLAPCube').OLAPCube;
 
-  Timeline = require('./Timeline').Timeline;
-
-  Time = require('./Time').Time;
+  _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time, Timeline = _ref.Timeline;
 
   TransitionsCalculator = (function() {
     /*
@@ -9972,7 +9985,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
           @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
       */
 
-      var cubeConfig, dimensions, f, metrics, _i, _len, _ref, _ref1;
+      var cubeConfig, dimensions, f, metrics, _i, _len, _ref1, _ref2;
       this.config = utils.clone(config);
       if (this.config.validFromField == null) {
         this.config.validFromField = "_ValidFrom";
@@ -9991,7 +10004,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
       }
       utils.assert(this.config.tz != null, "Must provide a timezone to this calculator.");
       utils.assert(this.config.granularity != null, "Must provide a granularity to this calculator.");
-      if ((_ref = this.config.granularity) === Time.HOUR || _ref === Time.MINUTE || _ref === Time.SECOND || _ref === Time.MILLISECOND) {
+      if ((_ref1 = this.config.granularity) === Time.HOUR || _ref1 === Time.MINUTE || _ref1 === Time.SECOND || _ref1 === Time.MILLISECOND) {
         throw new Error("Transitions calculator is not designed to work on granularities finer than 'day'");
       }
       dimensions = [
@@ -10005,9 +10018,9 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
           f: 'sum'
         }
       ];
-      _ref1 = this.config.fieldsToSum;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        f = _ref1[_i];
+      _ref2 = this.config.fieldsToSum;
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        f = _ref2[_i];
         metrics.push({
           field: f,
           f: 'sum'
@@ -10066,7 +10079,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
     };
 
     TransitionsCalculator.prototype._filterSnapshots = function(snapshots, sign) {
-      var f, filteredSnapshots, fs, s, _i, _j, _len, _len1, _ref;
+      var f, filteredSnapshots, fs, s, _i, _j, _len, _len1, _ref1;
       if (sign == null) {
         sign = 1;
       }
@@ -10083,9 +10096,9 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
           fs = utils.clone(s);
           fs.count = sign * 1;
           fs.timePeriod = new Time(s[this.config.validFromField], this.config.granularity, this.config.tz).toString();
-          _ref = this.config.fieldsToSum;
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            f = _ref[_j];
+          _ref1 = this.config.fieldsToSum;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            f = _ref1[_j];
             fs[f] = sign * s[f];
           }
           filteredSnapshots.push(fs);
@@ -10101,7 +10114,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
           @return {Object[]} Returns an Array of Maps like `{timePeriod: '2012-12', count: 10, otherField: 34}`
       */
 
-      var cell, config, f, filter, out, outRow, t, timeLine, timePeriods, tp, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
+      var cell, config, f, filter, out, outRow, t, timeLine, timePeriods, tp, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2;
       if (this.virgin) {
         return [];
       }
@@ -10114,11 +10127,11 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
       };
       timeLine = new Timeline(config);
       timePeriods = (function() {
-        var _i, _len, _ref, _results;
-        _ref = timeLine.getAllRaw();
+        var _i, _len, _ref1, _results;
+        _ref1 = timeLine.getAllRaw();
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          t = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          t = _ref1[_i];
           _results.push(t.toString());
         }
         return _results;
@@ -10133,16 +10146,16 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
         outRow.timePeriod = tp;
         if (cell != null) {
           outRow.count = cell.count_sum;
-          _ref = this.config.fieldsToSum;
-          for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-            f = _ref[_j];
+          _ref1 = this.config.fieldsToSum;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            f = _ref1[_j];
             outRow[f] = cell[f + '_sum'];
           }
         } else {
           outRow.count = 0;
-          _ref1 = this.config.fieldsToSum;
-          for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-            f = _ref1[_k];
+          _ref2 = this.config.fieldsToSum;
+          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+            f = _ref2[_k];
             outRow[f] = 0;
           }
         }
@@ -10216,16 +10229,12 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
 });
 
 require.define("/src/TimeSeriesCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var OLAPCube, Time, TimeSeriesCalculator, Timeline, functions, utils,
+  var OLAPCube, Time, TimeSeriesCalculator, Timeline, functions, utils, _ref,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-
-  utils = require('./utils');
 
   OLAPCube = require('./OLAPCube').OLAPCube;
 
-  Timeline = require('./Timeline').Timeline;
-
-  Time = require('./Time').Time;
+  _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time, Timeline = _ref.Timeline;
 
   functions = require('./functions').functions;
 
@@ -10468,7 +10477,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
             limiting the calculator to only emit ticks before this
       */
 
-      var a, dimensions, f, field, fieldsMap, filterValue, filteredCountCreator, filteredSumCreator, inputCubeDimensions, inputCubeMetrics, labelTimeline, labels, m, newMetrics, row, tick, ticksUnshifted, timeline, timelineConfig, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
+      var a, dimensions, f, field, fieldsMap, filterValue, filteredCountCreator, filteredSumCreator, inputCubeDimensions, inputCubeMetrics, labelTimeline, labels, m, newMetrics, row, tick, ticksUnshifted, timeline, timelineConfig, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
       this.config = utils.clone(config);
       if (this.config.validFromField == null) {
         this.config.validFromField = "_ValidFrom";
@@ -10482,16 +10491,16 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       utils.assert(this.config.tz != null, "Must provide a timezone to this calculator.");
       utils.assert(this.config.granularity != null, "Must provide a granularity to this calculator.");
       newMetrics = [];
-      _ref = this.config.metrics;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        a = _ref[_i];
-        if ((_ref1 = a.f) === 'groupBySum' || _ref1 === 'groupByCount') {
+      _ref1 = this.config.metrics;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        a = _ref1[_i];
+        if ((_ref2 = a.f) === 'groupBySum' || _ref2 === 'groupByCount') {
           if (a.prefix == null) {
             a.prefix = '';
           }
-          _ref2 = a.allowedValues;
-          for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-            filterValue = _ref2[_j];
+          _ref3 = a.allowedValues;
+          for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+            filterValue = _ref3[_j];
             row = {
               as: a.prefix + filterValue,
               filterField: a.groupByField,
@@ -10513,8 +10522,8 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       filteredCountCreator = function(filterField, filterValues) {
         var f;
         f = function(row) {
-          var _ref3;
-          if (_ref3 = row[filterField], __indexOf.call(filterValues, _ref3) >= 0) {
+          var _ref4;
+          if (_ref4 = row[filterField], __indexOf.call(filterValues, _ref4) >= 0) {
             return 1;
           } else {
             return 0;
@@ -10525,8 +10534,8 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       filteredSumCreator = function(field, filterField, filterValues) {
         var f;
         f = function(row) {
-          var _ref3;
-          if (_ref3 = row[filterField], __indexOf.call(filterValues, _ref3) >= 0) {
+          var _ref4;
+          if (_ref4 = row[filterField], __indexOf.call(filterValues, _ref4) >= 0) {
             return row[field];
           } else {
             return 0;
@@ -10534,10 +10543,10 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         };
         return f;
       };
-      _ref3 = this.config.metrics;
-      for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
-        a = _ref3[_k];
-        if ((_ref4 = a.f) === 'filteredCount' || _ref4 === 'filteredSum') {
+      _ref4 = this.config.metrics;
+      for (_k = 0, _len2 = _ref4.length; _k < _len2; _k++) {
+        a = _ref4[_k];
+        if ((_ref5 = a.f) === 'filteredCount' || _ref5 === 'filteredSum') {
           if (a.f === 'filteredCount') {
             f = filteredCountCreator(a.filterField, a.filterValues);
           } else {
@@ -10565,9 +10574,9 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         }
       ];
       fieldsMap = {};
-      _ref5 = this.config.metrics;
-      for (_l = 0, _len3 = _ref5.length; _l < _len3; _l++) {
-        m = _ref5[_l];
+      _ref6 = this.config.metrics;
+      for (_l = 0, _len3 = _ref6.length; _l < _len3; _l++) {
+        m = _ref6[_l];
         if (m.field != null) {
           fieldsMap[m.field] = true;
         }
@@ -10600,9 +10609,9 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       this.cube = new OLAPCube(this.cubeConfig);
       this.upToDateISOString = null;
       if (this.config.summaryMetricsConfig != null) {
-        _ref6 = this.config.summaryMetricsConfig;
-        for (_m = 0, _len4 = _ref6.length; _m < _len4; _m++) {
-          m = _ref6[_m];
+        _ref7 = this.config.summaryMetricsConfig;
+        for (_m = 0, _len4 = _ref7.length; _m < _len4; _m++) {
+          m = _ref7[_m];
           functions.expandFandAs(m);
         }
       }
@@ -10714,16 +10723,16 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
       */
 
-      var cell, d, foundFirstNullCell, index, m, row, s, seriesData, summaryMetric, summaryMetrics, t, tickIndex, ticks, toDateCell, toDateCube, values, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _m, _n, _o, _ref, _ref1, _ref2, _ref3;
+      var cell, d, foundFirstNullCell, index, m, row, s, seriesData, summaryMetric, summaryMetrics, t, tickIndex, ticks, toDateCell, toDateCube, values, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _m, _n, _o, _ref1, _ref2, _ref3, _ref4;
       if (this.allTicks != null) {
         ticks = this.allTicks;
       } else {
         ticks = this.cube.getDimensionValues('tick');
       }
       if (this.toDateSnapshots != null) {
-        _ref = this.toDateSnapshots;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          s = _ref[_i];
+        _ref1 = this.toDateSnapshots;
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          s = _ref1[_i];
           s.tick = 'To Date';
         }
         toDateCube = new OLAPCube(this.toDateCubeConfig, this.toDateSnapshots);
@@ -10742,9 +10751,9 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         } else {
           if (foundFirstNullCell || !(this.toDateSnapshots != null)) {
             cell = {};
-            _ref1 = this.config.metrics;
-            for (_k = 0, _len2 = _ref1.length; _k < _len2; _k++) {
-              m = _ref1[_k];
+            _ref2 = this.config.metrics;
+            for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+              m = _ref2[_k];
               cell[m.as] = null;
             }
           } else {
@@ -10762,9 +10771,9 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       }
       if (this.config.summaryMetricsConfig != null) {
         summaryMetrics = {};
-        _ref2 = this.config.summaryMetricsConfig;
-        for (_l = 0, _len3 = _ref2.length; _l < _len3; _l++) {
-          summaryMetric = _ref2[_l];
+        _ref3 = this.config.summaryMetricsConfig;
+        for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+          summaryMetric = _ref3[_l];
           if (summaryMetric.field != null) {
             values = [];
             for (_m = 0, _len4 = seriesData.length; _m < _len4; _m++) {
@@ -10780,9 +10789,9 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       if (this.config.deriveFieldsAfterSummary != null) {
         for (index = _n = 0, _len5 = seriesData.length; _n < _len5; index = ++_n) {
           row = seriesData[index];
-          _ref3 = this.config.deriveFieldsAfterSummary;
-          for (_o = 0, _len6 = _ref3.length; _o < _len6; _o++) {
-            d = _ref3[_o];
+          _ref4 = this.config.deriveFieldsAfterSummary;
+          for (_o = 0, _len6 = _ref4.length; _o < _len6; _o++) {
+            d = _ref4[_o];
             row[d.as] = d.f(row, index, summaryMetrics, seriesData);
           }
         }

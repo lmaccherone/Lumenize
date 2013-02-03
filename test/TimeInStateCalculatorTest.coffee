@@ -1,5 +1,6 @@
 lumenize = require('../')
 {TimeInStateCalculator} = lumenize
+{Time} = require('tztime')
 
 exports.TimeInStateCalculatorTest =
 
@@ -16,7 +17,7 @@ exports.TimeInStateCalculatorTest =
       { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: '7.0' }  # continues past the range of consideration in this test
     ]
     
-    granularity = lumenize.Time.MINUTE
+    granularity = Time.MINUTE
     tz = 'America/Chicago'
     
     config =    # default work days and holidays

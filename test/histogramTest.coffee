@@ -1,7 +1,6 @@
 lumenize = require('../')
 {histogram} = lumenize
-utils = require('../src/utils')
-
+{utils} = require('tztime')
 
 exports.histogramTest =
 

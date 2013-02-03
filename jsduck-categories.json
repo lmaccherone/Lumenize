@@ -3,13 +3,13 @@
         "name": "Lumenize",
         "groups": [
             {
-                "name": "Overview, Data Transform, and Histogram",
+                "name": "Overview, Transform, and Histogram",
                 "classes": [
                     "Lumenize"
                 ]
             },
             {
-                "name": "Primary Classes and Functions",
+                "name": "Primary Classes",
                 "classes": [
                     "*.TimeSeriesCalculator",
                     "*.TimeInStateCalculator",
@@ -21,14 +21,6 @@
                 "name": "Supporting Functions",
                 "classes": [
                     "*.functions"
-                ]
-            },
-            {
-                "name": "Supporting Classes",
-                "classes": [
-                    "*.Time",
-                    "*.Timeline",
-                    "*.TimelineIterator"
                 ]
             }
         ]

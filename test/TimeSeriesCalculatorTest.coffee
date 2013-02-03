@@ -1,5 +1,5 @@
-lumenize = require('../')
-{TimeSeriesCalculator, Time, utils} = lumenize
+{TimeSeriesCalculator, csvStyleArray_To_ArrayOfMaps, arrayOfMaps_To_CSVStyleArray} = require('../')
+{Time, utils} = require('tztime')
 
 snapshotsCSV = [
   ["ObjectID", "_ValidFrom",               "_ValidTo",                 "ScheduleState", "PlanEstimate", "TaskRemainingTotal", "TaskEstimateTotal"],
@@ -36,13 +36,13 @@ snapshotsCSV = [
   # Note: ObjectID 5 deleted
 ]
 
-snapshots = lumenize.csvStyleArray_To_ArrayOfMaps(snapshotsCSV)
+snapshots = csvStyleArray_To_ArrayOfMaps(snapshotsCSV)
 
 exports.TimeSeriesCalculator =
 
   testBasic: (test) ->
 
-    granularity = lumenize.Time.DAY
+    granularity = Time.DAY
     tz = 'America/Chicago'
     holidays = [
       {year: 2011, month: 1, day: 5}  # Made up holiday to test knockout
@@ -205,7 +205,7 @@ exports.TimeSeriesCalculator =
 
   testIncremental: (test) ->
 
-    granularity = lumenize.Time.DAY
+    granularity = Time.DAY
     tz = 'America/Chicago'
     holidays = [
       {year: 2011, month: 1, day: 5}  # Made up holiday to test knockout
@@ -279,7 +279,7 @@ exports.TimeSeriesCalculator =
 
     config =  # default workDays
       metrics: metrics
-      granularity: lumenize.Time.DAY
+      granularity: Time.DAY
       tz: 'America/Chicago'
       holidays: holidays
       workDays: 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday' # They work on Sundays
@@ -323,7 +323,7 @@ exports.TimeSeriesCalculator =
 
     config =  # default workDays
       metrics: metrics
-      granularity: lumenize.Time.DAY
+      granularity: Time.DAY
       tz: 'America/Chicago'
       holidays: holidays
       workDays: 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday' # They work on Sundays
@@ -336,7 +336,7 @@ exports.TimeSeriesCalculator =
 
     keys = ['label'].concat(allowedValues)
 
-    csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
+    csv = arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
 
     expected = [
       [ '2011-01-02', 5, 0, 0, 0, 0 ],
@@ -350,7 +350,7 @@ exports.TimeSeriesCalculator =
 
     keys = ['label'].concat('Count ' + a for a in allowedValues)
 
-    csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
+    csv = arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
 
     expected = [
       [ '2011-01-02', 1, 0, 0, 0, 0 ],

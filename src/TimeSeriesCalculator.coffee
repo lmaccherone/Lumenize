@@ -1,10 +1,8 @@
 # !TODO: Add drill-down support with uniqueIDField or maybe keepFacts = true
 # !TODO: Add support for projection series that will actually add ticks to the timeline
 
-utils = require('./utils')
 OLAPCube = require('./OLAPCube').OLAPCube
-Timeline = require('./Timeline').Timeline
-Time = require('./Time').Time
+{utils, Time, Timeline} = require('tztime')
 functions = require('./functions').functions
 
 class TimeSeriesCalculator # implements iCalculator
