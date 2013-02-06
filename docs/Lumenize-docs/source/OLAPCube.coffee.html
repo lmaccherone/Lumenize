@@ -198,6 +198,42 @@ class OLAPCube
    * fixed/named level hierachies whereas the reverse is not true. In the clothing example above, you would simply key
    * your dimension off of a derived field that was a combination of the SEX and TYPE columns (e.g. ['mens', 'pants'])
    * 
+   * ## Date/Time hierarchies ##
+   * 
+   * Lumenize is designed to work well with the tzTime library. Here is an example of taking a bunch of ISOString data
+   * and doing timezone precise hierarchical roll up based upon the date segments (year, month).
+   * 
+   *     data = [
+   *       {date: '2011-12-31T12:34:56.789Z', value: 10},
+   *       {date: '2012-01-05T12:34:56.789Z', value: 20},
+   *       {date: '2012-01-15T12:34:56.789Z', value: 30},
+   *       {date: '2012-02-01T00:00:01.000Z', value: 40},
+   *       {date: '2012-02-15T12:34:56.789Z', value: 50},
+   *     ]
+   * 
+   *     {Time} = require('../')
+   * 
+   *     config =
+   *       deriveFieldsOnInput: [{
+   *         field: 'dateSegments',
+   *         f: (row) -&gt;
+   *           return new Time(row.date, Time.MONTH, 'America/New_York').getSegmentsAsArray()
+   *       }]
+   *       metrics: [{field: 'value', f: 'sum'}]
+   *       dimensions: [{field: 'dateSegments', type: 'hierarchy'}]
+   * 
+   *     cube = new OLAPCube(config, data)
+   *     console.log(cube.toString(undefined, undefined, 'value_sum'))
+   *     #    dateSegments                  value_sum
+   *     #            2011                         10
+   *     #         2011,12                         10
+   *     #            2012                        140
+   *     #          2012,1                         90
+   *     #          2012,2                         50
+   * 
+   * Notice how '2012-02-01T00:00:01.000Z' got bucketed in January because the calculation was done in timezone
+   * 'America/New_York'.
+   * 
    * ## Non-hierarchical Array fields ##
    * 
    * If you don't specify type: 'hierarchy' and the OLAPCube sees a field whose value is an Array in a dimension field, the

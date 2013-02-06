@@ -459,7 +459,7 @@ class TimeSeriesCalculator # implements iCalculator
       ticks = @cube.getDimensionValues('tick')
 
     # Calculate metrics for @toDateSnapshots
-    if @toDateSnapshots?
+    if @toDateSnapshots? and @toDateSnapshots.length &gt; 0
       for s in @toDateSnapshots
         s.tick = 'To Date'
       toDateCube = new OLAPCube(@toDateCubeConfig, @toDateSnapshots)
@@ -474,7 +474,7 @@ class TimeSeriesCalculator # implements iCalculator
       if cell?
         delete cell._count
       else
-        if foundFirstNullCell or ! @toDateSnapshots?
+        if foundFirstNullCell or ! @toDateSnapshots? or ! toDateCell?
           cell = {}
           for m in @config.metrics
             cell[m.as] = null

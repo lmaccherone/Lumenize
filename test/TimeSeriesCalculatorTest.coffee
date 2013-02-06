@@ -363,3 +363,35 @@ exports.TimeSeriesCalculator =
     test.deepEqual(csv.slice(1), expected)
 
     test.done()
+
+  testSmall: (test) ->  # Duplicates the error in Issue #10
+
+    granularity = Time.DAY
+    tz = 'America/Chicago'
+
+    metrics = [
+      {as: 'StoryUnitScope', field: 'PlanEstimate', f: 'sum'},
+    ]
+
+    config =  # default workDays
+      metrics: metrics
+      granularity: granularity
+      tz: tz
+
+    calculator = new TimeSeriesCalculator(config)
+    startOn = new Time('2011-01-03').getISOStringInTZ(tz)
+    endBefore = new Time('2011-01-10').getISOStringInTZ(tz)
+
+    oneRowOfSnapshots = snapshots.slice(7, 8)
+    calculator.addSnapshots(oneRowOfSnapshots, startOn, endBefore)
+    expected = [
+      {
+        tick: '2011-01-04T06:00:00.000Z',
+        StoryUnitScope: 5,
+        label: '2011-01-04'
+      }
+    ]
+    test.deepEqual(calculator.getResults().seriesData, expected)
+
+    test.done()
+

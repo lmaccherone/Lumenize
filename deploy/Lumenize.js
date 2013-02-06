@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.6.1
+Lumenize version: 0.6.2
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -9284,22 +9284,24 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
           @cfg {String} [validToField = "_ValidTo"]
           @cfg {String} [uniqueIDField = "ObjectID"]
           @cfg {String} granularity This calculator will tell you how many ticks fall within the snapshots you feed in.
-             This configuration value indicates the granularity of the ticks (i.e. Time.MINUTE, Time.HOUR, Time.DAY, etc.)
+            This configuration value indicates the granularity of the ticks (i.e. Time.MINUTE, Time.HOUR, Time.DAY, etc.)
           @cfg {String[]/String} [workDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']] List of days of the week that you work on. You can specify this as an Array of Strings
-             (['Monday', 'Tuesday', ...]) or a single comma seperated String ("Monday,Tuesday,...").
+            (['Monday', 'Tuesday', ...]) or a single comma seperated String ("Monday,Tuesday,...").
           @cfg {Object[]} [holidays] An optional Array containing rows that are either ISOStrings or JavaScript Objects
             (mix and match). Example: `[{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, "2012-12-24"]`
              Notice how you can leave off the year if the holiday falls on the same day every year.
           @cfg {Object} [workDayStartOn] An optional object in the form {hour: 8, minute: 15}. If minute is zero it can be omitted.
-             If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
-             hours span midnight. If tickGranularity is "hour" or finer, you probably want to set this; if tickGranularity is
-             "day" or coarser, probably not.
+            If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
+            hours span midnight. If tickGranularity is "hour" or finer, you probably want to set this; if tickGranularity is
+            "day" or coarser, probably not.
           @cfg {Object} [workDayEndBefore] An optional object in the form {hour: 17, minute: 0}. If minute is zero it can be omitted.
-             The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
-             Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
-             than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
-             the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
-          @cfg {String[]} [trackLastValueForTheseFields] If provided, the last value of these fields will be tracked.
+            The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
+            Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
+            than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
+            the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
+          @cfg {String[]} [trackLastValueForTheseFields] If provided, the last value of these fields will appear in the results.
+             This is useful if you want to filter the result by where the ended or if you want information to fill in the tooltip
+             for a chart.
       */
 
       var cubeConfig, dimensions, fieldName, metricObject, metrics, _i, _len, _ref1;
@@ -9644,6 +9646,42 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       However, the approach used by this OLAPCube implementaion is the more general case, because it can easily simulate
       fixed/named level hierachies whereas the reverse is not true. In the clothing example above, you would simply key
       your dimension off of a derived field that was a combination of the SEX and TYPE columns (e.g. ['mens', 'pants'])
+    
+      ## Date/Time hierarchies ##
+    
+      Lumenize is designed to work well with the tzTime library. Here is an example of taking a bunch of ISOString data
+      and doing timezone precise hierarchical roll up based upon the date segments (year, month).
+    
+          data = [
+            {date: '2011-12-31T12:34:56.789Z', value: 10},
+            {date: '2012-01-05T12:34:56.789Z', value: 20},
+            {date: '2012-01-15T12:34:56.789Z', value: 30},
+            {date: '2012-02-01T00:00:01.000Z', value: 40},
+            {date: '2012-02-15T12:34:56.789Z', value: 50},
+          ]
+    
+          {Time} = require('../')
+    
+          config =
+            deriveFieldsOnInput: [{
+              field: 'dateSegments',
+              f: (row) ->
+                return new Time(row.date, Time.MONTH, 'America/New_York').getSegmentsAsArray()
+            }]
+            metrics: [{field: 'value', f: 'sum'}]
+            dimensions: [{field: 'dateSegments', type: 'hierarchy'}]
+    
+          cube = new OLAPCube(config, data)
+          console.log(cube.toString(undefined, undefined, 'value_sum'))
+          #    dateSegments                  value_sum
+          #            2011                         10
+          #         2011,12                         10
+          #            2012                        140
+          #          2012,1                         90
+          #          2012,2                         50
+    
+      Notice how '2012-02-01T00:00:01.000Z' got bucketed in January because the calculation was done in timezone
+      'America/New_York'.
     
       ## Non-hierarchical Array fields ##
     
@@ -11956,7 +11994,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       } else {
         ticks = this.cube.getDimensionValues('tick');
       }
-      if (this.toDateSnapshots != null) {
+      if ((this.toDateSnapshots != null) && this.toDateSnapshots.length > 0) {
         _ref1 = this.toDateSnapshots;
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
           s = _ref1[_i];
@@ -11976,7 +12014,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         if (cell != null) {
           delete cell._count;
         } else {
-          if (foundFirstNullCell || !(this.toDateSnapshots != null)) {
+          if (foundFirstNullCell || !(this.toDateSnapshots != null) || !(toDateCell != null)) {
             cell = {};
             _ref2 = this.config.metrics;
             for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {

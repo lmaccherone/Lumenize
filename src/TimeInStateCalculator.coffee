@@ -118,22 +118,25 @@ class TimeInStateCalculator # implements iCalculator
     @cfg {String} [validToField = "_ValidTo"]
     @cfg {String} [uniqueIDField = "ObjectID"]
     @cfg {String} granularity This calculator will tell you how many ticks fall within the snapshots you feed in.
-       This configuration value indicates the granularity of the ticks (i.e. Time.MINUTE, Time.HOUR, Time.DAY, etc.)
+      This configuration value indicates the granularity of the ticks (i.e. Time.MINUTE, Time.HOUR, Time.DAY, etc.)
     @cfg {String[]/String} [workDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']] List of days of the week that you work on. You can specify this as an Array of Strings
-       (['Monday', 'Tuesday', ...]) or a single comma seperated String ("Monday,Tuesday,...").
+      (['Monday', 'Tuesday', ...]) or a single comma seperated String ("Monday,Tuesday,...").
     @cfg {Object[]} [holidays] An optional Array containing rows that are either ISOStrings or JavaScript Objects
       (mix and match). Example: `[{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, "2012-12-24"]`
        Notice how you can leave off the year if the holiday falls on the same day every year.
     @cfg {Object} [workDayStartOn] An optional object in the form {hour: 8, minute: 15}. If minute is zero it can be omitted.
-       If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
-       hours span midnight. If tickGranularity is "hour" or finer, you probably want to set this; if tickGranularity is
-       "day" or coarser, probably not.
+      If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
+      hours span midnight. If tickGranularity is "hour" or finer, you probably want to set this; if tickGranularity is
+      "day" or coarser, probably not.
     @cfg {Object} [workDayEndBefore] An optional object in the form {hour: 17, minute: 0}. If minute is zero it can be omitted.
-       The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
-       Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
-       than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
-       the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
-    @cfg {String[]} [trackLastValueForTheseFields] If provided, the last value of these fields will be tracked.
+      The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
+      Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
+      than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
+      the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
+    @cfg {String[]} [trackLastValueForTheseFields] If provided, the last value of these fields will appear in the results.
+       This is useful if you want to filter the result by where the ended or if you want information to fill in the tooltip
+       for a chart.
+
     ###
     @config = utils.clone(config)
     # Assert that the configuration object is self-consistent and required parameters are present
