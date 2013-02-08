@@ -215,6 +215,8 @@ parsing from <a href="https://github.com/mde/timezone-js">timezoneJS</a>)</li>
 
 </p>
 <ul>
+<li>0.6.4 - 2013-02-08 - Fixed bug where Friday current will double count Friday in labels by 
+adding a tick on Saturday. Now it advances all the way to Sunday night.</li>
 <li>0.6.3 - 2013-02-07 - Updated to tzTime 0.6.4 (potentially backward breaking to those who 
 were incorrectly instantiating Time objects from an ISOString without providing a timezone)
 Also, changed the way TimeSeriesCalculator takes into account the start so it works as

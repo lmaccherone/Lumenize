@@ -222,7 +222,8 @@ class TimeSeriesCalculator # implements iCalculator
       #   [ '2011-01-03', 10, 8, 0, 0, 0 ],
       #   [ '2011-01-04', 7, 0, 8, 5, 0 ],
       #   [ '2011-01-06', 2, 5, 5, 3, 5 ],
-      #   [ '2011-01-07', 0, 0, 5, 5, 8 ] ]
+      #   [ '2011-01-07', 0, 0, 5, 5, 8 ],
+      #   [ '2011-01-09', 0, 0, 5, 5, 8 ] ]
 
   Here is the output of the count metrics
 
@@ -234,7 +235,8 @@ class TimeSeriesCalculator # implements iCalculator
       #   [ '2011-01-03', 2, 2, 0, 0, 0 ],
       #   [ '2011-01-04', 2, 0, 2, 1, 0 ],
       #   [ '2011-01-06', 1, 1, 1, 1, 1 ],
-      #   [ '2011-01-07', 0, 0, 1, 1, 2 ] ]
+      #   [ '2011-01-07', 0, 0, 1, 1, 2 ],
+      #   [ '2011-01-09', 0, 0, 1, 1, 2 ] ]
 
   We didn't output the MedianTaskRemainingTotal metric but it's in there. I included it to demonstrate that you can
   calculate non-group-by series along side group-by series.
@@ -343,7 +345,7 @@ class TimeSeriesCalculator # implements iCalculator
 
     @config.metrics = newMetrics
 
-    filteredCountCreator = (filterField, filterValues) ->
+    filteredCountCreator = (filterField, filterValues) ->  # !TODO: Change this and the one below to strings with eval so they can be serialized and deserialized
       f = (row) ->
         if row[filterField] in filterValues then return 1 else return 0
       return f
@@ -435,11 +437,21 @@ class TimeSeriesCalculator # implements iCalculator
     ###
     if @upToDateISOString?
       utils.assert(@upToDateISOString == startOnISOString, "startOnISOString (#{startOnISOString}) parameter should equal upToDateISOString of previous call (#{@upToDateISOString}) to addSnapshots.")
+
     @upToDateISOString = upToDateISOString
+
+    advanceOneTimelineConfig = utils.clone(@config)
+    advanceOneTimelineConfig.startOn = new Time(upToDateISOString, @config.granularity, @config.tz)
+    delete advanceOneTimelineConfig.endBefore
+    advanceOneTimelineConfig.limit = 2
+    advanceOneTimeline = new Timeline(advanceOneTimelineConfig)
+    advanceOneTimelineIterator = advanceOneTimeline.getIterator()
+    advanceOneTimelineIterator.next()
+    endBeforeTime = advanceOneTimelineIterator.next()
+
     timelineConfig = utils.clone(@config)
 
     startOnTime = new Time(startOnISOString, @config.granularity, @config.tz)
-    endBeforeTime = new Time(upToDateISOString, @config.granularity, @config.tz).addInPlace(1)  # !TODO: I'm not sure it is sufficient to add 1. What if that takes us to a weekend? We may need to advance on the timeline to the next tick
 
     if startOnTime.greaterThan(@masterStartOnTime)
       timelineConfig.startOn = startOnTime
@@ -483,7 +495,7 @@ class TimeSeriesCalculator # implements iCalculator
     @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
     ###
 
-    ticks = utils._.keys(@tickToLabelLookup)
+    ticks = utils._.keys(@tickToLabelLookup).sort()
 
     # Calculate metrics for @toDateSnapshots
     if @toDateSnapshots? and @toDateSnapshots.length > 0

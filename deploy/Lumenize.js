@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.6.3
+Lumenize version: 0.6.4
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -11764,7 +11764,8 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           #   [ '2011-01-03', 10, 8, 0, 0, 0 ],
           #   [ '2011-01-04', 7, 0, 8, 5, 0 ],
           #   [ '2011-01-06', 2, 5, 5, 3, 5 ],
-          #   [ '2011-01-07', 0, 0, 5, 5, 8 ] ]
+          #   [ '2011-01-07', 0, 0, 5, 5, 8 ],
+          #   [ '2011-01-09', 0, 0, 5, 5, 8 ] ]
     
       Here is the output of the count metrics
     
@@ -11776,7 +11777,8 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           #   [ '2011-01-03', 2, 2, 0, 0, 0 ],
           #   [ '2011-01-04', 2, 0, 2, 1, 0 ],
           #   [ '2011-01-06', 1, 1, 1, 1, 1 ],
-          #   [ '2011-01-07', 0, 0, 1, 1, 2 ] ]
+          #   [ '2011-01-07', 0, 0, 1, 1, 2 ],
+          #   [ '2011-01-09', 0, 0, 1, 1, 2 ] ]
     
       We didn't output the MedianTaskRemainingTotal metric but it's in there. I included it to demonstrate that you can
       calculate non-group-by series along side group-by series.
@@ -12020,14 +12022,21 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           @return {TimeInStateCalculator}
       */
 
-      var endBeforeTime, inputCube, s, startOnTime, ticks, timeline, timelineConfig, tl, validSnapshots, _i, _j, _k, _len, _len1, _len2;
+      var advanceOneTimeline, advanceOneTimelineConfig, advanceOneTimelineIterator, endBeforeTime, inputCube, s, startOnTime, ticks, timeline, timelineConfig, tl, validSnapshots, _i, _j, _k, _len, _len1, _len2;
       if (this.upToDateISOString != null) {
         utils.assert(this.upToDateISOString === startOnISOString, "startOnISOString (" + startOnISOString + ") parameter should equal upToDateISOString of previous call (" + this.upToDateISOString + ") to addSnapshots.");
       }
       this.upToDateISOString = upToDateISOString;
+      advanceOneTimelineConfig = utils.clone(this.config);
+      advanceOneTimelineConfig.startOn = new Time(upToDateISOString, this.config.granularity, this.config.tz);
+      delete advanceOneTimelineConfig.endBefore;
+      advanceOneTimelineConfig.limit = 2;
+      advanceOneTimeline = new Timeline(advanceOneTimelineConfig);
+      advanceOneTimelineIterator = advanceOneTimeline.getIterator();
+      advanceOneTimelineIterator.next();
+      endBeforeTime = advanceOneTimelineIterator.next();
       timelineConfig = utils.clone(this.config);
       startOnTime = new Time(startOnISOString, this.config.granularity, this.config.tz);
-      endBeforeTime = new Time(upToDateISOString, this.config.granularity, this.config.tz).addInPlace(1);
       if (startOnTime.greaterThan(this.masterStartOnTime)) {
         timelineConfig.startOn = startOnTime;
       } else {
@@ -12077,7 +12086,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       */
 
       var cell, d, foundFirstNullCell, index, m, row, s, seriesData, summaryMetric, summaryMetrics, t, tickIndex, ticks, toDateCell, toDateCube, values, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _m, _n, _o, _ref1, _ref2, _ref3, _ref4;
-      ticks = utils._.keys(this.tickToLabelLookup);
+      ticks = utils._.keys(this.tickToLabelLookup).sort();
       if ((this.toDateSnapshots != null) && this.toDateSnapshots.length > 0) {
         _ref1 = this.toDateSnapshots;
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
