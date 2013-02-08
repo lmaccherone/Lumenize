@@ -215,7 +215,11 @@ parsing from <a href="https://github.com/mde/timezone-js">timezoneJS</a>)</li>
 
 </p>
 <ul>
-<li>0.6.1 - 2013-02-06 - Close issue #10</li>
+<li>0.6.3 - 2013-02-07 - Updated to tzTime 0.6.3 (potentially backward breaking to those who 
+were incorrectly instantiating Time objects from an ISOString without providing a timezone)
+Also, changed the way TimeSeriesCalculator takes into account the start so it works as
+expected if it falls on a weekend. This is also potentially backward breaking.</li>
+<li>0.6.2 - 2013-02-06 - Close issue #10</li>
 <li>0.6.1 - 2013-02-03 - Updated to the laster version of tzTime 0.6.2</li>
 <li><p>0.6.0 - 2013-02-03 <strong>Major backward breaking changes</strong> </p>
 <ul>

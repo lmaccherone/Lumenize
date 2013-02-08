@@ -112,25 +112,13 @@ exports.TimeSeriesCalculator =
 
     calculator = new TimeSeriesCalculator(config)
 
-    startOn = new Time('2011-01-01').getISOStringInTZ(tz)
-    endBefore = new Time('2011-01-09').getISOStringInTZ(tz)
+    startOnISOString = new Time('2011-01-01').getISOStringInTZ(tz)
+    upToDateISOString = new Time('2011-01-09').getISOStringInTZ(tz)
 
-    calculator.addSnapshots(snapshots, startOn, endBefore)
+    calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
 
     expected = {
       "seriesData": [
-        {
-          "tick": "2011-01-02T06:00:00.000Z",
-          "StoryUnitScope": 5,
-          "StoryCountScope": 1,
-          "StoryCountBurnUp": 0,
-          "StoryUnitBurnUp": 0,
-          "TaskUnitBurnDown": 15,
-          "TaskUnitScope": 15,
-          "label": "2011-01-02",
-          "Ideal": 51,
-          "Ideal2": null
-        },
         {
           "tick": "2011-01-03T06:00:00.000Z",
           "StoryUnitScope": 13,
@@ -139,8 +127,8 @@ exports.TimeSeriesCalculator =
           "StoryUnitBurnUp": 0,
           "TaskUnitBurnDown": 37,
           "TaskUnitScope": 32,
-          "label": "2011-01-03",
-          "Ideal": 40.79,
+          "label": "2011-01-02",
+          "Ideal": 51,
           "Ideal2": null
         },
         {
@@ -151,8 +139,8 @@ exports.TimeSeriesCalculator =
           "StoryUnitBurnUp": 0,
           "TaskUnitBurnDown": 44,
           "TaskUnitScope": 47,
-          "label": "2011-01-04",
-          "Ideal": 30.6,
+          "label": "2011-01-03",
+          "Ideal": 40.79,
           "Ideal2": 44
         },
         {
@@ -163,9 +151,9 @@ exports.TimeSeriesCalculator =
           "StoryUnitBurnUp": 5,
           "TaskUnitBurnDown": 25,
           "TaskUnitScope": 51,
-          "label": "2011-01-06",
-          "Ideal": 20.4,
-          "Ideal2": 29.33
+          "label": "2011-01-04",
+          "Ideal": 30.6,
+          "Ideal2": 33
         },
         {
           "tick": "2011-01-07T06:00:00.000Z",
@@ -175,12 +163,24 @@ exports.TimeSeriesCalculator =
           "StoryUnitBurnUp": 8,
           "TaskUnitBurnDown": 16,
           "TaskUnitScope": 51,
-          "label": "2011-01-07",
-          "Ideal": 10.2,
-          "Ideal2": 14.66
+          "label": "2011-01-06",
+          "Ideal": 20.4,
+          "Ideal2": 22
         },
         {
           "tick": "2011-01-09T06:00:00.000Z",
+          "StoryUnitScope": 18,
+          "StoryCountScope": 4,
+          "StoryCountBurnUp": 3,
+          "StoryUnitBurnUp": 13,
+          "TaskUnitBurnDown": 3,
+          "TaskUnitScope": 47,
+          "label": "2011-01-07",
+          "Ideal": 10.2,
+          "Ideal2": 11
+        },
+        {
+          "tick": "2011-01-10T06:00:00.000Z",
           "StoryUnitScope": 18,
           "StoryCountScope": 4,
           "StoryCountBurnUp": 3,
@@ -195,7 +195,7 @@ exports.TimeSeriesCalculator =
       "summaryMetrics": {
         "TaskUnitScope_max": 51,
         "TaskUnitBurnDown_max": 44,
-        "TaskUnitBurnDown_max_index": 2
+        "TaskUnitBurnDown_max_index": 1
       }
     }
 
@@ -246,19 +246,19 @@ exports.TimeSeriesCalculator =
     config2 = utils.clone(config)
 
     calculator = new TimeSeriesCalculator(config)
-    startOn = new Time('2011-01-03').getISOStringInTZ(tz)
-    endBefore = new Time('2011-01-10').getISOStringInTZ(tz)
-    calculator.addSnapshots(snapshots, startOn, endBefore)
+    startOnISOString = new Time('2011-01-03').getISOStringInTZ(tz)
+    upToDateISOString = new Time('2011-01-10').getISOStringInTZ(tz)
+    calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
 
     calculator2 = new TimeSeriesCalculator(config2)
 
-    startOn = new Time('2011-01-03').getISOStringInTZ(tz)
-    endBefore = new Time('2011-01-05').getISOStringInTZ(tz)
-    calculator2.addSnapshots(snapshots.slice(0, 9), startOn, endBefore)
+    startOnISOString = new Time('2011-01-03').getISOStringInTZ(tz)
+    upToDateISOString = new Time('2011-01-05').getISOStringInTZ(tz)
+    calculator2.addSnapshots(snapshots.slice(0, 9), startOnISOString, upToDateISOString)
 
-    startOn = endBefore
-    endBefore = new Time('2011-01-10').getISOStringInTZ(tz)
-    calculator2.addSnapshots(snapshots.slice(5), startOn, endBefore)
+    startOnISOString = upToDateISOString
+    upToDateISOString = new Time('2011-01-10').getISOStringInTZ(tz)
+    calculator2.addSnapshots(snapshots.slice(5), startOnISOString, upToDateISOString)
 
     test.deepEqual(calculator.getResults(), calculator2.getResults())
 
@@ -286,19 +286,19 @@ exports.TimeSeriesCalculator =
 
     calculator = new TimeSeriesCalculator(config)
 
-    startOn = new Time('2011-01-01').getISOStringInTZ(config.tz)
-    endBefore = new Time('2011-01-09').getISOStringInTZ(config.tz)
+    startOnISOString = new Time('2011-01-01').getISOStringInTZ(config.tz)
+    upToDateISOString = new Time('2011-01-09').getISOStringInTZ(config.tz)
 
-    calculator.addSnapshots(snapshots, startOn, endBefore)
+    calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
 
     expected = {
       seriesData: [
-        {tick: '2011-01-02T06:00:00.000Z', StoryCountBurnUp: 0, StoryUnitBurnUp: 0, label: '2011-01-02'},
-        {tick: '2011-01-03T06:00:00.000Z', StoryCountBurnUp: 0, StoryUnitBurnUp: 0, label: '2011-01-03'},
-        {tick: '2011-01-04T06:00:00.000Z', StoryCountBurnUp: 0, StoryUnitBurnUp: 0, label: '2011-01-04'},
-        {tick: '2011-01-06T06:00:00.000Z', StoryCountBurnUp: 1, StoryUnitBurnUp: 5, label: '2011-01-06'},
-        {tick: '2011-01-07T06:00:00.000Z', StoryCountBurnUp: 2, StoryUnitBurnUp: 8, label: '2011-01-07'},
-        {tick: '2011-01-09T06:00:00.000Z', StoryCountBurnUp: 3, StoryUnitBurnUp: 13, label: '2011-01-09'}
+        {tick: '2011-01-03T06:00:00.000Z', StoryCountBurnUp: 0, StoryUnitBurnUp: 0, label: '2011-01-02'},
+        {tick: '2011-01-04T06:00:00.000Z', StoryCountBurnUp: 0, StoryUnitBurnUp: 0, label: '2011-01-03'},
+        {tick: '2011-01-06T06:00:00.000Z', StoryCountBurnUp: 1, StoryUnitBurnUp: 5, label: '2011-01-04'},
+        {tick: '2011-01-07T06:00:00.000Z', StoryCountBurnUp: 2, StoryUnitBurnUp: 8, label: '2011-01-06'},
+        {tick: '2011-01-09T06:00:00.000Z', StoryCountBurnUp: 3, StoryUnitBurnUp: 13, label: '2011-01-07'},
+        {tick: '2011-01-10T06:00:00.000Z', StoryCountBurnUp: 3, StoryUnitBurnUp: 13, label: '2011-01-09'}
       ],
       summaryMetrics: undefined
     }
@@ -330,21 +330,21 @@ exports.TimeSeriesCalculator =
 
     calculator = new TimeSeriesCalculator(config)
 
-    startOn = new Time('2011-01-01').getISOStringInTZ(config.tz)
-    endBefore = new Time('2011-01-09').getISOStringInTZ(config.tz)
-    calculator.addSnapshots(snapshots, startOn, endBefore)
+    startOnISOString = new Time('2010-12-31').getISOStringInTZ(config.tz)
+    upToDateISOString = new Time('2011-01-08').getISOStringInTZ(config.tz)
+    calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
 
     keys = ['label'].concat(allowedValues)
 
     csv = arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
 
     expected = [
-      [ '2011-01-02', 5, 0, 0, 0, 0 ],
-      [ '2011-01-03', 8, 5, 0, 0, 0 ],
-      [ '2011-01-04', 10, 8, 0, 0, 0 ],
-      [ '2011-01-06', 7, 0, 8, 5, 0 ],
-      [ '2011-01-07', 2, 5, 5, 3, 5 ],
-      [ '2011-01-09', 0, 0, 5, 5, 8 ]
+      [ '2010-12-31', 5, 0, 0, 0, 0 ],
+      [ '2011-01-02', 8, 5, 0, 0, 0 ],
+      [ '2011-01-03', 10, 8, 0, 0, 0 ],
+      [ '2011-01-04', 7, 0, 8, 5, 0 ],
+      [ '2011-01-06', 2, 5, 5, 3, 5 ],
+      [ '2011-01-07', 0, 0, 5, 5, 8 ]
     ]
     test.deepEqual(csv.slice(1), expected)
 
@@ -353,12 +353,12 @@ exports.TimeSeriesCalculator =
     csv = arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
 
     expected = [
-      [ '2011-01-02', 1, 0, 0, 0, 0 ],
-      [ '2011-01-03', 2, 1, 0, 0, 0 ],
-      [ '2011-01-04', 2, 2, 0, 0, 0 ],
-      [ '2011-01-06', 2, 0, 2, 1, 0 ],
-      [ '2011-01-07', 1, 1, 1, 1, 1 ],
-      [ '2011-01-09', 0, 0, 1, 1, 2 ]
+      [ '2010-12-31', 1, 0, 0, 0, 0 ],
+      [ '2011-01-02', 2, 1, 0, 0, 0 ],
+      [ '2011-01-03', 2, 2, 0, 0, 0 ],
+      [ '2011-01-04', 2, 0, 2, 1, 0 ],
+      [ '2011-01-06', 1, 1, 1, 1, 1 ],
+      [ '2011-01-07', 0, 0, 1, 1, 2 ]
     ]
     test.deepEqual(csv.slice(1), expected)
 
@@ -379,19 +379,124 @@ exports.TimeSeriesCalculator =
       tz: tz
 
     calculator = new TimeSeriesCalculator(config)
-    startOn = new Time('2011-01-03').getISOStringInTZ(tz)
-    endBefore = new Time('2011-01-10').getISOStringInTZ(tz)
+    startOnISOString = new Time('2011-01-03').getISOStringInTZ(tz)
+    upToDateISOString = new Time('2011-01-10').getISOStringInTZ(tz)
 
     oneRowOfSnapshots = snapshots.slice(7, 8)
-    calculator.addSnapshots(oneRowOfSnapshots, startOn, endBefore)
-    expected = [
-      {
-        tick: '2011-01-04T06:00:00.000Z',
-        StoryUnitScope: 5,
-        label: '2011-01-04'
-      }
+    calculator.addSnapshots(oneRowOfSnapshots, startOnISOString, upToDateISOString)
+    expected = {
+      tick: '2011-01-04T06:00:00.000Z',
+      StoryUnitScope: 5,
+      label: '2011-01-03'
+    }
+    test.deepEqual(calculator.getResults().seriesData[0], expected)
+
+    test.done()
+
+  testTimezoneBoundaries: (test) ->
+    csvStyleArray = [
+      ["ObjectID",    "_ValidFrom",               "_ValidTo",                 "Value"],
+      [1,             "2011-01-04T01:00:00.000Z", "2011-01-05T04:59:59.999Z", 10,    ], # Start and end in 01-03 in NY
+      [1,             "2011-01-05T04:59:59.999Z", "2011-01-06T05:00:00.000Z", 5,     ], # Start on 01-03 end in 01-04 but last moment
+      [1,             "2011-01-06T05:00:00.000Z", "2011-01-07T15:00:00.000Z", 3,     ], # Start on 01-05 but very first momement end in middle of 01-06
+      [1,             "2011-01-07T15:00:00.000Z", "9999-01-01T00:00:00.000Z", 2,     ],
     ]
-    test.deepEqual(calculator.getResults().seriesData, expected)
+
+    snapshots = csvStyleArray_To_ArrayOfMaps(csvStyleArray)
+
+    config =
+      granularity: Time.DAY
+      tz: "America/New_York"
+      metrics: [
+        {field: 'Value', f: 'sum'}
+      ]
+
+    calculator = new TimeSeriesCalculator(config)
+
+    startOnISOString = new Time("2011-01-02").getISOStringInTZ(config.tz)
+    upToDateISOString = new Time("2011-01-08").getISOStringInTZ(config.tz)
+    calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
+
+#    console.log(arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData))
+
+    expected = [
+      [ 'tick',                     'Value_sum', 'label'      ],
+      [ '2011-01-04T05:00:00.000Z', 10,          '2011-01-03' ],
+      [ '2011-01-05T05:00:00.000Z', 5,           '2011-01-04' ],
+      [ '2011-01-06T05:00:00.000Z', 3,           '2011-01-05' ],
+      [ '2011-01-07T05:00:00.000Z', 3,           '2011-01-06' ],
+      [ '2011-01-09T05:00:00.000Z', 2,           '2011-01-07' ]
+    ]
+
+    test.deepEqual(arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData), expected)
+
+    test.done()
+
+  testMasterTicksAndLabels: (test) ->
+    config =
+      startOn: "2010-12-29"
+      endBefore: "2011-01-07"
+      granularity: Time.DAY
+      tz: "America/New_York"
+      metrics: [
+        {field: 'Value', f: 'sum'}
+      ]
+
+    calculator = new TimeSeriesCalculator(config)
+
+    expected = [
+      {tick: '2010-12-30T05:00:00.000Z', label: '2010-12-29'},
+      {tick: '2010-12-31T05:00:00.000Z', label: '2010-12-30'},
+      {tick: '2011-01-03T05:00:00.000Z', label: '2010-12-31'},
+      {tick: '2011-01-04T05:00:00.000Z', label: '2011-01-03'},
+      {tick: '2011-01-05T05:00:00.000Z', label: '2011-01-04'},
+      {tick: '2011-01-06T05:00:00.000Z', label: '2011-01-05'},
+      {tick: '2011-01-07T05:00:00.000Z', label: '2011-01-06'}
+    ]
+
+    results = ({tick: r.tick, label: r.label} for r in calculator.getResults().seriesData)
+
+    test.deepEqual(results, expected)
+
+    test.done()
+
+  testIncrementalTicksAndLabels: (test) ->
+    csvStyleArray = [
+      ["ObjectID",    "_ValidFrom",               "_ValidTo",                 "Value"],
+      [1,             "2011-01-03T01:00:00.000Z", "2011-01-04T04:59:59.999Z", 10,    ], # Start and end in 01-03 in NY
+      [1,             "2011-01-04T04:59:59.999Z", "2011-01-05T05:00:00.000Z", 5,     ], # Start on 01-03 end in 01-04 but last moment
+      [1,             "2011-01-05T05:00:00.000Z", "2011-01-06T15:00:00.000Z", 3,     ], # Start on 01-05 but very first momement end in middle of 01-06
+      [1,             "2011-01-06T15:00:00.000Z", "9999-01-01T00:00:00.000Z", 2,     ],
+    ]
+
+    snapshots = csvStyleArray_To_ArrayOfMaps(csvStyleArray)
+
+    config =
+      granularity: Time.DAY
+      tz: "America/New_York"
+      metrics: [
+        {field: 'Value', f: 'sum'}
+      ]
+
+    calculator = new TimeSeriesCalculator(config)
+
+    startOnISOString = new Time("2010-12-29").getISOStringInTZ(config.tz)
+    upToDateISOString = new Time("2011-01-06").getISOStringInTZ(config.tz)
+    calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
+
+    expected = [
+      {tick: '2010-12-30T05:00:00.000Z', label: '2010-12-29'},
+      {tick: '2010-12-31T05:00:00.000Z', label: '2010-12-30'},
+      {tick: '2011-01-03T05:00:00.000Z', label: '2010-12-31'},
+      {tick: '2011-01-04T05:00:00.000Z', label: '2011-01-03'},
+      {tick: '2011-01-05T05:00:00.000Z', label: '2011-01-04'},
+      {tick: '2011-01-06T05:00:00.000Z', label: '2011-01-05'},
+      {tick: '2011-01-07T05:00:00.000Z', label: '2011-01-06'}
+    ]
+
+    results = ({tick: r.tick, label: r.label} for r in calculator.getResults().seriesData)
+
+    test.deepEqual(results, expected)
 
     test.done()
 

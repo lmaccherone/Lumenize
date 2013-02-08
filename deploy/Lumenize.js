@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.6.2
+Lumenize version: 0.6.3
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -4662,19 +4662,29 @@ _Timezone transformations in the browser and node.js plus timezone precise timel
 
 ## Features ##
 
-* Transform into any (and I mean any) timezone
-* Generate the values for time series chart axis
-* Knockout weekends and holidays (TimelineIterator)
-* Knockout non-work hours (TimelineIterator)
-* Work with precision around timezone differences
+* Transform into and out of any timezone using Olson timezone rules
+* Timezone rule files embedded in the minified browser package. No need to host them
+  seperately.
+* Create timezone precise time-series axis for charts
+
+  * Knockout weekends, holidays, non-workhours
+  * Work with timezone precision
+  * Work in any granularity
+
+    * Year, quarter, week, day, hour, etc.
+    * No more recording `2012-03-05T00:00:00.000Z` when you really just mean `2012-03-05`
+    * Create and use custom granularities: `R02I04-07` = Seventh day of fourth iteration in
+      second release
+
+* Work in a particular granularity like day, week, month, or quarter and not worry about the fiddly bits of finer
+  granularity. JavaScript's Date object forces you to think about the fact that the underlying representation is milliseconds
+  from the unix epoch.
 * Month is 1-indexed (rather than 0-indexed like Javascript's Date object)
 * Date/Time math (add 3 months, subtract 2 weeks, etc.)
 * Work with ISO-8601 formatted strings (called 'ISOString' in this library)
+
    * Added: Quarter form (e.g. 2012Q3 equates to 2012-07-01)
    * Not supported: Ordinal form (e.g. 2012-001 for 2012-01-01, 2011-365 for 2012-12-31) not supported
-* Allows for custom granularities like release/iteration/iteration_day
-* Tested
-* Documented
 
 ## Granularity ##
 
@@ -4732,8 +4742,7 @@ point or another gets burned by this.
 
 ## Week support ##
 
-Time follows ISO-8601 week support where ever it makes sense. Implications of using this ISO format (paraphrased
-info from wikipedia):
+Time has ISO-8601 week support. Implications of using this ISO format (paraphrased info from wikipedia):
 
 * All weeks have 7 days (i.e. there are no fractional weeks).
 * Any given day falls into a single week which means that incrementing across the year boundary in week
@@ -4747,9 +4756,12 @@ info from wikipedia):
 
 **In general, it just greatly simplifies the use of week granularity in a chart situation.**
 
-The only real downside to this approach is that USA folks expect the week to start on Sunday. However, the ISO-8601 spec starts
+The ISO-8601 standard is an elegant and well thought out approach to dealing with week granularity. The only real
+downside to this approach is that USA folks expect the week to start on Sunday. However, the ISO-8601 spec starts
 each week on Monday. Following ISO-8601, Time uses 1 for Monday and 7 for Sunday which aligns with
-the US standard for every day except Sunday. The US standard is to use 0 for Sunday.
+the US standard for every day except Sunday. The US standard is to use 0 for Sunday. This library says, "tough luck"
+to folks who are unhappy that the week starts on Monday. Live with the fact that weeks in this library start on Monday
+as they do in the ISO-8601 standard, or roll your own library. :-)
 */
 
 
@@ -4962,16 +4974,27 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
              the way back out of Time/Timeline
       */
 
-      var config, jsDate, newCT, newConfig, rdn, s, _ref;
+      var config, jsDate, newCT, newConfig, rdn, s, _ref, _ref1, _ref2;
       this.beforePastFlag = '';
       switch (utils.type(value)) {
         case 'string':
           s = value;
-          if (tz != null) {
-            newCT = new Time(s, 'millisecond');
-            jsDate = newCT.getJSDateFromGMTInTZ(tz);
+          if ((s.slice(-3, -2) === ':' && (_ref = s.slice(-6, -5), __indexOf.call('+-', _ref) >= 0)) || s.slice(-1) === 'Z') {
+            if (tz != null) {
+              if (s.slice(-3, -2) === ':' && (_ref1 = s.slice(-6, -5), __indexOf.call('+-', _ref1) >= 0)) {
+                throw new Error("tzTime.Time does not know how to deal with time shifted ISOStrings like what you sent: " + s);
+              }
+              if (s.slice(-1) === 'Z') {
+                s = s.slice(0, -1);
+              }
+              newCT = new Time(s, 'millisecond');
+              jsDate = newCT.getJSDateFromGMTInTZ(tz);
+            } else {
+              throw new Error("Must provide a tz parameter when instantiating a Time object with ISOString that contains timeshift/timezone specification. You provided: " + s + ".");
+            }
           } else {
             this._setFromString(s, granularity);
+            tz = void 0;
           }
           break;
         case 'number':
@@ -5004,7 +5027,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
           }
       }
       if (tz != null) {
-        if ((_ref = this.beforePastFlag) === 'BEFORE_FIRST' || _ref === 'PAST_LAST') {
+        if ((_ref2 = this.beforePastFlag) === 'BEFORE_FIRST' || _ref2 === 'PAST_LAST') {
           throw new Error("Cannot do timezone manipulation on " + this.beforePastFlag);
         }
         if (granularity != null) {
@@ -5234,13 +5257,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype._setFromString = function(s, granularity) {
-      var gs, l, sSplit, segment, segments, stillParsing, sub, tz, zuluCT, _i, _len, _ref1, _ref2, _ref3, _results;
-      if (s.slice(-3, -2) === ':' && (_ref1 = s.slice(-6, -5), __indexOf.call('+-', _ref1) >= 0)) {
-        s = s.slice(0, -6);
-      }
-      if (s.slice(-1) === 'Z') {
-        s = s.slice(0, -1);
-      }
+      var gs, l, sSplit, segment, segments, stillParsing, sub, tz, zuluCT, _i, _len, _ref1, _ref2, _results;
       if (s === 'PAST_LAST' || s === 'BEFORE_FIRST') {
         if (granularity != null) {
           this.granularity = granularity;
@@ -5251,7 +5268,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
         }
       }
       sSplit = s.split(' ');
-      if ((_ref2 = sSplit[0]) === 'this' || _ref2 === 'next' || _ref2 === 'previous') {
+      if ((_ref1 = sSplit[0]) === 'this' || _ref1 === 'next' || _ref1 === 'previous') {
         if (sSplit[2] === 'in' && (sSplit[3] != null)) {
           tz = sSplit[3];
         } else {
@@ -5266,9 +5283,9 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
         }
         return;
       }
-      _ref3 = Time._granularitySpecs;
-      for (g in _ref3) {
-        spec = _ref3[g];
+      _ref2 = Time._granularitySpecs;
+      for (g in _ref2) {
+        spec = _ref2[g];
         if (spec.segmentStart + spec.segmentLength === s.length || spec.mask.indexOf('#') < 0) {
           if (spec.regex.test(s)) {
             granularity = g;
@@ -8353,18 +8370,40 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
     
       Allows you to specify a timeline with weekend, holiday and non-work hours knocked out and timezone precision.
       
-      ## Usage ##
-     
-      Let's create a Timeline
-      
+      ## Basic usage ##
+    
           {TimelineIterator, Timeline, Time} = require('../')
-          
+    
+          tl = new Timeline({
+            startOn: '2011-01-03',
+            endBefore: '2011-01-05',
+          })
+    
+          console.log(t.toString() for t in tl.getAll())
+          # [ '2011-01-03', '2011-01-04' ]
+    
+      Notice how the endBefore, '2011-01-05', is excluded. Timelines are inclusive of the startOn and exclusive of the
+      endBefore. This allows the endBefore to be the startOn of the next with no overlap or gap. This focus on precision
+      pervades the design of the Time library.
+    
+      Perhaps the most common use of Timeline is to return a Timeline of ISOStrings shifted to the correct timezone.
+      Since ISOString comparisons give the expected chronological results and many APIs return their date/time stamps as
+      ISOStrings, it's convenient and surprisingly fast to do your own bucketing operations after you've gotten a Timeline
+      of ISOStrings.
+    
+          console.log(tl.getAll('ISOString', 'America/New_York'))
+          # [ '2011-01-03T05:00:00.000Z', '2011-01-04T05:00:00.000Z' ]
+    
+      ## More advanced usage ##
+     
+      Now let's poke at Timeline behavior a little more. Let's start by creating a more advanced Timeline:
+      
           tl = new Timeline({
             startOn: '2011-01-02',
             endBefore: '2011-01-07',
             holidays: [
               {month: 1, day: 1},  # Notice the lack of a year specification
-              '2011-01-02'  # Got January 2 off also in 2011. Allows ISO strings.
+              '2011-01-04'  # Got January 4 off also in 2011. Allows ISO strings.
             ]
           })
           
@@ -8373,23 +8412,23 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
           console.log(tl.workDays)
           # [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday' ]
           
-      Now let's get an TimelineIterator over this Timeline.
-          
-          tli = tl.getIterator('Time')
-          
-          while tli.hasNext()
-            console.log(tli.next().toString())
-                 
-          # 2011-01-03
-          # 2011-01-04
-          # 2011-01-05
-          # 2011-01-06
+      Another common use case is to get a Timeline to return child Timelines. You see, Timelines can be thought of as
+      time boxes with a startOn and an endBefore. You might have a big time box for the entire x-axis for a chart
+      but if you want to bucket raw data into each tick on the x-axis, you'll need to know where each sub-time box starts
+      and ends.
+    
+          subTimelines = tl.getAll('Timeline')
+          console.log((t.startOn.toString() + ' to ' + t.endBefore.toString() for t in subTimelines))
+          # [ '2011-01-03 to 2011-01-05',
+          #   '2011-01-05 to 2011-01-06',
+          #   '2011-01-06 to 2011-01-07' ]
+    
+      Notice how the first subTimeline went all the way from 03 to 05. That's because we specified 04 as a holiday.
+      Timelines are contiguous without gaps or overlap. You can see that the endBefore of one subTimeline is always the startOn
+      of the next.
       
-      Notice how 2011-01-02 was skipped because it was a holiday. Also notice how the endBefore is not included.
-      Timelines are inclusive of the startOn and exclusive of the endBefore. This allows the endBefore to be
-      the startOn of the next with no overlap or gap. This focus on precision pervades the design of the Time library.
-      
-      Now, let's create a Timeline with `hour` granularity to elaborate on this inclusive/exclusive behavior.
+      Now, let's create a Timeline with `hour` granularity and show of the concept that Timelines also serve as time boxes by
+      learning about the contains() method.
           
           tl2 = new Timeline({
             startOn: '2011-01-02T00',
@@ -8412,7 +8451,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
           # true
       
       All of the above comparisons assume that the `startOn`/`endBefore` boundaries are in the same timezone as the contains date.
-      
+    
       ## Timezone sensitive comparisions ##
       
       Now, let's look at how you do timezone sensitive comparisions.
@@ -8421,11 +8460,11 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       date/timestamp that you pass in. This system is optimized to the pattern where you first define your boundaries without regard 
       to timezone. Christmas day is a holiday in any timezone. Saturday and Sunday are non work days in any timezone. The iteration
       starts on July 10th; etc. THEN you have a bunch of data that you have stored in a database in GMT. Maybe you've pulled
-      it down from an API but the data is represented with a GMT date/timestamp. You then want to decide if the GMT date/timestamp 
+      it down from an API but the data is represented with ISOString. You then want to decide if the ISOString
       is contained within the iteration as defined by a particular timezone, or is a Saturday, or is during workhours, etc. 
       The key concept to remember is that the timebox boundaries are shifted NOT the other way around. It says at what moment
-      in time July 10th starts on in a particular timezone and internally represents that in a way that can be compared to a GMT
-      date/timestamp.
+      in time July 10th starts on in a particular timezone and internally represents that in a way that can be compared to
+      an ISOString.
       
       So, when it's 3am in GMT on 2011-01-02, it's still 2011-01-01 in New York. Using the above `tl2` timeline, we say:
       
@@ -8436,72 +8475,6 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
           
           console.log(tl2.contains('2011-01-07T03:00:00.000Z', 'America/New_York'))
           # true
-          
-      Now, let's explore how Timelines and TimelineIterators are used together.
-    
-          tl3 = new Timeline({
-            startOn:new Time('2011-01-06'),
-            endBefore:new Time('2011-01-11'),
-            workDayStartOn: {hour: 9, minute: 0},
-            workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes
-          })
-              
-      You can ask for an iterator to emit Timelines rather than Time values. On each call to `next()`, the
-      iterator will give you a new Timeline with the `startOn` value set to what you would have gotten had you
-      requested that it emit Times. The `endBefore' of the emitted Timeline will be set to the following value.
-      This is how you drill-down from one granularity into a lower granularity.
-      
-      By default, the granularity of the iterator will equal the `startOn`/`endBefore` of the original Timeline.
-      However, you can provide a different granularity (`hour` in the example below) for the iterator if you want 
-      to drill-down at a lower granularity.
-      
-          tli3 = tl3.getIterator('Timeline', undefined, 'hour')
-          
-          while tli3.hasNext()
-            subTimeline = tli3.next()
-            console.log("Sub Timeline goes from #{subTimeline.startOn.toString()} to #{subTimeline.endBefore.toString()}")
-            subIterator = subTimeline.getIterator('Time')
-            while subIterator.hasNext()
-              console.log('    Hour: ' + subIterator.next().hour)
-              
-          # Sub Timeline goes from 2011-01-06T00 to 2011-01-07T00
-          #     Hour: 9
-          #     Hour: 10
-          # Sub Timeline goes from 2011-01-07T00 to 2011-01-10T00
-          #     Hour: 9
-          #     Hour: 10
-          # Sub Timeline goes from 2011-01-10T00 to 2011-01-11T00
-          #     Hour: 9
-          #     Hour: 10
-              
-      There is a lot going on here, so let's poke at it a bit. First, notice how the second sub-Timeline goes from the 7th to the
-      10th. That's because there was a weekend in there. We didn't get hours for the Saturday and Sunday.
-          
-      The above approach (`tl3`/`tli3`) is useful for some forms of hand generated analysis, but if you are using Time with
-      Lumenize, it's overkill because Lumenize is smart enough to do rollups based upon the segments that are emitted from the
-      lowest granularity Time. So you can just iterate over the lower granularity and Lumenize will automatically manage
-      the drill up/down to day/month/year levels automatically.
-      
-          tl4 = new Timeline({
-            startOn:'2011-01-06T00',  # Notice how we include the hour now
-            endBefore:'2011-01-11T00',
-            workDayStartOn: {hour: 9, minute: 0},
-            workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes
-          })
-    
-          tli4 = tl4.getIterator('ISOString', 'GMT')
-          
-          while tli4.hasNext()
-            console.log(tli4.next())
-            
-          # 2011-01-06T09:00:00.000Z
-          # 2011-01-06T10:00:00.000Z
-          # 2011-01-07T09:00:00.000Z
-          # 2011-01-07T10:00:00.000Z
-          # 2011-01-10T09:00:00.000Z
-          # 2011-01-10T10:00:00.000Z
-          
-      `tl4`/`tli4` covers the same ground as `tl3`/`tli3` but without the explicit nesting.
     */
 
     function Timeline(config) {
@@ -8509,40 +8482,43 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
           @constructor
           @param {Object} config
       
-          config can have the following properties:
+          @cfg {Time/ISOString} [startOn] Unless it falls on a knocked out moment, this is the first value in the resulting Timeline
+            If it falls on a knocked out moment, it will advance to the first appropriate moment after startOn.
+            You must specify 2 out of 3 of startOn, endBefore, and limit.
+          @cfg {Time/ISOString} [endBefore] Must match granularity of startOn. Timeline will stop before returning this value.
+            You must specify 2 out of 3 of startOn, endBefore, and limit.
+          @cfg {Number} [limit] You can specify limit and either startOn or endBefore and only get back this many.
+            You must specify 2 out of 3 of startOn, endBefore, and limit.
+          @cfg {Number} [step = 1 or -1] Use -1 to march backwards from endBefore - 1. Currently any
+             values other than 1 and -1 are not well tested.
+          @cfg {String} [granularity = granularity of startOn or endBefore] Used to determine the granularity of the ticks.
+            Note, this can be different from the granularity of startOn and endBefore. For example:
       
-          * **startOn** is a Time object or a string. The first value that next() returns. Must specify 2 out of
-             3 of startOn, endBefore, and limit.
-          * **endBefore** is a Time object or string. Must match granularity. hasNext() returns false when current is here or
-             later. Must specify 2 out of 3 of startOn, endBefore, and limit.
-          * **limit** you can specify limit and either startOn or endBefore and only get back this many. Must specify 2 out of
-             3 of startOn, endBefore, and limit.
-          * **step** is an optional parameter. Defaults to 1 or -1. Use -1 to march backwards from endBefore - 1. Currently any
-             values other than 1 and -1 may give unexpected behavior. It should be able to step by more but there are not
-             good tests around it now.
-          * **granularity** is used to determine the granularity that you will iterate over. Note, this is independent of the
-             granularity you have used to specify startOn and endBefore. For example:
+              {
+                startOn: '2012-01', # Month Granularity
+                endBefore: '2012-02', # Month Granularity
+                granularity: Time.DAY # Day granularity
+              }
       
-                 {startOn: '2012-01', # Month Granularity
-                  endBefore: '2012-02', # Month Granularity
-                  granularity: Time.DAY} # Day granularity}
+          @cfg {String[]/String} [workDays =  ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']] List of days of the
+            week that you work on. You can specify this as an Array of Strings (['Monday', 'Tuesday', ...]) or a single comma
+            seperated String ("Monday,Tuesday,...").
+          @cfg {Array} [holidays] An optional Array of either ISOStrings or JavaScript Objects (and you can mix and match). Example:
       
-          * **workDays** list of days of the week that you work on. You can specify this as an Array of Strings
-             (['Monday', 'Tuesday', ...]) or a single comma seperated String ("Monday,Tuesday,...").
-             Defaults to ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].
-          * **holidays** is an optional Array of either ISOStrings or JavaScript Objects (and you can mix and match). Example:
-      
-                [{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, "2012-12-24"]
+              [{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, "2012-12-24"]
       
              Notice how you can leave off the year if the holiday falls on the same day every year.
-          * **workDayStartOn** is an optional object in the form {hour: 8, minute: 15}. If minute is zero it can be omitted.
-             If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
-             hours span midnight.
-          * **workDayEndBefore** is an optional object in the form {hour: 17, minute: 0}. If minute is zero it can be omitted.
-             The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
-             Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
-             than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
-             the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
+          @cfg {Object} [workDayStartOn = {hour: 0, minute: 0}] An optional object in the form {hour: 8, minute: 15}.
+            If minute is zero it can be omitted. If workDayStartOn is later than workDayEndBefore, then it assumes that you
+            work the night shift and your work  hours span midnight.
+      
+            The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
+      
+            Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
+            than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
+            the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
+          @cfg {Object} [workDayEndBefore = {hour: 24, minute: 60}] An optional object in the form {hour: 17, minute: 0}.
+            If minute is zero it can be omitted.
       */
 
       var h, holiday, idx, m, s, _i, _len, _ref, _ref1;
@@ -8651,46 +8627,46 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       utils.assert(((config.startOn != null) && (config.endBefore != null)) || ((config.startOn != null) && (config.limit != null) && this.step > 0) || ((config.endBefore != null) && (config.limit != null) && this.step < 0), 'Must provide two out of "startOn", "endBefore", or "limit" and the sign of step must match.');
     }
 
-    Timeline.prototype.getIterator = function(emit, tz, childGranularity) {
-      if (emit == null) {
-        emit = 'Time';
+    Timeline.prototype.getIterator = function(tickType, tz, childGranularity) {
+      if (tickType == null) {
+        tickType = 'Time';
       }
       /*
           @method getIterator
-          @param {String} [emit] An optional String that specifies what should be emitted. Possible values are 'Time' (default),
-             'Timeline', 'Date' (javascript Date Object), and 'ISOString'.
+          @param {String} [tickType] An optional String that specifies what type should be returned on each call to next().
+            Possible values are 'Time' (default), 'Timeline', 'Date' (javascript Date Object), and 'ISOString'.
           @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
-             required if `emit` is 'Date' or 'ISOString'.
-          @param {String} [childGranularity] When emit is 'Timeline', this is the granularity for the startOn and endBefore of the
-             Timeline that is emitted.
+            required if `tickType` is 'Date' or 'ISOString'.
+          @param {String} [childGranularity] When tickType is 'Timeline', this is the granularity for the startOn and endBefore of the
+            Timeline that is returned.
           @return {TimelineIterator}
       
           Returns a new TimelineIterator using this Timeline as the boundaries.
       */
 
-      return new TimelineIterator(this, emit, tz, childGranularity);
+      return new TimelineIterator(this, tickType, tz, childGranularity);
     };
 
-    Timeline.prototype.getAllRaw = function(emit, tz, childGranularity) {
+    Timeline.prototype.getAllRaw = function(tickType, tz, childGranularity) {
       var temp, tli;
-      if (emit == null) {
-        emit = 'Time';
+      if (tickType == null) {
+        tickType = 'Time';
       }
       /*
           @method getAllRaw
-          @param {String} [emit] An optional String that specifies what should be emitted. Possible values are 'Time' (default),
+          @param {String} [tickType] An optional String that specifies the type should be returned. Possible values are 'Time' (default),
              'Timeline', 'Date' (javascript Date Object), and 'ISOString'.
           @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
-             required if `emit` is 'Date' or 'ISOString'.
-          @param {String} [childGranularity] When emit is 'Timeline', this is the granularity for the startOn and endBefore of the
-             Timeline that is emitted.
+             required if `tickType` is 'Date' or 'ISOString'.
+          @param {String} [childGranularity] When tickType is 'Timeline', this is the granularity for the startOn and endBefore of the
+             Timeline that is returned.
           @return {Time[]/Date[]/Timeline[]/String[]}
       
           Returns all of the points in the timeline. Note, this will come back in the order specified
           by step so they could be out of chronological order. Use getAll() if they must be in chronological order.
       */
 
-      tli = this.getIterator(emit, tz, childGranularity);
+      tli = this.getIterator(tickType, tz, childGranularity);
       temp = [];
       while (tli.hasNext()) {
         temp.push(tli.next());
@@ -8698,19 +8674,19 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       return temp;
     };
 
-    Timeline.prototype.getAll = function(emit, tz, childGranularity) {
+    Timeline.prototype.getAll = function(tickType, tz, childGranularity) {
       var parameterKey, parameterKeyObject, ticks;
-      if (emit == null) {
-        emit = 'Time';
+      if (tickType == null) {
+        tickType = 'Time';
       }
       /*
           @method getAll
-          @param {String} [emit] An optional String that specifies what should be emitted. Possible values are 'Time' (default),
+          @param {String} [tickType] An optional String that specifies what should be returned. Possible values are 'Time' (default),
              'Timeline', 'Date' (javascript Date Object), and 'ISOString'.
           @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
-             required if `emit` is 'Date' or 'ISOString'.
-          @param {String} [childGranularity] When emit is 'Timeline', this is the granularity for the startOn and endBefore of the
-             Timeline object that is emitted.
+             required if `tickType` is 'Date' or 'ISOString'.
+          @param {String} [childGranularity] When tickType is 'Timeline', this is the granularity for the startOn and endBefore of the
+             Timeline object that is returned.
           @return {Time[]/Date[]/Timeline[]/String[]}
       
           Returns all of the points in the timeline in chronological order. If you want them in the order specified by `step`
@@ -8721,7 +8697,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       */
 
       parameterKeyObject = {
-        emit: emit
+        tickType: tickType
       };
       if (tz != null) {
         parameterKeyObject.tz = tz;
@@ -8732,7 +8708,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       parameterKey = JSON.stringify(parameterKeyObject);
       ticks = this.memoizedTicks[parameterKey];
       if (ticks == null) {
-        ticks = this.getAllRaw(emit, tz, childGranularity);
+        ticks = this.getAllRaw(tickType, tz, childGranularity);
         if (ticks.length > 1) {
           if ((ticks[0] instanceof Time && ticks[0].greaterThan(ticks[1])) || (utils.type(ticks[0]) === 'string' && ticks[0] > ticks[1])) {
             ticks.reverse();
@@ -8755,7 +8731,9 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
           @return {Array}
       
           Returns the list of ticks from this Timeline that intersect with the time period specified by the parameters
-          startOn and endBefore.
+          startOn and endBefore. This is a convenient way to "tag" a timebox as overlaping with particular moments on
+          your Timeline. A common pattern for Lumenize calculators is to use ticksThatIntersect to "tag" each snapshot
+          and then do groupBy operations with an OLAPCube.
       */
 
       utils.assert(this.limit === utils.MAX_INT, 'Cannot call `ticksThatIntersect()` on Timelines specified with `limit`.');
@@ -8896,28 +8874,94 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
           # 2009-01-05
           # 2009-01-06
           # 2009-01-07
+    
+      Now, let's explore how Timelines and TimelineIterators are used together.
+    
+          tl3 = new Timeline({
+            startOn:new Time('2011-01-06'),
+            endBefore:new Time('2011-01-11'),
+            workDayStartOn: {hour: 9, minute: 0},
+            workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes
+          })
+    
+      You can specify that the tickType be Timelines rather than Time values. On each call to `next()`, the
+      iterator will give you a new Timeline with the `startOn` value set to what you would have gotten had you
+      requested that the tickType be Times. The `endBefore' of the returned Timeline will be set to the next value.
+      This is how you drill-down from one granularity into a lower granularity.
+    
+      By default, the granularity of the iterator will equal the `startOn`/`endBefore` of the original Timeline.
+      However, you can provide a different granularity (`hour` in the example below) for the iterator if you want
+      to drill-down at a lower granularity.
+    
+          tli3 = tl3.getIterator('Timeline', undefined, 'hour')
+    
+          while tli3.hasNext()
+            subTimeline = tli3.next()
+            console.log("Sub Timeline goes from #{subTimeline.startOn.toString()} to #{subTimeline.endBefore.toString()}")
+            subIterator = subTimeline.getIterator('Time')
+            while subIterator.hasNext()
+              console.log('    Hour: ' + subIterator.next().hour)
+    
+          # Sub Timeline goes from 2011-01-06T00 to 2011-01-07T00
+          #     Hour: 9
+          #     Hour: 10
+          # Sub Timeline goes from 2011-01-07T00 to 2011-01-10T00
+          #     Hour: 9
+          #     Hour: 10
+          # Sub Timeline goes from 2011-01-10T00 to 2011-01-11T00
+          #     Hour: 9
+          #     Hour: 10
+    
+      There is a lot going on here, so let's poke at it a bit. First, notice how the second sub-Timeline goes from the 7th to the
+      10th. That's because there was a weekend in there. We didn't get hours for the Saturday and Sunday.
+    
+      The above approach (`tl3`/`tli3`) is useful for some forms of hand generated analysis, but if you are using Time with
+      Lumenize, it's overkill because Lumenize is smart enough to do rollups based upon the segments that are returned from the
+      lowest granularity Time. So you can just iterate over the lower granularity and Lumenize will automatically manage
+      the drill up/down to day/month/year levels automatically.
+    
+          tl4 = new Timeline({
+            startOn:'2011-01-06T00',  # Notice how we include the hour now
+            endBefore:'2011-01-11T00',
+            workDayStartOn: {hour: 9, minute: 0},
+            workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes
+          })
+    
+          tli4 = tl4.getIterator('ISOString', 'GMT')
+    
+          while tli4.hasNext()
+            console.log(tli4.next())
+    
+          # 2011-01-06T09:00:00.000Z
+          # 2011-01-06T10:00:00.000Z
+          # 2011-01-07T09:00:00.000Z
+          # 2011-01-07T10:00:00.000Z
+          # 2011-01-10T09:00:00.000Z
+          # 2011-01-10T10:00:00.000Z
+    
+      `tl4`/`tli4` covers the same ground as `tl3`/`tli3` but without the explicit nesting.
     */
 
     var StopIteration, _contains;
 
-    function TimelineIterator(timeline, emit, tz, childGranularity) {
+    function TimelineIterator(timeline, tickType, tz, childGranularity) {
       var _ref, _ref1;
-      this.emit = emit != null ? emit : 'Time';
+      this.tickType = tickType != null ? tickType : 'Time';
       this.childGranularity = childGranularity != null ? childGranularity : 'day';
       /*
           @constructor
           @param {Timeline} timeline A Timeline object
-          @param {String} [emit] An optional String that specifies what should be emitted. Possible values are 'Time' (default),
+          @param {String} [tickType] An optional String that specifies the type for the returned ticks. Possible values are 'Time' (default),
              'Timeline', 'Date' (javascript Date Object), and 'ISOString'.
-          @param {String} [childGranularity] When emit is 'Timeline', this is the granularity for the startOn and endBefore of the
-             Timeline that is emitted.
+          @param {String} [childGranularity] When tickType is 'Timeline', this is the granularity for the startOn and endBefore of the
+             Timeline that is returned.
           @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
-             required if `emit` is 'Date' or 'ISOString'.
+             required if `tickType` is 'Date' or 'ISOString'.
       */
 
-      utils.assert((_ref = this.emit) === 'Time' || _ref === 'Timeline' || _ref === 'Date' || _ref === 'ISOString', "emit must be 'Time', 'Timeline', 'Date', or 'ISOString'. You provided " + this.emit + ".");
-      utils.assert(this.emit !== 'Date' || (tz != null), 'Must provide a tz (timezone) parameter when emitting Dates.');
-      utils.assert(this.emit !== 'ISOString' || (tz != null), 'Must provide a tz (timezone) parameter when emitting ISOStrings.');
+      utils.assert((_ref = this.tickType) === 'Time' || _ref === 'Timeline' || _ref === 'Date' || _ref === 'ISOString', "tickType must be 'Time', 'Timeline', 'Date', or 'ISOString'. You provided " + this.tickType + ".");
+      utils.assert(this.tickType !== 'Date' || (tz != null), 'Must provide a tz (timezone) parameter when tickType is Date.');
+      utils.assert(this.tickType !== 'ISOString' || (tz != null), 'Must provide a tz (timezone) parameter when returning ISOStrings.');
       if ((_ref1 = this.tz) == null) {
         this.tz = tz;
       }
@@ -8956,7 +9000,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
           @method hasNext
           @return {Boolean} Returns true if there are still things left to iterator over. Note that if there are holidays,
              weekends or non-workhours to skip, then hasNext() will take that into account. For example if the endBefore is a
-             Sunday, hasNext() will return true the next time it is called after the Friday is emitted.
+             Sunday, hasNext() will return true the next time it is called after the Friday is returned.
       */
       return _contains(this.current, this.timeline.startOn, this.timeline.endBefore) && (this.count < this.timeline.limit);
     };
@@ -9011,7 +9055,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
     TimelineIterator.prototype.next = function() {
       /*
           @method next
-          @return {Time/Timeline/Date/String} Returns the next value of the iterator. The start will be the first value emitted unless it should
+          @return {Time/Timeline/Date/String} Returns the next value of the iterator. The start will be the first value returned unless it should
              be skipped due to holiday, weekend, or workhour knockouts.
       */
 
@@ -9029,7 +9073,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
         }
         this._proceedToNextValid();
       }
-      switch (this.emit) {
+      switch (this.tickType) {
         case 'Time':
           return currentCopy;
         case 'Date':
@@ -9048,7 +9092,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
           childtimeline = new Timeline(config);
           return childtimeline;
         default:
-          throw new Error("You asked for type " + this.emit + ". Only 'Time', 'Date', 'ISOString', and 'Timeline' are allowed.");
+          throw new Error("You asked for tickType " + this.tickType + ". Only 'Time', 'Date', 'ISOString', and 'Timeline' are allowed.");
       }
     };
 
@@ -11513,6 +11557,8 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       (like you would use to create a stacked column or stacked area chart). You can mix and match these on the same chart, but
       one type (a set of single-metric series versus a single group-by meta-series) typically dominates.
     
+      ## Time-series example - a burn chart ##
+    
       Let's start with a fairly large set of snapshots and create a set of series for a burn (up/down) chart.
     
           lumenize = require('../')
@@ -11650,15 +11696,15 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     
       We can now send our snapshots into the calculator.
     
-          startOn = new Time('2011-01-02').getISOStringInTZ(config.tz)
-          endBefore = new Time('2011-01-10').getISOStringInTZ(config.tz)
-          calculator.addSnapshots(snapshots, startOn, endBefore)
+          startOnISOString = new Time('2011-01-02').getISOStringInTZ(config.tz)
+          upToDateISOString = new Time('2011-01-10').getISOStringInTZ(config.tz)
+          calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
     
-      Note, you must specify a startOn and endBefore. If you send in another round of snapshots, the new startOn must match
-      the endBefore of the prior call to addSnapshots(). This is the key to  making sure that incremental calculations don't
+      Note, you must specify a startOnISOString and upToDateISOString. If you send in another round of snapshots, the new startOnISOString must match
+      the upToDateISOString of the prior call to addSnapshots(). This is the key to  making sure that incremental calculations don't
       skip or double count anything. You can even send in the same snapshots in a later round and they won't be double
-      counted. This idempotency property is also accomplished by the precise startOn (current) endBefore (prior) alignment.
-      If you restore the calculator from a saved state, the upToDate property will contain the prior endBefore. You can use
+      counted. This idempotency property is also accomplished by the precise startOnISOString (current) upToDateISOString (prior) alignment.
+      If you restore the calculator from a saved state, the upToDate property will contain the prior upToDateISOString. You can use
       this to compose a query that gets all of the snapshots necessary for the update. Just query with
       `_ValidTo: {$gte: upToDate}`. Note, this will refetch all the snapshots that were still active the last time
       you updated the calculator. This is expected and necessary.
@@ -11671,12 +11717,69 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
     
           console.log(csv.slice(1))
-          #  [ [ '2011-01-03', 13, 3, 0, 0, 37, 32, 51, null, 100 ],
-          #    [ '2011-01-04', 18, 4, 0, 0, 44, 47, 40.79, 44, 100 ],
-          #    [ '2011-01-06', 20, 5, 1, 5, 25, 51, 30.6, 33, 41.666666666666664 ],
-          #    [ '2011-01-07', 20, 5, 2, 8, 16, 51, 20.4, 22, 41.666666666666664 ],
-          #    [ '2011-01-09', 18, 4, 3, 13, 3, 47, 10.2, 11, 0 ],
+          #  [ [ '2011-01-02', 13, 3, 0, 0, 37, 32, 51, null, 100 ],
+          #    [ '2011-01-03', 18, 4, 0, 0, 44, 47, 42.5, 44, 100 ],
+          #    [ '2011-01-04', 20, 5, 1, 5, 25, 51, 34, 35.2, 41.666666666666664 ],
+          #    [ '2011-01-06', 20, 5, 2, 8, 16, 51, 25.5, 26.4, 41.666666666666664 ],
+          #    [ '2011-01-07', 18, 4, 3, 13, 3, 47, 17, 17.59, 0 ],
+          #    [ '2011-01-09', 18, 4, 3, 13, 3, 47, 8.5, 8.79, 0 ],
           #    [ '2011-01-10', 18, 4, 3, 13, 3, 47, 0, 0, 0 ] ]
+    
+      ## Time-series group-by example ##
+    
+          allowedValues = ['Ready to pull', 'In progress', 'In test', 'Accepted', 'Released']
+    
+      It supports both count and sum for group-by metrics
+    
+          metrics = [
+            {f: 'groupBySum', field: 'PlanEstimate', groupByField: 'ScheduleState', allowedValues: allowedValues},
+            {f: 'groupByCount', groupByField: 'ScheduleState', allowedValues: allowedValues, prefix: 'Count '},
+            {as: 'MedianTaskRemainingTotal', field: 'TaskRemainingTotal', f: 'median'}  # An example of how you might overlay a line series
+          ]
+    
+          holidays = [
+            {year: 2011, month: 1, day: 5}  # Made up holiday to test knockout
+          ]
+    
+          config =  # default workDays
+            metrics: metrics
+            granularity: Time.DAY
+            tz: 'America/Chicago'
+            holidays: holidays
+            workDays: 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday' # They work on Sundays
+    
+          calculator = new TimeSeriesCalculator(config)
+    
+          startOnISOString = new Time('2010-12-31').getISOStringInTZ(config.tz)
+          upToDateISOString = new Time('2011-01-08').getISOStringInTZ(config.tz)
+          calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
+    
+      Here is the output of the sum metrics
+    
+          keys = ['label'].concat(allowedValues)
+          csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
+          console.log(csv.slice(1))
+          # [ [ '2010-12-31', 5, 0, 0, 0, 0 ],
+          #   [ '2011-01-02', 8, 5, 0, 0, 0 ],
+          #   [ '2011-01-03', 10, 8, 0, 0, 0 ],
+          #   [ '2011-01-04', 7, 0, 8, 5, 0 ],
+          #   [ '2011-01-06', 2, 5, 5, 3, 5 ],
+          #   [ '2011-01-07', 0, 0, 5, 5, 8 ] ]
+    
+      Here is the output of the count metrics
+    
+          keys = ['label'].concat('Count ' + a for a in allowedValues)
+          csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
+          console.log(csv.slice(1))
+          # [ [ '2010-12-31', 1, 0, 0, 0, 0 ],
+          #   [ '2011-01-02', 2, 1, 0, 0, 0 ],
+          #   [ '2011-01-03', 2, 2, 0, 0, 0 ],
+          #   [ '2011-01-04', 2, 0, 2, 1, 0 ],
+          #   [ '2011-01-06', 1, 1, 1, 1, 1 ],
+          #   [ '2011-01-07', 0, 0, 1, 1, 2 ] ]
+    
+      We didn't output the MedianTaskRemainingTotal metric but it's in there. I included it to demonstrate that you can
+      calculate non-group-by series along side group-by series.
     */
 
     function TimeSeriesCalculator(config) {
@@ -11736,14 +11839,15 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           @cfg {Object[]} deriveFieldsAfterSummary same format at deriveFieldsOnInput, except the callback is in the form `f(row, index, summaryMetrics, seriesData)`
             This is called on all rows every time you call getResults() so it's less efficient than deriveFieldsOnOutput. Only use it if you need
             the summaryMetrics in your calculation.
-          @cfg {String/Date/Lumenize.Time} [startOn=-infinity] This becomes the master startOn for the entire calculator limiting
-            the calculator to only emit ticks equal to this or later
-          @cfg {String/Date/Lumenize.Time} [endBefore=infinity] This becomes the master endBefore for the entire calculator
-            limiting the calculator to only emit ticks before this
+          @cfg {String/ISOString/Date/Lumenize.Time} [startOn=-infinity] This becomes the master startOn for the entire calculator limiting
+            the calculator to only emit ticks equal to this or later.
+          @cfg {String/ISOString/Date/Lumenize.Time} [endBefore=infinity] This becomes the master endBefore for the entire calculator
+            limiting the calculator to only emit ticks before this.
       */
 
-      var a, dimensions, f, field, fieldsMap, filterValue, filteredCountCreator, filteredSumCreator, inputCubeDimensions, inputCubeMetrics, labelTimeline, labels, m, newMetrics, row, tick, ticksUnshifted, timeline, timelineConfig, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
+      var a, dimensions, f, field, fieldsMap, filterValue, filteredCountCreator, filteredSumCreator, inputCubeDimensions, inputCubeMetrics, m, newMetrics, row, ticks, timeline, timelineConfig, tl, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
       this.config = utils.clone(config);
+      this.tickToLabelLookup = {};
       if (this.config.validFromField == null) {
         this.config.validFromField = "_ValidFrom";
       }
@@ -11881,12 +11985,12 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         }
       }
       if (config.startOn != null) {
-        this.masterStartOnTime = new Time(config.startOn).inGranularity(this.config.granularity).addInPlace(1);
+        this.masterStartOnTime = new Time(config.startOn, this.config.granularity, this.config.tz);
       } else {
         this.masterStartOnTime = new Time('BEFORE_FIRST', this.config.granularity);
       }
       if (config.endBefore != null) {
-        this.masterEndBeforeTime = new Time(config.endBefore).inGranularity(this.config.granularity);
+        this.masterEndBeforeTime = new Time(config.endBefore, this.config.granularity, this.config.tz);
       } else {
         this.masterEndBeforeTime = new Time('PAST_LAST', this.config.granularity);
       }
@@ -11895,56 +11999,35 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         timelineConfig.startOn = this.masterStartOnTime;
         timelineConfig.endBefore = this.masterEndBeforeTime;
         timeline = new Timeline(timelineConfig);
-        ticksUnshifted = timeline.getAll('ISOString', this.config.tz);
-        this.allTicks = (function() {
-          var _len5, _n, _results;
-          _results = [];
-          for (_n = 0, _len5 = ticksUnshifted.length; _n < _len5; _n++) {
-            tick = ticksUnshifted[_n];
-            _results.push(tick);
-          }
-          return _results;
-        })();
-        timelineConfig.startOn = this.masterStartOnTime.add(-1);
-        timelineConfig.endBefore = this.masterEndBeforeTime.add(-1);
-        labelTimeline = new Timeline(timelineConfig);
-        labels = labelTimeline.getAll();
-        this.allLabels = (function() {
-          var _len5, _n, _results;
-          _results = [];
-          for (_n = 0, _len5 = labels.length; _n < _len5; _n++) {
-            tick = labels[_n];
-            _results.push(tick.toString());
-          }
-          return _results;
-        })();
-      } else {
-        this.allTicks = void 0;
-        this.allLabels = void 0;
+        ticks = timeline.getAll('Timeline', this.config.tz);
+        for (_n = 0, _len5 = ticks.length; _n < _len5; _n++) {
+          tl = ticks[_n];
+          this.tickToLabelLookup[tl.endBefore.getISOStringInTZ(config.tz)] = tl.startOn.toString();
+        }
       }
     }
 
-    TimeSeriesCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore) {
+    TimeSeriesCalculator.prototype.addSnapshots = function(snapshots, startOnISOString, upToDateISOString) {
       /*
           @method addSnapshots
             Allows you to incrementally add snapshots to this calculator.
           @chainable
           @param {Object[]} snapshots An array of temporal data model snapshots.
-          @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
-            interest. On the second through nth call, this should equal the previous endBefore.
-          @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+          @param {String} startOnISOString A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+            interest. On the second through nth call, this should equal the previous upToDateISOString.
+          @param {String} upToDateISOString A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
             period of interest.
           @return {TimeInStateCalculator}
       */
 
-      var endBeforeTime, inputCube, s, startOnTime, ticks, timeline, timelineConfig, validSnapshots, _i, _j, _len, _len1;
+      var endBeforeTime, inputCube, s, startOnTime, ticks, timeline, timelineConfig, tl, validSnapshots, _i, _j, _k, _len, _len1, _len2;
       if (this.upToDateISOString != null) {
-        utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
+        utils.assert(this.upToDateISOString === startOnISOString, "startOnISOString (" + startOnISOString + ") parameter should equal upToDateISOString of previous call (" + this.upToDateISOString + ") to addSnapshots.");
       }
-      this.upToDateISOString = endBefore;
+      this.upToDateISOString = upToDateISOString;
       timelineConfig = utils.clone(this.config);
-      startOnTime = new Time(startOn).inGranularity(this.config.granularity).addInPlace(1);
-      endBeforeTime = new Time(endBefore).inGranularity(this.config.granularity).addInPlace(1);
+      startOnTime = new Time(startOnISOString, this.config.granularity, this.config.tz);
+      endBeforeTime = new Time(upToDateISOString, this.config.granularity, this.config.tz).addInPlace(1);
       if (startOnTime.greaterThan(this.masterStartOnTime)) {
         timelineConfig.startOn = startOnTime;
       } else {
@@ -11956,10 +12039,15 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         timelineConfig.endBefore = this.masterEndBeforeTime;
       }
       timeline = new Timeline(timelineConfig);
+      ticks = timeline.getAll('Timeline', this.config.tz);
+      for (_i = 0, _len = ticks.length; _i < _len; _i++) {
+        tl = ticks[_i];
+        this.tickToLabelLookup[tl.endBefore.getISOStringInTZ(this.config.tz)] = tl.startOn.toString();
+      }
       validSnapshots = [];
-      for (_i = 0, _len = snapshots.length; _i < _len; _i++) {
-        s = snapshots[_i];
-        ticks = timeline.ticksThatIntersect(s[this.config.validFromField], s[this.config.validToField], this.config.tz, true);
+      for (_j = 0, _len1 = snapshots.length; _j < _len1; _j++) {
+        s = snapshots[_j];
+        ticks = timeline.ticksThatIntersect(s[this.config.validFromField], s[this.config.validToField], this.config.tz);
         if (ticks.length > 0) {
           s.tick = ticks;
           validSnapshots.push(s);
@@ -11969,8 +12057,8 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       this.cube.addFacts(inputCube.getCells());
       if (this.masterEndBeforeTime.greaterThanOrEqual(endBeforeTime)) {
         this.toDateSnapshots = [];
-        for (_j = 0, _len1 = snapshots.length; _j < _len1; _j++) {
-          s = snapshots[_j];
+        for (_k = 0, _len2 = snapshots.length; _k < _len2; _k++) {
+          s = snapshots[_k];
           if (s[this.config.validToField] >= this.upToDateISOString) {
             this.toDateSnapshots.push(s);
           }
@@ -11989,11 +12077,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       */
 
       var cell, d, foundFirstNullCell, index, m, row, s, seriesData, summaryMetric, summaryMetrics, t, tickIndex, ticks, toDateCell, toDateCube, values, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _m, _n, _o, _ref1, _ref2, _ref3, _ref4;
-      if (this.allTicks != null) {
-        ticks = this.allTicks;
-      } else {
-        ticks = this.cube.getDimensionValues('tick');
-      }
+      ticks = utils._.keys(this.tickToLabelLookup);
       if ((this.toDateSnapshots != null) && this.toDateSnapshots.length > 0) {
         _ref1 = this.toDateSnapshots;
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
@@ -12027,11 +12111,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           }
           cell.tick = t;
         }
-        if (this.allLabels != null) {
-          cell.label = this.allLabels[tickIndex];
-        } else {
-          cell.label = new Time(cell.tick, this.config.granularity, this.config.tz).toString();
-        }
+        cell.label = this.tickToLabelLookup[cell.tick];
         seriesData.push(cell);
       }
       if (this.config.summaryMetricsConfig != null) {
