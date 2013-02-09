@@ -152,7 +152,7 @@ functions.max = (values, oldResult, newValues) ->
 @param {Object[]} values
 @param {Number} [oldResult] for incremental calculation
 @param {Number[]} [newValues] for incremental calculation
-@return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
+@return {Array} All values (allows duplicates). Can be used for drill down.
 ###
 functions.values = (values, oldResult, newValues) ->
   if oldResult?

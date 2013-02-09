@@ -81,6 +81,10 @@ Then in your code:
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
+* 0.6.5 - 2013-02-09 - Fixed bug on TimeSeriesCalculator where toDateCell was including more
+  than it should and was possible located wrong. Changed histogram to use Q3 + 1.5 * IQR as
+  outlier detector and added option to not do outlier clipping. Lots of little documentation
+  updates.
 * 0.6.4 - 2013-02-08 - Fixed bug where Friday current will double count Friday in labels by 
   adding a tick on Saturday. Now it advances all the way to Sunday night.
 * 0.6.3 - 2013-02-07 - Updated to tzTime 0.6.4 (potentially backward breaking to those who 

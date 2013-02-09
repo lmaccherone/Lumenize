@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.6.4
+Lumenize version: 0.6.5
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -9230,14 +9230,14 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
           {TimeInStateCalculator} = require('../')
     
           snapshots = [ 
-            { id: 1, from: '2011-01-06T15:10:00.000Z', to: '2011-01-06T15:30:00.000Z', Name: '1.0' }, # 20 minutes all within an hour
-            { id: 2, from: '2011-01-06T15:50:00.000Z', to: '2011-01-06T16:10:00.000Z', Name: '2.0' }, # 20 minutes spanning an hour
-            { id: 3, from: '2011-01-07T13:00:00.000Z', to: '2011-01-07T15:20:00.000Z', Name: '3.0' }, # start 2 hours before but overlap by 20 minutes of start
-            { id: 4, from: '2011-01-06T16:40:00.000Z', to: '2011-01-06T19:00:00.000Z', Name: '4.0' }, # 20 minutes before end of day
-            { id: 5, from: '2011-01-06T16:50:00.000Z', to: '2011-01-07T15:10:00.000Z', Name: '5.0' }, # 10 minutes before end of one day and 10 before the start of next
-            { id: 6, from: '2011-01-06T16:55:00.000Z', to: '2011-01-07T15:05:00.000Z', Name: '6.0' }, # multiple cycles over several days for a total of 20 minutes of work time
-            { id: 6, from: '2011-01-07T16:55:00.000Z', to: '2011-01-10T15:05:00.000Z', Name: '6.1' },
-            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: '7.0' }  # continues past the range of consideration in this test
+            { id: 1, from: '2011-01-06T15:10:00.000Z', to: '2011-01-06T15:30:00.000Z', Name: 'Item A' }, # 20 minutes all within an hour
+            { id: 2, from: '2011-01-06T15:50:00.000Z', to: '2011-01-06T16:10:00.000Z', Name: 'Item B' }, # 20 minutes spanning an hour
+            { id: 3, from: '2011-01-07T13:00:00.000Z', to: '2011-01-07T15:20:00.000Z', Name: 'Item C' }, # start 2 hours before but overlap by 20 minutes of start
+            { id: 4, from: '2011-01-06T16:40:00.000Z', to: '2011-01-06T19:00:00.000Z', Name: 'Item D' }, # 20 minutes before end of day
+            { id: 5, from: '2011-01-06T16:50:00.000Z', to: '2011-01-07T15:10:00.000Z', Name: 'Item E' }, # 10 minutes before end of one day and 10 before the start of next
+            { id: 6, from: '2011-01-06T16:55:00.000Z', to: '2011-01-07T15:05:00.000Z', Name: 'Item F' }, # multiple cycles over several days for a total of 20 minutes of work time
+            { id: 6, from: '2011-01-07T16:55:00.000Z', to: '2011-01-10T15:05:00.000Z', Name: 'Item F modified' },
+            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: 'Item G' }  # continues past the range of consideration in this test
           ]
           
           granularity = 'minute'
@@ -9264,31 +9264,31 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
           # [ { id: 1,
           #     ticks: 20,
           #     to_lastValue: '2011-01-06T15:30:00.000Z',
-          #     Name_lastValue: '1.0' },
+          #     Name_lastValue: 'Item A' },
           #   { id: 2,
           #     ticks: 20,
           #     to_lastValue: '2011-01-06T16:10:00.000Z',
-          #     Name_lastValue: '2.0' },
+          #     Name_lastValue: 'Item B' },
           #   { id: 3,
           #     ticks: 20,
           #     to_lastValue: '2011-01-07T15:20:00.000Z',
-          #     Name_lastValue: '3.0' },
+          #     Name_lastValue: 'Item C' },
           #   { id: 4,
           #     ticks: 20,
           #     to_lastValue: '2011-01-06T19:00:00.000Z',
-          #     Name_lastValue: '4.0' },
+          #     Name_lastValue: 'Item D' },
           #   { id: 5,
           #     ticks: 20,
           #     to_lastValue: '2011-01-07T15:10:00.000Z',
-          #     Name_lastValue: '5.0' },
+          #     Name_lastValue: 'Item E' },
           #   { id: 6,
           #     ticks: 20,
           #     to_lastValue: '2011-01-10T15:05:00.000Z',
-          #     Name_lastValue: '6.1' },
+          #     Name_lastValue: 'Item F modified' },
           #   { id: 7,
           #     ticks: 260,
           #     to_lastValue: '9999-01-01T00:00:00.000Z',
-          #     Name_lastValue: '7.0' } ]
+          #     Name_lastValue: 'Item G' } ]
     
       But we are not done yet. We can serialize the state of this calculator and later restore it.
     
@@ -9297,9 +9297,9 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
       Let's incrementally update the original.
     
           snapshots = [
-            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: '7.1' },  # same snapshot as before still going
-            { id: 3, from: '2011-01-11T15:00:00.000Z', to: '2011-01-11T15:20:00.000Z', Name: '3.1' },  # 20 more minutes for id 3
-            { id: 8, from: '2011-01-11T15:00:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: '8.0' }   # 20 minutes in scope for new id 8
+            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: 'Item G modified' },  # same snapshot as before still going
+            { id: 3, from: '2011-01-11T15:00:00.000Z', to: '2011-01-11T15:20:00.000Z', Name: 'Item C modified' },  # 20 more minutes for id 3
+            { id: 8, from: '2011-01-11T15:00:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: 'Item H' }   # 20 minutes in scope for new id 8
           ]
     
           startOn = '2011-01-11T00:00:00.000Z'  # must match endBefore of prior call
@@ -10675,7 +10675,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Object[]} values
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
-  @return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
+  @return {Array} All values (allows duplicates). Can be used for drill down.
   */
 
 
@@ -11751,7 +11751,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           calculator = new TimeSeriesCalculator(config)
     
           startOnISOString = new Time('2010-12-31').getISOStringInTZ(config.tz)
-          upToDateISOString = new Time('2011-01-08').getISOStringInTZ(config.tz)
+          upToDateISOString = new Time('2011-01-09').getISOStringInTZ(config.tz)
           calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
     
       Here is the output of the sum metrics
@@ -12221,11 +12221,17 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
 });
 
 require.define("/src/histogram.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var functions, histogram;
+  var functions, histogram, utils;
 
   functions = require('./functions').functions;
 
-  histogram = function(rows, valueField) {
+  utils = require('tztime').utils;
+
+  histogram = function(rows, valueField, noClipping) {
+    var b, bucket, bucketCount, bucketSize, buckets, c, chartMax, chartMin, chartValues, chartValuesMinusOutliers, clipped, i, iqr, max, percentile, q1, q3, row, total, upperBound, valueMax, _i, _j, _k, _l, _len, _len1, _len2;
+    if (noClipping == null) {
+      noClipping = false;
+    }
     /*
       @method histogram
       @param {Object[]} rows
@@ -12269,14 +12275,14 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
           {buckets, chartMax} = histogram(rows, 'age')
           for b in buckets
             console.log(b.label, b.count)
-          # 0-13 2
-          # 13-26 7
-          # 26-39 6
-          # 39-52 1
-          # 52-65 1
+          # 0-12 2
+          # 12-24 5
+          # 24-36 8
+          # 36-48 1
+          # 48-60 1
           
           console.log(chartMax)
-          # 65
+          # 60
       
       This histogram calculator will also attempt to lump outliers into a single bucket at the top.
           
@@ -12286,7 +12292,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
       
           lastBucket = buckets[buckets.length - 1]
           console.log(lastBucket.label, lastBucket.count)
-          # 68-86* 1
+          # 48-86* 2
           
       The asterix `*` is there to indicate that this bucket is not the same size as the others and non-linear.
       The histogram calculator will also "clip" the values for these outliers so that you can
@@ -12295,11 +12301,10 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
       the bounds of the top band where the actual max value is scaled down to the `chartMax`
       
           lastBucket = buckets[buckets.length - 1]
-          console.log(lastBucket.rows[0].age, lastBucket.rows[0].clippedChartValue)
-          # 85 84.05555555555556
+          console.log(lastBucket.rows[1].age, lastBucket.rows[1].clippedChartValue)
+          # 85 59.68421052631579
     */
 
-    var average, b, bucket, bucketCount, bucketSize, buckets, c, chartMax, chartMin, chartValues, chartValuesMinusOutliers, clipped, i, max, percentile, row, standardDeviation, total, upperBound, valueMax, _i, _j, _k, _l, _len, _len1, _len2;
     chartValues = (function() {
       var _i, _len, _results;
       _results = [];
@@ -12309,28 +12314,34 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
       }
       return _results;
     })();
-    max = Math.max(chartValues);
+    max = functions.max(chartValues);
     max = Math.max(max, 1);
-    average = functions.average(chartValues);
-    standardDeviation = functions.standardDeviation(chartValues);
-    upperBound = average + 2 * standardDeviation;
-    chartValuesMinusOutliers = (function() {
-      var _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = chartValues.length; _i < _len; _i++) {
-        c = chartValues[_i];
-        if (c < upperBound) {
-          _results.push(c);
-        }
+    if (noClipping) {
+      upperBound = max;
+      chartValuesMinusOutliers = chartValues;
+    } else {
+      q3 = functions.percentileCreator(75)(chartValues);
+      q1 = functions.percentileCreator(25)(chartValues);
+      iqr = q3 - q1;
+      upperBound = q3 + 1.5 * iqr;
+      if (isNaN(upperBound) || upperBound > max) {
+        upperBound = max;
       }
-      return _results;
-    })();
+      chartValuesMinusOutliers = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = chartValues.length; _i < _len; _i++) {
+          c = chartValues[_i];
+          if (c <= upperBound) {
+            _results.push(c);
+          }
+        }
+        return _results;
+      })();
+    }
     bucketCount = Math.floor(Math.sqrt(chartValuesMinusOutliers.length));
     if (bucketCount < 3) {
       bucketCount = 2;
-    }
-    if (isNaN(upperBound)) {
-      upperBound = max;
     }
     bucketSize = Math.floor(upperBound / bucketCount) + 1;
     upperBound = bucketSize * bucketCount;
