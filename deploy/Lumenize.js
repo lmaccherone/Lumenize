@@ -4909,20 +4909,18 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
           ## ISO-8601 or custom masked ##
           
           When you pass in an ISO-8601 or custom mask string, Time uses the masks that are defined for each granularity to figure out the granularity...
-          unless you explicitly provide a granularity. This parser does not work on all valid ISO-8601 forms. Ordinal dates (`"2012-288"`)
-          are not supported but week number form (`"2009W52-7"`) is supported. The canonical form (`"2009-01-01T12:34:56.789"`) will 
-          work as will any shortened subset of it (`"2009-01-01"`, `"2009-01-01T12:34"`, etc.). We've added a form for Quarter
-          granularity (`"2009Q4"`). Plus it will even parse strings in whatever custom granularity you provide based
+          unless you explicitly provide a granularity. This parser works on all valid ISO-8601 forms except orginal dates (e.g. `"2012-288"`)
+          It even supports week number form (`"2009W52-7"`) and we've added a form for Quarter granularity (e.g. `"2009Q4"`).
+          The canonical form (`"2009-01-01T12:34:56.789"`) will work as will any shortened subset of it (`"2009-01-01"`,
+          `"2009-01-01T12:34"`, etc.). Plus it will even parse strings in whatever custom granularity you provide based
           upon the mask that you provide for that granularity.
           
           If the granularity is specified but not all of the segments are provided, Time will fill in the missing value
           with the `lowest` value from _granularitySpecs.
           
-          The Lumenize hierarchy tools rely upon the property that a single character is used between segments so the ISO forms that 
-          omit the delimiters are not supported.
-          
-          If the string has a timezone indicator on the end (`...+05:00` or `...Z`), Time will ignore it. Timezone information
-          is intended to only be used for comparison (see examples for timezone comparison).
+          The ISO forms that omit the delimiters or use spaces as the delimeters are not supported. Also unsupported are strings
+          with a time shift indicator on the end (`...+05:00`). However, if you pass in a string with a "Z" at the end, Time
+          will assume that you want to convert from GMT to local (abstract) time and you must provide a timezone.
           
           There are two special Strings that are recognized: `BEFORE_FIRST` and `PAST_LAST`. You must provide a granularity if you
           are instantiating a Time with these values. They are primarily used for custom granularities where your users
@@ -4942,9 +4940,9 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
           up with the same Time value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
           option is even really useful. In most cases, you are probably better off using Time.getISOStringFromJSDate()
           
-          ## Config ##
+          ## Object ##
           
-          You can also explicitly spell out the segments in a **config** Object in the form of
+          You can also explicitly spell out the segments in a specification Object in the form of
           `{granularity: Time.DAY, year: 2009, month: 1, day: 1}`. If the granularity is specified but not all of the segments are
           provided, Time will fill in the missing value with the appropriate `lowest` value from _granularitySpecs.
           
@@ -5058,13 +5056,6 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       each entry in it as a sort of sub-class of Time. In that sense Time is really a factory generating Time objects
       of type granularity. When custom timebox granularities are added to Time by `Time.addGranularity()`, it adds to this
       `_granularitySpecs` object.
-    
-      Each entry in `_granularitySpecs` has the following:
-    
-      * segments - an Array identifying the ancestry (e.g. for 'day', it is: `['year', 'month', 'day']`)
-      * mask - a String used to identify when this granularity is passed in and to serialize it on the way out.
-      * lowest - the lowest possible value for this granularity. 0 for millisecond but 1 for day.
-      * rolloverValue - a callback function that will say when to rollover the next coarser granularity.
     */
 
 
@@ -6183,6 +6174,10 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
           @method addGranularity
           @static
           @param {Object} granularitySpec see {@link Time#_granularitySpecs} for existing _granularitySpecs
+          @cfg {String[]} segments an Array identifying the ancestry (e.g. for 'day', it is: `['year', 'month', 'day']`)
+          @cfg {String} mask a String used to identify when this granularity is passed in and to serialize it on the way out.
+          @cfg {Number} lowest the lowest possible value for this granularity. 0 for millisecond but 1 for day.
+          @cfg {Function} rolloverValue a callback function that will say when to rollover the next coarser granularity.
       
           addGranularity allows you to add your own hierarchical granularities to Time. Once you add a granularity to Time
           you can then instantiate Time objects in your newly specified granularity. You specify new granularities with
@@ -6267,7 +6262,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
           But Time will convert to any of the standard granularities from even custom granularities as long as a `rataDieNumber()` function
           is provided.
           
-          **The `timeBoxes` propoerty in the `granularitySpec` Object above has no special meaning** to Time or TimelineIterator. It's simply used
+          **The `timeBoxes` property in the `granularitySpec` Object above has no special meaning** to Time or TimelineIterator. It's simply used
           by the `rolloverValue` and `rataDieNumber` functions. The boundaries could come from where ever you want and even have been encoded as
           literals in the `rolloverValue` and `rataDieNumber` callback functions.
           
@@ -8719,11 +8714,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       return ticks;
     };
 
-    Timeline.prototype.ticksThatIntersect = function(startOn, endBefore, tz, returnEnd) {
-      var en, i, isoDateRegExp, out, st, ticks, ticksLength;
-      if (returnEnd == null) {
-        returnEnd = false;
-      }
+    Timeline.prototype.ticksThatIntersect = function(startOn, endBefore, tz) {
       /*
           @method ticksThatIntersect
           @param {Time/ISOString} startOn The start of the time period of interest
@@ -8736,6 +8727,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
           and then do groupBy operations with an OLAPCube.
       */
 
+      var en, i, isoDateRegExp, out, st, ticks, ticksLength;
       utils.assert(this.limit === utils.MAX_INT, 'Cannot call `ticksThatIntersect()` on Timelines specified with `limit`.');
       out = [];
       if (utils.type(startOn) === 'string') {
@@ -8947,13 +8939,13 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
     function TimelineIterator(timeline, tickType, tz, childGranularity) {
       var _ref, _ref1;
       this.tickType = tickType != null ? tickType : 'Time';
-      this.childGranularity = childGranularity != null ? childGranularity : 'day';
+      this.childGranularity = childGranularity;
       /*
           @constructor
           @param {Timeline} timeline A Timeline object
           @param {String} [tickType] An optional String that specifies the type for the returned ticks. Possible values are 'Time' (default),
              'Timeline', 'Date' (javascript Date Object), and 'ISOString'.
-          @param {String} [childGranularity] When tickType is 'Timeline', this is the granularity for the startOn and endBefore of the
+          @param {String} [childGranularity=granularity of timeline] When tickType is 'Timeline', this is the granularity for the startOn and endBefore of the
              Timeline that is returned.
           @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
              required if `tickType` is 'Date' or 'ISOString'.
@@ -8969,6 +8961,9 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
         this.timeline = timeline;
       } else {
         this.timeline = new Timeline(timeline);
+      }
+      if (this.childGranularity == null) {
+        this.childGranularity = timeline.granularity;
       }
       this.reset();
     }
@@ -8999,8 +8994,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       /*
           @method hasNext
           @return {Boolean} Returns true if there are still things left to iterator over. Note that if there are holidays,
-             weekends or non-workhours to skip, then hasNext() will take that into account. For example if the endBefore is a
-             Sunday, hasNext() will return true the next time it is called after the Friday is returned.
+             weekends or non-workhours to skip, then hasNext() will take that into account.
       */
       return _contains(this.current, this.timeline.startOn, this.timeline.endBefore) && (this.count < this.timeline.limit);
     };
