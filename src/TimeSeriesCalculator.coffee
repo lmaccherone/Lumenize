@@ -209,7 +209,7 @@ class TimeSeriesCalculator # implements iCalculator
       calculator = new TimeSeriesCalculator(config)
 
       startOnISOString = new Time('2010-12-31').getISOStringInTZ(config.tz)
-      upToDateISOString = new Time('2011-01-08').getISOStringInTZ(config.tz)
+      upToDateISOString = new Time('2011-01-09').getISOStringInTZ(config.tz)
       calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
 
   Here is the output of the sum metrics
@@ -420,7 +420,7 @@ class TimeSeriesCalculator # implements iCalculator
       timelineConfig.startOn = @masterStartOnTime
       timelineConfig.endBefore = @masterEndBeforeTime
       timeline = new Timeline(timelineConfig)
-      ticks = timeline.getAll('Timeline', @config.tz)
+      ticks = timeline.getAll('Timeline', @config.tz, @config.granularity)
       @tickToLabelLookup[tl.endBefore.getISOStringInTZ(config.tz)] = tl.startOn.toString() for tl in ticks
 
   addSnapshots: (snapshots, startOnISOString, upToDateISOString) ->
@@ -464,7 +464,7 @@ class TimeSeriesCalculator # implements iCalculator
       timelineConfig.endBefore = @masterEndBeforeTime
 
     timeline = new Timeline(timelineConfig)
-    ticks = timeline.getAll('Timeline', @config.tz)
+    ticks = timeline.getAll('Timeline', @config.tz, @config.granularity)
     @tickToLabelLookup[tl.endBefore.getISOStringInTZ(@config.tz)] = tl.startOn.toString() for tl in ticks
 
     validSnapshots = []
@@ -481,7 +481,7 @@ class TimeSeriesCalculator # implements iCalculator
     if @masterEndBeforeTime.greaterThanOrEqual(endBeforeTime)
       @toDateSnapshots = []
       for s in snapshots
-        if s[@config.validToField] >= @upToDateISOString
+        if s[@config.validToField] > @upToDateISOString >= s[@config.validFromField]
           @toDateSnapshots.push(s)
     else
       @toDateSnapshots = undefined
@@ -496,6 +496,7 @@ class TimeSeriesCalculator # implements iCalculator
     ###
 
     ticks = utils._.keys(@tickToLabelLookup).sort()
+    labels = (@tickToLabelLookup[t] for t in ticks)
 
     # Calculate metrics for @toDateSnapshots
     if @toDateSnapshots? and @toDateSnapshots.length > 0
@@ -513,13 +514,13 @@ class TimeSeriesCalculator # implements iCalculator
       if cell?
         delete cell._count
       else
-        if foundFirstNullCell or ! @toDateSnapshots? or ! toDateCell?
+        startOn = new Time(labels[tickIndex]).getISOStringInTZ(@config.tz)
+        if toDateCell and startOn <= @upToDateISOString < t  # Then it's the to-date value
+          cell = toDateCell
+        else  # it's blank and should be filled in with nulls
           cell = {}
           for m in @config.metrics
             cell[m.as] = null
-        else
-          cell = toDateCell
-          foundFirstNullCell = true
         cell.tick = t
 
       cell.label = @tickToLabelLookup[cell.tick]

@@ -12001,7 +12001,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         timelineConfig.startOn = this.masterStartOnTime;
         timelineConfig.endBefore = this.masterEndBeforeTime;
         timeline = new Timeline(timelineConfig);
-        ticks = timeline.getAll('Timeline', this.config.tz);
+        ticks = timeline.getAll('Timeline', this.config.tz, this.config.granularity);
         for (_n = 0, _len5 = ticks.length; _n < _len5; _n++) {
           tl = ticks[_n];
           this.tickToLabelLookup[tl.endBefore.getISOStringInTZ(config.tz)] = tl.startOn.toString();
@@ -12022,7 +12022,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           @return {TimeInStateCalculator}
       */
 
-      var advanceOneTimeline, advanceOneTimelineConfig, advanceOneTimelineIterator, endBeforeTime, inputCube, s, startOnTime, ticks, timeline, timelineConfig, tl, validSnapshots, _i, _j, _k, _len, _len1, _len2;
+      var advanceOneTimeline, advanceOneTimelineConfig, advanceOneTimelineIterator, endBeforeTime, inputCube, s, startOnTime, ticks, timeline, timelineConfig, tl, validSnapshots, _i, _j, _k, _len, _len1, _len2, _ref1;
       if (this.upToDateISOString != null) {
         utils.assert(this.upToDateISOString === startOnISOString, "startOnISOString (" + startOnISOString + ") parameter should equal upToDateISOString of previous call (" + this.upToDateISOString + ") to addSnapshots.");
       }
@@ -12048,7 +12048,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         timelineConfig.endBefore = this.masterEndBeforeTime;
       }
       timeline = new Timeline(timelineConfig);
-      ticks = timeline.getAll('Timeline', this.config.tz);
+      ticks = timeline.getAll('Timeline', this.config.tz, this.config.granularity);
       for (_i = 0, _len = ticks.length; _i < _len; _i++) {
         tl = ticks[_i];
         this.tickToLabelLookup[tl.endBefore.getISOStringInTZ(this.config.tz)] = tl.startOn.toString();
@@ -12068,7 +12068,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         this.toDateSnapshots = [];
         for (_k = 0, _len2 = snapshots.length; _k < _len2; _k++) {
           s = snapshots[_k];
-          if (s[this.config.validToField] >= this.upToDateISOString) {
+          if ((s[this.config.validToField] > (_ref1 = this.upToDateISOString) && _ref1 >= s[this.config.validFromField])) {
             this.toDateSnapshots.push(s);
           }
         }
@@ -12085,8 +12085,17 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
       */
 
-      var cell, d, foundFirstNullCell, index, m, row, s, seriesData, summaryMetric, summaryMetrics, t, tickIndex, ticks, toDateCell, toDateCube, values, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _m, _n, _o, _ref1, _ref2, _ref3, _ref4;
+      var cell, d, foundFirstNullCell, index, labels, m, row, s, seriesData, startOn, summaryMetric, summaryMetrics, t, tickIndex, ticks, toDateCell, toDateCube, values, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _m, _n, _o, _ref1, _ref2, _ref3, _ref4, _ref5;
       ticks = utils._.keys(this.tickToLabelLookup).sort();
+      labels = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = ticks.length; _i < _len; _i++) {
+          t = ticks[_i];
+          _results.push(this.tickToLabelLookup[t]);
+        }
+        return _results;
+      }).call(this);
       if ((this.toDateSnapshots != null) && this.toDateSnapshots.length > 0) {
         _ref1 = this.toDateSnapshots;
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
@@ -12107,16 +12116,16 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         if (cell != null) {
           delete cell._count;
         } else {
-          if (foundFirstNullCell || !(this.toDateSnapshots != null) || !(toDateCell != null)) {
+          startOn = new Time(labels[tickIndex]).getISOStringInTZ(this.config.tz);
+          if (toDateCell && (startOn <= (_ref2 = this.upToDateISOString) && _ref2 < t)) {
+            cell = toDateCell;
+          } else {
             cell = {};
-            _ref2 = this.config.metrics;
-            for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-              m = _ref2[_k];
+            _ref3 = this.config.metrics;
+            for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+              m = _ref3[_k];
               cell[m.as] = null;
             }
-          } else {
-            cell = toDateCell;
-            foundFirstNullCell = true;
           }
           cell.tick = t;
         }
@@ -12125,9 +12134,9 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       }
       if (this.config.summaryMetricsConfig != null) {
         summaryMetrics = {};
-        _ref3 = this.config.summaryMetricsConfig;
-        for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-          summaryMetric = _ref3[_l];
+        _ref4 = this.config.summaryMetricsConfig;
+        for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
+          summaryMetric = _ref4[_l];
           if (summaryMetric.field != null) {
             values = [];
             for (_m = 0, _len4 = seriesData.length; _m < _len4; _m++) {
@@ -12143,9 +12152,9 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       if (this.config.deriveFieldsAfterSummary != null) {
         for (index = _n = 0, _len5 = seriesData.length; _n < _len5; index = ++_n) {
           row = seriesData[index];
-          _ref4 = this.config.deriveFieldsAfterSummary;
-          for (_o = 0, _len6 = _ref4.length; _o < _len6; _o++) {
-            d = _ref4[_o];
+          _ref5 = this.config.deriveFieldsAfterSummary;
+          for (_o = 0, _len6 = _ref5.length; _o < _len6; _o++) {
+            d = _ref5[_o];
             row[d.as] = d.f(row, index, summaryMetrics, seriesData);
           }
         }

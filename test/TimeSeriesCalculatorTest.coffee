@@ -331,7 +331,7 @@ exports.TimeSeriesCalculator =
     calculator = new TimeSeriesCalculator(config)
 
     startOnISOString = new Time('2010-12-31').getISOStringInTZ(config.tz)
-    upToDateISOString = new Time('2011-01-08').getISOStringInTZ(config.tz)
+    upToDateISOString = new Time('2011-01-09').getISOStringInTZ(config.tz)
     calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
 
     keys = ['label'].concat(allowedValues)
@@ -416,7 +416,7 @@ exports.TimeSeriesCalculator =
     calculator = new TimeSeriesCalculator(config)
 
     startOnISOString = new Time("2011-01-02").getISOStringInTZ(config.tz)
-    upToDateISOString = new Time("2011-01-08").getISOStringInTZ(config.tz)
+    upToDateISOString = new Time("2011-01-10").getISOStringInTZ(config.tz)
     calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
 
 #    console.log(arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData))
@@ -503,3 +503,49 @@ exports.TimeSeriesCalculator =
 
     test.done()
 
+  testClampingToMasterTimeline: (test) ->
+    csvStyleArray = [
+      ["ObjectID",    "_ValidFrom",               "_ValidTo",                 "Value"],
+      [1,             "2009-01-01T12:00:00.000Z", "2013-01-01T12:00:00.000Z", 1,    ], # Start before end after 2011
+      [2,             "2009-01-01T12:00:00.000Z", "2011-06-01T12:00:00.000Z", 2,    ], # Start before end inside 2011
+      [3,             "2011-06-01T12:00:00.000Z", "2011-08-01T12:00:00.000Z", 3,    ], # Start and end inside 2011
+      [4,             "2011-06-01T12:00:00.000Z", "2013-01-01T12:00:00.000Z", 4,    ], # Start inside and end after 2011
+      [5,             "2009-01-01T12:00:00.000Z", "2009-03-01T12:00:00.000Z", 5,    ], # Start and end before 2011
+      [6,             "2013-01-01T12:00:00.000Z", "2013-03-01T12:00:00.000Z", 6,    ], # Start and end after 2011
+    ]
+
+    snapshots = csvStyleArray_To_ArrayOfMaps(csvStyleArray)
+
+    config =
+      granularity: Time.MONTH
+      tz: "America/New_York"
+      metrics: [
+        {as: 'values', field: 'ObjectID', f: 'values'}
+      ]
+
+    calculator = new TimeSeriesCalculator(config)
+
+    startOnISOString = new Time("2011-01-01").getISOStringInTZ(config.tz)
+    upToDateISOString = new Time("2011-12-31").getISOStringInTZ(config.tz)
+    calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
+
+    expected = [
+      {label: '2011-01', values: [1, 2]},
+      {label: '2011-02', values: [1, 2]},
+      {label: '2011-03', values: [1, 2]},
+      {label: '2011-04', values: [1, 2]},
+      {label: '2011-05', values: [1, 2]},
+      {label: '2011-06', values: [1, 3, 4]},
+      {label: '2011-07', values: [1, 3, 4]},
+      {label: '2011-08', values: [1, 4]},
+      {label: '2011-09', values: [1, 4]},
+      {label: '2011-10', values: [1, 4]},
+      {label: '2011-11', values: [1, 4]},
+      {label: '2011-12', values: [1, 4]},
+    ]
+
+    values = ({label: r.label, values: r.values} for r in calculator.getResults().seriesData)
+
+    test.deepEqual(values, expected)
+
+    test.done()
