@@ -313,7 +313,7 @@ class TimeSeriesCalculator # implements iCalculator
    *   for field `field4` and pass it as the values parameter to the `f` (`sum` in this example) function (from Lumenize.functions), or
    *   it can be in the form of `{as: 'myMetric', f:(seriesData, summaryMetrics) -&gt; ...}`. Note, they are calculated
    *   in order, so you can use the result of an earlier summaryMetric to calculate a later one.
-   * @cfg {Object[]} deriveFieldsAfterSummary same format at deriveFieldsOnInput, except the callback is in the form `f(row, index, summaryMetrics, seriesData)`
+   * @cfg {Object[]} [deriveFieldsAfterSummary] same format at deriveFieldsOnInput, except the callback is in the form `f(row, index, summaryMetrics, seriesData)`
    *   This is called on all rows every time you call getResults() so it's less efficient than deriveFieldsOnOutput. Only use it if you need
    *   the summaryMetrics in your calculation.
    * @cfg {String/ISOString/Date/Lumenize.Time} [startOn=-infinity] This becomes the master startOn for the entire calculator limiting
@@ -485,6 +485,8 @@ class TimeSeriesCalculator # implements iCalculator
     else
       timelineConfig.endBefore = @masterEndBeforeTime
 
+    @asOfISOString = timelineConfig.endBefore.getISOStringInTZ(@config.tz)
+
     timeline = new Timeline(timelineConfig)
     ticks = timeline.getAll('Timeline', @config.tz, @config.granularity)
     @tickToLabelLookup[tl.endBefore.getISOStringInTZ(@config.tz)] = tl.startOn.toString() for tl in ticks
@@ -500,10 +502,10 @@ class TimeSeriesCalculator # implements iCalculator
 
     @cube.addFacts(inputCube.getCells())
 
-    if @masterEndBeforeTime.greaterThanOrEqual(endBeforeTime)
+    if true or @masterEndBeforeTime.greaterThanOrEqual(endBeforeTime)
       @toDateSnapshots = []
       for s in snapshots
-        if s[@config.validToField] &gt; @upToDateISOString &gt;= s[@config.validFromField]
+        if s[@config.validToField] &gt; @asOfISOString &gt;= s[@config.validFromField]
           @toDateSnapshots.push(s)
     else
       @toDateSnapshots = undefined
@@ -540,7 +542,7 @@ class TimeSeriesCalculator # implements iCalculator
         delete cell._count
       else
         startOn = new Time(labels[tickIndex]).getISOStringInTZ(@config.tz)
-        if toDateCell and startOn &lt;= @upToDateISOString &lt; t  # Then it's the to-date value
+        if toDateCell and startOn &lt; @asOfISOString &lt;= t  # Then it's the to-date value
           cell = toDateCell
         else  # it's blank and should be filled in with nulls
           cell = {}

@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.6.5
+Lumenize version: 0.6.6
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -11832,7 +11832,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
             for field `field4` and pass it as the values parameter to the `f` (`sum` in this example) function (from Lumenize.functions), or
             it can be in the form of `{as: 'myMetric', f:(seriesData, summaryMetrics) -> ...}`. Note, they are calculated
             in order, so you can use the result of an earlier summaryMetric to calculate a later one.
-          @cfg {Object[]} deriveFieldsAfterSummary same format at deriveFieldsOnInput, except the callback is in the form `f(row, index, summaryMetrics, seriesData)`
+          @cfg {Object[]} [deriveFieldsAfterSummary] same format at deriveFieldsOnInput, except the callback is in the form `f(row, index, summaryMetrics, seriesData)`
             This is called on all rows every time you call getResults() so it's less efficient than deriveFieldsOnOutput. Only use it if you need
             the summaryMetrics in your calculation.
           @cfg {String/ISOString/Date/Lumenize.Time} [startOn=-infinity] This becomes the master startOn for the entire calculator limiting
@@ -12041,6 +12041,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       } else {
         timelineConfig.endBefore = this.masterEndBeforeTime;
       }
+      this.asOfISOString = timelineConfig.endBefore.getISOStringInTZ(this.config.tz);
       timeline = new Timeline(timelineConfig);
       ticks = timeline.getAll('Timeline', this.config.tz, this.config.granularity);
       for (_i = 0, _len = ticks.length; _i < _len; _i++) {
@@ -12058,11 +12059,11 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       }
       inputCube = new OLAPCube(this.inputCubeConfig, validSnapshots);
       this.cube.addFacts(inputCube.getCells());
-      if (this.masterEndBeforeTime.greaterThanOrEqual(endBeforeTime)) {
+      if (true || this.masterEndBeforeTime.greaterThanOrEqual(endBeforeTime)) {
         this.toDateSnapshots = [];
         for (_k = 0, _len2 = snapshots.length; _k < _len2; _k++) {
           s = snapshots[_k];
-          if ((s[this.config.validToField] > (_ref1 = this.upToDateISOString) && _ref1 >= s[this.config.validFromField])) {
+          if ((s[this.config.validToField] > (_ref1 = this.asOfISOString) && _ref1 >= s[this.config.validFromField])) {
             this.toDateSnapshots.push(s);
           }
         }
@@ -12111,7 +12112,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
           delete cell._count;
         } else {
           startOn = new Time(labels[tickIndex]).getISOStringInTZ(this.config.tz);
-          if (toDateCell && (startOn <= (_ref2 = this.upToDateISOString) && _ref2 < t)) {
+          if (toDateCell && (startOn < (_ref2 = this.asOfISOString) && _ref2 <= t)) {
             cell = toDateCell;
           } else {
             cell = {};
