@@ -66,7 +66,7 @@ task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
   outputDirectory = path.join(__dirname, 'docs', "#{name}-docs")
   if fs.existsSync(outputDirectory)
     wrench.rmdirSyncRecursive(outputDirectory, false)
-  runSync('node_modules/jsduckify/bin/jsduckify', ['-d', outputDirectory, __dirname])
+  runSync('jsduckify', ['-d', outputDirectory, __dirname])
 )
 
 task('pub-docs', 'Push master to gh-pages on github', () ->
@@ -82,6 +82,7 @@ task('publish', 'Publish to npm', () ->
   process.chdir(__dirname)
   runSync('cake test')  # Doing this exernally to make it synchrous
   invoke('docs')
+  process.chdir(__dirname)
   invoke('build')
   runSync('git status --porcelain', [], (stdout) ->
     if stdout.length == 0
