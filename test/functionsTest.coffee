@@ -144,3 +144,48 @@ exports.functionsTest =
     test.equal(metrics.length, 2)
 
     test.done()
+
+
+  testSum: (test) ->
+
+    test.equal(functions.sum([0]),0) #array of 0
+    test.equal(functions.sum([-1, 0, 1, -2]), -2) #array with negative sum
+    test.equal(functions.sum([]), 0) #empty array
+
+    test.done()
+
+  testSumSquares: (test) ->
+
+    test.equal(functions.sumSquares([0]), 0) #array containing only 0
+    test.equal(functions.sumSquares([0, 1, 2]),5)
+    test.equal(functions.sumSquares([-2, -1, 0, 1, 2]),10) #array with negative numbers
+    test.equal(functions.sumSquares([]), 0) #empty array
+
+    test.done()
+
+   testLastValue: (test) ->
+
+     test.equal(functions.lastValue([0]), 0)
+     test.equal(functions.lastValue([]), null) #last value of an empty array is null
+     test.equal(functions.lastValue([-2, 0, 2]), 2)
+     test.done()
+
+  testPercentileCreator: (test) ->
+    values =  [-2, -1, 0, 1, 2]
+
+    test.equal(functions.percentileCreator(50)(values), 0)
+   # test.equal(functions.percentileCreator('median')(values),0) #expected: 0, but 1 passes as well
+    test.done()
+
+  testPercentileCreatorEven: (test) ->
+    values = [-2, -1, 1, 2]
+    test.equal(functions.percentileCreator(50)(values), 0)
+   # test.equal(functions.percentileCreator('median')values, 0) #unexpected identifier
+    test.done()
+
+  testPercentileCreator: (test) ->
+    values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    test.equal(functions.percentileCreator(99.9)(values), 9.991)
+    test.equal(functions.percentileCreator(50)(values), 5.5)
+   # test.equal(functions.percentileCreator('median')(values), 5.5) #expected: 5.5, actual:null
+    test.done()

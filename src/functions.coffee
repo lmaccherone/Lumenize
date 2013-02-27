@@ -225,7 +225,7 @@ functions.standardDeviation.dependencies = functions.variance.dependencies
 @method percentileCreator
 @static
 @param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
-@return {Function} A funtion to calculate the percentile
+@return {Function} A function to calculate the percentile
 
 When the user passes in `p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate
 percentile function. The returned function will find the `<n>`th percentile where `<n>` is some number in the form of

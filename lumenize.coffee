@@ -13,7 +13,7 @@ Simple group-by, 2D pivot-table and even multi-dimensional aggregations (OLAP cu
   * Lumenize.OLAPCube - Used by above three Calculators but also useful stand-alone, particularly for hierarchical roll-ups
 
 All of the above use the mathematical and statistical functions provided by:
-  * Lumenize.functions - count, sum, standardDeviation, p75, p99, p??, min, max, etc.
+  * Lumenize.functions - count, sum, standardDeviation, percentile coverage, min, max, etc.
 
 Three transformation functions are provided:
   * Lumenize.arrayOfMaps_To_CSVStyleArray - Used to transform from record to table format
