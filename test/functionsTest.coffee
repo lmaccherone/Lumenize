@@ -170,22 +170,25 @@ exports.functionsTest =
      test.equal(functions.lastValue([-2, 0, 2]), 2)
      test.done()
 
+   testAverage: (test) ->
+     #test.equal(functions.average([]), null)
+     test.equal(functions.average([0]), 0)
+     test.equal(functions.average([-2, -1, 0, 1, 2]), 0)
+     test.done()
+
   testPercentileCreator: (test) ->
     values =  [-2, -1, 0, 1, 2]
 
     test.equal(functions.percentileCreator(50)(values), 0)
-   # test.equal(functions.percentileCreator('median')(values),0) #expected: 0, but 1 passes as well
     test.done()
 
   testPercentileCreatorEven: (test) ->
     values = [-2, -1, 1, 2]
     test.equal(functions.percentileCreator(50)(values), 0)
-   # test.equal(functions.percentileCreator('median')values, 0) #unexpected identifier
     test.done()
 
   testPercentileCreator: (test) ->
     values = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     test.equal(functions.percentileCreator(99.9)(values), 9.991)
     test.equal(functions.percentileCreator(50)(values), 5.5)
-   # test.equal(functions.percentileCreator('median')(values), 5.5) #expected: 5.5, actual:null
     test.done()
