@@ -192,3 +192,13 @@ exports.functionsTest =
     test.equal(functions.percentileCreator(99.9)(values), 9.991)
     test.equal(functions.percentileCreator(50)(values), 5.5)
     test.done()
+
+  testPercentileCreatorDecimals: (test) ->
+    values = [1.5, 2.7, 3.4, 4.5, 5.0, 6.7, 7.8, 8.5, 9.1, 10.2]
+    test.equal(functions.percentileCreator(50)(values), 5.85)
+    test.done()
+
+  testPercentileCreatorDecimalsOdd: (test) ->
+    values = [1.5, 2.7, 3.4, 4.5, 5.0, 6.7, 7.8, 8.5, 9.1, 10.2, 11.7]
+    test.equal(functions.percentileCreator(50)(values), 6.7)
+    test.done()
