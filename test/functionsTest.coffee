@@ -170,16 +170,54 @@ exports.functionsTest =
      test.equal(functions.lastValue([-2, 0, 2]), 2)
      test.done()
 
+  testFirstValue: (test) ->
+
+    test.equal(functions.firstValue([0]), 0)
+    test.equal(functions.firstValue([]), null) #first value of an empty array is null
+    test.equal(functions.firstValue([-2,0,2]),-2)
+    test.done()
+
+  testCount: (test) ->
+    test.equal(functions.count([0]),1)
+    test.equal(functions.count([]), 0)
+    test.equal(functions.count([-2,0,2]),3)
+    test.done()
+
+  testMin: (test) ->
+    test.equal(functions.min([0]),0)
+    test.equal(functions.min([]),null) #min value in empty array is null
+    test.equal(functions.min([-2,0,2]),-2)
+    test.done()
+
+
+  testMax: (test) ->
+    test.equal(functions.max([0]), 0)
+    test.equal(functions.max([]), null) #max value in an empty array is null
+    test.equal(functions.max([-2,0,2]),2)
+    test.done()
+
+
+  testValues: (test) ->
+    test.equal(functions.values([1,2,3,4,5]).length, [1,2,3,4,5].length)
+     #how to test array equality in coffeescript? just testing if lengths are equal
+
+    test.equal(functions.values([1,2,3,4,5], [15], [6,7,8,9,10]).length, [15,6,7,8,9,10].length)
+    test.done()
+
    testAverage: (test) ->
-     #test.equal(functions.average([]), null)
+     #test.equal(functions.average([]), null) what should the average of a null array be?
      test.equal(functions.average([0]), 0)
      test.equal(functions.average([-2, -1, 0, 1, 2]), 0)
      test.done()
 
+  testVariance: (test) ->
+    test.equal(functions.variance([-2, -1.5, 0, 1, 2.5]), 3.375 )
+    test.done()
+
   testPercentileCreator: (test) ->
     values =  [-2, -1, 0, 1, 2]
 
-    test.equal(functions.percentileCreator(50)(values), 0)
+    test.equal(functions.percentileCreator(50)(values), 0) #median of array of integers
     test.done()
 
   testPercentileCreatorEven: (test) ->
@@ -194,11 +232,11 @@ exports.functionsTest =
     test.done()
 
   testPercentileCreatorDecimals: (test) ->
-    values = [1.5, 2.7, 3.4, 4.5, 5.0, 6.7, 7.8, 8.5, 9.1, 10.2]
+    values = [1.5, 2.7, 3.4, 4.5, 5.0, 6.7, 7.8, 8.5, 9.1, 10.2] #median of an array of decimals
     test.equal(functions.percentileCreator(50)(values), 5.85)
     test.done()
 
   testPercentileCreatorDecimalsOdd: (test) ->
-    values = [1.5, 2.7, 3.4, 4.5, 5.0, 6.7, 7.8, 8.5, 9.1, 10.2, 11.7]
+    values = [1.5, 2.7, 3.4, 4.5, 5.0, 6.7, 7.8, 8.5, 9.1, 10.2, 11.7] #median of an array of decimals
     test.equal(functions.percentileCreator(50)(values), 6.7)
     test.done()
