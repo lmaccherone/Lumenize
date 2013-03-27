@@ -1,6 +1,6 @@
 {utils} = require('tztime')
 functions = require('./functions').functions
-{pf, pu, pt, u} = require('./distributions').distributions
+{fDist, normInverseUpper} = require('./distributions').distributions
 correlate = require('./correlate').correlate
 
 anova = (rawData, overallPredicate, field, groups, ci = 0.95) ->
@@ -40,7 +40,7 @@ anova = (rawData, overallPredicate, field, groups, ci = 0.95) ->
   overallMean = overallSum / overallN
   pooledStandardDeviation = Math.sqrt(pooledNumerator / (overallN - groups.length))
 
-  multiplier = u((1.0 - ci) / 2)
+  multiplier = normInverseUpper((1.0 - ci) / 2)
   for group in groups
     group.ciDelta = multiplier * pooledStandardDeviation / Math.sqrt(group.n)
 
@@ -107,7 +107,7 @@ anova = (rawData, overallPredicate, field, groups, ci = 0.95) ->
 
   factorF = factorMS / errorMS
 
-  factorP = pf(factorDF, errorDF, factorF)
+  factorP = fDist(factorDF, errorDF, factorF)
 
   rSquared = factorSS / totalSS
   rSquaredAdjusted = Math.abs(1 - (1 - rSquared) * (overallN - 1) / (overallN - groups.length))
