@@ -34,7 +34,7 @@ _populateDependentValues = (values, dependencies, dependentValues = {}, prefix =
 ###
 @method sum
 @static
-@param {Number[]} values
+@param {Number[]} [values] Must either provide values or oldResult and newValues
 @param {Number} [oldResult] for incremental calculation
 @param {Number[]} [newValues] for incremental calculation
 @return {Number} The sum of the values
@@ -53,7 +53,7 @@ functions.sum = (values, oldResult, newValues) ->
 ###
 @method sumSquares
 @static
-@param {Number[]} values
+@param {Number[]} [values] Must either provide values or oldResult and newValues
 @param {Number} [oldResult] for incremental calculation
 @param {Number[]} [newValues] for incremental calculation
 @return {Number} The sum of the squares of the values
@@ -72,7 +72,7 @@ functions.sumSquares = (values, oldResult, newValues) ->
 ###
 @method lastValue
 @static
-@param {Number[]} values
+@param {Number[]} [values] Must either provide values or newValues
 @param {Number} [oldResult] Not used. It is included to make the interface consistent.
 @param {Number[]} [newValues] for incremental calculation
 @return {Number} The last value
@@ -85,7 +85,7 @@ functions.lastValue = (values, oldResult, newValues) ->
 ###
 @method firstValue
 @static
-@param {Number[]} values
+@param {Number[]} [values] Must either provide values or oldResult
 @param {Number} [oldResult] for incremental calculation
 @param {Number[]} [newValues] Not used. It is included to make the interface consistent.
 @return {Number} The first value
@@ -98,7 +98,7 @@ functions.firstValue = (values, oldResult, newValues) ->
 ###
 @method count
 @static
-@param {Number[]} values
+@param {Number[]} [values] Must either provide values or oldResult and newValues
 @param {Number} [oldResult] for incremental calculation
 @param {Number[]} [newValues] for incremental calculation
 @return {Number} The length of the values Array
@@ -111,7 +111,7 @@ functions.count = (values, oldResult, newValues) ->
 ###
 @method min
 @static
-@param {Number[]} values
+@param {Number[]} [values] Must either provide values or oldResult and newValues
 @param {Number} [oldResult] for incremental calculation
 @param {Number[]} [newValues] for incremental calculation
 @return {Number} The minimum value or null if no values
@@ -130,7 +130,7 @@ functions.min = (values, oldResult, newValues) ->
 ###
 @method max
 @static
-@param {Number[]} values
+@param {Number[]} [values] Must either provide values or oldResult and newValues
 @param {Number} [oldResult] for incremental calculation
 @param {Number[]} [newValues] for incremental calculation
 @return {Number} The maximum value or null if no values
@@ -149,7 +149,7 @@ functions.max = (values, oldResult, newValues) ->
 ###
 @method values
 @static
-@param {Object[]} values
+@param {Object[]} [values] Must either provide values or oldResult and newValues
 @param {Number} [oldResult] for incremental calculation
 @param {Number[]} [newValues] for incremental calculation
 @return {Array} All values (allows duplicates). Can be used for drill down.
@@ -166,7 +166,7 @@ functions.values = (values, oldResult, newValues) ->
 ###
 @method uniqueValues
 @static
-@param {Object[]} values
+@param {Object[]} [values] Must either provide values or oldResult and newValues
 @param {Number} [oldResult] for incremental calculation
 @param {Number[]} [newValues] for incremental calculation
 @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
@@ -189,7 +189,11 @@ functions.uniqueValues = (values, oldResult, newValues) ->
 ###
 @method average
 @static
-@param {Number[]} values
+@param {Number[]} [values] Must either provide values or oldResult and newValues
+@param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+@param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+@param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+  you to provide those pre-calculated values.
 @return {Number} The arithmetic mean
 ###
 functions.average = (values, oldResult, newValues, dependentValues, prefix) ->
@@ -201,7 +205,11 @@ functions.average.dependencies = ['count', 'sum']
 ###
 @method variance
 @static
-@param {Number[]} values
+@param {Number[]} [values] Must either provide values or oldResult and newValues
+@param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+@param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+@param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+  you to provide those pre-calculated values.
 @return {Number} The variance
 ###
 functions.variance = (values, oldResult, newValues, dependentValues, prefix) ->
@@ -213,7 +221,11 @@ functions.variance.dependencies = ['count', 'sum', 'sumSquares']
 ###
 @method standardDeviation
 @static
-@param {Number[]} values
+@param {Number[]} [values] Must either provide values or oldResult and newValues
+@param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+@param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+@param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+  you to provide those pre-calculated values.
 @return {Number} The standard deviation
 ###
 functions.standardDeviation = (values, oldResult, newValues, dependentValues, prefix) ->

@@ -40,9 +40,16 @@ datatransform = require('./src/dataTransform')
 exports.arrayOfMaps_To_CSVStyleArray = datatransform.arrayOfMaps_To_CSVStyleArray
 exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps
 exports.arrayOfMaps_To_HighChartsSeries = datatransform.arrayOfMaps_To_HighChartsSeries
+exports.csvString_To_CSVStyleArray = datatransform.csvString_To_CSVStyleArray
 
 exports.functions = require('./src/functions').functions
 
 exports.histogram = require('./src/histogram').histogram
 
 exports.OLAPCube = require('./src/OLAPCube').OLAPCube
+
+exports.anova = require('./src/anova').anova
+
+exports.distributions = require('./src/distributions').distributions
+
+exports.DataFlow = require('./src/DataFlow').DataFlow
