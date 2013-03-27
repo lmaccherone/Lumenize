@@ -2,11 +2,14 @@
 JavaScript version from which this CoffeeScript version was derived by Ben Tilly <btilly@gmail.com>
 which was derived from the Perl version by Michael Kospach <mike.perl@gmx.at>
 both of which are licensed under the Perl Artistic License which allows linking from MIT licensed code.
+
+Note: these are approximations good to 5 digits (which is good enough for almost every thing)
+
 https://code.google.com/p/statistics-distributions-js/source/browse/trunk/statistics-distributions.js
 ###
 distributions = {}
 
-distributions.pf = (n, m, x) ->
+distributions.fDist = (n, m, x) ->
   ###
   Upper probability of the F distribution
   ###
@@ -54,10 +57,10 @@ distributions.pf = (n, m, x) ->
     while i >= 3
       a = 1 + (i - 1) / i * z * a
       i -= 2
-    p = max(0, p1 + 1 - 2 * y / Math.PI - 2 / Math.PI * Math.sin(y) * Math.cos(y) * a)
+    p = Math.max(0, p1 + 1 - 2 * y / Math.PI - 2 / Math.PI * Math.sin(y) * Math.cos(y) * a)
   return p
 
-distributions.t = ($n, p) ->
+distributions.tInverseUpper = ($n, p) ->
   if p >= 1 or p <= 0
     throw new Error("Invalid p: p\n")
   if p is 0.5
@@ -82,7 +85,7 @@ distributions.t = ($n, p) ->
       break unless ($x) and ($round isnt 0)
   return $x
 
-distributions.pt = ($n, $x) ->
+distributions.tDist = ($n, $x) ->
   $a = undefined
   $b = undefined
   $w = Math.atan2($x / Math.sqrt($n), 1)
@@ -101,7 +104,7 @@ distributions.pt = ($n, $x) ->
     $b = .5 + $w / Math.PI
   return Math.max(0, 1 - $b - $a * $y)
 
-distributions.pu = ($x) ->
+distributions.normDist = ($x) ->  # equivalent to Excel's NORMSDIST
   p = 0
   $absx = Math.abs($x)
   if $absx < 1.9
@@ -116,7 +119,7 @@ distributions.pu = ($x) ->
   p = 1 - p  if $x < 0
   p
 
-distributions.u = (p) ->
+distributions.normInverseUpper = (p) ->
   $y = -Math.log(4 * p * (1 - p))
   $x = Math.sqrt($y * (1.570796288 +
                  $y * (.03706987906 +
@@ -131,5 +134,8 @@ distributions.u = (p) ->
                  $y * .6936233982e-12)))))))))))
   $x = -$x  if p > .5
   $x
+
+distributions.normInverse = (p) ->  # equivalent to Excel's NORMSINV
+  return distributions.normInverseUpper(1 - p)
 
 exports.distributions = distributions
