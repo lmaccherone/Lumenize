@@ -239,7 +239,7 @@ class OLAPCube
     @param {Object} config See Config options for details. DO NOT change the config settings after the OLAP class is instantiated.
     @param {Object[]} [facts] Optional parameter allowing the population of the OLAPCube with an intitial set of facts
       upon instantiation. Use addFacts() to add facts after instantiation.
-    @cfg {Object[]} dimensions (required) Array which specifies the fields to use as dimension fields. If the field contains a
+    @cfg {Object[]} dimensions Array which specifies the fields to use as dimension fields. If the field contains a
       hierarchy array, say so in the row, (e.g. `{field: 'SomeFieldName', type: 'hierarchy'}`). Any array values that it
       finds in the supplied facts will be assumed to be tags rather than a hierarchy specification unless `type: 'hierarchy'`
       is specified.
@@ -264,7 +264,7 @@ class OLAPCube
       Notice how a keepTotals can be set for an individual dimension. This is preferable to setting it for the entire
       cube in cases where you don't want totals in all dimensions.
 
-    @cfg {Object[]} [metrics=[]] (required) Array which specifies the metrics to calculate for each cell in the cube.
+    @cfg {Object[]} [metrics=[]] Array which specifies the metrics to calculate for each cell in the cube.
 
       Example:
 
@@ -295,8 +295,8 @@ class OLAPCube
       the metrics for each cell by adding an automatic 'facts' metric. Note, facts are restored after deserialization
       as you would expect, but they are no longer tied to the original facts. This feature, especially after a restore
       can eat up memory.
-    @cfg {Object[]} deriveFieldsOnInput An Array of Maps in the form `{field:'myField', f:(fact)->...}`
-    @cfg {Object[]} deriveFieldsOnOutput same format as deriveFieldsOnInput, except the callback is in the form `f(row)`
+    @cfg {Object[]} [deriveFieldsOnInput] An Array of Maps in the form `{field:'myField', f:(fact)->...}`
+    @cfg {Object[]} [deriveFieldsOnOutput] same format as deriveFieldsOnInput, except the callback is in the form `f(row)`
       This is only called for dirty rows that were effected by the latest round of addFacts. It's more efficient to calculate things
       like standard deviation and percentile coverage here than in config.metrics. You just have to remember to include the dependencies
       in config.metrics. Standard deviation depends upon `sum` and `sumSquares`. Percentile coverage depends upon `values`.
@@ -379,7 +379,7 @@ class OLAPCube
       rolloverArray.push(p.length - 1)  # !TODO: If I need some speed, we could calculate the rolloverArray once and make a copy to the countdownArray for each run
 
     for m in @config.metrics
-      @currentValues[m.field] = [fact[m.field]]
+      @currentValues[m.field] = [fact[m.field]]  # !TODO: Add default values here. I think this is the only place it is needed. write tests with incremental update to confirm.
     out = []
     more = true
     while more
@@ -548,9 +548,9 @@ class OLAPCube
         return b - a
       when 'array'
         for value, index in a
-          if value < b[index]
+          if b.length - 1 >= index and value < b[index]
             return 1
-          if value > b[index]
+          if b.length - 1 >= index and value > b[index]
             return -1
         if a.length < b.length
           return 1
