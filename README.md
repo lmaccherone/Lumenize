@@ -70,7 +70,7 @@ To install, run the following from the root folder of your project:
 
 Then in your code:
 
-`var lumenize = require('lumenize')`
+`var lumenize = require('Lumenize')`
 
 ## Documentation and source code ##
 

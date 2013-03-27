@@ -4641,6 +4641,8 @@ And last, additional functionality is provided by:
 
   exports.arrayOfMaps_To_HighChartsSeries = datatransform.arrayOfMaps_To_HighChartsSeries;
 
+  exports.csvString_To_CSVStyleArray = datatransform.csvString_To_CSVStyleArray;
+
   exports.functions = require('./src/functions').functions;
 
   exports.histogram = require('./src/histogram').histogram;
@@ -10507,7 +10509,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @method sum
   @static
-  @param {Number[]} values
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Number} The sum of the values
@@ -10533,7 +10535,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @method sumSquares
   @static
-  @param {Number[]} values
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Number} The sum of the squares of the values
@@ -10559,7 +10561,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @method lastValue
   @static
-  @param {Number[]} values
+  @param {Number[]} [values] Must either provide values or newValues
   @param {Number} [oldResult] Not used. It is included to make the interface consistent.
   @param {Number[]} [newValues] for incremental calculation
   @return {Number} The last value
@@ -10576,7 +10578,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @method firstValue
   @static
-  @param {Number[]} values
+  @param {Number[]} [values] Must either provide values or oldResult
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] Not used. It is included to make the interface consistent.
   @return {Number} The first value
@@ -10593,7 +10595,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @method count
   @static
-  @param {Number[]} values
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Number} The length of the values Array
@@ -10610,7 +10612,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @method min
   @static
-  @param {Number[]} values
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Number} The minimum value or null if no values
@@ -10638,7 +10640,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @method max
   @static
-  @param {Number[]} values
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Number} The maximum value or null if no values
@@ -10666,7 +10668,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @method values
   @static
-  @param {Object[]} values
+  @param {Object[]} [values] Must either provide values or oldResult and newValues
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Array} All values (allows duplicates). Can be used for drill down.
@@ -10683,7 +10685,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @method uniqueValues
   @static
-  @param {Object[]} values
+  @param {Object[]} [values] Must either provide values or oldResult and newValues
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
@@ -10717,7 +10719,11 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @method average
   @static
-  @param {Number[]} values
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+  @param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+  @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+    you to provide those pre-calculated values.
   @return {Number} The arithmetic mean
   */
 
@@ -10733,7 +10739,11 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @method variance
   @static
-  @param {Number[]} values
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+  @param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+  @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+    you to provide those pre-calculated values.
   @return {Number} The variance
   */
 
@@ -10749,7 +10759,11 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   /*
   @method standardDeviation
   @static
-  @param {Number[]} values
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+  @param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+  @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+    you to provide those pre-calculated values.
   @return {Number} The standard deviation
   */
 
@@ -10973,7 +10987,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
 });
 
 require.define("/src/dataTransform.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var Time, arrayOfMaps_To_CSVStyleArray, arrayOfMaps_To_HighChartsSeries, csvStyleArray_To_ArrayOfMaps, utils, _ref;
+  var Time, arrayOfMaps_To_CSVStyleArray, arrayOfMaps_To_HighChartsSeries, csvString_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, utils, _ref;
 
   _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time;
 
@@ -11151,11 +11165,42 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     return output;
   };
 
+  csvString_To_CSVStyleArray = function(s, asterixForUndefined) {
+    var c, cValue, headerLength, newRow, out, rawRowArray, row, rows, _i, _j, _len, _len1;
+    if (asterixForUndefined == null) {
+      asterixForUndefined = true;
+    }
+    rows = s.split('\n');
+    headerLength = rows[0].split(',').length;
+    out = [];
+    for (_i = 0, _len = rows.length; _i < _len; _i++) {
+      row = rows[_i];
+      newRow = [];
+      rawRowArray = row.split(',');
+      if (rawRowArray.length !== headerLength) {
+        throw new Error('Row length does not match header length.');
+      }
+      for (_j = 0, _len1 = rawRowArray.length; _j < _len1; _j++) {
+        c = rawRowArray[_j];
+        if (asterixForUndefined && c === '*') {
+          cValue = void 0;
+        } else {
+          cValue = JSON.parse(c);
+        }
+        newRow.push(cValue);
+      }
+      out.push(newRow);
+    }
+    return out;
+  };
+
   exports.arrayOfMaps_To_CSVStyleArray = arrayOfMaps_To_CSVStyleArray;
 
   exports.csvStyleArray_To_ArrayOfMaps = csvStyleArray_To_ArrayOfMaps;
 
   exports.arrayOfMaps_To_HighChartsSeries = arrayOfMaps_To_HighChartsSeries;
+
+  exports.csvString_To_CSVStyleArray = csvString_To_CSVStyleArray;
 
 }).call(this);
 

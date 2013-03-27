@@ -144,6 +144,29 @@ arrayOfMaps_To_HighChartsSeries = (arrayOfMaps, config) ->
     output.push(outputRow)
   return output
 
+csvString_To_CSVStyleArray = (s, asterixForUndefined = true) ->
+  # This is not robust yet. Adding a comma inside a string will break it.
+  rows = s.split('\n')
+
+  headerLength = rows[0].split(',').length
+
+  out = []
+  for row in rows
+    newRow = []
+    rawRowArray = row.split(',')
+    if rawRowArray.length isnt headerLength
+      throw new Error('Row length does not match header length.')
+    for c in rawRowArray
+      if asterixForUndefined and c is '*'
+        cValue = undefined
+      else
+        cValue = JSON.parse(c)
+      newRow.push(cValue)
+    out.push(newRow)
+
+  return out
+
 exports.arrayOfMaps_To_CSVStyleArray = arrayOfMaps_To_CSVStyleArray
 exports.csvStyleArray_To_ArrayOfMaps = csvStyleArray_To_ArrayOfMaps
 exports.arrayOfMaps_To_HighChartsSeries = arrayOfMaps_To_HighChartsSeries
+exports.csvString_To_CSVStyleArray = csvString_To_CSVStyleArray
