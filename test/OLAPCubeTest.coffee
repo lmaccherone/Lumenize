@@ -486,3 +486,42 @@ exports.olapTest =
     test.deepEqual(expected, cube.getCells())
 
     test.done()
+
+  testPrintingWideFields: (test) ->
+    input= [
+      {"cat": "some", "id": "0"},
+      {"cat": "some", "id": "1"},
+      {"cat": "some/category", "id": "2"},
+      {"cat": "some/category/sub", "id": "3"},
+      {"cat": "some/other", "id": "4"},
+      {"cat": "some/thing/different", "id": "5"},
+      {"cat": "some/thing/different", "id": "6"},
+      {"cat": "yet/another", "id": "7"}
+    ]
+
+    deriveFieldsOnInput = [{field: 'path', f: (fact) -> fact.cat.split('/')}]
+
+    dimensions = [{field: 'path', type: 'hierarchy'}]
+    metrics = [{field: 'id', f: 'values', as: 'id'}]
+    config = {dimensions, metrics, deriveFieldsOnInput, keepTotals: true}
+
+    cube = new OLAPCube(config, input)
+
+    expected = '''
+      | path                         |                                id |
+      |==================================================================|
+      | Total                        | ["0","1","2","3","4","5","6","7"] |
+      |------------------------------------------------------------------|
+      | ["some"]                     |     ["0","1","2","3","4","5","6"] |
+      | ["some","category"]          |                         ["2","3"] |
+      | ["some","category","sub"]    |                             ["3"] |
+      | ["some","other"]             |                             ["4"] |
+      | ["some","thing"]             |                         ["5","6"] |
+      | ["some","thing","different"] |                         ["5","6"] |
+      | ["yet"]                      |                             ["7"] |
+      | ["yet","another"]            |                             ["7"] |
+    '''
+
+    test.equal(expected, cube.toString(null, null, 'id'))
+
+    test.done()

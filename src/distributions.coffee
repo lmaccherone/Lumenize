@@ -7,7 +7,9 @@ Note: these are approximations good to 5 digits (which is good enough for almost
 
 https://code.google.com/p/statistics-distributions-js/source/browse/trunk/statistics-distributions.js
 ###
-distributions = {}
+distributions = {}  # !TODO: Rename all of these so they align (not exactly match) with Excel.
+                    # Should distinguish between the probability density function (don't have any of these in here yet)
+                    # and the cumulative form. Excel uses TRUE/FALSE as the last parameter to distinguish
 
 distributions.fDist = (n, m, x) ->
   ###
@@ -117,23 +119,23 @@ distributions.normDist = ($x) ->  # equivalent to Excel's NORMSDIST
       $i--
     p = Math.exp(-.5 * $absx * $absx) / Math.sqrt(2 * Math.PI) / ($absx + p)
   p = 1 - p  if $x < 0
-  p
+  return p
 
 distributions.normInverseUpper = (p) ->
   $y = -Math.log(4 * p * (1 - p))
   $x = Math.sqrt($y * (1.570796288 +
-                 $y * (.03706987906 +
-                 $y * (-.8364353589e-3 +
-                 $y * (-.2250947176e-3 +
-                 $y * (.6841218299e-5 +
-                 $y * (0.5824238515e-5 +
-                 $y * (-.104527497e-5 +
-                 $y * (.8360937017e-7 +
-                 $y * (-.3231081277e-8 +
-                 $y * (.3657763036e-10 +
-                 $y * .6936233982e-12)))))))))))
+                   $y * (.03706987906 +
+                     $y * (-.8364353589e-3 +
+                       $y * (-.2250947176e-3 +
+                         $y * (.6841218299e-5 +
+                           $y * (0.5824238515e-5 +
+                             $y * (-.104527497e-5 +
+                               $y * (.8360937017e-7 +
+                                 $y * (-.3231081277e-8 +
+                                   $y * (.3657763036e-10 +
+                                     $y * .6936233982e-12)))))))))))
   $x = -$x  if p > .5
-  $x
+  return $x
 
 distributions.normInverse = (p) ->  # equivalent to Excel's NORMSINV
   return distributions.normInverseUpper(1 - p)
