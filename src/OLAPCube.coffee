@@ -568,7 +568,7 @@ class OLAPCube
         else
           return 0
       else
-        throw new Error("Do not know how to sort objects of type #{utils.type(o1)}.")
+        throw new Error("Do not know how to sort objects of type #{utils.type(a)}.")
 
   toString: (rows, columns, metric) ->
     ###
@@ -581,76 +581,106 @@ class OLAPCube
     ###
     unless metric?
       metric = '_count'
-    if @config.dimensions.length == 1  # !TODO: Upgrade this 1-dimension portion to be as nice as the 2+ dimension version below
-      field = @config.dimensions[0].field
-      s = OLAPCube._padToWidth(field, 15) + OLAPCube._padToWidth(metric, 27)
+    if @config.dimensions.length == 1 
+      return @toStringOneDimension(@config.dimensions[0].field, metric)
+    else
+      return @toStringTwoDimensions(rows, columns, metric)
 
-      for r, index in @getDimensionValues(field)
+  toStringOneDimension: (field, metric) ->
+    rowValues = @getDimensionValues(field)
+    rowValueStrings = (JSON.stringify(r) for r in rowValues)
+    rowLabelWidth = Math.max.apply({}, (s.length for s in rowValueStrings))
+    rowLabelWidth = Math.max(rowLabelWidth, 'Total'.length, field.length)
+    maxColumnWidth = metric.length
+    valueStrings = []
+    for r, indexRow in rowValues
+      filter = {}
+      filter[field] = r
+      cell = @getCell(filter)
+      if cell?
+        cellString = JSON.stringify(cell[metric])
+      else
+        cellString = ''
+      maxColumnWidth = Math.max(maxColumnWidth, cellString.length)
+      valueStrings.push(cellString)
+
+    maxColumnWidth += 1
+    fullWidth = rowLabelWidth + maxColumnWidth + 4
+
+    s = '| ' + (OLAPCube._padToWidth(field, rowLabelWidth, ' ', true)) + ' |'
+    s += OLAPCube._padToWidth(metric, maxColumnWidth) + ' |'
+    s += '\n|' + OLAPCube._padToWidth('', fullWidth, '=') + '|'
+    for r, indexRow in rowValueStrings
+      s += '\n| '
+      if r == 'null'
+        s += OLAPCube._padToWidth('Total', rowLabelWidth, ' ', true)
+      else
+        s += OLAPCube._padToWidth(r, rowLabelWidth, ' ', true)
+      s += ' |' + OLAPCube._padToWidth(valueStrings[indexRow], maxColumnWidth) + ' |'
+
+      if r == 'null'
+        s += '\n|' + OLAPCube._padToWidth('', fullWidth, '-') + '|'
+    return s
+
+  toStringTwoDimensions: (rows, columns, metric) ->
+    unless rows?
+      rows = @config.dimensions[0].field
+    unless columns?
+      columns = @config.dimensions[1].field
+    rowValues = @getDimensionValues(rows)
+    columnValues = @getDimensionValues(columns)
+    rowValueStrings = (JSON.stringify(r) for r in rowValues)
+    columnValueStrings = (JSON.stringify(c) for c in columnValues)
+    rowLabelWidth = Math.max.apply({}, (s.length for s in rowValueStrings))
+    rowLabelWidth = Math.max(rowLabelWidth, 'Total'.length)
+    valueStrings = []
+    maxColumnWidth = Math.max.apply({}, (s.length for s in columnValueStrings))
+    maxColumnWidth = Math.max(maxColumnWidth, 'Total'.length)
+    for r, indexRow in rowValues
+      valueStringsRow = []
+      for c, indexColumn in columnValues
         filter = {}
-        filter[field] = r
+        filter[rows] = r
+        filter[columns] = c
         cell = @getCell(filter)
         if cell?
           cellString = JSON.stringify(cell[metric])
         else
           cellString = ''
-        s += '\n' + OLAPCube._padToWidth(r.toString(), 15) + OLAPCube._padToWidth(cellString, 27)
-    else  # 2 or more dimensions
-      unless rows?
-        rows = @config.dimensions[0].field
-      unless columns?
-        columns = @config.dimensions[1].field
-      rowValues = @getDimensionValues(rows)
-      columnValues = @getDimensionValues(columns)
-      rowValueStrings = (JSON.stringify(r) for r in rowValues)
-      columnValueStrings = (JSON.stringify(c) for c in columnValues)
-      rowLabelWidth = Math.max.apply({}, (s.length for s in rowValueStrings))
-      rowLabelWidth = Math.max(rowLabelWidth, 'Total'.length)
-      valueStrings = []
-      maxColumnWidth = Math.max.apply({}, (s.length for s in columnValueStrings))
-      maxColumnWidth = Math.max(maxColumnWidth, 'Total'.length)
-      for r, indexRow in rowValues
-        valueStringsRow = []
-        for c, indexColumn in columnValues
-          filter = {}
-          filter[rows] = r
-          filter[columns] = c
-          cell = @getCell(filter)
-          if cell?
-            cellString = JSON.stringify(cell[metric])
-          else
-            cellString = ''
-          maxColumnWidth = Math.max(maxColumnWidth, cellString.length)
-          valueStringsRow.push(cellString)
-        valueStrings.push(valueStringsRow)
-      maxColumnWidth += 1
-      s = '|' + (OLAPCube._padToWidth('', rowLabelWidth)) + ' ||'
+        maxColumnWidth = Math.max(maxColumnWidth, cellString.length)
+        valueStringsRow.push(cellString)
+      valueStrings.push(valueStringsRow)
+    maxColumnWidth += 1
+    s = '|' + (OLAPCube._padToWidth('', rowLabelWidth)) + ' ||'
 
+    for c, indexColumn in columnValueStrings
+      if c == 'null'
+        s += OLAPCube._padToWidth('Total', maxColumnWidth) + ' |'
+      else
+        s += OLAPCube._padToWidth(c, maxColumnWidth)
+    fullWidth = rowLabelWidth + maxColumnWidth * columnValueStrings.length + 3
+    if columnValueStrings[0] == 'null'
+      fullWidth += 2
+    s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '=')
+    for r, indexRow in rowValueStrings
+      s += '|\n|'
+      if r == 'null'
+        s += OLAPCube._padToWidth('Total', rowLabelWidth, ' ', true)
+      else
+        s += OLAPCube._padToWidth(r, rowLabelWidth, ' ', true)
+      s += ' ||'
       for c, indexColumn in columnValueStrings
+        s += OLAPCube._padToWidth(valueStrings[indexRow][indexColumn], maxColumnWidth)
         if c == 'null'
-          s += OLAPCube._padToWidth('Total', maxColumnWidth) + ' |'
-        else
-          s += OLAPCube._padToWidth(c, maxColumnWidth)
-      fullWidth = rowLabelWidth + maxColumnWidth * columnValueStrings.length + 3
-      if columnValueStrings[0] == 'null'
-        fullWidth += 2
-      s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '=')
-      for r, indexRow in rowValueStrings
-        s += '|\n|'
-        if r == 'null'
-          s += OLAPCube._padToWidth('Total', rowLabelWidth, ' ', true)
-        else
-          s += OLAPCube._padToWidth(r, rowLabelWidth, ' ', true)
-        s += ' ||'
-        for c, indexColumn in columnValueStrings
-          s += OLAPCube._padToWidth(valueStrings[indexRow][indexColumn], maxColumnWidth)
-          if c == 'null'
-            s += ' |'
-        if r == 'null'
-          s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '-')
-      s += '|'
+          s += ' |'
+      if r == 'null'
+        s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '-')
+    s += '|'
     return s
 
   @_padToWidth: (s, width, padCharacter = ' ', rightPad = false) ->
+    if s.length > width
+      return s.substr(0, width)
     padding = new Array(width - s.length + 1).join(padCharacter)
     if rightPad
       return s + padding
