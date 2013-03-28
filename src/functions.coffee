@@ -247,7 +247,7 @@ Note: `median` is an alias for `p50`.
 
 There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
 use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
-recommendation and makes the most sense to me.
+recommendation and makes the most sense to me.  See http://en.wikipedia.org/wiki/Percentile#Alternative_methods
 ###
 functions.percentileCreator = (p) ->
   f = (values, oldResult, newValues, dependentValues, prefix) ->
@@ -260,8 +260,8 @@ functions.percentileCreator = (p) ->
     n = (p * (vLength - 1) / 100) + 1
     k = Math.floor(n)
     d = n - k
-    if n == 1
-      return values[1 - 1]
+    if k == 1
+      return values[0]
     if n == vLength
       return values[vLength - 1]
     return values[k - 1] + d * (values[k] - values[k - 1])
