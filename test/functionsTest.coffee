@@ -145,6 +145,18 @@ exports.functionsTest =
 
     test.done()
 
+  testPrecentile: (test) ->
+    p50 = functions.percentileCreator(50)
+    values = [1, 10, 11, 55]
+
+    test.equal(p50(values), 10.5)
+
+    test.equal(functions.percentileCreator(95)([14]), 14)
+    test.equal(functions.percentileCreator(95)([14, 15, 16]), 15.9)
+    test.equal(functions.percentileCreator(100)([14, 15, 16]), 16)
+    test.equal(functions.percentileCreator(95)([14, 15]), 14.95)
+
+    test.done()
 
   testSum: (test) ->
 
