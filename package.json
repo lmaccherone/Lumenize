@@ -31,7 +31,8 @@
   "dependencies": {
     "coffee-script": "1.4.x",
     "tztime": "~0.6.1",
-    "jsduckify": "~0.2.2"
+    "jsduckify": "~0.2.2",
+    "JSON2": "0.1.0"
   },
   "devDependencies": {
     "coffeedoctest": "0.4.x",
