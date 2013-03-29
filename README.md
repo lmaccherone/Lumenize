@@ -13,7 +13,7 @@ Lumenize is a collection of tools for making awesome visualizations out of your 
 * Create aggregations from temporal data models like Rally's Lookback API
   * TimeSeriesCalculator - Show how performance changed over time. Visualize cumulative flow.
   * TimeInStateCalculator - Calculate the ratio of wait to touch time. Find 98 percentile
-    of lead time to set serice level agreements.
+    of lead time to set service level agreements.
   * TransitionsCalculator - Throughput. Velocity. 
 * Bundled with the [tzTime](https://github.com/lmaccherone/tzTime) library (same author) for
   timezone precise x-axis. Knockout weekends, holidays, non-work hours, etc.
