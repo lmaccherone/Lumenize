@@ -243,11 +243,18 @@ When the user passes in `p<n>` as an aggregation function, this `percentileCreat
 percentile function. The returned function will find the `<n>`th percentile where `<n>` is some number in the form of
 `##[.##]`. (e.g. `p40`, `p99`, `p99.9`).
 
-Note: `median` is an alias for `p50`.
-
 There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
-use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
-recommendation and makes the most sense to me.
+use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which differs from the NIST
+primary method. However, NIST lists something very similar to the Excel approach as an acceptible alternative. The only
+difference seems to be for the edge case for when you have only two data points in your data set. Agreement with Excel,
+NIST's acceptance of it as an alternative (almost), and the fact that it makes the most sense to me is why this approach
+was chosen.
+
+http://en.wikipedia.org/wiki/Percentile#Alternative_methods
+
+Note: `median` is an alias for `p50`. The approach chosen for calculating p50 gives you the
+exact same result as the definition for median even for edge cases like sets with only one or two data points.
+
 ###
 functions.percentileCreator = (p) ->
   f = (values, oldResult, newValues, dependentValues, prefix) ->

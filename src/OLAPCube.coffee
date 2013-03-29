@@ -581,7 +581,7 @@ class OLAPCube
     ###
     unless metric?
       metric = '_count'
-    if @config.dimensions.length == 1 
+    if @config.dimensions.length == 1
       return @toStringOneDimension(@config.dimensions[0].field, metric)
     else
       return @toStringTwoDimensions(rows, columns, metric)
