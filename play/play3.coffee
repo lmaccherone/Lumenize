@@ -1,6 +1,16 @@
-{Time} = require('../')
+class A
+  @newFromStatic: () ->
+    o = new @constructor()
+    return o
 
-thisDay = new Time('this day')
-nextDay = new Time('next day')
+  f1: () ->
+    return 1
 
-console.log(thisDay.lessThanOrEqual(nextDay))
+class B extends A
+  f2: () ->
+    return 2
+
+b = B.newFromStatic()
+
+console.log(b.f1())
+console.log(b.f2())
