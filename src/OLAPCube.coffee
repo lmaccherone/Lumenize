@@ -149,9 +149,10 @@ class OLAPCube
   1. Single value
      * Number
      * String
-     * Boolean
-     * Date
-     * Object... sorta. Technically, this works but the sort order is not obvious.
+     * Does not work:
+       * Boolean - known to fail
+       * Object - may sorta work but sort-order at least is not obvious
+       * Date - not tested but may actually work
   2. Arrays as materialized path for hierarchical (tree) data
   3. Non-hierarchical Arrays ("tags")
 

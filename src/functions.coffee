@@ -203,6 +203,27 @@ functions.average = (values, oldResult, newValues, dependentValues, prefix) ->
 functions.average.dependencies = ['count', 'sum']
 
 ###
+@method errorSquared
+@static
+@param {Number[]} [values] Must either provide values or oldResult and newValues
+@param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+@param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+@param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+  you to provide those pre-calculated values.
+@return {Number} The error squared
+###
+functions.errorSquared = (values, oldResult, newValues, dependentValues, prefix) ->
+  {count, sum} = _populateDependentValues(values, functions.errorSquared.dependencies, dependentValues, prefix)
+  mean = sum / count
+  errorSquared = 0
+  for v in values
+    difference = v - mean
+    errorSquared += difference * difference
+  return errorSquared
+
+functions.errorSquared.dependencies = ['count', 'sum']
+
+###
 @method variance
 @static
 @param {Number[]} [values] Must either provide values or oldResult and newValues
