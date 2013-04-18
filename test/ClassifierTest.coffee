@@ -147,7 +147,9 @@ exports.Test =
 
     classifier = new BayesianClassifier(config)
 
-    classifier.train(trainingSet)
+    percentWins = classifier.train(trainingSet)
+
+    test.ok(approximatelyEqual(percentWins, 0.733333))
 
     expected = [
       {
