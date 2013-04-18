@@ -110,11 +110,18 @@ class Classifier
 
 class BayesianClassifier extends Classifier
 
-  train: (trainingSet) ->
-    # find unique values for all outputField
+  train: (userSuppliedTrainingSet) ->
+    # make a copy of the trainingSet
+    trainingSet = utils.clone(userSuppliedTrainingSet)
+
+    # find unique values for outputField
     outputDimension = [{field: @outputField}]
     outputValuesCube = new OLAPCube({dimensions: outputDimension}, trainingSet)
     @outputValues = outputValuesCube.getDimensionValues(@outputField)
+    @outputFieldTypeIsNumber = true
+    for value in @outputValues
+      unless utils.type(value) is 'number'
+        @outputFieldTypeIsNumber = false
 
     # calculate base probabilities for each of the @outputValues
     n = trainingSet.length
@@ -136,13 +143,13 @@ class BayesianClassifier extends Classifier
         @discreteizeRow(row) for row in trainingSet
         # Now the data looks like this:
         #  bins: [
-        #    {value: 'B0', startOn: null, endBelow: 5.5, probabilities: {"0": 0.77, "1": 0.23}},  # use the index as the value
-        #    {value: 'B1', startOn: 5.5, endBelow: 20.25, probabilities: {"0": 0.5, "1": 0.5}},
-        #    {value: 'B2', startOn: 20.25, endBelow: null, probabilities: {"0": 0.8, "1": 0.2}}
+        #    {value: 'B0', startOn: null, endBelow: 5.5},
+        #    {value: 'B1', startOn: 5.5, endBelow: 20.25},
+        #    {value: 'B2', startOn: 20.25, endBelow: null}
         #  ]
       else if feature.type is 'discrete'
-        # Right now, I don't think we need to do anything here. The continuous data has bins and the discrete data does not, but I think we
-        # can efficiently add them when we create the OLAP cube for the feature to create the probabilities
+        # Right now, I don't think we need to do anything here. The continuous data has bins and the discrete data does not, but we
+        # efficiently add them after we create the OLAP cube for the feature
       else
         throw new Error("Unrecognized feature type: #{feature.type}.")
 
@@ -153,7 +160,7 @@ class BayesianClassifier extends Classifier
       featureCube = new OLAPCube({dimensions}, trainingSet)
       featureValues = featureCube.getDimensionValues(feature.field)
       if feature.type is 'discrete'
-        feature.bins = ({value: value} for value in featureValues)
+        feature.bins = ({value} for value in featureValues)  # This is where we create the bins for discrete features
       for bin in feature.bins
         bin.probabilities = {}
         for outputValue in @outputValues
@@ -170,6 +177,19 @@ class BayesianClassifier extends Classifier
           numerator = numeratorCell?._count | 0
           bin.probabilities[outputValue] = numerator / denominator
 
+    # calculate accuracy for training set
+    trainingSet = utils.clone(userSuppliedTrainingSet)
+    wins = 0
+    loses = 0
+    for row in trainingSet
+      prediction = @predict(row)
+      if prediction == row[@outputField]
+        wins++
+      else
+        loses++
+    percentWins = wins / (wins + loses)
+    return percentWins
+
   predict: (row, returnProbabilities = false) ->
     row = @discreteizeRow(row)
     probabilities = {}
@@ -184,8 +204,10 @@ class BayesianClassifier extends Classifier
       unless matchingBin?
         throw new Error("No matching bin for #{feature.field}=#{row[feature.field]} in the training set.")
       for outputValue, probability of probabilities
+        # Bayes theorem
         probabilities[outputValue] = probability * matchingBin.probabilities[outputValue] / (probability * matchingBin.probabilities[outputValue] + (1 - probability) * (1 - matchingBin.probabilities[outputValue]))
 
+    # Find the outputValue with the max probability
     max = 0
     outputValueForMax = null
     for outputValue, probability of probabilities
@@ -196,7 +218,10 @@ class BayesianClassifier extends Classifier
     if returnProbabilities
       return probabilities
     else
-      return outputValueForMax
+      if @outputFieldTypeIsNumber
+        return Number(outputValueForMax)
+      else
+        return outputValueForMax
 
 
   getStateForSaving: (meta) ->
