@@ -101,6 +101,8 @@ task('publish', 'Publish to npm', () ->
           console.log('running git tag')
           runSync("git tag v#{require('./package.json').version}")
           runAsync("git push --tags")
+          console.log('pushing to Google Cloud Storage')
+          runSync("gsutil cp ./deploy/* gs://lumenize/verisons/v#{require('./package.json').version}/")
       else
         console.error('Origin and master out of sync. Not publishing.')
     else
