@@ -466,7 +466,7 @@ class ChartTimeRange
     makes sure that the array that is returned is sorted chrologically.
     ###
     timeline = new ChartTimeIterator(this, 'ChartTime', @granularity).getAll()
-    if timeline.length > 1 and timeline[0].$gt(timeline[1])
+    if timeline[0].$gt(timeline[1])
       timeline.reverse()
     return timeline
 

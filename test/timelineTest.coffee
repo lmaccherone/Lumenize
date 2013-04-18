@@ -150,22 +150,3 @@ exports.timelineTest =
     test.deepEqual(expected, s)
     
     test.done()
-  
-  testSinglePointTimeline: (test) ->
-    r5 = new ChartTimeRange({
-      start:'2011-01-06T00',
-      pastEnd:'2011-01-07T00',
-      startWorkTime: {hour: 9, minute: 0},
-      pastEndWorkTime: {hour: 10, minute: 0}
-    })
-
-    test.deepEqual([{
-      beforePastFlag: '',
-      granularity: 'hour',
-      year: 2011,
-      month: 1,
-      day: 6,
-      hour: 9
-    }], r5.getTimeline())
-
-    test.done()
