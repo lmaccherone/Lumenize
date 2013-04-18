@@ -61,6 +61,14 @@ class Classifier
   @findBucketSplits: (currentSplits, values, bucketCount) ->
     if values.length < 5
       return null
+    firstValue = values[0]
+    areAllSame = true
+    for value in values
+      if value != firstValue
+        areAllSame = false
+        break
+    if areAllSame
+      return null
     {splitAt, left, right} = Classifier.optimalSplitFor2Buckets(values)
     currentSplits.push(splitAt)
     if currentSplits.length < bucketCount
@@ -139,19 +147,20 @@ class BayesianClassifier extends Classifier
         values = (row[feature.field] for row in trainingSet)
         bucketer = Classifier.generateVOptimalBucketer(values)
         feature.bins = bucketer
-        # convert the continuous data into discrete data using the just-created buckets
-        @discreteizeRow(row) for row in trainingSet
-        # Now the data looks like this:
-        #  bins: [
-        #    {value: 'B0', startOn: null, endBelow: 5.5},
-        #    {value: 'B1', startOn: 5.5, endBelow: 20.25},
-        #    {value: 'B2', startOn: 20.25, endBelow: null}
-        #  ]
       else if feature.type is 'discrete'
         # Right now, I don't think we need to do anything here. The continuous data has bins and the discrete data does not, but we
         # efficiently add them after we create the OLAP cube for the feature
       else
         throw new Error("Unrecognized feature type: #{feature.type}.")
+
+    # convert the continuous data into discrete data using the just-created buckets
+    @discreteizeRow(row) for row in trainingSet
+    # Now the data looks like this:
+    #  bins: [
+    #    {value: 'B0', startOn: null, endBelow: 5.5},
+    #    {value: 'B1', startOn: 5.5, endBelow: 20.25},
+    #    {value: 'B2', startOn: 20.25, endBelow: null}
+    #  ]
 
     # create probabilities for every bin/outputFieldValue combination
     for feature in @features
