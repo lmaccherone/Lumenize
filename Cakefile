@@ -37,9 +37,14 @@ runAsync = (command, options, next) ->
         console.log("Stdout exec'ing command '#{command}'...\n" + stdout)
   )
 
-task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
+task('doctest', 'Test examples in documenation.', () ->
   process.chdir(__dirname)
   runSync('coffeedoctest', ['--readme', 'src', 'lumenize.coffee'])
+)
+
+task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
+  runSync('cake doctest')
+  process.chdir(__dirname)
   # create README.html
   readmeDotCSSString = fs.readFileSync('read-me.css', 'utf8')
   readmeDotMDString = fs.readFileSync('README.md', 'utf8')
@@ -61,10 +66,11 @@ task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
   outputDirectory = path.join(__dirname, 'docs', "#{name}-docs")
   if fs.existsSync(outputDirectory)
     wrench.rmdirSyncRecursive(outputDirectory, false)
-  runSync('node_modules/jsduckify/bin/jsduckify', ['-d', outputDirectory, __dirname])
+  runSync('jsduckify', ['-d', outputDirectory, __dirname])
 )
 
 task('pub-docs', 'Push master to gh-pages on github', () ->
+  invoke('docs')
   pubDocsRaw()
 )
 
@@ -76,6 +82,7 @@ task('publish', 'Publish to npm', () ->
   process.chdir(__dirname)
   runSync('cake test')  # Doing this exernally to make it synchrous
   invoke('docs')
+  process.chdir(__dirname)
   invoke('build')
   runSync('git status --porcelain', [], (stdout) ->
     if stdout.length == 0
@@ -104,7 +111,7 @@ task('publish', 'Publish to npm', () ->
 task('build', 'Build with browserify and place in ./deploy', () ->
   console.log('building...')
   b = browserify()
-  b.use(fileify('files', __dirname + '/files'))
+  b.use(fileify('files', __dirname + '/node_modules/tztime/files'))
   b.ignore(['files'])
   b.require("./lumenize")
   {name, version} = require('./package.json')
@@ -118,7 +125,7 @@ task('build', 'Build with browserify and place in ./deploy', () ->
   fs.writeFileSync(deployFileName, fileString)
 
   minFileString = uglify.minify(deployFileName).code
-  fs.writeFileSync("deploy/#{name}-min.js", fileString)
+  fs.writeFileSync("deploy/#{name}-min.js", minFileString)
   console.log('done')
   # !TODO: Need to run tests on the built version
 )
@@ -127,32 +134,6 @@ task('build-and-docs', 'Build and docs combined for LiveReload.', () ->
   invoke('build')
   invoke('docs')
 )
-
-# task('prep-tz', 'NOT WORKING - Prepare the tz files found in vendor/tz for browserify/fileify and place in files/tz.', () ->
-#   files = [
-#     'africa',
-#     'antarctica',
-#     'asia',
-#     'australasia',
-#     'backward',
-#     'etcetera',
-#     'europe',
-#     'northamerica',
-#     'pacificnew',
-#     'southamerica',
-#   ]
-#   for f in files
-#     inputFile = 'vendor/tz/' + f
-#     outputFile = 'files2/tz/' + f + '.lzw'
-#     fs.readFile(inputFile, (err, contents) ->
-#       lzw.compress({
-#         input: contents,
-#         output: (output) ->
-#           fs.writeFile(outputFile, output)
-#       })
-#     ) 
-# )
-
 
 task('test', 'Run the CoffeeScript test suite with nodeunit', () ->
   {reporters} = require('nodeunit')
@@ -164,8 +145,7 @@ task('test', 'Run the CoffeeScript test suite with nodeunit', () ->
   )
 )
 
-task('test-all', 'Run tests and coffeedoctest', () ->
-  process.chdir(__dirname)
-  runSync('cake test')  # Doing this exernally to make it synchrous
-  runSync('coffeedoctest', ['--readme', 'src', 'lumenize.coffee'])
+task('testall', 'Run tests and doctests', () ->
+  runSync('cake doctest')
+  invoke('test')
 )

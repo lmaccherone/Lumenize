@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.4.8
+Lumenize version: 0.6.6
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -4588,344 +4588,237 @@ require.define("/lumenize.coffee",function(require,module,exports,__dirname,__fi
 
 # Lumenize #
 
-Lumenize provides tools for aggregating data and creating timezone-precise timelines for visualizations.
+Lumenize provides tools for aggregating data and creating time series and other temporal visualizations.
 
-Below, is a somewhat long example that utilizes most of Lumenize's functionality. It should provid a good introduction
-to its capabilities.
+The primary time-series aggregating functionality is provided by:
+  * Lumenize.TimeSeriesCalculator - Sets of single-metric series or group-by series
+  * Lumenize.TransitionsCalculator - Counts or sums for items moving from one state to another
+  * Lumenize.TimeInStateCalculator - Cumulative amount of time unique work items spend in a particular state
 
-The first line below "requires" Lumenize. If you are using the browserified package or creating an App with Rally's
-App SDK, you will not need this line. Lumenize will already be available in the current scope.
+Simple group-by, 2D pivot-table and even multi-dimensional aggregations (OLAP cube) are provided by:
+  * Lumenize.OLAPCube - Used by above three Calculators but also useful stand-alone, particularly for hierarchical roll-ups
 
-    Lumenize = require('../')
+All of the above use the mathematical and statistical functions provided by:
+  * Lumenize.functions - count, sum, standardDeviation, p75, p99, p??, min, max, etc.
 
-Next, let's create some sample data. The example below creates a simple burnup chart. The data in the snapshots*
-variables below simulate data for various work items changing over time. It is shown here in tabular "CSVStyle".
+Three transformation functions are provided:
+  * Lumenize.arrayOfMaps_To_CSVStyleArray - Used to transform from record to table format
+  * Lumenize.csvStyleArray_To_ArrayOfMaps - Used to transform from table to record format
+  * Lumenize.arrayOfMaps_To_HighChartsSeries - Used to transform from record format to the format expected by the HighCharts charting library
 
-    snapshotsCSVStyle = [
-      ["ObjectID", "_ValidFrom",           "_ValidTo",             "ScheduleState", "PlanEstimate"],
-
-      [1,          "2010-10-10T15:00:00Z", "2011-01-02T13:00:00Z", "Ready to pull", 5             ],
-
-      [1,          "2011-01-02T15:10:00Z", "2011-01-04T15:00:00Z", "In progress"  , 5             ],
-      [2,          "2011-01-02T15:00:00Z", "2011-01-03T15:00:00Z", "Ready to pull", 3             ],
-      [3,          "2011-01-02T15:00:00Z", "2011-01-03T15:00:00Z", "Ready to pull", 5             ],
-
-      [2,          "2011-01-03T15:00:00Z", "2011-01-04T15:00:00Z", "In progress"  , 3             ],
-      [3,          "2011-01-03T15:00:00Z", "2011-01-04T15:00:00Z", "Ready to pull", 5             ],
-      [4,          "2011-01-03T15:00:00Z", "2011-01-04T15:00:00Z", "Ready to pull", 5             ],
-      [1,          "2011-01-03T15:10:00Z", "2011-01-04T15:00:00Z", "In progress"  , 5             ],
-
-      [1,          "2011-01-04T15:00:00Z", "2011-01-06T15:00:00Z", "Accepted"     , 5             ],
-      [2,          "2011-01-04T15:00:00Z", "2011-01-06T15:00:00Z", "In test"      , 3             ],
-      [3,          "2011-01-04T15:00:00Z", "2011-01-05T15:00:00Z", "In progress"  , 5             ],
-      [4,          "2011-01-04T15:00:00Z", "2011-01-06T15:00:00Z", "Ready to pull", 5             ],
-      [5,          "2011-01-04T15:00:00Z", "2011-01-06T15:00:00Z", "Ready to pull", 2             ],
-
-      [3,          "2011-01-05T15:00:00Z", "2011-01-07T15:00:00Z", "In test"      , 5             ],
-
-      [1,          "2011-01-06T15:00:00Z", "2011-01-07T15:00:00Z", "Released"     , 5             ],
-      [2,          "2011-01-06T15:00:00Z", "2011-01-07T15:00:00Z", "Accepted"     , 3             ],
-      [4,          "2011-01-06T15:00:00Z", "2011-01-07T15:00:00Z", "In progress"  , 5             ],
-      [5,          "2011-01-06T15:00:00Z", "2011-01-07T15:00:00Z", "Ready to pull", 2             ],
-
-      [1,          "2011-01-07T15:00:00Z", "9999-01-01T00:00:00Z", "Released"     , 5             ],
-      [2,          "2011-01-07T15:00:00Z", "9999-01-01T00:00:00Z", "Released"     , 3             ],
-      [3,          "2011-01-07T15:00:00Z", "9999-01-01T00:00:00Z", "Accepted"     , 5             ],
-      [4,          "2011-01-07T15:00:00Z", "9999-01-01T00:00:00Z", "In test"      , 5             ],
-      [5,          "2011-01-07T15:00:00Z", "9999-01-01T00:00:00Z", "In progress"  , 2             ]
-    ]
-
-However, Lumenize assumes the data is in the form of an "Array of Maps" like Rally's LookbackAPI would emit. The
-`Lumenize.csvStyleArray_To_ArrayOfMaps` convenience function will convert it to the expected form.
-
-    snapshotArray = Lumenize.csvStyleArray_To_ArrayOfMaps(snapshotsCSVStyle)
-
-The `rangeSpec` defines the specification for the x-axis. Notice how you can exclude weekends and holidays. Here we
-specify a `start` and a `pastEnd`. However, it's fairly common in charts to specify `pastEnd: "this day"` and
-`limit: 60` (no `start`). A number of human readable dates like `"next month"` or `"prior week"` are supported. You
-need to specify any 2 of start, pastEnd, or limit.
-
-    rangeSpec = {
-      start: "2011-01-02"
-      pastEnd: "2011-01-08",
-      workDays: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],  # Also supports "Monday, Tuesday, ..."
-      holidays: [
-        {"month": 1, "day": 1},
-        {"month": 12, "day": 25},
-        "2011-01-05"  # Made up holiday to demo holiday knockout
-      ]
-    }
-
-If you think of the list of snapshots as a table of data, then `derivedFields` is just like adding a virtual column
-to the table. Simply specify a name and a callback function "f".
-
-    derivedFields = [
-      {
-      "name": "accepted",
-      "f": (row) ->
-        if row.ScheduleState in ["Accepted", "Released"]
-          return 1
-        else
-          return 0
-      }
-    ]
-
-The `aggregationSpec` supports a number of functions including $sum, $count, $addToSet, $standardDeviation,
-$p50 (for median), and $p?? (for any quartile/percentile). It will also allow you to specify a callback function
-like in derivedFields above if none of the built-in functions serves.
-
-    aggregationSpec = [
-      {"as": "scope", "f": "$count", "field": "ObjectID"},
-      {"as": "accepted", "f": "$sum", "field": "accepted"}
-    ]
-
-Since Lumenize was designed to work with other temporal data models besides Rally's, you must tell it what fields
-are used for the valid from, valid to, and unique id. You must also tell it what timezone to use for the boundaries
-of your x-axis values. The snapshot data is in Zulu time, but the start of the day in New York is shifted by 4 or 5
-hours depending upon the time of year. Specifying a timezone, allows Lumenize to shift the raw Zulu dates into
-the timezone of your choosing.
-
-    config = {
-      snapshotValidFromField: '_ValidFrom',
-      snapshotValidToField: '_ValidTo',
-      snapshotUniqueID: 'ObjectID',
-      timezone: 'America/New_York',
-      rangeSpec: rangeSpec,
-      derivedFields: derivedFields,
-      aggregationSpec: aggregationSpec
-    }
-
-Next, we call `Lumenize.timeSeriesCalculator` with the snapshots as well as the config object that we just built.
-It will calculate the time-series data according to our specifications. It returns two values. A list of ChartTime
-objects specifying the x-axis (`listOfAtCTs`) and our calculations (`aggregationAtArray`).
-
-    {listOfAtCTs, aggregationAtArray} = Lumenize.timeSeriesCalculator(snapshotArray, config)
-
-You could graph this output to render a burnup chart by story count.
-
-    for value, index in listOfAtCTs
-      console.log(value.toString(), aggregationAtArray[index])
-
-    # 2011-01-03 { scope: 3, accepted: 0 }
-    # 2011-01-04 { scope: 4, accepted: 0 }
-    # 2011-01-06 { scope: 5, accepted: 1 }
-    # 2011-01-07 { scope: 5, accepted: 2 }
-
-Most folks prefer for their burnup charts to be by Story Points (PlanEstimate). So let's modify our configuration to use
-`PlanEstimate`.
-
-    config.derivedFields = [
-      {
-      "name": "accepted",
-      "f": (row) ->
-        if row.ScheduleState in ["Accepted", "Released"]
-          return row.PlanEstimate;
-        else
-          return 0
-      }
-    ]
-
-    config.aggregationSpec = [
-      {"as": "scope", "f": "$sum", "field": "PlanEstimate"},
-      {"as": "accepted", "f": "$sum", "field": "accepted"}
-    ]
-
-    {listOfAtCTs, aggregationAtArray} = Lumenize.timeSeriesCalculator(snapshotArray, config)
-
-    for value, index in listOfAtCTs
-      console.log(value.toString(), aggregationAtArray[index])
-
-    # 2011-01-03 { scope: 13, accepted: 0 }
-    # 2011-01-04 { scope: 18, accepted: 0 }
-    # 2011-01-06 { scope: 20, accepted: 5 }
-    # 2011-01-07 { scope: 20, accepted: 8 }
+And last, additional functionality is provided by:
+  * Lumenize.histogram - create a histogram of scatter data
+  * Lumenize.utils - utility methods used by the rest of Lumenize (type, clone, array/object functions, etc.)
 */
 
 
 (function() {
-  var aggregate, chartTimeIteratorAndRange, datatransform, derive;
+  var datatransform, tzTime;
 
-  exports.ChartTime = require('./src/ChartTime').ChartTime;
+  tzTime = require('tztime');
 
-  chartTimeIteratorAndRange = require('./src/ChartTimeIteratorAndRange');
+  exports.Time = tzTime.Time;
 
-  exports.ChartTimeIterator = chartTimeIteratorAndRange.ChartTimeIterator;
+  exports.TimelineIterator = tzTime.TimelineIterator;
 
-  exports.ChartTimeRange = chartTimeIteratorAndRange.ChartTimeRange;
+  exports.Timeline = tzTime.Timeline;
 
-  exports.ChartTimeInStateCalculator = require('./src/ChartTimeInStateCalculator').ChartTimeInStateCalculator;
+  exports.utils = tzTime.utils;
+
+  exports.iCalculator = require('./src/iCalculator').iCalculator;
+
+  exports.TimeInStateCalculator = require('./src/TimeInStateCalculator').TimeInStateCalculator;
+
+  exports.TransitionsCalculator = require('./src/TransitionsCalculator').TransitionsCalculator;
+
+  exports.TimeSeriesCalculator = require('./src/TimeSeriesCalculator').TimeSeriesCalculator;
 
   datatransform = require('./src/dataTransform');
 
+  exports.arrayOfMaps_To_CSVStyleArray = datatransform.arrayOfMaps_To_CSVStyleArray;
+
   exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps;
 
-  exports.snapshotArray_To_AtArray = datatransform.snapshotArray_To_AtArray;
+  exports.arrayOfMaps_To_HighChartsSeries = datatransform.arrayOfMaps_To_HighChartsSeries;
 
-  exports.groupByAtArray_To_HighChartsSeries = datatransform.groupByAtArray_To_HighChartsSeries;
-
-  exports.aggregationAtArray_To_HighChartsSeries = datatransform.aggregationAtArray_To_HighChartsSeries;
-
-  aggregate = require('./src/aggregate');
-
-  exports.aggregate = aggregate.aggregate;
-
-  exports.aggregateAt = aggregate.aggregateAt;
-
-  exports.groupBy = aggregate.groupBy;
-
-  exports.groupByAt = aggregate.groupByAt;
-
-  exports.percentileCreator = aggregate.percentileCreator;
-
-  exports.timeSeriesCalculator = aggregate.timeSeriesCalculator;
-
-  exports.timeSeriesGroupByCalculator = aggregate.timeSeriesGroupByCalculator;
+  exports.csvString_To_CSVStyleArray = datatransform.csvString_To_CSVStyleArray;
 
   exports.functions = require('./src/functions').functions;
 
-  derive = require('./src/derive');
-
-  exports.deriveFields = derive.deriveFields;
-
-  exports.deriveFieldsAt = derive.deriveFieldsAt;
-
   exports.histogram = require('./src/histogram').histogram;
+
+  exports.OLAPCube = require('./src/OLAPCube').OLAPCube;
 
 }).call(this);
 
 });
 
-require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var ChartTime, timezoneJS, utils,
+require.define("/node_modules/tztime/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./tzTime"}
+});
+
+require.define("/node_modules/tztime/tzTime.coffee",function(require,module,exports,__dirname,__filename,process,global){
+/*
+# tzTime #
+
+_Timezone transformations in the browser and node.js plus timezone precise timeline creation for charting._
+
+## Features ##
+
+* Transform into and out of any timezone using Olson timezone rules
+* Timezone rule files embedded in the minified browser package. No need to host them
+  seperately.
+* Create timezone precise time-series axis for charts
+
+  * Knockout weekends, holidays, non-workhours
+  * Work with timezone precision
+  * Work in any granularity
+
+    * Year, quarter, week, day, hour, etc.
+    * No more recording `2012-03-05T00:00:00.000Z` when you really just mean `2012-03-05`
+    * Create and use custom granularities: `R02I04-07` = Seventh day of fourth iteration in
+      second release
+
+* Work in a particular granularity like day, week, month, or quarter and not worry about the fiddly bits of finer
+  granularity. JavaScript's Date object forces you to think about the fact that the underlying representation is milliseconds
+  from the unix epoch.
+* Month is 1-indexed (rather than 0-indexed like Javascript's Date object)
+* Date/Time math (add 3 months, subtract 2 weeks, etc.)
+* Work with ISO-8601 formatted strings (called 'ISOString' in this library)
+
+   * Added: Quarter form (e.g. 2012Q3 equates to 2012-07-01)
+   * Not supported: Ordinal form (e.g. 2012-001 for 2012-01-01, 2011-365 for 2012-12-31) not supported
+
+## Granularity ##
+
+Each Time object has a granularity. This means that you never have to
+worry about any bits lower than your specified granularity. A day has only
+year, month, and day segments. You are never tempted to specify 11:59pm
+to specify the end of a day-long timebox.
+
+Time supports the following granularities:
+
+* `year`
+    * `month`
+        * `day`
+            * `hour`
+               * `minute`
+                   * `second`
+                       * `millisecond`
+    * `quarter` (but not quarter_month, day, etc.)
+    * `week` (ISO-8601 style week numbering)
+       * `week_day` (Monday = 1, Sunday = 7)
+
+Also, you can define your own custom hierarchical granularities, for example...
+
+* `release`
+   * `iteration`
+      * `iteration_day`
+
+## Timezone precision ##
+
+It's very hard to do filtering and grouping of time-series data with timezone precision.
+
+For instance, 11pm in California on December 25 (Christmas holiday) is 2am December 26 (not a holiday)
+in New York. This also happens to be 7am December 26 GMT. If you have an event that occurs at
+2011-12-26T07:00:00.000Z, then you need to decide what timezone to use as your context before you
+decide if that event occured on Christmas day or not. It's not just holidays where this can burn you.
+Deciding if a piece of work finished in one time range versus another can make a difference for
+you metrics. The time range metrics for a distributed team should look the same regardless
+of whether those metrics were generated in New York versus Los Angeles... versus Bangalore.
+
+The javascript Date object lets you work in either the local time or Zulu (GMT/UTC) time but it doesn't let you
+control the timezone. Do you know the correct way to apply the timezone shift to a JavaScript Date Object?
+Do you know when Daylight Savings Time kicks in and New York is 4 hours shifted from GMT instead of 5? Will
+you remember to do it perfectly every time it's needed in your code?
+
+If you need this precision, Time helps by clearly delineating the moment when you need to do
+timezone manipulation... the moment you need to compare/query timestamped data. You can do all of your
+holiday/weekend knockout manipulation without regard to timezone and only consider the timezone
+upon query submission or comparison.
+
+## Month is 1-indexed as you would expect ##
+
+Javascript's date object uses 0 for January and 11 for December. Time uses 1 for January and 12 for December...
+which is what ISO-8601 uses and what humans expect. Everyone who works with the javascript Date Object at one
+point or another gets burned by this.
+
+## Week support ##
+
+Time has ISO-8601 week support. Implications of using this ISO format (paraphrased info from wikipedia):
+
+* All weeks have 7 days (i.e. there are no fractional weeks).
+* Any given day falls into a single week which means that incrementing across the year boundary in week
+  granularity is without gaps or repeats.
+* Weeks are contained within a single year. (i.e. weeks are never spit over two years).
+* The above two implications also mean that we have to warp the boundaries of the year to accomplish this. In week
+  granularity dates may appear in a different year than you would expect and some years have 53 weeks.
+* The date directly tells the weekday.
+* All years start with a Monday and end with a Sunday.
+* Dates represented as yyyyWww-d can be sorted as strings.
+
+**In general, it just greatly simplifies the use of week granularity in a chart situation.**
+
+The ISO-8601 standard is an elegant and well thought out approach to dealing with week granularity. The only real
+downside to this approach is that USA folks expect the week to start on Sunday. However, the ISO-8601 spec starts
+each week on Monday. Following ISO-8601, Time uses 1 for Monday and 7 for Sunday which aligns with
+the US standard for every day except Sunday. The US standard is to use 0 for Sunday. This library says, "tough luck"
+to folks who are unhappy that the week starts on Monday. Live with the fact that weeks in this library start on Monday
+as they do in the ISO-8601 standard, or roll your own library. :-)
+*/
+
+
+(function() {
+  var Timeline;
+
+  exports.Time = require('./src/Time').Time;
+
+  Timeline = require('./src/Timeline');
+
+  exports.TimelineIterator = Timeline.TimelineIterator;
+
+  exports.Timeline = Timeline.Timeline;
+
+  exports.utils = require('./src/utils');
+
+}).call(this);
+
+});
+
+require.define("/node_modules/tztime/src/Time.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var Time, timezoneJS, utils,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   utils = require('./utils');
 
   timezoneJS = require('./timezone-js.js').timezoneJS;
 
-  ChartTime = (function() {
+  Time = (function() {
     /*
-      @class ChartTime
-      # ChartTime #
-      
-      _Time axis creation/manipulation for charts_
-      
-      ## Features ##
-      
-      * Generate the values for time series chart axis
-      * Allows for custom granularities like release/iteration/iteration_day
-      * Knockout weekends and holidays (ChartTimeIterator)
-      * Knockout non-work hours (ChartTimeIterator)
-      * Drill up and down granularity
-      * Work with precision around timezone differences
-      * Month is 1-indexed instead of 0-indexed like Javascript's Date object
-      * Date/Time math (add 3 months, subtract 2 weeks, etc.)
-      * Tested
-      * Documented
-      
-      ## Granularity ##
-      
-      Each ChartTime object has a granularity. This means that you never have to
-      worry about any bits lower than your specified granularity. A day has only
-      year, month, and day segments. You are never tempted to specify 11:59pm
-      to specify the end of a day-long timebox.
-      
-      ChartTime supports the following granularities:
-      
-      * `year`
-          * `month`
-              * `day`
-                  * `hour`
-                     * `minute`
-                         * `second`
-                             * `millisecond`
-          * `quarter` (but not quarter_month, day, etc.)
-          * `week` (ISO-8601 style week numbering)
-             * `week_day` (Monday = 1, Sunday = 7)
-      
-      Also, you can define your own custom hierarchical granularities, for example...
-      
-      * `release`
-         * `iteration`
-            * `iteration_day`
-        
-      ## Timezone precision ##
-      
-      It's very hard to do filtering and grouping of time-series data with timezone precision. 
-      
-      For instance, 11pm in California on December 25 (Christmas holiday) is 2am December 26 (not a holiday)
-      in New York. This also happens to be 7am December 26 GMT. If you have an event that occurs at 
-      2011-12-26T07:00:00.000Z, then you need to decide what timezone to use as your context before you 
-      decide if that event occured on Christmas day or not. It's not just holidays where this can burn you.
-      Deciding if a piece of work finished in one iteration versus another can make a difference for
-      you iteration metrics. The iteration metrics for a distributed team should look the same regardless
-      of whether those metrics were generated in New York versus Los Angeles... versus Bangalore.
-      
-      The javascript Date object lets you work in either the local time or Zulu (GMT/UTC) time but it doesn't let you
-      control the timezone. Do you know the correct way to apply the timezone shift to a JavaScript Date Object? 
-      Do you know when Daylight Savings Time kicks in and New York is 4 hours shifted from GMT instead of 5? Will
-      you remember to do it perfectly every time it's needed in your code?
-      
-      If you need this precision, ChartTime helps by clearly delineating the moment when you need to do 
-      timezone manipulation... the moment you need to compare two or more dates. You can do all of your
-      holiday/weekend knockout manipulation without regard to timezone and only consider the timezone
-      upon comparison. 
-      
-      ## Month is 1-indexed as you would expect ##
-      
-      Javascript's date object uses 0 for January and 11 for December. ChartTime uses 1 for January and 12 for December...
-      which is what ISO-8601 uses and what humans expect. Everyone who works with the javascript Date Object at one
-      point or another gets burned by this.
-      
-      ## Week support ##
-      
-      ChartTime follows ISO-8601 where ever it makes sense. Implications of using this ISO format (paraphrased info from wikipedia):
-      
-      * All weeks have 7 days (i.e. there are no fractional weeks).
-      * Any given day falls into a single week which means that incrementing across the year boundary in week
-        granularity is without gaps or repeats.
-      * Weeks are contained within a single year. (i.e. weeks are never spit over two years).
-      * The above two implications also mean that we have to warp the boundaries of the year to accomplish this. In week
-        granularity dates may appear in a different year than you would expect and some years have 53 weeks.
-      * The date directly tells the weekday.
-      * All years start with a Monday and end with a Sunday.
-      * Dates represented as yyyyWww-d can be sorted as strings.
-      
-      **In general, it just greatly simplifies the use of week granularity in a chart situation.**
-      
-      The only real downside to this approach is that USA folks expect the week to start on Sunday. However, the ISO-8601 spec starts
-      each week on Monday. Following ISO-8601, ChartTime uses 1 for Monday and 7 for Sunday which aligns with
-      the US standard for every day except Sunday. The US standard is to use 0 for Sunday.
-      
+      @class Time
+    
       ## Basic usage ##
       
-          {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
+          {TimelineIterator, Timeline, Time} = require('../')
     
-      Get ChartTime objects relative to now.
-      
-          d = new ChartTime('this millisecond in Pacific/Fiji')
-          d = new ChartTime('prior week')
-          d = new ChartTime('next month')
-          
-      Spell it all out with a JavaScript object
+      Get Time objects from partial ISOStrings. The granularity is automatically inferred from how many segments you provide.
     
-          d1 = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 28})
+          d1 = new Time('2011-02-28')
           console.log(d1.toString())
           # 2011-02-28
-          
-      You can use the string short-hand rather than spell out the segments separately. The granularity
-      is automatically inferred from how many segments you provide.
-      
-          d2 = new ChartTime('2011-03-01')
+    
+      Spell it all out with a JavaScript object
+    
+          d2 = new Time({granularity: Time.DAY, year: 2011, month: 3, day: 1})
           console.log(d2.toString())
           # 2011-03-01
           
-      Increment/decrement and compare ChartTimes without regard to timezone
+      Increment/decrement and compare Times without regard to timezone
       
-          console.log(d1.$gte(d2)) 
-          d1.increment()
-          console.log(d1.$eq(d2))
+          console.log(d1.greaterThanOrEqual(d2))
           # false
+    
+          d1.increment()
+          console.log(d1.equal(d2))
           # true
       
       Do math on them.
@@ -4954,181 +4847,187 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           
       Deals well with year-granularity math and leap year complexity.
       
-          d4 = new ChartTime('2004-02-29')  # leap day
+          d4 = new Time('2004-02-29')  # leap day
           d4.addInPlace(1, 'year')  # adding a year takes us to a non-leap year
           console.log(d4.toString())
           # 2005-02-28
           
       Week granularity correctly wraps and deals with 53-week years.
       
-          w1 = new ChartTime('2004W53-6')
-          console.log(w1.inGranularity('day').toString())
+          w1 = new Time('2004W53-6')
+          console.log(w1.inGranularity(Time.DAY).toString())
           # 2005-01-01
           
       Convert between any of the standard granularities. Also converts custom granularities (not shown) to
       standard granularities if you provide a `rataDieNumber()` function with your custom granularities.
       
-          d5 = new ChartTime('2005-01-01')  # goes the other direction also
+          d5 = new Time('2005-01-01')  # goes the other direction also
           console.log(d5.inGranularity('week_day').toString())
           # 2004W53-6
           
-          q1 = new ChartTime('2011Q3')
-          console.log(q1.inGranularity('millisecond').toString())
+          q1 = new Time('2011Q3')
+          console.log(q1.inGranularity(Time.MILLISECOND).toString())
           # 2011-07-01T00:00:00.000
           
       ## Timezones ##
       
-      ChartTime does timezone sensitive conversions. You must set the path to the tz files before doing any timezone sensitive comparisons.
-      Note, if you are using one of the pre-packaged Lumenize.js or Lumenize-min.js, then you can supply any string in this call. It will
-      ignore what you provide and load the time zone data from the files included in the package. We would like to remove the requirement
-      for this initialization when running one of these packages, but for now, you still need the dummy call.
+      Time does timezone sensitive conversions.
       
-          console.log(new ChartTime('2011-01-01').getJSDate('America/Denver').toUTCString())
-          # Sat, 01 Jan 2011 07:00:00 GMT
+          console.log(new Time('2011-01-01').getJSDate('America/Denver').toISOString())
+          # 2011-01-01T07:00:00.000Z
     */
 
     var g, spec, _ref;
 
-    function ChartTime(spec_RDN_Date_Or_String, granularity, tz) {
+    function Time(value, granularity, tz) {
       /*
           @constructor
-          @param {Object/Number/Date/String} spec_RDN_Date_Or_String
+          @param {Object/Number/Date/String} value
           @param {String} [granularity]
           @param {String} [tz]
       
-          The constructor for ChartTime supports the passing in of a String, a rata die number (RDN), or a spec Object
+          The constructor for Time supports the passing in of a String, a rata die number (RDN), or a config Object
           
           ## String ##
           
           There are two kinds of strings that can be passed into the constructor:
           
-          1. Human strings relative to now (e.g. "this day", "prior month", "next quarter", "this millisecond in Pacific/Fiji", etc.)
+          1. Human strings relative to now (e.g. "this day", "previous month", "next quarter", "this millisecond in Pacific/Fiji", etc.)
           2. ISO-8601 or custom masked (e.g. "I03D10" - 10th day of 3rd iteration)
           
           ## Human strings relative to now ##
           
-          The string must be in the form `(this, prior, next) |granularity| [in |timezone|]`
+          The string must be in the form `(this, previous, next) |granularity| [in |timezone|]`
           
           Examples
           
           * `this day` today
           * `next month` next month
           * `this day in Pacific/Fiji` the day that it currently is in Fiji
-          * `prior hour in America/New_York` the hour before the current hour in New York
+          * `previous hour in America/New_York` the hour before the current hour in New York
           * `next quarter` next quarter
-          * `prior week` last week
+          * `previous week` last week
           
           ## ISO-8601 or custom masked ##
           
-          When you pass in an ISO-8601 or custom mask string, ChartTime uses the masks that are defined for each granularity to figure out the granularity...
-          unless you explicitly provide a granularity. This parser does not work on all valid ISO-8601 forms. Ordinal dates (`"2012-288"`)
-          are not supported but week number form (`"2009W52-7"`) is supported. The canonical form (`"2009-01-01T12:34:56.789"`) will 
-          work as will any shortened subset of it (`"2009-01-01"`, `"2009-01-01T12:34"`, etc.). We've added a form for Quarter
-          granularity (`"2009Q4"`). Plus it will even parse strings in whatever custom granularity you provide based
+          When you pass in an ISO-8601 or custom mask string, Time uses the masks that are defined for each granularity to figure out the granularity...
+          unless you explicitly provide a granularity. This parser works on all valid ISO-8601 forms except orginal dates (e.g. `"2012-288"`)
+          It even supports week number form (`"2009W52-7"`) and we've added a form for Quarter granularity (e.g. `"2009Q4"`).
+          The canonical form (`"2009-01-01T12:34:56.789"`) will work as will any shortened subset of it (`"2009-01-01"`,
+          `"2009-01-01T12:34"`, etc.). Plus it will even parse strings in whatever custom granularity you provide based
           upon the mask that you provide for that granularity.
           
-          If the granularity is specified but not all of the segments are provided, ChartTime will fill in the missing value 
-          with the `lowest` value from granularitySpecs.
+          If the granularity is specified but not all of the segments are provided, Time will fill in the missing value
+          with the `lowest` value from _granularitySpecs.
           
-          The Lumenize hierarchy tools rely upon the property that a single character is used between segments so the ISO forms that 
-          omit the delimiters are not supported.
-          
-          If the string has a timezone indicator on the end (`...+05:00` or `...Z`), ChartTime will ignore it. Timezone information
-          is intended to only be used for comparison (see examples for timezone comparison).
+          The ISO forms that omit the delimiters or use spaces as the delimeters are not supported. Also unsupported are strings
+          with a time shift indicator on the end (`...+05:00`). However, if you pass in a string with a "Z" at the end, Time
+          will assume that you want to convert from GMT to local (abstract) time and you must provide a timezone.
           
           There are two special Strings that are recognized: `BEFORE_FIRST` and `PAST_LAST`. You must provide a granularity if you
-          are instantiating a ChartTime with these values. They are primarily used for custom granularities where your users
+          are instantiating a Time with these values. They are primarily used for custom granularities where your users
           may mistakenly request charts for iterations and releases that have not yet been defined. They are particularly useful when 
           you want to iterate to the last defined iteration/release.
       
           ## Rata Die Number ##
           
           The **rata die number (RDN)** for a date is the number of days since 0001-01-01. You will probably never work
-          directly with this number but it's what ChartTime uses to convert between granularities. When you are instantiating
-          a ChartTime from an RDN, you must provide a granularity. Using RDN will work even for the granularities finer than day.
-          ChartTime will populate the finer grained segments (hour, minute, etc.) with the approriate `lowest` value.
+          directly with this number but it's what Time uses to convert between granularities. When you are instantiating
+          a Time from an RDN, you must provide a granularity. Using RDN will work even for the granularities finer than day.
+          Time will populate the finer grained segments (hour, minute, etc.) with the approriate `lowest` value.
       
           ## Date ##
           
           You can also pass in a JavaScript Date() Object. The passing in of a tz with this option doesn't make sense. You'll end
-          up with the same ChartTime value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
-          option is even really useful. In most cases, you are probably better off using ChartTime.getZuluString()
+          up with the same Time value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
+          option is even really useful. In most cases, you are probably better off using Time.getISOStringFromJSDate()
           
-          ## Spec ##
+          ## Object ##
           
-          You can also explicitly spell out the segments in a **spec** Object in the form of 
-          `{granularity: 'day', year: 2009, month: 1, day: 1}`. If the granularity is specified but not all of the segments are 
-          provided, ChartTime will fill in the missing value with the appropriate `lowest` value from granularitySpecs.
+          You can also explicitly spell out the segments in a specification Object in the form of
+          `{granularity: Time.DAY, year: 2009, month: 1, day: 1}`. If the granularity is specified but not all of the segments are
+          provided, Time will fill in the missing value with the appropriate `lowest` value from _granularitySpecs.
           
           ## granularity ##
           
-          If you provide a granularity it will take precedence over whatever fields you've provided in your spec or whatever segments
-          you have provided in your string. ChartTime will leave off extra values and fill in missing ones with the appropriate `lowest`
+          If you provide a granularity it will take precedence over whatever fields you've provided in your config or whatever segments
+          you have provided in your string. Time will leave off extra values and fill in missing ones with the appropriate `lowest`
           value.
           
           ## tz ##
           
-          Most of the time, ChartTime assumes that any dates you pass in are timezone less. You'll specify Christmas as 12-25, then you'll
+          Most of the time, Time assumes that any dates you pass in are timezone less. You'll specify Christmas as 12-25, then you'll
           shift the boundaries of Christmas for a specific timezone for boundary comparison.
           
-          However, if you provide a tz parameter to this constructor, ChartTime will assume you are passing in a true GMT date/time and shift into 
+          However, if you provide a tz parameter to this constructor, Time will assume you are passing in a true GMT date/time and shift into
           the provided timezone. So...
           
-              d = new ChartTime('2011-01-01T02:00:00:00.000Z', 'day', 'America/New_York')
+              d = new Time('2011-01-01T02:00:00:00.000Z', Time.DAY, 'America/New_York')
               console.log(d.toString())
               # 2010-12-31
               
           Rule of thumb on when you want to use timezones:
           
-          1. If you have true GMT date/times and you want to create a ChartTime, provide the timezone to this constructor.
+          1. If you have true GMT date/times and you want to create a Time, provide the timezone to this constructor.
           2. If you have abstract days like Christmas or June 10th and you want to delay the timezone consideration, don't provide a timezone to this constructor.
-          3. In either case, if the dates you want to compare to are in GMT, but you've got ChartTimes or ChartTimeRanges, you'll have to provide a timezone on
-             the way back out of ChartTime/ChartTimeRange
+          3. In either case, if the dates you want to compare to are in GMT, but you've got Times or Timelines, you'll have to provide a timezone on
+             the way back out of Time/Timeline
       */
 
-      var jsDate, newCT, newSpec, rdn, s, spec, _ref;
+      var config, jsDate, newCT, newConfig, rdn, s, _ref, _ref1, _ref2;
       this.beforePastFlag = '';
-      switch (utils.type(spec_RDN_Date_Or_String)) {
+      switch (utils.type(value)) {
         case 'string':
-          s = spec_RDN_Date_Or_String;
-          if (tz != null) {
-            newCT = new ChartTime(s, 'millisecond');
-            jsDate = newCT.getJSDateInTZfromGMT(tz);
+          s = value;
+          if ((s.slice(-3, -2) === ':' && (_ref = s.slice(-6, -5), __indexOf.call('+-', _ref) >= 0)) || s.slice(-1) === 'Z') {
+            if (tz != null) {
+              if (s.slice(-3, -2) === ':' && (_ref1 = s.slice(-6, -5), __indexOf.call('+-', _ref1) >= 0)) {
+                throw new Error("tzTime.Time does not know how to deal with time shifted ISOStrings like what you sent: " + s);
+              }
+              if (s.slice(-1) === 'Z') {
+                s = s.slice(0, -1);
+              }
+              newCT = new Time(s, 'millisecond');
+              jsDate = newCT.getJSDateFromGMTInTZ(tz);
+            } else {
+              throw new Error("Must provide a tz parameter when instantiating a Time object with ISOString that contains timeshift/timezone specification. You provided: " + s + ".");
+            }
           } else {
             this._setFromString(s, granularity);
+            tz = void 0;
           }
           break;
         case 'number':
-          rdn = spec_RDN_Date_Or_String;
+          rdn = value;
           if (tz != null) {
-            newCT = new ChartTime(rdn, 'millisecond');
-            jsDate = newCT.getJSDateInTZfromGMT(tz);
+            newCT = new Time(rdn, 'millisecond');
+            jsDate = newCT.getJSDateFromGMTInTZ(tz);
           } else {
             this._setFromRDN(rdn, granularity);
           }
           break;
         case 'date':
-          jsDate = spec_RDN_Date_Or_String;
+          jsDate = value;
           if (tz != null) {
-            newCT = new ChartTime(jsDate, 'millisecond');
-            jsDate = newCT.getJSDateInTZfromGMT(tz);
+            newCT = new Time(jsDate, 'millisecond');
+            jsDate = newCT.getJSDateFromGMTInTZ(tz);
           }
           if (tz == null) {
             tz = 'GMT';
           }
           break;
         case 'object':
-          spec = spec_RDN_Date_Or_String;
+          config = value;
           if (tz != null) {
-            spec.granularity = 'millisecond';
-            newCT = new ChartTime(spec);
-            jsDate = newCT.getJSDateInTZfromGMT(tz);
+            config.granularity = 'millisecond';
+            newCT = new Time(config);
+            jsDate = newCT.getJSDateFromGMTInTZ(tz);
           } else {
-            this._setFromSpec(spec);
+            this._setFromConfig(config);
           }
       }
       if (tz != null) {
-        if ((_ref = this.beforePastFlag) === 'BEFORE_FIRST' || _ref === 'PAST_LAST') {
+        if ((_ref2 = this.beforePastFlag) === 'BEFORE_FIRST' || _ref2 === 'PAST_LAST') {
           throw new Error("Cannot do timezone manipulation on " + this.beforePastFlag);
         }
         if (granularity != null) {
@@ -5137,7 +5036,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         if (this.granularity == null) {
           this.granularity = 'millisecond';
         }
-        newSpec = {
+        newConfig = {
           year: jsDate.getUTCFullYear(),
           month: jsDate.getUTCMonth() + 1,
           day: jsDate.getUTCDate(),
@@ -5147,100 +5046,91 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           millisecond: jsDate.getUTCMilliseconds(),
           granularity: 'millisecond'
         };
-        newCT = new ChartTime(newSpec).inGranularity(this.granularity);
-        this._setFromSpec(newCT);
+        newCT = new Time(newConfig).inGranularity(this.granularity);
+        this._setFromConfig(newCT);
       }
       this._inBoundsCheck();
       this._overUnderFlow();
     }
 
     /*
-      @property granularitySpecs
-      @static
-      `granularitySpecs` is a static object that is used to tell ChartTime what to do with particular granularties. You can think of
-      each entry in it as a sort of sub-class of ChartTime. In that sense ChartTime is really a factory generating ChartTime objects
-      of type granularity. When custom timebox granularities are added to ChartTime by `ChartTime.addGranularity()`, it adds to this
-      `granularitySpecs` object.
-    
-      Each entry in `granularitySpecs` has the following:
-    
-      * segments - an Array identifying the ancestry (e.g. for 'day', it is: `['year', 'month', 'day']`)
-      * mask - a String used to identify when this granularity is passed in and to serialize it on the way out.
-      * lowest - the lowest possible value for this granularity. 0 for millisecond but 1 for day.
-      * pastHighest - a callback function that will say when to rollover the next coarser granularity.
+      `_granularitySpecs` is a static object that is used to tell Time what to do with particular granularties. You can think of
+      each entry in it as a sort of sub-class of Time. In that sense Time is really a factory generating Time objects
+      of type granularity. When custom timebox granularities are added to Time by `Time.addGranularity()`, it adds to this
+      `_granularitySpecs` object.
     */
 
 
-    ChartTime.granularitySpecs = {};
+    Time._granularitySpecs = {};
 
-    ChartTime.granularitySpecs['millisecond'] = {
+    Time._granularitySpecs['millisecond'] = {
       segments: ['year', 'month', 'day', 'hour', 'minute', 'second', 'millisecond'],
       mask: '####-##-##T##:##:##.###',
       lowest: 0,
-      pastHighest: function() {
+      rolloverValue: function() {
         return 1000;
       }
     };
 
-    ChartTime.granularitySpecs['second'] = {
+    Time._granularitySpecs['second'] = {
       segments: ['year', 'month', 'day', 'hour', 'minute', 'second'],
       mask: '####-##-##T##:##:##',
       lowest: 0,
-      pastHighest: function() {
+      rolloverValue: function() {
         return 60;
       }
     };
 
-    ChartTime.granularitySpecs['minute'] = {
+    Time._granularitySpecs['minute'] = {
       segments: ['year', 'month', 'day', 'hour', 'minute'],
       mask: '####-##-##T##:##',
       lowest: 0,
-      pastHighest: function() {
+      rolloverValue: function() {
         return 60;
       }
     };
 
-    ChartTime.granularitySpecs['hour'] = {
+    Time._granularitySpecs['hour'] = {
       segments: ['year', 'month', 'day', 'hour'],
       mask: '####-##-##T##',
       lowest: 0,
-      pastHighest: function() {
+      rolloverValue: function() {
         return 24;
       }
     };
 
-    ChartTime.granularitySpecs['day'] = {
+    Time._granularitySpecs['day'] = {
       segments: ['year', 'month', 'day'],
       mask: '####-##-##',
       lowest: 1,
-      pastHighest: function(ct) {
+      rolloverValue: function(ct) {
         return ct.daysInMonth() + 1;
       }
     };
 
-    ChartTime.granularitySpecs['month'] = {
+    Time._granularitySpecs['month'] = {
       segments: ['year', 'month'],
       mask: '####-##',
       lowest: 1,
-      pastHighest: function() {
+      rolloverValue: function() {
         return 12 + 1;
       }
     };
 
-    ChartTime.granularitySpecs['year'] = {
+    Time._granularitySpecs['year'] = {
       segments: ['year'],
       mask: '####',
       lowest: 1,
-      pastHighest: function() {
+      rolloverValue: function() {
         return 9999 + 1;
       }
     };
 
-    ChartTime.granularitySpecs['week'] = {
+    Time._granularitySpecs['week'] = {
       segments: ['year', 'week'],
       mask: '####W##',
       lowest: 1,
-      pastHighest: function(ct) {
+      rolloverValue: function(ct) {
         if (ct.is53WeekYear()) {
           return 53 + 1;
         } else {
@@ -5249,25 +5139,25 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.granularitySpecs['week_day'] = {
+    Time._granularitySpecs['week_day'] = {
       segments: ['year', 'week', 'week_day'],
       mask: '####W##-#',
       lowest: 1,
-      pastHighest: function(ct) {
+      rolloverValue: function(ct) {
         return 7 + 1;
       }
     };
 
-    ChartTime.granularitySpecs['quarter'] = {
+    Time._granularitySpecs['quarter'] = {
       segments: ['year', 'quarter'],
       mask: '####Q#',
       lowest: 1,
-      pastHighest: function() {
+      rolloverValue: function() {
         return 4 + 1;
       }
     };
 
-    ChartTime._expandMask = function(granularitySpec) {
+    Time._expandMask = function(granularitySpec) {
       var character, i, mask, segmentEnd;
       mask = granularitySpec.mask;
       if (mask != null) {
@@ -5298,36 +5188,40 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    _ref = ChartTime.granularitySpecs;
+    _ref = Time._granularitySpecs;
     for (g in _ref) {
       spec = _ref[g];
-      ChartTime._expandMask(spec);
+      Time._expandMask(spec);
+      Time[g.toUpperCase()] = g;
     }
 
     timezoneJS.timezone.zoneFileBasePath = '../files/tz';
 
     timezoneJS.timezone.init();
 
-    ChartTime.prototype._inBoundsCheck = function() {
-      var gs, lowest, pastHighest, segment, segments, temp, _i, _len, _results;
+    Time.prototype._inBoundsCheck = function() {
+      var gs, lowest, rolloverValue, segment, segments, temp, _i, _len, _results;
       if (this.beforePastFlag === '' || !(this.beforePastFlag != null)) {
-        segments = ChartTime.granularitySpecs[this.granularity].segments;
+        if (!this.granularity) {
+          throw new Error('@granularity should be set before _inBoundsCheck is ever called.');
+        }
+        segments = Time._granularitySpecs[this.granularity].segments;
         _results = [];
         for (_i = 0, _len = segments.length; _i < _len; _i++) {
           segment = segments[_i];
-          gs = ChartTime.granularitySpecs[segment];
+          gs = Time._granularitySpecs[segment];
           temp = this[segment];
           lowest = gs.lowest;
-          pastHighest = gs.pastHighest(this);
-          if (temp < lowest || temp >= pastHighest) {
+          rolloverValue = gs.rolloverValue(this);
+          if (temp < lowest || temp >= rolloverValue) {
             if (temp === lowest - 1) {
               this[segment]++;
               _results.push(this.decrement(segment));
-            } else if (temp === pastHighest) {
+            } else if (temp === rolloverValue) {
               this[segment]--;
               _results.push(this.increment(segment));
             } else {
-              throw new Error("Tried to set " + segment + " to " + temp + ". It must be >= " + lowest + " and < " + pastHighest);
+              throw new Error("Tried to set " + segment + " to " + temp + ". It must be >= " + lowest + " and < " + rolloverValue);
             }
           } else {
             _results.push(void 0);
@@ -5337,32 +5231,26 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype._setFromSpec = function(spec) {
+    Time.prototype._setFromConfig = function(config) {
       var segment, segments, _i, _len, _results;
-      utils.assert(spec.granularity != null, 'A granularity property must be part of the supplied spec.');
-      this.granularity = spec.granularity;
-      this.beforePastFlag = spec.beforePastFlag != null ? spec.beforePastFlag : '';
-      segments = ChartTime.granularitySpecs[this.granularity].segments;
+      utils.assert(config.granularity != null, 'A granularity property must be part of the supplied config.');
+      this.granularity = config.granularity;
+      this.beforePastFlag = config.beforePastFlag != null ? config.beforePastFlag : '';
+      segments = Time._granularitySpecs[this.granularity].segments;
       _results = [];
       for (_i = 0, _len = segments.length; _i < _len; _i++) {
         segment = segments[_i];
-        if (spec[segment] != null) {
-          _results.push(this[segment] = spec[segment]);
+        if (config[segment] != null) {
+          _results.push(this[segment] = config[segment]);
         } else {
-          _results.push(this[segment] = ChartTime.granularitySpecs[segment].lowest);
+          _results.push(this[segment] = Time._granularitySpecs[segment].lowest);
         }
       }
       return _results;
     };
 
-    ChartTime.prototype._setFromString = function(s, granularity) {
-      var gs, l, sSplit, segment, segments, stillParsing, sub, tz, zuluCT, _i, _len, _ref1, _ref2, _ref3, _results;
-      if (s.slice(-3, -2) === ':' && (_ref1 = s.slice(-6, -5), __indexOf.call('+-', _ref1) >= 0)) {
-        s = s.slice(0, -6);
-      }
-      if (s.slice(-1) === 'Z') {
-        s = s.slice(0, -1);
-      }
+    Time.prototype._setFromString = function(s, granularity) {
+      var gs, l, sSplit, segment, segments, stillParsing, sub, tz, zuluCT, _i, _len, _ref1, _ref2, _results;
       if (s === 'PAST_LAST' || s === 'BEFORE_FIRST') {
         if (granularity != null) {
           this.granularity = granularity;
@@ -5373,24 +5261,24 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         }
       }
       sSplit = s.split(' ');
-      if ((_ref2 = sSplit[0]) === 'this' || _ref2 === 'next' || _ref2 === 'prior') {
+      if ((_ref1 = sSplit[0]) === 'this' || _ref1 === 'next' || _ref1 === 'previous') {
         if (sSplit[2] === 'in' && (sSplit[3] != null)) {
           tz = sSplit[3];
         } else {
           tz = void 0;
         }
-        zuluCT = new ChartTime(new Date(), sSplit[1], tz);
-        this._setFromSpec(zuluCT);
+        zuluCT = new Time(new Date(), sSplit[1], tz);
+        this._setFromConfig(zuluCT);
         if (sSplit[0] === 'next') {
           this.increment();
-        } else if (sSplit[0] === 'prior') {
+        } else if (sSplit[0] === 'previous') {
           this.decrement();
         }
         return;
       }
-      _ref3 = ChartTime.granularitySpecs;
-      for (g in _ref3) {
-        spec = _ref3[g];
+      _ref2 = Time._granularitySpecs;
+      for (g in _ref2) {
+        spec = _ref2[g];
         if (spec.segmentStart + spec.segmentLength === s.length || spec.mask.indexOf('#') < 0) {
           if (spec.regex.test(s)) {
             granularity = g;
@@ -5402,15 +5290,15 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         throw new Error("Error parsing string '" + s + "'. Couldn't identify granularity.");
       }
       this.granularity = granularity;
-      segments = ChartTime.granularitySpecs[this.granularity].segments;
+      segments = Time._granularitySpecs[this.granularity].segments;
       stillParsing = true;
       _results = [];
       for (_i = 0, _len = segments.length; _i < _len; _i++) {
         segment = segments[_i];
         if (stillParsing) {
-          gs = ChartTime.granularitySpecs[segment];
+          gs = Time._granularitySpecs[segment];
           l = gs.segmentLength;
-          sub = ChartTime._getStringPart(s, segment);
+          sub = Time._getStringPart(s, segment);
           if (sub.length !== l) {
             stillParsing = false;
           }
@@ -5418,26 +5306,27 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         if (stillParsing) {
           _results.push(this[segment] = Number(sub));
         } else {
-          _results.push(this[segment] = ChartTime.granularitySpecs[segment].lowest);
+          _results.push(this[segment] = Time._granularitySpecs[segment].lowest);
         }
       }
       return _results;
     };
 
-    ChartTime._getStringPart = function(s, segment) {
+    Time._getStringPart = function(s, segment) {
       var l, st, sub;
-      spec = ChartTime.granularitySpecs[segment];
+      spec = Time._granularitySpecs[segment];
       l = spec.segmentLength;
       st = spec.segmentStart;
       sub = s.substr(st, l);
       return sub;
     };
 
-    ChartTime.prototype._setFromRDN = function(rdn, granularity) {
-      var J, a, afterCT, afterRDN, b, beforeCT, beforeRDN, c, d, da, db, dc, dg, granularitySpec, j, m, n, segment, specForLowest, w, x, y, z, _i, _len, _ref1;
-      spec = {
+    Time.prototype._setFromRDN = function(rdn, granularity) {
+      var J, a, afterCT, afterRDN, b, beforeCT, beforeRDN, c, config, d, da, db, dc, dg, granularitySpec, j, m, n, segment, specForLowest, w, x, y, z, _i, _len, _ref1;
+      config = {
         granularity: granularity
       };
+      utils.assert(granularity != null, "Must provide a granularity when constructing with a Rata Die Number.");
       switch (granularity) {
         case 'week':
         case 'week_day':
@@ -5451,10 +5340,10 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           x = w * 28 + [15, 23, 3, 11][c];
           y = Math.floor(x / 1461);
           w = x % 1461;
-          spec['year'] = y + n * 400 + c * 100 + 1;
-          spec['week'] = Math.floor(w / 28) + 1;
-          spec['week_day'] = d + 1;
-          return this._setFromSpec(spec);
+          config['year'] = y + n * 400 + c * 100 + 1;
+          config['week'] = Math.floor(w / 28) + 1;
+          config['week_day'] = d + 1;
+          return this._setFromConfig(config);
         case 'year':
         case 'month':
         case 'day':
@@ -5476,22 +5365,22 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           y = g * 400 + c * 100 + b * 4 + a;
           m = Math.floor((da * 5 + 308) / 153) - 2;
           d = da - Math.floor((m + 4) * 153 / 5) + 122;
-          spec['year'] = y - 4800 + Math.floor((m + 2) / 12);
-          spec['month'] = (m + 2) % 12 + 1;
-          spec['day'] = Math.floor(d) + 1;
-          spec['quarter'] = Math.floor((spec.month - 1) / 3) + 1;
-          return this._setFromSpec(spec);
+          config['year'] = y - 4800 + Math.floor((m + 2) / 12);
+          config['month'] = (m + 2) % 12 + 1;
+          config['day'] = Math.floor(d) + 1;
+          config['quarter'] = Math.floor((config.month - 1) / 3) + 1;
+          return this._setFromConfig(config);
         default:
-          granularitySpec = ChartTime.granularitySpecs[granularity];
+          granularitySpec = Time._granularitySpecs[granularity];
           specForLowest = {
             granularity: granularity
           };
           _ref1 = granularitySpec.segments;
           for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
             segment = _ref1[_i];
-            specForLowest[segment] = ChartTime.granularitySpecs[segment].lowest;
+            specForLowest[segment] = Time._granularitySpecs[segment].lowest;
           }
-          beforeCT = new ChartTime(specForLowest);
+          beforeCT = new Time(specForLowest);
           beforeRDN = beforeCT.rataDieNumber();
           afterCT = beforeCT.add(1);
           afterRDN = afterCT.rataDieNumber();
@@ -5501,7 +5390,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           }
           while (true) {
             if (rdn < afterRDN && rdn >= beforeRDN) {
-              this._setFromSpec(beforeCT);
+              this._setFromConfig(beforeCT);
               return;
             }
             beforeCT = afterCT;
@@ -5509,12 +5398,12 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
             afterCT = beforeCT.add(1);
             afterRDN = afterCT.rataDieNumber();
             if (afterCT.beforePastFlag === 'PAST_LAST') {
-              if (rdn >= ChartTime.granularitySpecs[beforeCT.granularity].dayPastEnd.rataDieNumber()) {
-                this._setFromSpec(afterCT);
+              if (rdn >= Time._granularitySpecs[beforeCT.granularity].endBeforeDay.rataDieNumber()) {
+                this._setFromConfig(afterCT);
                 this.beforePastFlag === 'PAST_LAST';
                 return;
               } else if (rdn >= beforeRDN) {
-                this._setFromSpec(beforeCT);
+                this._setFromConfig(beforeCT);
                 return;
               } else {
                 throw new Error("RDN: " + rdn + " seems to be out of range for " + granularity);
@@ -5525,14 +5414,15 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype.granularityAboveDay = function() {
+    Time.prototype._isGranularityCoarserThanDay = function() {
       /*
           @method granularityAboveDay
-          @return {Boolean} true if the ChartTime Object's granularity is above (coarser than) "day" level
+          @private
+          @return {Boolean} true if the Time Object's granularity is above (coarser than) "day" level
       */
 
       var segment, _i, _len, _ref1;
-      _ref1 = ChartTime.granularitySpecs[this.granularity].segments;
+      _ref1 = Time._granularitySpecs[this.granularity].segments;
       for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
         segment = _ref1[_i];
         if (segment.indexOf('day') >= 0) {
@@ -5542,29 +5432,29 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return true;
     };
 
-    ChartTime.prototype.getJSDate = function(tz) {
+    Time.prototype.getJSDate = function(tz) {
       /*
           @method getJSDate
           @param {String} tz
           @return {Date}
       
-          Returnas a JavaScript Date Object properly shifted. This Date Object can be compared to other Date Objects that you know
-          are already in the desired timezone. If you have data that comes from an API in GMT. You can first create a ChartTime object from
+          Returns a JavaScript Date Object properly shifted. This Date Object can be compared to other Date Objects that you know
+          are already in the desired timezone. If you have data that comes from an API in GMT. You can first create a Time object from
           it and then (using this getJSDate() function) you can compare it to JavaScript Date Objects created in local time.
           
           The full name of this function should be getJSDateInGMTasummingThisCTDateIsInTimezone(tz). It converts **TO** GMT 
-          (actually something that can be compared to GMT). It does **NOT** convert **FROM** GMT. Use getJSDateInTZfromGMT()
+          (actually something that can be compared to GMT). It does **NOT** convert **FROM** GMT. Use getJSDateFromGMTInTZ()
           if you want to go in the other direction.
         
           ## Usage ##
           
-              ct = new ChartTime('2011-01-01')
+              ct = new Time('2011-01-01')
               d = new Date(Date.UTC(2011, 0, 1))
               
               console.log(ct.getJSDate('GMT').getTime() == d.getTime())
               # true
               
-              console.log(ct.inGranularity('hour').add(-5).getJSDate('America/New_York').getTime() == d.getTime())
+              console.log(ct.inGranularity(Time.HOUR).add(-5).getJSDate('America/New_York').getTime() == d.getTime())
               # true
       */
 
@@ -5584,21 +5474,25 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return newDate;
     };
 
-    ChartTime.prototype.getShiftedISOString = function(tz) {
+    Time.prototype.getISOStringInTZ = function(tz) {
       /*
-          @method getShiftedISOString
+          @method getISOStringInTZ
           @param {String} tz
           @return {String} The canonical ISO-8601 date in zulu representation but shifted to the specified tz
+      
+              console.log(new Time('2012-01-01').getISOStringInTZ('Europe/Berlin'))
+              # 2011-12-31T23:00:00.000Z
       */
 
       var jsDate;
+      utils.assert(tz != null, 'Must provide a timezone when calling getShiftedISOString');
       jsDate = this.getJSDate(tz);
-      return ChartTime.getZuluString(jsDate);
+      return Time.getISOStringFromJSDate(jsDate);
     };
 
-    ChartTime.getZuluString = function(jsDate) {
+    Time.getISOStringFromJSDate = function(jsDate) {
       /*
-          @method getZuluString
+          @method getISOStringFromJSDate
           @static
           @param {Date} jsDate
           @return {String}
@@ -5606,6 +5500,9 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           Given a JavaScript Date() Object, this will return the canonical ISO-8601 form.
           
           If you don't provide any parameters, it will return now, like `new Date()` except this is a zulu string.
+      
+              console.log(Time.getISOStringFromJSDate(new Date(0)))
+              # 1970-01-01T00:00:00.000Z
       */
 
       var day, hour, millisecond, minute, month, s, second, year;
@@ -5619,22 +5516,25 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       minute = jsDate.getUTCMinutes();
       second = jsDate.getUTCSeconds();
       millisecond = jsDate.getUTCMilliseconds();
-      s = ChartTime._pad(year, 4) + '-' + ChartTime._pad(month, 2) + '-' + ChartTime._pad(day, 2) + 'T' + ChartTime._pad(hour, 2) + ':' + ChartTime._pad(minute, 2) + ':' + ChartTime._pad(second, 2) + '.' + ChartTime._pad(millisecond, 3) + 'Z';
+      s = Time._pad(year, 4) + '-' + Time._pad(month, 2) + '-' + Time._pad(day, 2) + 'T' + Time._pad(hour, 2) + ':' + Time._pad(minute, 2) + ':' + Time._pad(second, 2) + '.' + Time._pad(millisecond, 3) + 'Z';
       return s;
     };
 
-    ChartTime.prototype.getJSDateInTZfromGMT = function(tz) {
+    Time.prototype.getJSDateFromGMTInTZ = function(tz) {
       /*
           @method getJSDateInTZfromGMT
           @param {String} tz
           @return {Date}
       
-          This assumes that the ChartTime is an actual GMT date/time as opposed to some abstract day like Christmas and shifts
+          This assumes that the Time is an actual GMT date/time as opposed to some abstract day like Christmas and shifts
           it into the specified timezone.
           
           Note, this function will be off by an hour for the times near midnight on the days where there is a shift to/from daylight 
           savings time. The tz rules engine is designed to go in the other direction so we're mis-using it. This means we are using the wrong
           moment in rules-space for that hour. The cost of fixing this issue was deemed to high for chart applications.
+      
+              console.log(new Time('2012-01-01').getJSDateFromGMTInTZ('Europe/Berlin').toISOString())
+              # 2012-01-01T01:00:00.000Z
       */
 
       var ct, newDate, offset, utcMilliseconds;
@@ -5653,15 +5553,19 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return newDate;
     };
 
-    ChartTime.prototype.getSegmentsAsObject = function() {
+    Time.prototype.getSegmentsAsObject = function() {
       /*
           @method getSegmentsAsObject
           @return {Object} Returns a simple JavaScript Object containing the segments. This is useful when using utils.match
           for holiday comparison
+      
+              t = new Time('2011-01-10')
+              console.log(t.getSegmentsAsObject())
+              # { year: 2011, month: 1, day: 10 }
       */
 
       var rawObject, segment, segments, _i, _len;
-      segments = ChartTime.granularitySpecs[this.granularity].segments;
+      segments = Time._granularitySpecs[this.granularity].segments;
       rawObject = {};
       for (_i = 0, _len = segments.length; _i < _len; _i++) {
         segment = segments[_i];
@@ -5670,32 +5574,59 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return rawObject;
     };
 
-    ChartTime.prototype.toString = function() {
+    Time.prototype.getSegmentsAsArray = function() {
+      /*
+          @method getSegmentsAsArray
+          @return {Array} Returns a simple JavaScript Array containing the segments. This is useful for doing hierarchical
+            aggregations using Lumenize.OLAPCube.
+      
+              t = new Time('2011-01-10')
+              console.log(t.getSegmentsAsArray())
+              # [ 2011, 1, 10 ]
+      */
+
+      var a, segment, segments, _i, _len;
+      segments = Time._granularitySpecs[this.granularity].segments;
+      a = [];
+      for (_i = 0, _len = segments.length; _i < _len; _i++) {
+        segment = segments[_i];
+        a.push(this[segment]);
+      }
+      return a;
+    };
+
+    Time.prototype.toString = function() {
       /*
           @method toString
-          @return {String} Uses granularity `mask` to generate the string representation.
+          @return {String} Uses granularity `mask` in _granularitySpecs to generate the string representation.
+      
+              t = new Time({year: 2012, month: 1, day: 1, granularity: Time.MINUTE}).toString()
+              console.log(t.toString())
+              console.log(t)
+              # 2012-01-01T00:00
+              # 2012-01-01T00:00
       */
 
       var after, before, granularitySpec, l, s, segment, segments, start, _i, _len, _ref1;
       if ((_ref1 = this.beforePastFlag) === 'BEFORE_FIRST' || _ref1 === 'PAST_LAST') {
         s = "" + this.beforePastFlag;
       } else {
-        s = ChartTime.granularitySpecs[this.granularity].mask;
-        segments = ChartTime.granularitySpecs[this.granularity].segments;
+        s = Time._granularitySpecs[this.granularity].mask;
+        segments = Time._granularitySpecs[this.granularity].segments;
         for (_i = 0, _len = segments.length; _i < _len; _i++) {
           segment = segments[_i];
-          granularitySpec = ChartTime.granularitySpecs[segment];
+          granularitySpec = Time._granularitySpecs[segment];
           l = granularitySpec.segmentLength;
           start = granularitySpec.segmentStart;
           before = s.slice(0, start);
           after = s.slice(start + l);
-          s = before + ChartTime._pad(this[segment], l) + after;
+          s = before + Time._pad(this[segment], l) + after;
         }
       }
       return s;
     };
 
-    ChartTime._pad = function(n, l) {
+    Time._pad = function(n, l) {
       var result;
       result = n.toString();
       while (result.length < l) {
@@ -5704,7 +5635,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return result;
     };
 
-    ChartTime.DOW_N_TO_S_MAP = {
+    Time.DOW_N_TO_S_MAP = {
       0: 'Sunday',
       1: 'Monday',
       2: 'Tuesday',
@@ -5715,13 +5646,16 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       7: 'Sunday'
     };
 
-    ChartTime.DOW_MONTH_TABLE = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
+    Time.DOW_MONTH_TABLE = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
 
-    ChartTime.prototype.dowNumber = function() {
+    Time.prototype.dowNumber = function() {
       /*
           @method dowNumber
           @return {Number}
           Returns the day of the week as a number. Monday = 1, Sunday = 7
+      
+              console.log(new Time('2012-01-01').dowNumber())
+              # 7
       */
 
       var dayNumber, y, _ref1;
@@ -5733,7 +5667,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         if (this.month < 3) {
           y--;
         }
-        dayNumber = (y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) + ChartTime.DOW_MONTH_TABLE[this.month - 1] + this.day) % 7;
+        dayNumber = (y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) + Time.DOW_MONTH_TABLE[this.month - 1] + this.day) % 7;
         if (dayNumber === 0) {
           return 7;
         } else {
@@ -5744,19 +5678,34 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype.dowString = function() {
+    Time.prototype.dowString = function() {
       /*
           @method dowString
-          @return {String} Returns the day of the week as a String.
+          @return {String} Returns the day of the week as a String (e.g. "Monday")
+      
+              console.log(new Time('2012-01-01').dowString())
+              # Sunday
       */
-      return ChartTime.DOW_N_TO_S_MAP[this.dowNumber()];
+      return Time.DOW_N_TO_S_MAP[this.dowNumber()];
     };
 
-    ChartTime.prototype.rataDieNumber = function() {
+    Time.prototype.rataDieNumber = function() {
       /*
           @method rataDieNumber
-          @return {Number} Returns the number of days since 0001-01-01. Works for granularities finer than day (hour, minute,
-          second, millisecond) but ignores the segments of finer granularity than day. Also called common era days.
+          @return {Number} Returns the counting number for days starting with 0001-01-01 (i.e. 0 AD). Note, this differs
+          from the Unix Epoch which starts on 1970-01-01. This function works for
+          granularities finer than day (hour, minute, second, millisecond) but ignores the segments of finer granularity than
+          day. Also called common era days.
+      
+              console.log(new Time('0001-01-01').rataDieNumber())
+              # 1
+      
+              rdn2012 = new Time('2012-01-01').rataDieNumber()
+              rdn1970 = new Time('1970-01-01').rataDieNumber()
+              ms1970To2012 = (rdn2012 - rdn1970) * 24 * 60 * 60 * 1000
+              msJSDate2012 = Number(new Date('2012-01-01'))
+              console.log(ms1970To2012 == msJSDate2012)
+              # true
       */
 
       var ew, monthDays, y, yearDays;
@@ -5764,8 +5713,8 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         return -1;
       } else if (this.beforePastFlag === 'PAST_LAST') {
         return utils.MAX_INT;
-      } else if (ChartTime.granularitySpecs[this.granularity].rataDieNumber != null) {
-        return ChartTime.granularitySpecs[this.granularity].rataDieNumber(this);
+      } else if (Time._granularitySpecs[this.granularity].rataDieNumber != null) {
+        return Time._granularitySpecs[this.granularity].rataDieNumber(this);
       } else {
         y = this.year - 1;
         yearDays = y * 365 + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400);
@@ -5803,31 +5752,41 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype.inGranularity = function(granularity) {
+    Time.prototype.inGranularity = function(granularity) {
       /*
           @method inGranularity
-          @return {ChartTime} Returns a new ChartTime object for the same date-time as this object but in the specified granularity.
+          @param {String} granularity
+          @return {Time} Returns a new Time object for the same date-time as this object but in the specified granularity.
           Fills in missing finer granularity segments with `lowest` values. Drops segments when convernting to a coarser
           granularity.
+      
+              console.log(new Time('2012W01-1').inGranularity(Time.DAY).toString())
+              # 2012-01-02
+      
+              console.log(new Time('2012Q3').inGranularity(Time.MONTH).toString())
+              # 2012-07
       */
 
-      var newChartTime, tempGranularity, _ref1;
+      var newTime, tempGranularity, _ref1;
       if ((_ref1 = this.granularity) === 'year' || _ref1 === 'month' || _ref1 === 'day' || _ref1 === 'hour' || _ref1 === 'minute' || _ref1 === 'second' || _ref1 === 'millisecond') {
         if (granularity === 'year' || granularity === 'month' || granularity === 'day' || granularity === 'hour' || granularity === 'minute' || granularity === 'second' || granularity === 'millisecond') {
           tempGranularity = this.granularity;
           this.granularity = granularity;
-          newChartTime = new ChartTime(this);
+          newTime = new Time(this);
           this.granularity = tempGranularity;
-          return newChartTime;
+          return newTime;
         }
       }
-      return new ChartTime(this.rataDieNumber(), granularity);
+      return new Time(this.rataDieNumber(), granularity);
     };
 
-    ChartTime.prototype.daysInMonth = function() {
+    Time.prototype.daysInMonth = function() {
       /*
           @method daysInMonth
-          @return {Number} Returns the number of days in the current month for this ChartTime
+          @return {Number} Returns the number of days in the current month for this Time
+      
+              console.log(new Time('2012-02').daysInMonth())
+              # 29
       */
       switch (this.month) {
         case 4:
@@ -5853,10 +5812,13 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype.isLeapYear = function() {
+    Time.prototype.isLeapYear = function() {
       /*
           @method isLeapYear
           @return {Boolean} true if this is a leap year
+      
+              console.log(new Time('2012').isLeapYear())
+              # true
       */
       if (this.year % 4 === 0) {
         if (this.year % 100 === 0) {
@@ -5873,28 +5835,31 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.YEARS_WITH_53_WEEKS = [4, 9, 15, 20, 26, 32, 37, 43, 48, 54, 60, 65, 71, 76, 82, 88, 93, 99, 105, 111, 116, 122, 128, 133, 139, 144, 150, 156, 161, 167, 172, 178, 184, 189, 195, 201, 207, 212, 218, 224, 229, 235, 240, 246, 252, 257, 263, 268, 274, 280, 285, 291, 296, 303, 308, 314, 320, 325, 331, 336, 342, 348, 353, 359, 364, 370, 376, 381, 387, 392, 398];
+    Time.YEARS_WITH_53_WEEKS = [4, 9, 15, 20, 26, 32, 37, 43, 48, 54, 60, 65, 71, 76, 82, 88, 93, 99, 105, 111, 116, 122, 128, 133, 139, 144, 150, 156, 161, 167, 172, 178, 184, 189, 195, 201, 207, 212, 218, 224, 229, 235, 240, 246, 252, 257, 263, 268, 274, 280, 285, 291, 296, 303, 308, 314, 320, 325, 331, 336, 342, 348, 353, 359, 364, 370, 376, 381, 387, 392, 398];
 
-    ChartTime.prototype.is53WeekYear = function() {
+    Time.prototype.is53WeekYear = function() {
       /*
           @method is53WeekYear
           @return {Boolean} true if this is a 53-week year
+      
+              console.log(new Time('2015').is53WeekYear())
+              # true
       */
 
       var lookup;
       lookup = this.year % 400;
-      return __indexOf.call(ChartTime.YEARS_WITH_53_WEEKS, lookup) >= 0;
+      return __indexOf.call(Time.YEARS_WITH_53_WEEKS, lookup) >= 0;
     };
 
-    ChartTime.prototype.$eq = function(other) {
+    Time.prototype.equal = function(other) {
       /*
-          @method $eq
-          @param {ChartTime} other
+          @method equal
+          @param {Time} other
           @return {Boolean} Returns true if this equals other. Throws an error if the granularities don't match.
       
-              d3 = new ChartTime({granularity: 'day', year: 2011, month: 12, day: 31})
-              d4 = new ChartTime('2012-01-01').add(-1)
-              console.log(d3.$eq(d4))
+              d3 = new Time({granularity: Time.DAY, year: 2011, month: 12, day: 31})
+              d4 = new Time('2012-01-01').add(-1)
+              console.log(d3.equal(d4))
               # true
       */
 
@@ -5918,7 +5883,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       if (other.beforePastFlag === 'BEFORE_FIRST' && this.beforePastFlag !== 'BEFORE_FIRST') {
         return false;
       }
-      segments = ChartTime.granularitySpecs[this.granularity].segments;
+      segments = Time._granularitySpecs[this.granularity].segments;
       for (_i = 0, _len = segments.length; _i < _len; _i++) {
         segment = segments[_i];
         if (this[segment] !== other[segment]) {
@@ -5928,17 +5893,17 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return true;
     };
 
-    ChartTime.prototype.$gt = function(other) {
+    Time.prototype.greaterThan = function(other) {
       /*
-          @method $gt
-          @param {ChartTime} other
+          @method greaterThan
+          @param {Time} other
           @return {Boolean} Returns true if this is greater than other. Throws an error if the granularities don't match
       
-              d1 = new ChartTime({granularity: 'day', year: 2011, month: 2, day: 28})
-              d2 = new ChartTime({granularity: 'day', year: 2011, month: 3, day: 1})
-              console.log(d1.$gt(d2))
+              d1 = new Time({granularity: Time.DAY, year: 2011, month: 2, day: 28})
+              d2 = new Time({granularity: Time.DAY, year: 2011, month: 3, day: 1})
+              console.log(d1.greaterThan(d2))
               # false
-              console.log(d2.$gt(d1))
+              console.log(d2.greaterThan(d1))
               # true
       */
 
@@ -5962,7 +5927,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       if (other.beforePastFlag === 'BEFORE_FIRST' && this.beforePastFlag !== 'BEFORE_FIRST') {
         return true;
       }
-      segments = ChartTime.granularitySpecs[this.granularity].segments;
+      segments = Time._granularitySpecs[this.granularity].segments;
       for (_i = 0, _len = segments.length; _i < _len; _i++) {
         segment = segments[_i];
         if (this[segment] > other[segment]) {
@@ -5975,51 +5940,60 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return false;
     };
 
-    ChartTime.prototype.$gte = function(other) {
+    Time.prototype.greaterThanOrEqual = function(other) {
       /*
-          @method $gte
-          @param {ChartTime} other
+          @method greaterThanOrEqual
+          @param {Time} other
           @return {Boolean} Returns true if this is greater than or equal to other
+      
+              console.log(new Time('2012').greaterThanOrEqual(new Time('2012')))
+              # true
       */
 
       var gt;
-      gt = this.$gt(other);
+      gt = this.greaterThan(other);
       if (gt) {
         return true;
       }
-      return this.$eq(other);
+      return this.equal(other);
     };
 
-    ChartTime.prototype.$lt = function(other) {
+    Time.prototype.lessThan = function(other) {
       /*
-          @method $lt
-          @param {ChartTime} other
+          @method lessThan
+          @param {Time} other
           @return {Boolean} Returns true if this is less than other
+      
+              console.log(new Time(1000, Time.DAY).lessThan(new Time(999, Time.DAY)))  # Using RDN constructor
+              # false
       */
-      return other.$gt(this);
+      return other.greaterThan(this);
     };
 
-    ChartTime.prototype.$lte = function(other) {
+    Time.prototype.lessThanOrEqual = function(other) {
       /*
-          @method $lte
-          @param {ChartTime} other
+          @method lessThanOrEqual
+          @param {Time} other
           @return {Boolean} Returns true if this is less than or equal to other
+      
+              console.log(new Time('this day').lessThanOrEqual(new Time('next day')))  # Using relative constructor
+              # true
       */
-      return other.$gte(this);
+      return other.greaterThanOrEqual(this);
     };
 
-    ChartTime.prototype._overUnderFlow = function() {
-      var granularitySpec, highestLevel, highestLevelSpec, lowest, pastHighest, value, _ref1;
+    Time.prototype._overUnderFlow = function() {
+      var granularitySpec, highestLevel, highestLevelSpec, lowest, rolloverValue, value, _ref1;
       if ((_ref1 = this.beforePastFlag) === 'BEFORE_FIRST' || _ref1 === 'PAST_LAST') {
         return true;
       } else {
-        granularitySpec = ChartTime.granularitySpecs[this.granularity];
+        granularitySpec = Time._granularitySpecs[this.granularity];
         highestLevel = granularitySpec.segments[0];
-        highestLevelSpec = ChartTime.granularitySpecs[highestLevel];
+        highestLevelSpec = Time._granularitySpecs[highestLevel];
         value = this[highestLevel];
-        pastHighest = highestLevelSpec.pastHighest(this);
+        rolloverValue = highestLevelSpec.rolloverValue(this);
         lowest = highestLevelSpec.lowest;
-        if (value >= pastHighest) {
+        if (value >= rolloverValue) {
           this.beforePastFlag = 'PAST_LAST';
           return true;
         } else if (value < lowest) {
@@ -6031,25 +6005,28 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype.decrement = function(granularity) {
+    Time.prototype.decrement = function(granularity) {
       /*
           @method decrement
           @param {String} [granularity]
           @chainable
-          @return {ChartTime}
-          Decrements this by 1 in the granularity of the ChartTime or the granularity specified if it was specified
+          @return {Time}
+          Decrements this by 1 in the granularity of the Time or the granularity specified if it was specified
+      
+              console.log(new Time('2016W01').decrement().toString())
+              # 2015W53
       */
 
       var granularitySpec, gs, i, lastDayInMonthFlag, segment, segments, _i, _len, _results;
       if (this.beforePastFlag === 'PAST_LAST') {
         this.beforePastFlag = '';
-        granularitySpec = ChartTime.granularitySpecs[this.granularity];
+        granularitySpec = Time._granularitySpecs[this.granularity];
         segments = granularitySpec.segments;
         _results = [];
         for (_i = 0, _len = segments.length; _i < _len; _i++) {
           segment = segments[_i];
-          gs = ChartTime.granularitySpecs[segment];
-          _results.push(this[segment] = gs.pastHighest(this) - 1);
+          gs = Time._granularitySpecs[segment];
+          _results.push(this[segment] = gs.rolloverValue(this) - 1);
         }
         return _results;
       } else {
@@ -6057,7 +6034,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         if (granularity == null) {
           granularity = this.granularity;
         }
-        granularitySpec = ChartTime.granularitySpecs[granularity];
+        granularitySpec = Time._granularitySpecs[granularity];
         segments = granularitySpec.segments;
         this[granularity]--;
         if (granularity === 'year') {
@@ -6067,13 +6044,13 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         } else {
           i = segments.length - 1;
           segment = segments[i];
-          granularitySpec = ChartTime.granularitySpecs[segment];
+          granularitySpec = Time._granularitySpecs[segment];
           while ((i > 0) && (this[segment] < granularitySpec.lowest)) {
             this[segments[i - 1]]--;
-            this[segment] = granularitySpec.pastHighest(this) - 1;
+            this[segment] = granularitySpec.rolloverValue(this) - 1;
             i--;
             segment = segments[i];
-            granularitySpec = ChartTime.granularitySpecs[segment];
+            granularitySpec = Time._granularitySpecs[segment];
           }
           if (granularity === 'month' && (this.granularity !== 'month')) {
             if (lastDayInMonthFlag || (this.day > this.daysInMonth())) {
@@ -6086,24 +6063,27 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype.increment = function(granularity) {
+    Time.prototype.increment = function(granularity) {
       /*
           @method increment
           @param {String} [granularity]
           @chainable
-          @return {ChartTime}
-          Increments this by 1 in the granularity of the ChartTime or the granularity specified if it was specified
+          @return {Time}
+          Increments this by 1 in the granularity of the Time or the granularity specified if it was specified
+      
+              console.log(new Time('2012Q4').increment().toString())
+              # 2013Q1
       */
 
       var granularitySpec, gs, i, lastDayInMonthFlag, segment, segments, _i, _len, _results;
       if (this.beforePastFlag === 'BEFORE_FIRST') {
         this.beforePastFlag = '';
-        granularitySpec = ChartTime.granularitySpecs[this.granularity];
+        granularitySpec = Time._granularitySpecs[this.granularity];
         segments = granularitySpec.segments;
         _results = [];
         for (_i = 0, _len = segments.length; _i < _len; _i++) {
           segment = segments[_i];
-          gs = ChartTime.granularitySpecs[segment];
+          gs = Time._granularitySpecs[segment];
           _results.push(this[segment] = gs.lowest);
         }
         return _results;
@@ -6112,7 +6092,7 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         if (granularity == null) {
           granularity = this.granularity;
         }
-        granularitySpec = ChartTime.granularitySpecs[granularity];
+        granularitySpec = Time._granularitySpecs[granularity];
         segments = granularitySpec.segments;
         this[granularity]++;
         if (granularity === 'year') {
@@ -6122,13 +6102,13 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
         } else {
           i = segments.length - 1;
           segment = segments[i];
-          granularitySpec = ChartTime.granularitySpecs[segment];
-          while ((i > 0) && (this[segment] >= granularitySpec.pastHighest(this))) {
+          granularitySpec = Time._granularitySpecs[segment];
+          while ((i > 0) && (this[segment] >= granularitySpec.rolloverValue(this))) {
             this[segment] = granularitySpec.lowest;
             this[segments[i - 1]]++;
             i--;
             segment = segments[i];
-            granularitySpec = ChartTime.granularitySpecs[segment];
+            granularitySpec = Time._granularitySpecs[segment];
           }
           if ((granularity === 'month') && (this.granularity !== 'month')) {
             if (lastDayInMonthFlag || (this.day > this.daysInMonth())) {
@@ -6141,20 +6121,23 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       }
     };
 
-    ChartTime.prototype.addInPlace = function(qty, granularity) {
+    Time.prototype.addInPlace = function(qty, granularity) {
       /*
           @method addInPlace
           @chainable
           @param {Number} qty Can be negative for subtraction
           @param {String} [granularity]
-          @return {ChartTime} Adds qty to the ChartTime object. It uses increment and decrement so it's not going to be efficient for large values
+          @return {Time} Adds qty to the Time object. It uses increment and decrement so it's not going to be efficient for large values
           of qty, but it should be fine for charts where we'll increment/decrement small values of qty.
+      
+              console.log(new Time('2011-11-01').addInPlace(3, Time.MONTH).toString())
+              # 2012-02-01
       */
       if (granularity == null) {
         granularity = this.granularity;
       }
       if (qty === 0) {
-        return;
+        return this;
       }
       if (qty === 1) {
         this.increment(granularity);
@@ -6170,29 +6153,36 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       return this;
     };
 
-    ChartTime.prototype.add = function(qty, granularity) {
+    Time.prototype.add = function(qty, granularity) {
       /*
           @method add
           @param {Number} qty
           @param {String} [granularity]
-          @return {ChartTime}
-          Adds (or subtracts) quantity (negative quantity) and returns a new ChartTime. Not efficient for large qty.
+          @return {Time}
+          Adds (or subtracts) quantity (negative quantity) and returns a new Time. Not efficient for large qty.
+      
+             console.log(new Time('2012-01-01').add(-10, Time.MONTH))
+             # 2011-03-01
       */
 
-      var newChartTime;
-      newChartTime = new ChartTime(this);
-      newChartTime.addInPlace(qty, granularity);
-      return newChartTime;
+      var newTime;
+      newTime = new Time(this);
+      newTime.addInPlace(qty, granularity);
+      return newTime;
     };
 
-    ChartTime.addGranularity = function(granularitySpec) {
+    Time.addGranularity = function(granularitySpec) {
       /*
           @method addGranularity
           @static
-          @param {Object} granularitySpec see {@link ChartTime#granularitySpecs} for existing granularitySpecs
+          @param {Object} granularitySpec see {@link Time#_granularitySpecs} for existing _granularitySpecs
+          @cfg {String[]} segments an Array identifying the ancestry (e.g. for 'day', it is: `['year', 'month', 'day']`)
+          @cfg {String} mask a String used to identify when this granularity is passed in and to serialize it on the way out.
+          @cfg {Number} lowest the lowest possible value for this granularity. 0 for millisecond but 1 for day.
+          @cfg {Function} rolloverValue a callback function that will say when to rollover the next coarser granularity.
       
-          addGranularity allows you to add your own hierarchical granularities to ChartTime. Once you add a granularity to ChartTime
-          you can then instantiate ChartTime objects in your newly specified granularity. You specify new granularities with 
+          addGranularity allows you to add your own hierarchical granularities to Time. Once you add a granularity to Time
+          you can then instantiate Time objects in your newly specified granularity. You specify new granularities with
           granularitySpec object like this:
               
               granularitySpec = {
@@ -6200,64 +6190,64 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
                   segments: ['release'],
                   mask: 'R##',
                   lowest: 1,
-                  dayPastEnd: new ChartTime('2011-07-01')
-                  pastHighest: (ct) ->
-                    return ChartTime.granularitySpecs.iteration.timeBoxes.length + 1  # Yes, it's correct to use the length of iteration.timeBoxes
+                  endBeforeDay: new Time('2011-07-01')
+                  rolloverValue: (ct) ->
+                    return Time._granularitySpecs.iteration.timeBoxes.length + 1  # Yes, it's correct to use the length of iteration.timeBoxes
                   rataDieNumber: (ct) ->
-                    return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].start.rataDieNumber()
+                    return Time._granularitySpecs.iteration.timeBoxes[ct.release-1][1-1].startOn.rataDieNumber()
                 },
                 iteration: {
                   segments: ['release', 'iteration'],
                   mask: 'R##I##',
                   lowest: 1,
-                  dayPastEnd: new ChartTime('2011-07-01')        
+                  endBeforeDay: new Time('2011-07-01')
                   timeBoxes: [
                     [
-                      {start: new ChartTime('2011-01-01'), label: 'R1 Iteration 1'},
-                      {start: new ChartTime('2011-02-01'), label: 'R1 Iteration 2'},
-                      {start: new ChartTime('2011-03-01'), label: 'R1 Iteration 3'},
+                      {startOn: new Time('2011-01-01'), label: 'R1 Iteration 1'},
+                      {startOn: new Time('2011-02-01'), label: 'R1 Iteration 2'},
+                      {startOn: new Time('2011-03-01'), label: 'R1 Iteration 3'},
                     ],
                     [
-                      {start: new ChartTime('2011-04-01'), label: 'R2 Iteration 1'},
-                      {start: new ChartTime('2011-05-01'), label: 'R2 Iteration 2'},
-                      {start: new ChartTime('2011-06-01'), label: 'R2 Iteration 3'},
+                      {startOn: new Time('2011-04-01'), label: 'R2 Iteration 1'},
+                      {startOn: new Time('2011-05-01'), label: 'R2 Iteration 2'},
+                      {startOn: new Time('2011-06-01'), label: 'R2 Iteration 3'},
                     ]
                   ]
-                  pastHighest: (ct) ->
-                    temp = ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1]?.length + 1
+                  rolloverValue: (ct) ->
+                    temp = Time._granularitySpecs.iteration.timeBoxes[ct.release-1]?.length + 1
                     if temp? and not isNaN(temp) and ct.beforePastFlag != 'PAST_LAST'
                       return temp
                     else
-                      numberOfReleases = ChartTime.granularitySpecs.iteration.timeBoxes.length
-                      return ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length + 1
+                      numberOfReleases = Time._granularitySpecs.iteration.timeBoxes.length
+                      return Time._granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length + 1
           
                   rataDieNumber: (ct) ->
-                    return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].start.rataDieNumber()
+                    return Time._granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber()
                 },
                 iteration_day: {  # By convention, it knows to use day functions on it. This is the lowest allowed custom granularity
                   segments: ['release', 'iteration', 'iteration_day'],
                   mask: 'R##I##-##',
                   lowest: 1,
-                  dayPastEnd: new ChartTime('2011-07-01'),
-                  pastHighest: (ct) ->
-                    iterationTimeBox = ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1]?[ct.iteration-1]
+                  endBeforeDay: new Time('2011-07-01'),
+                  rolloverValue: (ct) ->
+                    iterationTimeBox = Time._granularitySpecs.iteration.timeBoxes[ct.release-1]?[ct.iteration-1]
                     if !iterationTimeBox? or ct.beforePastFlag == 'PAST_LAST'
-                      numberOfReleases = ChartTime.granularitySpecs.iteration.timeBoxes.length
-                      numberOfIterationsInLastRelease = ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length
-                      iterationTimeBox = ChartTime.granularitySpecs.iteration.timeBoxes[numberOfReleases-1][numberOfIterationsInLastRelease-1]
+                      numberOfReleases = Time._granularitySpecs.iteration.timeBoxes.length
+                      numberOfIterationsInLastRelease = Time._granularitySpecs.iteration.timeBoxes[numberOfReleases-1].length
+                      iterationTimeBox = Time._granularitySpecs.iteration.timeBoxes[numberOfReleases-1][numberOfIterationsInLastRelease-1]
                       
-                    thisIteration = iterationTimeBox.start.inGranularity('iteration')
+                    thisIteration = iterationTimeBox.startOn.inGranularity('iteration')
                     nextIteration = thisIteration.add(1)
                     if nextIteration.beforePastFlag == 'PAST_LAST'
-                      return ChartTime.granularitySpecs.iteration_day.dayPastEnd.rataDieNumber() - iterationTimeBox.start.rataDieNumber() + 1
+                      return Time._granularitySpecs.iteration_day.endBeforeDay.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1
                     else
-                      return nextIteration.rataDieNumber() - iterationTimeBox.start.rataDieNumber() + 1 
+                      return nextIteration.rataDieNumber() - iterationTimeBox.startOn.rataDieNumber() + 1
                      
                   rataDieNumber: (ct) ->
-                    return ChartTime.granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].start.rataDieNumber() + ct.iteration_day - 1
+                    return Time._granularitySpecs.iteration.timeBoxes[ct.release-1][ct.iteration-1].startOn.rataDieNumber() + ct.iteration_day - 1
                 }
               }    
-              ChartTime.addGranularity(granularitySpec)
+              Time.addGranularity(granularitySpec)
       
           
           The `mask` must cover all of the segments to get down to the granularity being specified. The digits of the granularity segments
@@ -6266,20 +6256,20 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
           distinguish your custom granularity, your highest level must start with some number of digits other than 4 or a prefix letter 
           (`R` in the example above).
           
-          In order for the ChartTimeIterator to work, you must provide `pastHighest` and `rataDieNumber` callback functions. You should
+          In order for the TimelineIterator to work, you must provide `rolloverValue` and `rataDieNumber` callback functions. You should
           be able to mimic (or use as-is) the example above for most use cases. Notice how the `rataDieNumber` function simply leverages
           `rataDieNumber` functions for the standard granularities.
           
           In order to convert into this granularity from some other granularity, you must provide an `inGranularity` callback [NOT YET IMPLEMENTED].
-          But ChartTime will convert to any of the standard granularities from even custom granularities as long as a `rataDieNumber()` function
+          But Time will convert to any of the standard granularities from even custom granularities as long as a `rataDieNumber()` function
           is provided.
           
-          **The `timeBoxes` propoerty in the `granularitySpec` Object above has no special meaning** to ChartTime or ChartTimeIterator. It's simply used
-          by the `pastHighest` and `rataDieNumber` functions. The boundaries could come from where ever you want and even have been encoded as
-          literals in the `pastHighest` and `rataDieNumber` callback functions.
+          **The `timeBoxes` property in the `granularitySpec` Object above has no special meaning** to Time or TimelineIterator. It's simply used
+          by the `rolloverValue` and `rataDieNumber` functions. The boundaries could come from where ever you want and even have been encoded as
+          literals in the `rolloverValue` and `rataDieNumber` callback functions.
           
-          The convention of naming the lowest order granularity with `_day` at the end IS signficant. ChartTime knows to treat that as a day-level
-          granularity. If there is a use-case for it, ChartTime could be upgraded to allow you to drill down into hours, minutes, etc. from any
+          The convention of naming the lowest order granularity with `_day` at the end IS signficant. Time knows to treat that as a day-level
+          granularity. If there is a use-case for it, Time could be upgraded to allow you to drill down into hours, minutes, etc. from any
           `_day` granularity but right now those lower order time granularities are only supported for the canonical ISO-6801 form.
       */
 
@@ -6287,24 +6277,25 @@ require.define("/src/ChartTime.coffee",function(require,module,exports,__dirname
       _results = [];
       for (g in granularitySpec) {
         spec = granularitySpec[g];
-        ChartTime._expandMask(spec);
-        _results.push(this.granularitySpecs[g] = spec);
+        Time._expandMask(spec);
+        this._granularitySpecs[g] = spec;
+        _results.push(Time[g.toUpperCase()] = g);
       }
       return _results;
     };
 
-    return ChartTime;
+    return Time;
 
   })();
 
-  exports.ChartTime = ChartTime;
+  exports.Time = Time;
 
 }).call(this);
 
 });
 
-require.define("/src/utils.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var AssertException, ErrorBase, assert, clone, isArray, match, startsWith, trim, type,
+require.define("/node_modules/tztime/src/utils.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var AssertException, ErrorBase, assert, clone, exactMatch, filterMatch, isArray, keys, match, startsWith, trim, type, values,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -6353,9 +6344,50 @@ require.define("/src/utils.coffee",function(require,module,exports,__dirname,__f
   match = function(obj1, obj2) {
     var key, value;
     for (key in obj1) {
-      if (!__hasProp.call(obj1, key)) continue;
       value = obj1[key];
       if (value !== obj2[key]) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  exactMatch = function(a, b) {
+    var atype, btype, key, val;
+    if (a === b) {
+      return true;
+    }
+    atype = typeof a;
+    btype = typeof b;
+    if (atype !== btype) {
+      return false;
+    }
+    if ((!a && b) || (a && !b)) {
+      return false;
+    }
+    if (atype !== 'object') {
+      return false;
+    }
+    if (a.length && (a.length !== b.length)) {
+      return false;
+    }
+    for (key in a) {
+      val = a[key];
+      if (!(key in b) || !exactMatch(val, b[key])) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  filterMatch = function(obj1, obj2) {
+    var key, value;
+    if (!(type(obj1) === 'object' && type(obj2) === 'object')) {
+      throw new Error('obj1 and obj2 must both be objects when calling filterMatch');
+    }
+    for (key in obj1) {
+      value = obj1[key];
+      if (!exactMatch(value, obj2[key])) {
         return false;
       }
     }
@@ -6394,9 +6426,28 @@ require.define("/src/utils.coffee",function(require,module,exports,__dirname,__f
   })();
 
   clone = function(obj) {
-    var key, newInstance;
+    var flags, key, newInstance;
     if (!(obj != null) || typeof obj !== 'object') {
       return obj;
+    }
+    if (obj instanceof Date) {
+      return new Date(obj.getTime());
+    }
+    if (obj instanceof RegExp) {
+      flags = '';
+      if (obj.global != null) {
+        flags += 'g';
+      }
+      if (obj.ignoreCase != null) {
+        flags += 'i';
+      }
+      if (obj.multiline != null) {
+        flags += 'm';
+      }
+      if (obj.sticky != null) {
+        flags += 'y';
+      }
+      return new RegExp(obj.source, flags);
     }
     newInstance = new obj.constructor();
     for (key in obj) {
@@ -6405,11 +6456,39 @@ require.define("/src/utils.coffee",function(require,module,exports,__dirname,__f
     return newInstance;
   };
 
+  keys = Object.keys || function(obj) {
+    var key, val;
+    return (function() {
+      var _results;
+      _results = [];
+      for (key in obj) {
+        val = obj[key];
+        _results.push(key);
+      }
+      return _results;
+    })();
+  };
+
+  values = function(obj) {
+    var key, val;
+    return (function() {
+      var _results;
+      _results = [];
+      for (key in obj) {
+        val = obj[key];
+        _results.push(val);
+      }
+      return _results;
+    })();
+  };
+
   exports.AssertException = AssertException;
 
   exports.assert = assert;
 
   exports.match = match;
+
+  exports.filterMatch = filterMatch;
 
   exports.trim = trim;
 
@@ -6421,11 +6500,1249 @@ require.define("/src/utils.coffee",function(require,module,exports,__dirname,__f
 
   exports.clone = clone;
 
+  exports.keys = keys;
+
+  exports.values = values;
+
+  exports._ = require('underscore');
+
 }).call(this);
 
 });
 
-require.define("/src/timezone-js.js",function(require,module,exports,__dirname,__filename,process,global){/*
+require.define("/node_modules/tztime/node_modules/underscore/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"underscore.js"}
+});
+
+require.define("/node_modules/tztime/node_modules/underscore/underscore.js",function(require,module,exports,__dirname,__filename,process,global){//     Underscore.js 1.4.4
+//     http://underscorejs.org
+//     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
+//     Underscore may be freely distributed under the MIT license.
+
+(function() {
+
+  // Baseline setup
+  // --------------
+
+  // Establish the root object, `window` in the browser, or `global` on the server.
+  var root = this;
+
+  // Save the previous value of the `_` variable.
+  var previousUnderscore = root._;
+
+  // Establish the object that gets returned to break out of a loop iteration.
+  var breaker = {};
+
+  // Save bytes in the minified (but not gzipped) version:
+  var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
+
+  // Create quick reference variables for speed access to core prototypes.
+  var push             = ArrayProto.push,
+      slice            = ArrayProto.slice,
+      concat           = ArrayProto.concat,
+      toString         = ObjProto.toString,
+      hasOwnProperty   = ObjProto.hasOwnProperty;
+
+  // All **ECMAScript 5** native function implementations that we hope to use
+  // are declared here.
+  var
+    nativeForEach      = ArrayProto.forEach,
+    nativeMap          = ArrayProto.map,
+    nativeReduce       = ArrayProto.reduce,
+    nativeReduceRight  = ArrayProto.reduceRight,
+    nativeFilter       = ArrayProto.filter,
+    nativeEvery        = ArrayProto.every,
+    nativeSome         = ArrayProto.some,
+    nativeIndexOf      = ArrayProto.indexOf,
+    nativeLastIndexOf  = ArrayProto.lastIndexOf,
+    nativeIsArray      = Array.isArray,
+    nativeKeys         = Object.keys,
+    nativeBind         = FuncProto.bind;
+
+  // Create a safe reference to the Underscore object for use below.
+  var _ = function(obj) {
+    if (obj instanceof _) return obj;
+    if (!(this instanceof _)) return new _(obj);
+    this._wrapped = obj;
+  };
+
+  // Export the Underscore object for **Node.js**, with
+  // backwards-compatibility for the old `require()` API. If we're in
+  // the browser, add `_` as a global object via a string identifier,
+  // for Closure Compiler "advanced" mode.
+  if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports) {
+      exports = module.exports = _;
+    }
+    exports._ = _;
+  } else {
+    root._ = _;
+  }
+
+  // Current version.
+  _.VERSION = '1.4.4';
+
+  // Collection Functions
+  // --------------------
+
+  // The cornerstone, an `each` implementation, aka `forEach`.
+  // Handles objects with the built-in `forEach`, arrays, and raw objects.
+  // Delegates to **ECMAScript 5**'s native `forEach` if available.
+  var each = _.each = _.forEach = function(obj, iterator, context) {
+    if (obj == null) return;
+    if (nativeForEach && obj.forEach === nativeForEach) {
+      obj.forEach(iterator, context);
+    } else if (obj.length === +obj.length) {
+      for (var i = 0, l = obj.length; i < l; i++) {
+        if (iterator.call(context, obj[i], i, obj) === breaker) return;
+      }
+    } else {
+      for (var key in obj) {
+        if (_.has(obj, key)) {
+          if (iterator.call(context, obj[key], key, obj) === breaker) return;
+        }
+      }
+    }
+  };
+
+  // Return the results of applying the iterator to each element.
+  // Delegates to **ECMAScript 5**'s native `map` if available.
+  _.map = _.collect = function(obj, iterator, context) {
+    var results = [];
+    if (obj == null) return results;
+    if (nativeMap && obj.map === nativeMap) return obj.map(iterator, context);
+    each(obj, function(value, index, list) {
+      results[results.length] = iterator.call(context, value, index, list);
+    });
+    return results;
+  };
+
+  var reduceError = 'Reduce of empty array with no initial value';
+
+  // **Reduce** builds up a single result from a list of values, aka `inject`,
+  // or `foldl`. Delegates to **ECMAScript 5**'s native `reduce` if available.
+  _.reduce = _.foldl = _.inject = function(obj, iterator, memo, context) {
+    var initial = arguments.length > 2;
+    if (obj == null) obj = [];
+    if (nativeReduce && obj.reduce === nativeReduce) {
+      if (context) iterator = _.bind(iterator, context);
+      return initial ? obj.reduce(iterator, memo) : obj.reduce(iterator);
+    }
+    each(obj, function(value, index, list) {
+      if (!initial) {
+        memo = value;
+        initial = true;
+      } else {
+        memo = iterator.call(context, memo, value, index, list);
+      }
+    });
+    if (!initial) throw new TypeError(reduceError);
+    return memo;
+  };
+
+  // The right-associative version of reduce, also known as `foldr`.
+  // Delegates to **ECMAScript 5**'s native `reduceRight` if available.
+  _.reduceRight = _.foldr = function(obj, iterator, memo, context) {
+    var initial = arguments.length > 2;
+    if (obj == null) obj = [];
+    if (nativeReduceRight && obj.reduceRight === nativeReduceRight) {
+      if (context) iterator = _.bind(iterator, context);
+      return initial ? obj.reduceRight(iterator, memo) : obj.reduceRight(iterator);
+    }
+    var length = obj.length;
+    if (length !== +length) {
+      var keys = _.keys(obj);
+      length = keys.length;
+    }
+    each(obj, function(value, index, list) {
+      index = keys ? keys[--length] : --length;
+      if (!initial) {
+        memo = obj[index];
+        initial = true;
+      } else {
+        memo = iterator.call(context, memo, obj[index], index, list);
+      }
+    });
+    if (!initial) throw new TypeError(reduceError);
+    return memo;
+  };
+
+  // Return the first value which passes a truth test. Aliased as `detect`.
+  _.find = _.detect = function(obj, iterator, context) {
+    var result;
+    any(obj, function(value, index, list) {
+      if (iterator.call(context, value, index, list)) {
+        result = value;
+        return true;
+      }
+    });
+    return result;
+  };
+
+  // Return all the elements that pass a truth test.
+  // Delegates to **ECMAScript 5**'s native `filter` if available.
+  // Aliased as `select`.
+  _.filter = _.select = function(obj, iterator, context) {
+    var results = [];
+    if (obj == null) return results;
+    if (nativeFilter && obj.filter === nativeFilter) return obj.filter(iterator, context);
+    each(obj, function(value, index, list) {
+      if (iterator.call(context, value, index, list)) results[results.length] = value;
+    });
+    return results;
+  };
+
+  // Return all the elements for which a truth test fails.
+  _.reject = function(obj, iterator, context) {
+    return _.filter(obj, function(value, index, list) {
+      return !iterator.call(context, value, index, list);
+    }, context);
+  };
+
+  // Determine whether all of the elements match a truth test.
+  // Delegates to **ECMAScript 5**'s native `every` if available.
+  // Aliased as `all`.
+  _.every = _.all = function(obj, iterator, context) {
+    iterator || (iterator = _.identity);
+    var result = true;
+    if (obj == null) return result;
+    if (nativeEvery && obj.every === nativeEvery) return obj.every(iterator, context);
+    each(obj, function(value, index, list) {
+      if (!(result = result && iterator.call(context, value, index, list))) return breaker;
+    });
+    return !!result;
+  };
+
+  // Determine if at least one element in the object matches a truth test.
+  // Delegates to **ECMAScript 5**'s native `some` if available.
+  // Aliased as `any`.
+  var any = _.some = _.any = function(obj, iterator, context) {
+    iterator || (iterator = _.identity);
+    var result = false;
+    if (obj == null) return result;
+    if (nativeSome && obj.some === nativeSome) return obj.some(iterator, context);
+    each(obj, function(value, index, list) {
+      if (result || (result = iterator.call(context, value, index, list))) return breaker;
+    });
+    return !!result;
+  };
+
+  // Determine if the array or object contains a given value (using `===`).
+  // Aliased as `include`.
+  _.contains = _.include = function(obj, target) {
+    if (obj == null) return false;
+    if (nativeIndexOf && obj.indexOf === nativeIndexOf) return obj.indexOf(target) != -1;
+    return any(obj, function(value) {
+      return value === target;
+    });
+  };
+
+  // Invoke a method (with arguments) on every item in a collection.
+  _.invoke = function(obj, method) {
+    var args = slice.call(arguments, 2);
+    var isFunc = _.isFunction(method);
+    return _.map(obj, function(value) {
+      return (isFunc ? method : value[method]).apply(value, args);
+    });
+  };
+
+  // Convenience version of a common use case of `map`: fetching a property.
+  _.pluck = function(obj, key) {
+    return _.map(obj, function(value){ return value[key]; });
+  };
+
+  // Convenience version of a common use case of `filter`: selecting only objects
+  // containing specific `key:value` pairs.
+  _.where = function(obj, attrs, first) {
+    if (_.isEmpty(attrs)) return first ? null : [];
+    return _[first ? 'find' : 'filter'](obj, function(value) {
+      for (var key in attrs) {
+        if (attrs[key] !== value[key]) return false;
+      }
+      return true;
+    });
+  };
+
+  // Convenience version of a common use case of `find`: getting the first object
+  // containing specific `key:value` pairs.
+  _.findWhere = function(obj, attrs) {
+    return _.where(obj, attrs, true);
+  };
+
+  // Return the maximum element or (element-based computation).
+  // Can't optimize arrays of integers longer than 65,535 elements.
+  // See: https://bugs.webkit.org/show_bug.cgi?id=80797
+  _.max = function(obj, iterator, context) {
+    if (!iterator && _.isArray(obj) && obj[0] === +obj[0] && obj.length < 65535) {
+      return Math.max.apply(Math, obj);
+    }
+    if (!iterator && _.isEmpty(obj)) return -Infinity;
+    var result = {computed : -Infinity, value: -Infinity};
+    each(obj, function(value, index, list) {
+      var computed = iterator ? iterator.call(context, value, index, list) : value;
+      computed >= result.computed && (result = {value : value, computed : computed});
+    });
+    return result.value;
+  };
+
+  // Return the minimum element (or element-based computation).
+  _.min = function(obj, iterator, context) {
+    if (!iterator && _.isArray(obj) && obj[0] === +obj[0] && obj.length < 65535) {
+      return Math.min.apply(Math, obj);
+    }
+    if (!iterator && _.isEmpty(obj)) return Infinity;
+    var result = {computed : Infinity, value: Infinity};
+    each(obj, function(value, index, list) {
+      var computed = iterator ? iterator.call(context, value, index, list) : value;
+      computed < result.computed && (result = {value : value, computed : computed});
+    });
+    return result.value;
+  };
+
+  // Shuffle an array.
+  _.shuffle = function(obj) {
+    var rand;
+    var index = 0;
+    var shuffled = [];
+    each(obj, function(value) {
+      rand = _.random(index++);
+      shuffled[index - 1] = shuffled[rand];
+      shuffled[rand] = value;
+    });
+    return shuffled;
+  };
+
+  // An internal function to generate lookup iterators.
+  var lookupIterator = function(value) {
+    return _.isFunction(value) ? value : function(obj){ return obj[value]; };
+  };
+
+  // Sort the object's values by a criterion produced by an iterator.
+  _.sortBy = function(obj, value, context) {
+    var iterator = lookupIterator(value);
+    return _.pluck(_.map(obj, function(value, index, list) {
+      return {
+        value : value,
+        index : index,
+        criteria : iterator.call(context, value, index, list)
+      };
+    }).sort(function(left, right) {
+      var a = left.criteria;
+      var b = right.criteria;
+      if (a !== b) {
+        if (a > b || a === void 0) return 1;
+        if (a < b || b === void 0) return -1;
+      }
+      return left.index < right.index ? -1 : 1;
+    }), 'value');
+  };
+
+  // An internal function used for aggregate "group by" operations.
+  var group = function(obj, value, context, behavior) {
+    var result = {};
+    var iterator = lookupIterator(value || _.identity);
+    each(obj, function(value, index) {
+      var key = iterator.call(context, value, index, obj);
+      behavior(result, key, value);
+    });
+    return result;
+  };
+
+  // Groups the object's values by a criterion. Pass either a string attribute
+  // to group by, or a function that returns the criterion.
+  _.groupBy = function(obj, value, context) {
+    return group(obj, value, context, function(result, key, value) {
+      (_.has(result, key) ? result[key] : (result[key] = [])).push(value);
+    });
+  };
+
+  // Counts instances of an object that group by a certain criterion. Pass
+  // either a string attribute to count by, or a function that returns the
+  // criterion.
+  _.countBy = function(obj, value, context) {
+    return group(obj, value, context, function(result, key) {
+      if (!_.has(result, key)) result[key] = 0;
+      result[key]++;
+    });
+  };
+
+  // Use a comparator function to figure out the smallest index at which
+  // an object should be inserted so as to maintain order. Uses binary search.
+  _.sortedIndex = function(array, obj, iterator, context) {
+    iterator = iterator == null ? _.identity : lookupIterator(iterator);
+    var value = iterator.call(context, obj);
+    var low = 0, high = array.length;
+    while (low < high) {
+      var mid = (low + high) >>> 1;
+      iterator.call(context, array[mid]) < value ? low = mid + 1 : high = mid;
+    }
+    return low;
+  };
+
+  // Safely convert anything iterable into a real, live array.
+  _.toArray = function(obj) {
+    if (!obj) return [];
+    if (_.isArray(obj)) return slice.call(obj);
+    if (obj.length === +obj.length) return _.map(obj, _.identity);
+    return _.values(obj);
+  };
+
+  // Return the number of elements in an object.
+  _.size = function(obj) {
+    if (obj == null) return 0;
+    return (obj.length === +obj.length) ? obj.length : _.keys(obj).length;
+  };
+
+  // Array Functions
+  // ---------------
+
+  // Get the first element of an array. Passing **n** will return the first N
+  // values in the array. Aliased as `head` and `take`. The **guard** check
+  // allows it to work with `_.map`.
+  _.first = _.head = _.take = function(array, n, guard) {
+    if (array == null) return void 0;
+    return (n != null) && !guard ? slice.call(array, 0, n) : array[0];
+  };
+
+  // Returns everything but the last entry of the array. Especially useful on
+  // the arguments object. Passing **n** will return all the values in
+  // the array, excluding the last N. The **guard** check allows it to work with
+  // `_.map`.
+  _.initial = function(array, n, guard) {
+    return slice.call(array, 0, array.length - ((n == null) || guard ? 1 : n));
+  };
+
+  // Get the last element of an array. Passing **n** will return the last N
+  // values in the array. The **guard** check allows it to work with `_.map`.
+  _.last = function(array, n, guard) {
+    if (array == null) return void 0;
+    if ((n != null) && !guard) {
+      return slice.call(array, Math.max(array.length - n, 0));
+    } else {
+      return array[array.length - 1];
+    }
+  };
+
+  // Returns everything but the first entry of the array. Aliased as `tail` and `drop`.
+  // Especially useful on the arguments object. Passing an **n** will return
+  // the rest N values in the array. The **guard**
+  // check allows it to work with `_.map`.
+  _.rest = _.tail = _.drop = function(array, n, guard) {
+    return slice.call(array, (n == null) || guard ? 1 : n);
+  };
+
+  // Trim out all falsy values from an array.
+  _.compact = function(array) {
+    return _.filter(array, _.identity);
+  };
+
+  // Internal implementation of a recursive `flatten` function.
+  var flatten = function(input, shallow, output) {
+    each(input, function(value) {
+      if (_.isArray(value)) {
+        shallow ? push.apply(output, value) : flatten(value, shallow, output);
+      } else {
+        output.push(value);
+      }
+    });
+    return output;
+  };
+
+  // Return a completely flattened version of an array.
+  _.flatten = function(array, shallow) {
+    return flatten(array, shallow, []);
+  };
+
+  // Return a version of the array that does not contain the specified value(s).
+  _.without = function(array) {
+    return _.difference(array, slice.call(arguments, 1));
+  };
+
+  // Produce a duplicate-free version of the array. If the array has already
+  // been sorted, you have the option of using a faster algorithm.
+  // Aliased as `unique`.
+  _.uniq = _.unique = function(array, isSorted, iterator, context) {
+    if (_.isFunction(isSorted)) {
+      context = iterator;
+      iterator = isSorted;
+      isSorted = false;
+    }
+    var initial = iterator ? _.map(array, iterator, context) : array;
+    var results = [];
+    var seen = [];
+    each(initial, function(value, index) {
+      if (isSorted ? (!index || seen[seen.length - 1] !== value) : !_.contains(seen, value)) {
+        seen.push(value);
+        results.push(array[index]);
+      }
+    });
+    return results;
+  };
+
+  // Produce an array that contains the union: each distinct element from all of
+  // the passed-in arrays.
+  _.union = function() {
+    return _.uniq(concat.apply(ArrayProto, arguments));
+  };
+
+  // Produce an array that contains every item shared between all the
+  // passed-in arrays.
+  _.intersection = function(array) {
+    var rest = slice.call(arguments, 1);
+    return _.filter(_.uniq(array), function(item) {
+      return _.every(rest, function(other) {
+        return _.indexOf(other, item) >= 0;
+      });
+    });
+  };
+
+  // Take the difference between one array and a number of other arrays.
+  // Only the elements present in just the first array will remain.
+  _.difference = function(array) {
+    var rest = concat.apply(ArrayProto, slice.call(arguments, 1));
+    return _.filter(array, function(value){ return !_.contains(rest, value); });
+  };
+
+  // Zip together multiple lists into a single array -- elements that share
+  // an index go together.
+  _.zip = function() {
+    var args = slice.call(arguments);
+    var length = _.max(_.pluck(args, 'length'));
+    var results = new Array(length);
+    for (var i = 0; i < length; i++) {
+      results[i] = _.pluck(args, "" + i);
+    }
+    return results;
+  };
+
+  // Converts lists into objects. Pass either a single array of `[key, value]`
+  // pairs, or two parallel arrays of the same length -- one of keys, and one of
+  // the corresponding values.
+  _.object = function(list, values) {
+    if (list == null) return {};
+    var result = {};
+    for (var i = 0, l = list.length; i < l; i++) {
+      if (values) {
+        result[list[i]] = values[i];
+      } else {
+        result[list[i][0]] = list[i][1];
+      }
+    }
+    return result;
+  };
+
+  // If the browser doesn't supply us with indexOf (I'm looking at you, **MSIE**),
+  // we need this function. Return the position of the first occurrence of an
+  // item in an array, or -1 if the item is not included in the array.
+  // Delegates to **ECMAScript 5**'s native `indexOf` if available.
+  // If the array is large and already in sort order, pass `true`
+  // for **isSorted** to use binary search.
+  _.indexOf = function(array, item, isSorted) {
+    if (array == null) return -1;
+    var i = 0, l = array.length;
+    if (isSorted) {
+      if (typeof isSorted == 'number') {
+        i = (isSorted < 0 ? Math.max(0, l + isSorted) : isSorted);
+      } else {
+        i = _.sortedIndex(array, item);
+        return array[i] === item ? i : -1;
+      }
+    }
+    if (nativeIndexOf && array.indexOf === nativeIndexOf) return array.indexOf(item, isSorted);
+    for (; i < l; i++) if (array[i] === item) return i;
+    return -1;
+  };
+
+  // Delegates to **ECMAScript 5**'s native `lastIndexOf` if available.
+  _.lastIndexOf = function(array, item, from) {
+    if (array == null) return -1;
+    var hasIndex = from != null;
+    if (nativeLastIndexOf && array.lastIndexOf === nativeLastIndexOf) {
+      return hasIndex ? array.lastIndexOf(item, from) : array.lastIndexOf(item);
+    }
+    var i = (hasIndex ? from : array.length);
+    while (i--) if (array[i] === item) return i;
+    return -1;
+  };
+
+  // Generate an integer Array containing an arithmetic progression. A port of
+  // the native Python `range()` function. See
+  // [the Python documentation](http://docs.python.org/library/functions.html#range).
+  _.range = function(start, stop, step) {
+    if (arguments.length <= 1) {
+      stop = start || 0;
+      start = 0;
+    }
+    step = arguments[2] || 1;
+
+    var len = Math.max(Math.ceil((stop - start) / step), 0);
+    var idx = 0;
+    var range = new Array(len);
+
+    while(idx < len) {
+      range[idx++] = start;
+      start += step;
+    }
+
+    return range;
+  };
+
+  // Function (ahem) Functions
+  // ------------------
+
+  // Create a function bound to a given object (assigning `this`, and arguments,
+  // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
+  // available.
+  _.bind = function(func, context) {
+    if (func.bind === nativeBind && nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
+    var args = slice.call(arguments, 2);
+    return function() {
+      return func.apply(context, args.concat(slice.call(arguments)));
+    };
+  };
+
+  // Partially apply a function by creating a version that has had some of its
+  // arguments pre-filled, without changing its dynamic `this` context.
+  _.partial = function(func) {
+    var args = slice.call(arguments, 1);
+    return function() {
+      return func.apply(this, args.concat(slice.call(arguments)));
+    };
+  };
+
+  // Bind all of an object's methods to that object. Useful for ensuring that
+  // all callbacks defined on an object belong to it.
+  _.bindAll = function(obj) {
+    var funcs = slice.call(arguments, 1);
+    if (funcs.length === 0) funcs = _.functions(obj);
+    each(funcs, function(f) { obj[f] = _.bind(obj[f], obj); });
+    return obj;
+  };
+
+  // Memoize an expensive function by storing its results.
+  _.memoize = function(func, hasher) {
+    var memo = {};
+    hasher || (hasher = _.identity);
+    return function() {
+      var key = hasher.apply(this, arguments);
+      return _.has(memo, key) ? memo[key] : (memo[key] = func.apply(this, arguments));
+    };
+  };
+
+  // Delays a function for the given number of milliseconds, and then calls
+  // it with the arguments supplied.
+  _.delay = function(func, wait) {
+    var args = slice.call(arguments, 2);
+    return setTimeout(function(){ return func.apply(null, args); }, wait);
+  };
+
+  // Defers a function, scheduling it to run after the current call stack has
+  // cleared.
+  _.defer = function(func) {
+    return _.delay.apply(_, [func, 1].concat(slice.call(arguments, 1)));
+  };
+
+  // Returns a function, that, when invoked, will only be triggered at most once
+  // during a given window of time.
+  _.throttle = function(func, wait) {
+    var context, args, timeout, result;
+    var previous = 0;
+    var later = function() {
+      previous = new Date;
+      timeout = null;
+      result = func.apply(context, args);
+    };
+    return function() {
+      var now = new Date;
+      var remaining = wait - (now - previous);
+      context = this;
+      args = arguments;
+      if (remaining <= 0) {
+        clearTimeout(timeout);
+        timeout = null;
+        previous = now;
+        result = func.apply(context, args);
+      } else if (!timeout) {
+        timeout = setTimeout(later, remaining);
+      }
+      return result;
+    };
+  };
+
+  // Returns a function, that, as long as it continues to be invoked, will not
+  // be triggered. The function will be called after it stops being called for
+  // N milliseconds. If `immediate` is passed, trigger the function on the
+  // leading edge, instead of the trailing.
+  _.debounce = function(func, wait, immediate) {
+    var timeout, result;
+    return function() {
+      var context = this, args = arguments;
+      var later = function() {
+        timeout = null;
+        if (!immediate) result = func.apply(context, args);
+      };
+      var callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) result = func.apply(context, args);
+      return result;
+    };
+  };
+
+  // Returns a function that will be executed at most one time, no matter how
+  // often you call it. Useful for lazy initialization.
+  _.once = function(func) {
+    var ran = false, memo;
+    return function() {
+      if (ran) return memo;
+      ran = true;
+      memo = func.apply(this, arguments);
+      func = null;
+      return memo;
+    };
+  };
+
+  // Returns the first function passed as an argument to the second,
+  // allowing you to adjust arguments, run code before and after, and
+  // conditionally execute the original function.
+  _.wrap = function(func, wrapper) {
+    return function() {
+      var args = [func];
+      push.apply(args, arguments);
+      return wrapper.apply(this, args);
+    };
+  };
+
+  // Returns a function that is the composition of a list of functions, each
+  // consuming the return value of the function that follows.
+  _.compose = function() {
+    var funcs = arguments;
+    return function() {
+      var args = arguments;
+      for (var i = funcs.length - 1; i >= 0; i--) {
+        args = [funcs[i].apply(this, args)];
+      }
+      return args[0];
+    };
+  };
+
+  // Returns a function that will only be executed after being called N times.
+  _.after = function(times, func) {
+    if (times <= 0) return func();
+    return function() {
+      if (--times < 1) {
+        return func.apply(this, arguments);
+      }
+    };
+  };
+
+  // Object Functions
+  // ----------------
+
+  // Retrieve the names of an object's properties.
+  // Delegates to **ECMAScript 5**'s native `Object.keys`
+  _.keys = nativeKeys || function(obj) {
+    if (obj !== Object(obj)) throw new TypeError('Invalid object');
+    var keys = [];
+    for (var key in obj) if (_.has(obj, key)) keys[keys.length] = key;
+    return keys;
+  };
+
+  // Retrieve the values of an object's properties.
+  _.values = function(obj) {
+    var values = [];
+    for (var key in obj) if (_.has(obj, key)) values.push(obj[key]);
+    return values;
+  };
+
+  // Convert an object into a list of `[key, value]` pairs.
+  _.pairs = function(obj) {
+    var pairs = [];
+    for (var key in obj) if (_.has(obj, key)) pairs.push([key, obj[key]]);
+    return pairs;
+  };
+
+  // Invert the keys and values of an object. The values must be serializable.
+  _.invert = function(obj) {
+    var result = {};
+    for (var key in obj) if (_.has(obj, key)) result[obj[key]] = key;
+    return result;
+  };
+
+  // Return a sorted list of the function names available on the object.
+  // Aliased as `methods`
+  _.functions = _.methods = function(obj) {
+    var names = [];
+    for (var key in obj) {
+      if (_.isFunction(obj[key])) names.push(key);
+    }
+    return names.sort();
+  };
+
+  // Extend a given object with all the properties in passed-in object(s).
+  _.extend = function(obj) {
+    each(slice.call(arguments, 1), function(source) {
+      if (source) {
+        for (var prop in source) {
+          obj[prop] = source[prop];
+        }
+      }
+    });
+    return obj;
+  };
+
+  // Return a copy of the object only containing the whitelisted properties.
+  _.pick = function(obj) {
+    var copy = {};
+    var keys = concat.apply(ArrayProto, slice.call(arguments, 1));
+    each(keys, function(key) {
+      if (key in obj) copy[key] = obj[key];
+    });
+    return copy;
+  };
+
+   // Return a copy of the object without the blacklisted properties.
+  _.omit = function(obj) {
+    var copy = {};
+    var keys = concat.apply(ArrayProto, slice.call(arguments, 1));
+    for (var key in obj) {
+      if (!_.contains(keys, key)) copy[key] = obj[key];
+    }
+    return copy;
+  };
+
+  // Fill in a given object with default properties.
+  _.defaults = function(obj) {
+    each(slice.call(arguments, 1), function(source) {
+      if (source) {
+        for (var prop in source) {
+          if (obj[prop] == null) obj[prop] = source[prop];
+        }
+      }
+    });
+    return obj;
+  };
+
+  // Create a (shallow-cloned) duplicate of an object.
+  _.clone = function(obj) {
+    if (!_.isObject(obj)) return obj;
+    return _.isArray(obj) ? obj.slice() : _.extend({}, obj);
+  };
+
+  // Invokes interceptor with the obj, and then returns obj.
+  // The primary purpose of this method is to "tap into" a method chain, in
+  // order to perform operations on intermediate results within the chain.
+  _.tap = function(obj, interceptor) {
+    interceptor(obj);
+    return obj;
+  };
+
+  // Internal recursive comparison function for `isEqual`.
+  var eq = function(a, b, aStack, bStack) {
+    // Identical objects are equal. `0 === -0`, but they aren't identical.
+    // See the Harmony `egal` proposal: http://wiki.ecmascript.org/doku.php?id=harmony:egal.
+    if (a === b) return a !== 0 || 1 / a == 1 / b;
+    // A strict comparison is necessary because `null == undefined`.
+    if (a == null || b == null) return a === b;
+    // Unwrap any wrapped objects.
+    if (a instanceof _) a = a._wrapped;
+    if (b instanceof _) b = b._wrapped;
+    // Compare `[[Class]]` names.
+    var className = toString.call(a);
+    if (className != toString.call(b)) return false;
+    switch (className) {
+      // Strings, numbers, dates, and booleans are compared by value.
+      case '[object String]':
+        // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
+        // equivalent to `new String("5")`.
+        return a == String(b);
+      case '[object Number]':
+        // `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for
+        // other numeric values.
+        return a != +a ? b != +b : (a == 0 ? 1 / a == 1 / b : a == +b);
+      case '[object Date]':
+      case '[object Boolean]':
+        // Coerce dates and booleans to numeric primitive values. Dates are compared by their
+        // millisecond representations. Note that invalid dates with millisecond representations
+        // of `NaN` are not equivalent.
+        return +a == +b;
+      // RegExps are compared by their source patterns and flags.
+      case '[object RegExp]':
+        return a.source == b.source &&
+               a.global == b.global &&
+               a.multiline == b.multiline &&
+               a.ignoreCase == b.ignoreCase;
+    }
+    if (typeof a != 'object' || typeof b != 'object') return false;
+    // Assume equality for cyclic structures. The algorithm for detecting cyclic
+    // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+    var length = aStack.length;
+    while (length--) {
+      // Linear search. Performance is inversely proportional to the number of
+      // unique nested structures.
+      if (aStack[length] == a) return bStack[length] == b;
+    }
+    // Add the first object to the stack of traversed objects.
+    aStack.push(a);
+    bStack.push(b);
+    var size = 0, result = true;
+    // Recursively compare objects and arrays.
+    if (className == '[object Array]') {
+      // Compare array lengths to determine if a deep comparison is necessary.
+      size = a.length;
+      result = size == b.length;
+      if (result) {
+        // Deep compare the contents, ignoring non-numeric properties.
+        while (size--) {
+          if (!(result = eq(a[size], b[size], aStack, bStack))) break;
+        }
+      }
+    } else {
+      // Objects with different constructors are not equivalent, but `Object`s
+      // from different frames are.
+      var aCtor = a.constructor, bCtor = b.constructor;
+      if (aCtor !== bCtor && !(_.isFunction(aCtor) && (aCtor instanceof aCtor) &&
+                               _.isFunction(bCtor) && (bCtor instanceof bCtor))) {
+        return false;
+      }
+      // Deep compare objects.
+      for (var key in a) {
+        if (_.has(a, key)) {
+          // Count the expected number of properties.
+          size++;
+          // Deep compare each member.
+          if (!(result = _.has(b, key) && eq(a[key], b[key], aStack, bStack))) break;
+        }
+      }
+      // Ensure that both objects contain the same number of properties.
+      if (result) {
+        for (key in b) {
+          if (_.has(b, key) && !(size--)) break;
+        }
+        result = !size;
+      }
+    }
+    // Remove the first object from the stack of traversed objects.
+    aStack.pop();
+    bStack.pop();
+    return result;
+  };
+
+  // Perform a deep comparison to check if two objects are equal.
+  _.isEqual = function(a, b) {
+    return eq(a, b, [], []);
+  };
+
+  // Is a given array, string, or object empty?
+  // An "empty" object has no enumerable own-properties.
+  _.isEmpty = function(obj) {
+    if (obj == null) return true;
+    if (_.isArray(obj) || _.isString(obj)) return obj.length === 0;
+    for (var key in obj) if (_.has(obj, key)) return false;
+    return true;
+  };
+
+  // Is a given value a DOM element?
+  _.isElement = function(obj) {
+    return !!(obj && obj.nodeType === 1);
+  };
+
+  // Is a given value an array?
+  // Delegates to ECMA5's native Array.isArray
+  _.isArray = nativeIsArray || function(obj) {
+    return toString.call(obj) == '[object Array]';
+  };
+
+  // Is a given variable an object?
+  _.isObject = function(obj) {
+    return obj === Object(obj);
+  };
+
+  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
+  each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp'], function(name) {
+    _['is' + name] = function(obj) {
+      return toString.call(obj) == '[object ' + name + ']';
+    };
+  });
+
+  // Define a fallback version of the method in browsers (ahem, IE), where
+  // there isn't any inspectable "Arguments" type.
+  if (!_.isArguments(arguments)) {
+    _.isArguments = function(obj) {
+      return !!(obj && _.has(obj, 'callee'));
+    };
+  }
+
+  // Optimize `isFunction` if appropriate.
+  if (typeof (/./) !== 'function') {
+    _.isFunction = function(obj) {
+      return typeof obj === 'function';
+    };
+  }
+
+  // Is a given object a finite number?
+  _.isFinite = function(obj) {
+    return isFinite(obj) && !isNaN(parseFloat(obj));
+  };
+
+  // Is the given value `NaN`? (NaN is the only number which does not equal itself).
+  _.isNaN = function(obj) {
+    return _.isNumber(obj) && obj != +obj;
+  };
+
+  // Is a given value a boolean?
+  _.isBoolean = function(obj) {
+    return obj === true || obj === false || toString.call(obj) == '[object Boolean]';
+  };
+
+  // Is a given value equal to null?
+  _.isNull = function(obj) {
+    return obj === null;
+  };
+
+  // Is a given variable undefined?
+  _.isUndefined = function(obj) {
+    return obj === void 0;
+  };
+
+  // Shortcut function for checking if an object has a given property directly
+  // on itself (in other words, not on a prototype).
+  _.has = function(obj, key) {
+    return hasOwnProperty.call(obj, key);
+  };
+
+  // Utility Functions
+  // -----------------
+
+  // Run Underscore.js in *noConflict* mode, returning the `_` variable to its
+  // previous owner. Returns a reference to the Underscore object.
+  _.noConflict = function() {
+    root._ = previousUnderscore;
+    return this;
+  };
+
+  // Keep the identity function around for default iterators.
+  _.identity = function(value) {
+    return value;
+  };
+
+  // Run a function **n** times.
+  _.times = function(n, iterator, context) {
+    var accum = Array(n);
+    for (var i = 0; i < n; i++) accum[i] = iterator.call(context, i);
+    return accum;
+  };
+
+  // Return a random integer between min and max (inclusive).
+  _.random = function(min, max) {
+    if (max == null) {
+      max = min;
+      min = 0;
+    }
+    return min + Math.floor(Math.random() * (max - min + 1));
+  };
+
+  // List of HTML entities for escaping.
+  var entityMap = {
+    escape: {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#x27;',
+      '/': '&#x2F;'
+    }
+  };
+  entityMap.unescape = _.invert(entityMap.escape);
+
+  // Regexes containing the keys and values listed immediately above.
+  var entityRegexes = {
+    escape:   new RegExp('[' + _.keys(entityMap.escape).join('') + ']', 'g'),
+    unescape: new RegExp('(' + _.keys(entityMap.unescape).join('|') + ')', 'g')
+  };
+
+  // Functions for escaping and unescaping strings to/from HTML interpolation.
+  _.each(['escape', 'unescape'], function(method) {
+    _[method] = function(string) {
+      if (string == null) return '';
+      return ('' + string).replace(entityRegexes[method], function(match) {
+        return entityMap[method][match];
+      });
+    };
+  });
+
+  // If the value of the named property is a function then invoke it;
+  // otherwise, return it.
+  _.result = function(object, property) {
+    if (object == null) return null;
+    var value = object[property];
+    return _.isFunction(value) ? value.call(object) : value;
+  };
+
+  // Add your own custom functions to the Underscore object.
+  _.mixin = function(obj) {
+    each(_.functions(obj), function(name){
+      var func = _[name] = obj[name];
+      _.prototype[name] = function() {
+        var args = [this._wrapped];
+        push.apply(args, arguments);
+        return result.call(this, func.apply(_, args));
+      };
+    });
+  };
+
+  // Generate a unique integer id (unique within the entire client session).
+  // Useful for temporary DOM ids.
+  var idCounter = 0;
+  _.uniqueId = function(prefix) {
+    var id = ++idCounter + '';
+    return prefix ? prefix + id : id;
+  };
+
+  // By default, Underscore uses ERB-style template delimiters, change the
+  // following template settings to use alternative delimiters.
+  _.templateSettings = {
+    evaluate    : /<%([\s\S]+?)%>/g,
+    interpolate : /<%=([\s\S]+?)%>/g,
+    escape      : /<%-([\s\S]+?)%>/g
+  };
+
+  // When customizing `templateSettings`, if you don't want to define an
+  // interpolation, evaluation or escaping regex, we need one that is
+  // guaranteed not to match.
+  var noMatch = /(.)^/;
+
+  // Certain characters need to be escaped so that they can be put into a
+  // string literal.
+  var escapes = {
+    "'":      "'",
+    '\\':     '\\',
+    '\r':     'r',
+    '\n':     'n',
+    '\t':     't',
+    '\u2028': 'u2028',
+    '\u2029': 'u2029'
+  };
+
+  var escaper = /\\|'|\r|\n|\t|\u2028|\u2029/g;
+
+  // JavaScript micro-templating, similar to John Resig's implementation.
+  // Underscore templating handles arbitrary delimiters, preserves whitespace,
+  // and correctly escapes quotes within interpolated code.
+  _.template = function(text, data, settings) {
+    var render;
+    settings = _.defaults({}, settings, _.templateSettings);
+
+    // Combine delimiters into one regular expression via alternation.
+    var matcher = new RegExp([
+      (settings.escape || noMatch).source,
+      (settings.interpolate || noMatch).source,
+      (settings.evaluate || noMatch).source
+    ].join('|') + '|$', 'g');
+
+    // Compile the template source, escaping string literals appropriately.
+    var index = 0;
+    var source = "__p+='";
+    text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
+      source += text.slice(index, offset)
+        .replace(escaper, function(match) { return '\\' + escapes[match]; });
+
+      if (escape) {
+        source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
+      }
+      if (interpolate) {
+        source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
+      }
+      if (evaluate) {
+        source += "';\n" + evaluate + "\n__p+='";
+      }
+      index = offset + match.length;
+      return match;
+    });
+    source += "';\n";
+
+    // If a variable is not specified, place data values in local scope.
+    if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
+
+    source = "var __t,__p='',__j=Array.prototype.join," +
+      "print=function(){__p+=__j.call(arguments,'');};\n" +
+      source + "return __p;\n";
+
+    try {
+      render = new Function(settings.variable || 'obj', '_', source);
+    } catch (e) {
+      e.source = source;
+      throw e;
+    }
+
+    if (data) return render(data, _);
+    var template = function(data) {
+      return render.call(this, data, _);
+    };
+
+    // Provide the compiled function source as a convenience for precompilation.
+    template.source = 'function(' + (settings.variable || 'obj') + '){\n' + source + '}';
+
+    return template;
+  };
+
+  // Add a "chain" function, which will delegate to the wrapper.
+  _.chain = function(obj) {
+    return _(obj).chain();
+  };
+
+  // OOP
+  // ---------------
+  // If Underscore is called as a function, it returns a wrapped object that
+  // can be used OO-style. This wrapper holds altered versions of all the
+  // underscore functions. Wrapped objects may be chained.
+
+  // Helper function to continue chaining intermediate results.
+  var result = function(obj) {
+    return this._chain ? _(obj).chain() : obj;
+  };
+
+  // Add all of the Underscore functions to the wrapper object.
+  _.mixin(_);
+
+  // Add all mutator Array functions to the wrapper.
+  each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function(name) {
+    var method = ArrayProto[name];
+    _.prototype[name] = function() {
+      var obj = this._wrapped;
+      method.apply(obj, arguments);
+      if ((name == 'shift' || name == 'splice') && obj.length === 0) delete obj[0];
+      return result.call(this, obj);
+    };
+  });
+
+  // Add all accessor Array functions to the wrapper.
+  each(['concat', 'join', 'slice'], function(name) {
+    var method = ArrayProto[name];
+    _.prototype[name] = function() {
+      return result.call(this, method.apply(this._wrapped, arguments));
+    };
+  });
+
+  _.extend(_.prototype, {
+
+    // Start chaining a wrapped Underscore object.
+    chain: function() {
+      this._chain = true;
+      return this;
+    },
+
+    // Extracts the result from a wrapped and chained object.
+    value: function() {
+      return this._wrapped;
+    }
+
+  });
+
+}).call(this);
+
+});
+
+require.define("/node_modules/tztime/src/timezone-js.js",function(require,module,exports,__dirname,__filename,process,global){/*
  * Copyright 2010 Matthew Eernisse (mde@fleegix.org)
  * and Open Source Applications Foundation
  *
@@ -7034,468 +8351,222 @@ require.define("fs",function(require,module,exports,__dirname,__filename,process
 
 });
 
-require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var ChartTime, ChartTimeInStateCalculator, ChartTimeIterator, ChartTimeRange, timezoneJS, utils,
+require.define("/node_modules/tztime/src/Timeline.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var Time, Timeline, TimelineIterator, timezoneJS, utils,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  ChartTime = require('./ChartTime').ChartTime;
-
-  ChartTimeInStateCalculator = require('./ChartTimeInStateCalculator').ChartTimeInStateCalculator;
+  Time = require('./Time').Time;
 
   timezoneJS = require('./timezone-js.js').timezoneJS;
 
   utils = require('./utils');
 
-  ChartTimeIterator = (function() {
+  Timeline = (function() {
     /*
-      @class ChartTimeIterator
+      @class Timeline
     
-      # ChartTimeIterator #
+      Allows you to specify a timeline with weekend, holiday and non-work hours knocked out and timezone precision.
       
-      Iterate through days, months, years, etc. skipping weekends and holidays that you 
-      specify. It will also iterate over hours, minutes, seconds, etc. and skip times that are not
-      between the specified work hours.
-      
-      ## Usage ##
-      
-          {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
-          
-          cti = new ChartTimeIterator({
-            start:new ChartTime({granularity: 'day', year: 2009, month:1, day: 1}),
-            pastEnd:new ChartTime({granularity: 'day', year: 2009, month:1, day: 8}),
-            workDays: 'Monday, Tuesday, Wednesday, Thursday, Friday',
-            holidays: [
-              {month: 1, day: 1},  # New Years day was a Thursday in 2009
-              {year: 2009, month: 1, day: 2}  # Also got Friday off in 2009
-            ]
+      ## Basic usage ##
+    
+          {TimelineIterator, Timeline, Time} = require('../')
+    
+          tl = new Timeline({
+            startOn: '2011-01-03',
+            endBefore: '2011-01-05',
           })
-      
-          while (cti.hasNext())
-            console.log(cti.next().toString())
-      
-          # 2009-01-05
-          # 2009-01-06
-          # 2009-01-07
-    */
-
-    var StopIteration;
-
-    function ChartTimeIterator(ctr, emit, childGranularity, tz) {
-      var _ref, _ref1;
-      this.emit = emit != null ? emit : 'ChartTime';
-      this.childGranularity = childGranularity != null ? childGranularity : 'day';
-      /*
-          @constructor
-          @param {ChartTimeRange} ctr A ChartTimeRange or a raw Object with all the necessary properties to be a spec for a new ChartTimeRange.
-             Using a ChartTimeRange is now the preferred method. The raw Object is supported for backward compatibility.
-          @param {String} [emit] An optional String that specifies what should be emitted. Possible values are 'ChartTime' (default),
-             'ChartTimeRange', and 'Date' (javascript Date Object). Note, to maintain backward compatibility with the time
-             before ChartTimeRange existed, the default for emit when instantiating a new ChartTimeIterator directly is 
-             'ChartTime'. However, if you request a new ChartTimeIterator from a ChartTimeRange object using getIterator(),
-             the default is 'ChartTimeRange'.
-          @param {String} [childGranularity] When emit is 'ChartTimeRange', this is the granularity for the start and pastEnd of the
-             ChartTimeRange that is emitted.
-          @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example.
-      */
-
-      utils.assert((_ref = this.emit) === 'ChartTime' || _ref === 'ChartTimeRange' || _ref === 'Date', "emit must be 'ChartTime', 'ChartTimeRange', or 'Date'. You provided " + this.emit + ".");
-      utils.assert(this.emit !== 'Date' || (tz != null), 'Must provide a tz (timezone) parameter when emitting Dates.');
-      if ((_ref1 = this.tz) == null) {
-        this.tz = tz;
-      }
-      if (ctr instanceof ChartTimeRange) {
-        this.ctr = ctr;
-      } else {
-        this.ctr = new ChartTimeRange(ctr);
-      }
-      this.startOver();
-    }
-
-    StopIteration = typeof StopIteration === 'undefined' ? utils.StopIteration : StopIteration;
-
-    ChartTimeIterator.prototype.startOver = function() {
-      /*
-          @method startOver
-      
-          Will go back to the where the iterator started.
-      */
-      if (this.ctr.skip > 0) {
-        this.current = new ChartTime(this.ctr.start);
-      } else {
-        this.current = new ChartTime(this.ctr.pastEnd);
-        this.current.decrement();
-      }
-      this.count = 0;
-      return this._proceedToNextValid();
-    };
-
-    ChartTimeIterator.prototype.hasNext = function() {
-      /*
-          @method hasNext
-          @return {Boolean} Returns true if there are still things left to iterator over. Note that if there are holidays,
-             weekends or non-workhours to skip, then hasNext() will take that into account. For example if the pastEnd is a
-             Sunday, hasNext() will return true the next time it is called after the Friday is emitted.
-      */
-      return this.ctr.contains(this.current) && (this.count < this.ctr.limit);
-    };
-
-    ChartTimeIterator.prototype._shouldBeExcluded = function() {
-      var currentInDay, currentMinutes, holiday, _i, _len, _ref, _ref1, _ref2;
-      if (this.current.granularityAboveDay()) {
-        return false;
-      }
-      currentInDay = this.current.inGranularity('day');
-      if (_ref = this.current.dowString(), __indexOf.call(this.ctr.workDays, _ref) < 0) {
-        return true;
-      }
-      _ref1 = this.ctr.holidays;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        holiday = _ref1[_i];
-        if (utils.match(holiday, currentInDay)) {
-          return true;
-        }
-      }
-      if ((_ref2 = this.ctr.granularity) === 'hour' || _ref2 === 'minute' || _ref2 === ' second' || _ref2 === 'millisecond') {
-        currentMinutes = this.current.hour * 60;
-        if (this.current.minute != null) {
-          currentMinutes += this.current.minute;
-        }
-        if (this.ctr.startWorkMinutes <= this.ctr.pastEndWorkMinutes) {
-          if ((currentMinutes < this.ctr.startWorkMinutes) || (currentMinutes >= this.ctr.pastEndWorkMinutes)) {
-            return true;
-          }
-        } else {
-          if ((this.ctr.startWorkMinutes >= currentMinutes && currentMinutes > this.ctr.pastEndWorkMinutes)) {
-            return true;
-          }
-        }
-      }
-      return false;
-    };
-
-    ChartTimeIterator.prototype._proceedToNextValid = function() {
-      var _results;
-      _results = [];
-      while (this.hasNext() && this._shouldBeExcluded()) {
-        if (this.ctr.skip > 0) {
-          _results.push(this.current.increment());
-        } else {
-          _results.push(this.current.decrement());
-        }
-      }
-      return _results;
-    };
-
-    ChartTimeIterator.prototype.next = function() {
-      /*
-          @method next
-          @return {ChartTime/Date/ChartTimeRange} Emits the next value of the iterator. The start will be the first value emitted unless it should
-             be skipped due to holiday, weekend, or workhour knockouts.
-      */
-
-      var childCTR, currentCopy, i, spec, _i, _ref;
-      if (!this.hasNext()) {
-        throw new StopIteration('Cannot call next() past end.');
-      }
-      currentCopy = new ChartTime(this.current);
-      this.count++;
-      for (i = _i = _ref = Math.abs(this.ctr.skip); _ref <= 1 ? _i <= 1 : _i >= 1; i = _ref <= 1 ? ++_i : --_i) {
-        if (this.ctr.skip > 0) {
-          this.current.increment();
-        } else {
-          this.current.decrement();
-        }
-        this._proceedToNextValid();
-      }
-      switch (this.emit) {
-        case 'ChartTime':
-          return currentCopy;
-        case 'Date':
-          return currentCopy.getJSDate(this.tz);
-        case 'ChartTimeRange':
-          spec = {
-            start: currentCopy.inGranularity(this.childGranularity),
-            pastEnd: this.current.inGranularity(this.childGranularity),
-            workDays: this.ctr.workDays,
-            holidays: this.ctr.holidays,
-            startWorkTime: this.ctr.startWorkTime,
-            pastEndWorkTime: this.ctr.pastEndWorkTime
-          };
-          childCTR = new ChartTimeRange(spec);
-          return childCTR;
-      }
-    };
-
-    ChartTimeIterator.prototype.getAll = function() {
-      /*
-          @method getAll
-          @return {ChartTime[]/Date[]/ChartTimeRange[]}
-          Returns all values as an array.
-      */
-
-      var temp;
-      this.startOver();
-      temp = [];
-      while (this.hasNext()) {
-        temp.push(this.next());
-      }
-      return temp;
-    };
-
-    ChartTimeIterator.prototype.getChartTimeInStateCalculator = function(tz) {
-      var ctrisc;
-      ctrisc = new ChartTimeInStateCalculator(this, tz);
-      return ctrisc;
-    };
-
-    return ChartTimeIterator;
-
-  })();
-
-  ChartTimeRange = (function() {
-    /*
-      @class ChartTimeRange
     
-      # ChartTimeRange #
-      
-      Allows you to specify a range for iterating over or identifying if it `contains()` some other date.
-      This `contains()` comparision can be done in a timezone sensitive way.
-      
-      ## Usage ##
+          console.log(t.toString() for t in tl.getAll())
+          # [ '2011-01-03', '2011-01-04' ]
+    
+      Notice how the endBefore, '2011-01-05', is excluded. Timelines are inclusive of the startOn and exclusive of the
+      endBefore. This allows the endBefore to be the startOn of the next with no overlap or gap. This focus on precision
+      pervades the design of the Time library.
+    
+      Perhaps the most common use of Timeline is to return a Timeline of ISOStrings shifted to the correct timezone.
+      Since ISOString comparisons give the expected chronological results and many APIs return their date/time stamps as
+      ISOStrings, it's convenient and surprisingly fast to do your own bucketing operations after you've gotten a Timeline
+      of ISOStrings.
+    
+          console.log(tl.getAll('ISOString', 'America/New_York'))
+          # [ '2011-01-03T05:00:00.000Z', '2011-01-04T05:00:00.000Z' ]
+    
+      ## More advanced usage ##
      
-      Let's create the `spec` for our ChartTimeRange
+      Now let's poke at Timeline behavior a little more. Let's start by creating a more advanced Timeline:
       
-          {ChartTimeIterator, ChartTimeRange, ChartTime} = require('../')
-          
-          r = new ChartTimeRange({
-            start:new ChartTime('2011-01-02'),
-            pastEnd:new ChartTime('2011-01-07'),
+          tl = new Timeline({
+            startOn: '2011-01-02',
+            endBefore: '2011-01-07',
             holidays: [
               {month: 1, day: 1},  # Notice the lack of a year specification
-              {year: 2011, month: 1, day: 2}  # Got January 2 off also in 2011
+              '2011-01-04'  # Got January 4 off also in 2011. Allows ISO strings.
             ]
           })
           
       `workDays` is already defaulted but you could have overridden it.
       
-          console.log(r.workDays)
+          console.log(tl.workDays)
           # [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday' ]
           
-      Now let's get an iterator over this range.
-          
-          i = r.getIterator('ChartTime')
-          
-          while i.hasNext()
-            console.log(i.next().toString()) 
-                 
-          # 2011-01-03
-          # 2011-01-04
-          # 2011-01-05
-          # 2011-01-06
+      Another common use case is to get a Timeline to return child Timelines. You see, Timelines can be thought of as
+      time boxes with a startOn and an endBefore. You might have a big time box for the entire x-axis for a chart
+      but if you want to bucket raw data into each tick on the x-axis, you'll need to know where each sub-time box starts
+      and ends.
+    
+          subTimelines = tl.getAll('Timeline')
+          console.log((t.startOn.toString() + ' to ' + t.endBefore.toString() for t in subTimelines))
+          # [ '2011-01-03 to 2011-01-05',
+          #   '2011-01-05 to 2011-01-06',
+          #   '2011-01-06 to 2011-01-07' ]
+    
+      Notice how the first subTimeline went all the way from 03 to 05. That's because we specified 04 as a holiday.
+      Timelines are contiguous without gaps or overlap. You can see that the endBefore of one subTimeline is always the startOn
+      of the next.
       
-      Notice how 2011-01-02 was skipped because it was a holiday. Also notice how the pastEnd is not included.
-      Ranges are inclusive of the start and exclusive of the pastEnd. This allows the pastEnd of one to be
-      the start of the next with no overlap or gap. This focus on precision pervades the design of the ChartTime library.
-      
-      Now, let's create a ChartTimeRange with `hour` granularity to elaborate on this inclusive/exclusive behavior.
+      Now, let's create a Timeline with `hour` granularity and show of the concept that Timelines also serve as time boxes by
+      learning about the contains() method.
           
-          r2 = new ChartTimeRange({
-            start:new ChartTime('2011-01-02T00'),
-            pastEnd:new ChartTime('2011-01-07T00'),
+          tl2 = new Timeline({
+            startOn: '2011-01-02T00',
+            endBefore: '2011-01-07T00',
           })
           
-      `start` is inclusive.
+      `startOn` is inclusive.
       
-          console.log(r2.contains(new ChartTime('2011-01-02T00')))
+          console.log(tl2.contains('2011-01-02T00'))
           # true
           
-      But `pastEnd` is exclusive
+      But `endBefore` is exclusive
       
-          console.log(r2.contains(new ChartTime('2011-01-07T00')))
+          console.log(tl2.contains('2011-01-07T00'))
           # false
       
-      But just before `pastEnd` is OK
+      But just before `endBefore` is OK
       
-          console.log(r2.contains('2011-01-06T23'))
+          console.log(tl2.contains('2011-01-06T23'))
           # true
-          
-      In the above line, notice how we omitted the `new ChartTime(...)`. If you pass in a string without a timezone, 
-      it will automatically create the ChartTime to do the comparison.
       
-      All of the above comparisons assume that the `start`/`pastEnd` boundaries are in the same timezone as the contains date.
-      
+      All of the above comparisons assume that the `startOn`/`endBefore` boundaries are in the same timezone as the contains date.
+    
       ## Timezone sensitive comparisions ##
       
       Now, let's look at how you do timezone sensitive comparisions.
       
-      If you pass in a timezone, then it will shift the CharTimeRange boundaries to that timezone to compare to the 
+      If you pass in a timezone, then it will shift the Timeline boundaries to that timezone to compare to the 
       date/timestamp that you pass in. This system is optimized to the pattern where you first define your boundaries without regard 
       to timezone. Christmas day is a holiday in any timezone. Saturday and Sunday are non work days in any timezone. The iteration
       starts on July 10th; etc. THEN you have a bunch of data that you have stored in a database in GMT. Maybe you've pulled
-      it down from an API but the data is represented with a GMT date/timestamp. You then want to decide if the GMT date/timestamp 
+      it down from an API but the data is represented with ISOString. You then want to decide if the ISOString
       is contained within the iteration as defined by a particular timezone, or is a Saturday, or is during workhours, etc. 
       The key concept to remember is that the timebox boundaries are shifted NOT the other way around. It says at what moment
-      in time July 10th starts in a particular timezone and internally represents that in a way that can be compared to a GMT 
-      date/timestamp.
+      in time July 10th starts on in a particular timezone and internally represents that in a way that can be compared to
+      an ISOString.
       
-      So, when it's 3am in GMT on 2011-01-02, it's still 2011-01-01 in New York. Using the above `r2` range, we say:
+      So, when it's 3am in GMT on 2011-01-02, it's still 2011-01-01 in New York. Using the above `tl2` timeline, we say:
       
-          console.log(r2.contains('2011-01-02T03:00:00.000Z', 'America/New_York'))
+          console.log(tl2.contains('2011-01-02T03:00:00.000Z', 'America/New_York'))
           # false
           
       But it's still 2011-01-06 in New York, when it's 3am in GMT on 2011-01-07
           
-          console.log(r2.contains('2011-01-07T03:00:00.000Z', 'America/New_York'))
+          console.log(tl2.contains('2011-01-07T03:00:00.000Z', 'America/New_York'))
           # true
-          
-      Now, let's explore how ChartTimeRanges and ChartTimeIterators are used together. Here is a range spec.
-    
-          r3 = new ChartTimeRange({
-            start:new ChartTime('2011-01-06'),
-            pastEnd:new ChartTime('2011-01-11'),
-            startWorkTime: {hour: 9, minute: 0},
-            pastEndWorkTime: {hour: 11, minute: 0}  # Very short work day for demo purposes
-          })
-              
-      You can ask for an iterator to emit ChartTimeRanges rather than ChartTime values. On each call to `next()`, the
-      iterator will give you a new ChartTimeRange with the `start` value set to what you would have gotten had you 
-      requested that it emit ChartTimes. The `pastEnd' of the emitted ChartTimeRange will be set to the following value.
-      This is how you drill-down from one granularity into a lower granularity.
-      
-      By default, the granularity of the iterator will equal the `start`/`pastEnd` of the original ChartTimeRange. 
-      However, you can provide a different granularity (`hour` in the example below) for the iterator if you want 
-      to drill-down at a lower granularity.
-      
-          i3 = r3.getIterator('ChartTimeRange', 'hour')
-          
-          while i3.hasNext()
-            subRange = i3.next()
-            console.log("Sub range goes from #{subRange.start.toString()} to #{subRange.pastEnd.toString()}")
-            subIterator = subRange.getIterator('ChartTime')
-            while subIterator.hasNext()
-              console.log('    Hour: ' + subIterator.next().hour)
-              
-          # Sub range goes from 2011-01-06T00 to 2011-01-07T00
-          #     Hour: 9
-          #     Hour: 10
-          # Sub range goes from 2011-01-07T00 to 2011-01-10T00
-          #     Hour: 9
-          #     Hour: 10
-          # Sub range goes from 2011-01-10T00 to 2011-01-11T00
-          #     Hour: 9
-          #     Hour: 10
-              
-      There is a lot going on here, so let's poke at it a bit. First, notice how the second sub-range goes from the 7th to the
-      10th. That's because there was a weekend in there. We didn't get hours for the Saturday and Sunday.
-          
-      The above approach (`r3`/`i3`) is useful for some forms of hand generated analysis, but if you are using ChartTime with 
-      Lumenize, it's overkill because Lumenize is smart enough to do rollups based upon the segments that are emitted from the
-      lowest granularity ChartTime. So you can just iterate over the lower granularity and Lumenize will automatically manage 
-      the drill up/down to day/month/year levels automatically.
-      
-          r4 = new ChartTimeRange({
-            start:'2011-01-06T00',  # Notice how we include the hour now
-            pastEnd:'2011-01-11T00',
-            startWorkTime: {hour: 9, minute: 0},
-            pastEndWorkTime: {hour: 11, minute: 0}  # Very short work day for demo purposes
-          })
-              
-      Notice how we are able to simply use strings to represent the start/pastEnd dates. ChartTimeRange automatically constructs 
-      ChartTime objects from those strings. We could have done that in the earlier examples. I chose not to do so to illustrate
-      how ChartTimes are used under the covers.
-    
-          i4 = r4.getIterator('ChartTime')
-          
-          while i4.hasNext()
-            console.log(i4.next().toString())
-            
-          # 2011-01-06T09
-          # 2011-01-06T10
-          # 2011-01-07T09
-          # 2011-01-07T10
-          # 2011-01-10T09
-          # 2011-01-10T10
-          
-      `r4`/`i4` covers the same ground as `r3`/`i3` but without the explicit nesting.
     */
 
-    function ChartTimeRange(spec) {
+    function Timeline(config) {
       /*
           @constructor
-          @param {Object} spec
+          @param {Object} config
       
-          spec can have the following properties:
+          @cfg {Time/ISOString} [startOn] Unless it falls on a knocked out moment, this is the first value in the resulting Timeline
+            If it falls on a knocked out moment, it will advance to the first appropriate moment after startOn.
+            You must specify 2 out of 3 of startOn, endBefore, and limit.
+          @cfg {Time/ISOString} [endBefore] Must match granularity of startOn. Timeline will stop before returning this value.
+            You must specify 2 out of 3 of startOn, endBefore, and limit.
+          @cfg {Number} [limit] You can specify limit and either startOn or endBefore and only get back this many.
+            You must specify 2 out of 3 of startOn, endBefore, and limit.
+          @cfg {Number} [step = 1 or -1] Use -1 to march backwards from endBefore - 1. Currently any
+             values other than 1 and -1 are not well tested.
+          @cfg {String} [granularity = granularity of startOn or endBefore] Used to determine the granularity of the ticks.
+            Note, this can be different from the granularity of startOn and endBefore. For example:
       
-          * **start** is a ChartTime object or a string. The first value that next() returns.
-          * **pastEnd** is a ChartTime object or string. Must match granularity. hasNext() returns false when current is here or later.
-          * **skip** is an optional num. Defaults to 1 or -1. Use -1 to march backwards from pastEnd - 1. Currently any
-             values other than 1 and -1 give unexpected behavior.
-          * **granularity** is used to determine the granularity that you will iterate over. Note, you can have granularity of say month 
-             for the start and/or pastEnd but have a finer granularity for the range. Let's say you want to iterate over all the days
-             of the current month. In this case, pastEnd would be 'next month', and start would be 'prior month'.
-          * **limit** you can specify limit plus one of start/pastEnd and only get back this many.
-          * **workDays** list of days of the week that you work on. Either ['Monday', 'Tuesday', ...] or "Monday,Tuesday,..."
-             Defaults to ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].
-          * **holidays** is an optional Array like: [{month: 12, day: 25}, {year: 2011, month: 11, day: 24}]. Notice how
-             you can leave off the year if the holiday falls on the same day every year.
-          * **startWorkTime** is an optional object in the form {hour: 8, minute: 15}. Must include minute even when 0.
-             If startWorkTime is later than pastEndWorkTime, then it assumes that you work the night shift and your work
-             hours span midnight.
-          * **pastEndWorkTime** is an optional object in the form {hour: 17, minute: 0}. Must include minute even when 0.
-             The use of startWorkTime and pastEndWorkTime only make sense when the granularity is "hour" or finer.
-             Note: If the business closes at 5:00pm, you'll want to leave pastEndWorkTime to 17:00, rather
-             than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
-             the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
+              {
+                startOn: '2012-01', # Month Granularity
+                endBefore: '2012-02', # Month Granularity
+                granularity: Time.DAY # Day granularity
+              }
+      
+          @cfg {String[]/String} [workDays =  ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']] List of days of the
+            week that you work on. You can specify this as an Array of Strings (['Monday', 'Tuesday', ...]) or a single comma
+            seperated String ("Monday,Tuesday,...").
+          @cfg {Array} [holidays] An optional Array of either ISOStrings or JavaScript Objects (and you can mix and match). Example:
+      
+              [{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, "2012-12-24"]
+      
+             Notice how you can leave off the year if the holiday falls on the same day every year.
+          @cfg {Object} [workDayStartOn = {hour: 0, minute: 0}] An optional object in the form {hour: 8, minute: 15}.
+            If minute is zero it can be omitted. If workDayStartOn is later than workDayEndBefore, then it assumes that you
+            work the night shift and your work  hours span midnight.
+      
+            The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
+      
+            Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
+            than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
+            the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
+          @cfg {Object} [workDayEndBefore = {hour: 24, minute: 60}] An optional object in the form {hour: 17, minute: 0}.
+            If minute is zero it can be omitted.
       */
 
-      var holiday, idx, s, _i, _len, _ref, _ref1;
-      if (spec.pastEnd != null) {
-        this.pastEnd = spec.pastEnd;
-        if (this.pastEnd !== 'PAST_LAST') {
-          if (utils.type(this.pastEnd) === 'string') {
-            this.pastEnd = new ChartTime(this.pastEnd);
+      var h, holiday, idx, m, s, _i, _len, _ref, _ref1;
+      this.memoizedTicks = {};
+      if (config.endBefore != null) {
+        this.endBefore = config.endBefore;
+        if (this.endBefore !== 'PAST_LAST') {
+          if (utils.type(this.endBefore) === 'string') {
+            this.endBefore = new Time(this.endBefore);
           }
-          this.granularity = this.pastEnd.granularity;
+          this.granularity = this.endBefore.granularity;
         }
       }
-      if (spec.start != null) {
-        this.start = spec.start;
-        if (this.start !== 'BEFORE_FIRST') {
-          if (utils.type(this.start) === 'string') {
-            this.start = new ChartTime(this.start);
+      if (config.startOn != null) {
+        this.startOn = config.startOn;
+        if (this.startOn !== 'BEFORE_FIRST') {
+          if (utils.type(this.startOn) === 'string') {
+            this.startOn = new Time(this.startOn);
           }
-          this.granularity = this.start.granularity;
+          this.granularity = this.startOn.granularity;
         }
       }
-      if (spec.granularity != null) {
-        this.granularity = spec.granularity;
-        if (this.start != null) {
-          this.start = this.start.inGranularity(this.granularity);
+      if (config.granularity != null) {
+        this.granularity = config.granularity;
+        if (this.startOn != null) {
+          this.startOn = this.startOn.inGranularity(this.granularity);
         }
-        if (this.pastEnd != null) {
-          this.pastEnd = this.pastEnd.inGranularity(this.granularity);
+        if (this.endBefore != null) {
+          this.endBefore = this.endBefore.inGranularity(this.granularity);
         }
       }
       if (!this.granularity) {
-        throw new Error('Cannot determine granularity for ChartTimeRange.');
+        throw new Error('Cannot determine granularity for Timeline.');
       }
-      if (this.start === 'BEFORE_FIRST') {
-        this.start = new ChartTime(this.start, this.granularity);
+      if (this.startOn === 'BEFORE_FIRST') {
+        this.startOn = new Time(this.startOn, this.granularity);
       }
-      if (this.pastEnd === 'PAST_LAST') {
-        this.pastEnd === new ChartTime(this.pastEnd, this.granularity);
+      if (this.endBefore === 'PAST_LAST') {
+        this.endBefore === new Time(this.endBefore, this.granularity);
       }
-      if (!this.pastEnd) {
-        this.pastEnd = new ChartTime('PAST_LAST', this.granularity);
+      if (!this.endBefore) {
+        this.endBefore = new Time('PAST_LAST', this.granularity);
       }
-      if (!this.start) {
-        this.start = new ChartTime('BEFORE_FIRST', this.granularity);
+      if (!this.startOn) {
+        this.startOn = new Time('BEFORE_FIRST', this.granularity);
       }
-      this.limit = spec.limit != null ? spec.limit : utils.MAX_INT;
-      if (spec.workDays != null) {
-        this.workDays = spec.workDays;
-      } else if (spec.workdays != null) {
-        this.workDays = spec.workdays;
+      this.limit = config.limit != null ? config.limit : utils.MAX_INT;
+      if (config.workDays != null) {
+        this.workDays = config.workDays;
+      } else if (config.workdays != null) {
+        this.workDays = config.workdays;
       } else {
         this.workDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
       }
@@ -7511,481 +8582,2414 @@ require.define("/src/ChartTimeIteratorAndRange.coffee",function(require,module,e
           return _results;
         }).call(this);
       }
-      this.holidays = spec.holidays != null ? spec.holidays : [];
+      this.holidays = config.holidays != null ? config.holidays : [];
       _ref = this.holidays;
       for (idx = _i = 0, _len = _ref.length; _i < _len; idx = ++_i) {
         holiday = _ref[idx];
         if (utils.type(holiday) === 'string') {
-          this.holidays[idx] = new ChartTime(holiday).getSegmentsAsObject();
+          this.holidays[idx] = new Time(holiday).getSegmentsAsObject();
         }
       }
-      this.startWorkTime = spec.startWorkTime != null ? spec.startWorkTime : void 0;
-      this.startWorkMinutes = this.startWorkTime != null ? this.startWorkTime.hour * 60 + this.startWorkTime.minute : 0;
-      this.pastEndWorkTime = spec.pastEndWorkTime != null ? spec.pastEndWorkTime : void 0;
-      this.pastEndWorkMinutes = this.pastEndWorkTime != null ? this.pastEndWorkTime.hour * 60 + this.pastEndWorkTime.minute : 24 * 60;
-      if (spec.skip != null) {
-        this.skip = spec.skip;
-      } else if ((spec.pastEnd != null) && ((_ref1 = this.start) != null ? _ref1.$gt(this.pastEnd) : void 0)) {
-        this.skip = -1;
-      } else if ((spec.pastEnd != null) && !(spec.start != null) && (spec.limit != null)) {
-        this.skip = -1;
+      this.workDayStartOn = config.workDayStartOn != null ? config.workDayStartOn : void 0;
+      if (this.workDayStartOn != null) {
+        h = this.workDayStartOn.hour != null ? this.workDayStartOn.hour : 0;
+        m = this.workDayStartOn.minute != null ? this.workDayStartOn.minute : 0;
+        this.startOnWorkMinutes = h * 60 + m;
+        if (this.startOnWorkMinutes < 0) {
+          this.startOnWorkMinutes = 0;
+        }
       } else {
-        this.skip = 1;
+        this.startOnWorkMinutes = 0;
       }
-      utils.assert(((spec.start != null) && (spec.pastEnd != null)) || ((spec.start != null) && (spec.limit != null) && this.skip > 0) || ((spec.pastEnd != null) && (spec.limit != null) && this.skip < 0), 'Must provide two out of "start", "pastEnd", or "limit" and the sign of skip must match.');
+      this.workDayEndBefore = config.workDayEndBefore != null ? config.workDayEndBefore : void 0;
+      if (this.workDayEndBefore != null) {
+        h = this.workDayEndBefore.hour != null ? this.workDayEndBefore.hour : 24;
+        m = this.workDayEndBefore.minute != null ? this.workDayEndBefore.minute : 0;
+        this.endBeforeWorkMinutes = h * 60 + m;
+        if (this.endBeforeWorkMinutes > 24 * 60) {
+          this.endBeforeWorkMinutes = 24 * 60;
+        }
+      } else {
+        this.endBeforeWorkMinutes = 24 * 60;
+      }
+      if (config.step != null) {
+        this.step = config.step;
+      } else if ((config.endBefore != null) && ((_ref1 = this.startOn) != null ? _ref1.greaterThan(this.endBefore) : void 0)) {
+        this.step = -1;
+      } else if ((config.endBefore != null) && !(config.startOn != null) && (config.limit != null)) {
+        this.step = -1;
+      } else {
+        this.step = 1;
+      }
+      utils.assert(((config.startOn != null) && (config.endBefore != null)) || ((config.startOn != null) && (config.limit != null) && this.step > 0) || ((config.endBefore != null) && (config.limit != null) && this.step < 0), 'Must provide two out of "startOn", "endBefore", or "limit" and the sign of step must match.');
     }
 
-    ChartTimeRange.prototype.getIterator = function(emit, childGranularity, tz) {
-      if (emit == null) {
-        emit = 'ChartTimeRange';
-      }
-      if (childGranularity == null) {
-        childGranularity = 'day';
+    Timeline.prototype.getIterator = function(tickType, tz, childGranularity) {
+      if (tickType == null) {
+        tickType = 'Time';
       }
       /*
           @method getIterator
-          @param {String} [emit]
-          @param {String} [childGranularity]
-          @param {String} [tz]
-          @return {ChartTimeIterator}
+          @param {String} [tickType] An optional String that specifies what type should be returned on each call to next().
+            Possible values are 'Time' (default), 'Timeline', 'Date' (javascript Date Object), and 'ISOString'.
+          @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
+            required if `tickType` is 'Date' or 'ISOString'.
+          @param {String} [childGranularity] When tickType is 'Timeline', this is the granularity for the startOn and endBefore of the
+            Timeline that is returned.
+          @return {TimelineIterator}
       
-          Returns a new ChartTimeIterator using this ChartTimeRange as the boundaries.
-          
-          Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
-          instantiating a new ChartTimeIterator directly is 'ChartTime'. However, if you request a new ChartTimeIterator 
-          from a ChartTimeRange object using getIterator(), the default is 'ChartTimeRange'.
+          Returns a new TimelineIterator using this Timeline as the boundaries.
       */
 
-      return new ChartTimeIterator(this, emit, childGranularity, tz);
+      return new TimelineIterator(this, tickType, tz, childGranularity);
     };
 
-    ChartTimeRange.prototype.getAll = function(emit, childGranularity, tz) {
-      if (emit == null) {
-        emit = 'ChartTimeRange';
+    Timeline.prototype.getAllRaw = function(tickType, tz, childGranularity) {
+      var temp, tli;
+      if (tickType == null) {
+        tickType = 'Time';
       }
-      if (childGranularity == null) {
-        childGranularity = 'day';
+      /*
+          @method getAllRaw
+          @param {String} [tickType] An optional String that specifies the type should be returned. Possible values are 'Time' (default),
+             'Timeline', 'Date' (javascript Date Object), and 'ISOString'.
+          @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
+             required if `tickType` is 'Date' or 'ISOString'.
+          @param {String} [childGranularity] When tickType is 'Timeline', this is the granularity for the startOn and endBefore of the
+             Timeline that is returned.
+          @return {Time[]/Date[]/Timeline[]/String[]}
+      
+          Returns all of the points in the timeline. Note, this will come back in the order specified
+          by step so they could be out of chronological order. Use getAll() if they must be in chronological order.
+      */
+
+      tli = this.getIterator(tickType, tz, childGranularity);
+      temp = [];
+      while (tli.hasNext()) {
+        temp.push(tli.next());
+      }
+      return temp;
+    };
+
+    Timeline.prototype.getAll = function(tickType, tz, childGranularity) {
+      var parameterKey, parameterKeyObject, ticks;
+      if (tickType == null) {
+        tickType = 'Time';
       }
       /*
           @method getAll
-          @param {String} [emit]
-          @param {String} [childGranularity]
-          @param {String} [tz]
-          @return {ChartTime[]/Date[]/ChartTimeRange[]}
+          @param {String} [tickType] An optional String that specifies what should be returned. Possible values are 'Time' (default),
+             'Timeline', 'Date' (javascript Date Object), and 'ISOString'.
+          @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
+             required if `tickType` is 'Date' or 'ISOString'.
+          @param {String} [childGranularity] When tickType is 'Timeline', this is the granularity for the startOn and endBefore of the
+             Timeline object that is returned.
+          @return {Time[]/Date[]/Timeline[]/String[]}
       
-          Returns all of the points in the timeline specified by this ChartTimeRange.
-          
-          Note, to maintain backward compatibility with the time before ChartTimeRange existed, the default for emit when 
-          instantiating a new ChartTimeIterator directly is 'ChartTime'. However, if you request a new ChartTimeIterator 
-          from a ChartTimeRange object using getIterator(), the default is 'ChartTimeRange'.
+          Returns all of the points in the timeline in chronological order. If you want them in the order specified by `step`
+          then use getAllRaw(). Note, the output of this function is memoized so that subsequent calls to getAll() for the
+          same Timeline instance with the same parameters will return the previously calculated values. This makes it safe
+          to call it repeatedly within loops and means you don't need to worry about holding onto the result on the client
+          side.
       */
 
-      return new ChartTimeIterator(this, emit, childGranularity, tz).getAll();
-    };
-
-    ChartTimeRange.prototype.getTimeline = function() {
-      /*
-          @method getTimeline
-          @return {ChartTime[]}
-      
-          Returns all of the points in the timeline specified by this ChartTimeRange as ChartTime objects. This method also
-          makes sure that the array that is returned is sorted chrologically.
-      */
-
-      var timeline;
-      timeline = new ChartTimeIterator(this, 'ChartTime', this.granularity).getAll();
-      if (timeline[0].$gt(timeline[1])) {
-        timeline.reverse();
+      parameterKeyObject = {
+        tickType: tickType
+      };
+      if (tz != null) {
+        parameterKeyObject.tz = tz;
       }
-      return timeline;
+      if (childGranularity != null) {
+        parameterKeyObject.childGranularity = childGranularity;
+      }
+      parameterKey = JSON.stringify(parameterKeyObject);
+      ticks = this.memoizedTicks[parameterKey];
+      if (ticks == null) {
+        ticks = this.getAllRaw(tickType, tz, childGranularity);
+        if (ticks.length > 1) {
+          if ((ticks[0] instanceof Time && ticks[0].greaterThan(ticks[1])) || (utils.type(ticks[0]) === 'string' && ticks[0] > ticks[1])) {
+            ticks.reverse();
+          }
+        }
+        this.memoizedTicks[parameterKey] = ticks;
+      }
+      return ticks;
     };
 
-    ChartTimeRange.prototype.contains = function(date, tz) {
+    Timeline.prototype.ticksThatIntersect = function(startOn, endBefore, tz) {
+      /*
+          @method ticksThatIntersect
+          @param {Time/ISOString} startOn The start of the time period of interest
+          @param {Time/ISOString} endBefore The moment just past the end of the time period of interest
+          @return {Array}
+      
+          Returns the list of ticks from this Timeline that intersect with the time period specified by the parameters
+          startOn and endBefore. This is a convenient way to "tag" a timebox as overlaping with particular moments on
+          your Timeline. A common pattern for Lumenize calculators is to use ticksThatIntersect to "tag" each snapshot
+          and then do groupBy operations with an OLAPCube.
+      */
+
+      var en, i, isoDateRegExp, out, st, ticks, ticksLength;
+      utils.assert(this.limit === utils.MAX_INT, 'Cannot call `ticksThatIntersect()` on Timelines specified with `limit`.');
+      out = [];
+      if (utils.type(startOn) === 'string') {
+        utils.assert(utils.type(endBefore) === 'string', 'The type for startOn and endBefore must match.');
+        isoDateRegExp = /\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d.\d\d\dZ/;
+        utils.assert(isoDateRegExp.test(startOn), 'startOn must be in form ####-##-##T##:##:##.###Z');
+        utils.assert(isoDateRegExp.test(endBefore), 'endBefore must be in form ####-##-##T##:##:##.###Z');
+        utils.assert(tz != null, "Must specify parameter tz when submitting ISO string boundaries.");
+        ticks = this.getAll('ISOString', tz);
+        if (ticks[0] >= endBefore || ticks[ticks.length - 1] < startOn) {
+          out = [];
+        } else {
+          i = 0;
+          ticksLength = ticks.length;
+          while (i < ticksLength && ticks[i] < startOn) {
+            i++;
+          }
+          while (i < ticksLength && ticks[i] < endBefore) {
+            out.push(ticks[i]);
+            i++;
+          }
+        }
+      } else if (startOn instanceof Time) {
+        utils.assert(endBefore instanceof Time, 'The type for startOn and endBefore must match.');
+        startOn = startOn.inGranularity(this.granularity);
+        endBefore = endBefore.inGranularity(this.granularity);
+        if (this.endBefore.lessThan(this.startOn)) {
+          st = this.endBefore;
+          en = this.startOn;
+        } else {
+          st = this.startOn;
+          en = this.endBefore;
+        }
+        if (st.greaterThanOrEqual(endBefore) || en.lessThan(startOn)) {
+          out = [];
+        } else {
+          ticks = this.getAll();
+          i = 0;
+          ticksLength = ticks.length;
+          while (i < ticksLength && ticks[i].lessThan(startOn)) {
+            i++;
+          }
+          while (i < ticksLength && ticks[i].lessThan(endBefore)) {
+            out.push(ticks[i]);
+            i++;
+          }
+        }
+      } else {
+        throw new Error("startOn must be a String or a Time object.");
+      }
+      return out;
+    };
+
+    Timeline.prototype.contains = function(date, tz) {
       /*
           @method contains
-          @param {ChartTime/Date/String} date can be either a JavaScript date object or an ISO-8601 formatted string
+          @param {Time/Date/String} date can be either a JavaScript date object or an ISO-8601 formatted string
           @param {String} [tz]
-          @return {Boolean} true if the date provided is within this ChartTimeRange.
+          @return {Boolean} true if the date provided is within this Timeline.
       
           ## Usage: ##
-          
-          We can create a range from May to July.
-          
-              r = new ChartTimeRange({
-                start: '2011-05',
-                pastEnd: '2011-07'
+      
+          We can create a Timeline from May to just before July.
+      
+              tl = new Timeline({
+                startOn: '2011-05',
+                endBefore: '2011-07'
               })
-              
-              console.log(r.contains('2011-06-15T12:00:00.000Z', 'America/New_York'))
+      
+              console.log(tl.contains('2011-06-15T12:00:00.000Z', 'America/New_York'))
               # true
       */
 
-      var pastEnd, start, target;
-      if (date instanceof ChartTime) {
-        return date.$lt(this.pastEnd) && date.$gte(this.start);
+      var endBefore, startOn, target;
+      utils.assert(this.limit === utils.MAX_INT, 'Cannot call `contains()` on Timelines specified with `limit`.');
+      if (date instanceof Time) {
+        return date.lessThan(this.endBefore) && date.greaterThanOrEqual(this.startOn);
       }
-      utils.assert((tz != null) || utils.type(date) !== 'date', 'ChartTimeRange.contains() requires a second parameter (timezone) when the first parameter is a Date()');
+      utils.assert((tz != null) || utils.type(date) !== 'date', 'Timeline.contains() requires a second parameter (timezone) when the first parameter is a Date()');
       switch (utils.type(date)) {
         case 'string':
           if (tz != null) {
             target = timezoneJS.parseISO(date);
           } else {
-            target = new ChartTime(date);
-            return target.$lt(this.pastEnd) && target.$gte(this.start);
+            target = new Time(date);
+            return target.lessThan(this.endBefore) && target.greaterThanOrEqual(this.startOn);
           }
           break;
         case 'date':
           target = date.getTime();
           break;
         default:
-          throw new Error('ChartTimeRange.contains() requires that the first parameter be of type ChartTime, String, or Date');
+          throw new Error('Timeline.contains() requires that the first parameter be of type Time, String, or Date');
       }
-      start = this.start.getJSDate(tz);
-      pastEnd = this.pastEnd.getJSDate(tz);
-      return target < pastEnd && target >= start;
+      startOn = this.startOn.getJSDate(tz);
+      endBefore = this.endBefore.getJSDate(tz);
+      return target < endBefore && target >= startOn;
     };
 
-    return ChartTimeRange;
+    return Timeline;
 
   })();
 
-  exports.ChartTimeRange = ChartTimeRange;
+  TimelineIterator = (function() {
+    /*
+      @class TimelineIterator
+    
+      In most cases you'll want to call getAll() on Timeline. TimelineIterator is for use cases where you want to get the
+      values in the Timeline one at a time.
+    
+      You usually get a TimelineIterator by calling getIterator() on a Timeline object.
+    
+      Iterate through days, months, years, etc. skipping weekends and holidays that you
+      specify. It will also iterate over hours, minutes, seconds, etc. and skip times that are not
+      between the specified work hours.
+    
+      ## Usage ##
+    
+          {TimelineIterator, Timeline, Time} = require('../')
+    
+          tl = new Timeline({
+            startOn:new Time({granularity: 'day', year: 2009, month:1, day: 1}),
+            endBefore:new Time({granularity: 'day', year: 2009, month:1, day: 8}),
+            workDays: 'Monday, Tuesday, Wednesday, Thursday, Friday',
+            holidays: [
+              {month: 1, day: 1},  # New Years day was a Thursday in 2009
+              {year: 2009, month: 1, day: 2}  # Also got Friday off in 2009
+            ]
+          })
+    
+          tli = tl.getIterator()
+    
+          while (tli.hasNext())
+            console.log(tli.next().toString())
+    
+          # 2009-01-05
+          # 2009-01-06
+          # 2009-01-07
+    
+      Now, let's explore how Timelines and TimelineIterators are used together.
+    
+          tl3 = new Timeline({
+            startOn:new Time('2011-01-06'),
+            endBefore:new Time('2011-01-11'),
+            workDayStartOn: {hour: 9, minute: 0},
+            workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes
+          })
+    
+      You can specify that the tickType be Timelines rather than Time values. On each call to `next()`, the
+      iterator will give you a new Timeline with the `startOn` value set to what you would have gotten had you
+      requested that the tickType be Times. The `endBefore' of the returned Timeline will be set to the next value.
+      This is how you drill-down from one granularity into a lower granularity.
+    
+      By default, the granularity of the iterator will equal the `startOn`/`endBefore` of the original Timeline.
+      However, you can provide a different granularity (`hour` in the example below) for the iterator if you want
+      to drill-down at a lower granularity.
+    
+          tli3 = tl3.getIterator('Timeline', undefined, 'hour')
+    
+          while tli3.hasNext()
+            subTimeline = tli3.next()
+            console.log("Sub Timeline goes from #{subTimeline.startOn.toString()} to #{subTimeline.endBefore.toString()}")
+            subIterator = subTimeline.getIterator('Time')
+            while subIterator.hasNext()
+              console.log('    Hour: ' + subIterator.next().hour)
+    
+          # Sub Timeline goes from 2011-01-06T00 to 2011-01-07T00
+          #     Hour: 9
+          #     Hour: 10
+          # Sub Timeline goes from 2011-01-07T00 to 2011-01-10T00
+          #     Hour: 9
+          #     Hour: 10
+          # Sub Timeline goes from 2011-01-10T00 to 2011-01-11T00
+          #     Hour: 9
+          #     Hour: 10
+    
+      There is a lot going on here, so let's poke at it a bit. First, notice how the second sub-Timeline goes from the 7th to the
+      10th. That's because there was a weekend in there. We didn't get hours for the Saturday and Sunday.
+    
+      The above approach (`tl3`/`tli3`) is useful for some forms of hand generated analysis, but if you are using Time with
+      Lumenize, it's overkill because Lumenize is smart enough to do rollups based upon the segments that are returned from the
+      lowest granularity Time. So you can just iterate over the lower granularity and Lumenize will automatically manage
+      the drill up/down to day/month/year levels automatically.
+    
+          tl4 = new Timeline({
+            startOn:'2011-01-06T00',  # Notice how we include the hour now
+            endBefore:'2011-01-11T00',
+            workDayStartOn: {hour: 9, minute: 0},
+            workDayEndBefore: {hour: 11, minute: 0}  # Very short work day for demo purposes
+          })
+    
+          tli4 = tl4.getIterator('ISOString', 'GMT')
+    
+          while tli4.hasNext()
+            console.log(tli4.next())
+    
+          # 2011-01-06T09:00:00.000Z
+          # 2011-01-06T10:00:00.000Z
+          # 2011-01-07T09:00:00.000Z
+          # 2011-01-07T10:00:00.000Z
+          # 2011-01-10T09:00:00.000Z
+          # 2011-01-10T10:00:00.000Z
+    
+      `tl4`/`tli4` covers the same ground as `tl3`/`tli3` but without the explicit nesting.
+    */
 
-  exports.ChartTimeIterator = ChartTimeIterator;
+    var StopIteration, _contains;
+
+    function TimelineIterator(timeline, tickType, tz, childGranularity) {
+      var _ref, _ref1;
+      this.tickType = tickType != null ? tickType : 'Time';
+      this.childGranularity = childGranularity;
+      /*
+          @constructor
+          @param {Timeline} timeline A Timeline object
+          @param {String} [tickType] An optional String that specifies the type for the returned ticks. Possible values are 'Time' (default),
+             'Timeline', 'Date' (javascript Date Object), and 'ISOString'.
+          @param {String} [childGranularity=granularity of timeline] When tickType is 'Timeline', this is the granularity for the startOn and endBefore of the
+             Timeline that is returned.
+          @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
+             required if `tickType` is 'Date' or 'ISOString'.
+      */
+
+      utils.assert((_ref = this.tickType) === 'Time' || _ref === 'Timeline' || _ref === 'Date' || _ref === 'ISOString', "tickType must be 'Time', 'Timeline', 'Date', or 'ISOString'. You provided " + this.tickType + ".");
+      utils.assert(this.tickType !== 'Date' || (tz != null), 'Must provide a tz (timezone) parameter when tickType is Date.');
+      utils.assert(this.tickType !== 'ISOString' || (tz != null), 'Must provide a tz (timezone) parameter when returning ISOStrings.');
+      if ((_ref1 = this.tz) == null) {
+        this.tz = tz;
+      }
+      if (timeline instanceof Timeline) {
+        this.timeline = timeline;
+      } else {
+        this.timeline = new Timeline(timeline);
+      }
+      if (this.childGranularity == null) {
+        this.childGranularity = timeline.granularity;
+      }
+      this.reset();
+    }
+
+    StopIteration = typeof StopIteration === 'undefined' ? utils.StopIteration : StopIteration;
+
+    TimelineIterator.prototype.reset = function() {
+      /*
+          @method reset
+      
+          Will go back to the where the iterator started.
+      */
+      if (this.timeline.step > 0) {
+        this.current = new Time(this.timeline.startOn);
+      } else {
+        this.current = new Time(this.timeline.endBefore);
+        this.current.decrement();
+      }
+      this.count = 0;
+      return this._proceedToNextValid();
+    };
+
+    _contains = function(t, startOn, endBefore) {
+      return t.lessThan(endBefore) && t.greaterThanOrEqual(startOn);
+    };
+
+    TimelineIterator.prototype.hasNext = function() {
+      /*
+          @method hasNext
+          @return {Boolean} Returns true if there are still things left to iterator over. Note that if there are holidays,
+             weekends or non-workhours to skip, then hasNext() will take that into account.
+      */
+      return _contains(this.current, this.timeline.startOn, this.timeline.endBefore) && (this.count < this.timeline.limit);
+    };
+
+    TimelineIterator.prototype._shouldBeExcluded = function() {
+      var currentInDay, currentMinutes, holiday, _i, _len, _ref, _ref1, _ref2;
+      if (this.current._isGranularityCoarserThanDay()) {
+        return false;
+      }
+      currentInDay = this.current.inGranularity('day');
+      if (_ref = this.current.dowString(), __indexOf.call(this.timeline.workDays, _ref) < 0) {
+        return true;
+      }
+      _ref1 = this.timeline.holidays;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        holiday = _ref1[_i];
+        if (utils.match(holiday, currentInDay)) {
+          return true;
+        }
+      }
+      if ((_ref2 = this.timeline.granularity) === 'hour' || _ref2 === 'minute' || _ref2 === ' second' || _ref2 === 'millisecond') {
+        currentMinutes = this.current.hour * 60;
+        if (this.current.minute != null) {
+          currentMinutes += this.current.minute;
+        }
+        if (this.timeline.startOnWorkMinutes <= this.timeline.endBeforeWorkMinutes) {
+          if ((currentMinutes < this.timeline.startOnWorkMinutes) || (currentMinutes >= this.timeline.endBeforeWorkMinutes)) {
+            return true;
+          }
+        } else {
+          if ((this.timeline.startOnWorkMinutes >= currentMinutes && currentMinutes > this.timeline.endBeforeWorkMinutes)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    TimelineIterator.prototype._proceedToNextValid = function() {
+      var _results;
+      _results = [];
+      while (this.hasNext() && this._shouldBeExcluded()) {
+        if (this.timeline.step > 0) {
+          _results.push(this.current.increment());
+        } else {
+          _results.push(this.current.decrement());
+        }
+      }
+      return _results;
+    };
+
+    TimelineIterator.prototype.next = function() {
+      /*
+          @method next
+          @return {Time/Timeline/Date/String} Returns the next value of the iterator. The start will be the first value returned unless it should
+             be skipped due to holiday, weekend, or workhour knockouts.
+      */
+
+      var childtimeline, config, currentCopy, i, _i, _ref;
+      if (!this.hasNext()) {
+        throw new StopIteration('Cannot call next() past end.');
+      }
+      currentCopy = new Time(this.current);
+      this.count++;
+      for (i = _i = _ref = Math.abs(this.timeline.step); _ref <= 1 ? _i <= 1 : _i >= 1; i = _ref <= 1 ? ++_i : --_i) {
+        if (this.timeline.step > 0) {
+          this.current.increment();
+        } else {
+          this.current.decrement();
+        }
+        this._proceedToNextValid();
+      }
+      switch (this.tickType) {
+        case 'Time':
+          return currentCopy;
+        case 'Date':
+          return currentCopy.getJSDate(this.tz);
+        case 'ISOString':
+          return currentCopy.getISOStringInTZ(this.tz);
+        case 'Timeline':
+          config = {
+            startOn: currentCopy.inGranularity(this.childGranularity),
+            endBefore: this.current.inGranularity(this.childGranularity),
+            workDays: this.timeline.workDays,
+            holidays: this.timeline.holidays,
+            workDayStartOn: this.timeline.workDayStartOn,
+            workDayEndBefore: this.timeline.workDayEndBefore
+          };
+          childtimeline = new Timeline(config);
+          return childtimeline;
+        default:
+          throw new Error("You asked for tickType " + this.tickType + ". Only 'Time', 'Date', 'ISOString', and 'Timeline' are allowed.");
+      }
+    };
+
+    return TimelineIterator;
+
+  })();
+
+  exports.Timeline = Timeline;
+
+  exports.TimelineIterator = TimelineIterator;
 
 }).call(this);
 
 });
 
-require.define("/src/ChartTimeInStateCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var ChartTimeInStateCalculator, utils;
+require.define("/src/iCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var iCalculator;
 
-  utils = require('./utils');
-
-  ChartTimeInStateCalculator = (function() {
+  iCalculator = (function() {
     /*
-      @class ChartTimeInStateCalculator
+      @class iCalculator
     
-      Used to calculate how much time each uniqueID spent "in-state". You use this by querying a temporal data
-      model (like Rally's Lookback API) with a predicate indicating the "state" of interest. You'll then have a list of
-      snapshots where that predicate was true. You pass this in to the timeInState method of this previously instantiated
-      ChartTimeInStateCalculator class to identify how many "ticks" of the timeline specified by the iterator you used
-      to instantiate this class.
-      
-      Usage:
-      
-          charttime = require('../')
-          {ChartTimeRange, ChartTime, ChartTimeIterator, ChartTimeInStateCalculator} = charttime
-    
-          snapshots = [ 
-            { id: 1, from: '2011-01-06T15:10:00.000Z', to: '2011-01-06T15:30:00.000Z' }, # 20 minutes all within an hour
-            { id: 2, from: '2011-01-06T15:50:00.000Z', to: '2011-01-06T16:10:00.000Z' }, # 20 minutes spanning an hour
-            { id: 3, from: '2011-01-07T13:00:00.000Z', to: '2011-01-07T15:20:00.000Z' }, # start 2 hours before but overlap by 20 minutes of start
-            { id: 4, from: '2011-01-06T16:40:00.000Z', to: '2011-01-06T19:00:00.000Z' }, # 20 minutes before end of day
-            { id: 5, from: '2011-01-06T16:50:00.000Z', to: '2011-01-07T15:10:00.000Z' }, # 10 minutes before end of one day and 10 before the start of next
-            { id: 6, from: '2011-01-06T16:55:00.000Z', to: '2011-01-07T15:05:00.000Z' }, # multiple cycles over several days for a total of 20 minutes of work time
-            { id: 6, from: '2011-01-07T16:55:00.000Z', to: '2011-01-10T15:05:00.000Z' }, 
-            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '2011-01-20T19:00:00.000Z' }  # false beyond scope of iterator
-          ]
-          
-          granularity = 'minute'
-          timezone = 'America/Chicago'
-          
-          rangeSpec = 
-            granularity: granularity
-            start: new ChartTime(snapshots[0].from, granularity, timezone).decrement()
-            pastEnd: '2011-01-11T00:00:00.000'
-            startWorkTime: {hour: 9, minute: 0}  # 15:00 in Chicago
-            pastEndWorkTime: {hour: 11, minute: 0}  # 17:00 in Chicago.
-          
-          r1 = new ChartTimeRange(rangeSpec)
-          i1 = r1.getIterator('ChartTime')
-          isc1 = i1.getChartTimeInStateCalculator(timezone)
-          timeInState = isc1.timeInState(snapshots, 'from', 'to', 'id')
-          console.log(timeInState)
-    
-          # [ { ticks: 20,
-          #     finalState: false,
-          #     finalEventAt: '2011-01-06T15:30:00.000Z',
-          #     finalTickAt: '2011-01-06T15:29:00.000Z',
-          #     id: '1' },
-          #   { ticks: 20,
-          #     finalState: false,
-          #     finalEventAt: '2011-01-06T16:10:00.000Z',
-          #     finalTickAt: '2011-01-06T16:09:00.000Z',
-          #     id: '2' },
-          #   { ticks: 20,
-          #     finalState: false,
-          #     finalEventAt: '2011-01-07T15:20:00.000Z',
-          #     finalTickAt: '2011-01-07T15:19:00.000Z',
-          #     id: '3' },
-          #   { ticks: 20,
-          #     finalState: false,
-          #     finalEventAt: '2011-01-06T19:00:00.000Z',
-          #     finalTickAt: '2011-01-06T16:59:00.000Z',
-          #     id: '4' },
-          #   { ticks: 20,
-          #     finalState: false,
-          #     finalEventAt: '2011-01-07T15:10:00.000Z',
-          #     finalTickAt: '2011-01-07T15:09:00.000Z',
-          #     id: '5' },
-          #   { ticks: 20,
-          #     finalState: false,
-          #     finalEventAt: '2011-01-10T15:05:00.000Z',
-          #     finalTickAt: '2011-01-10T15:04:00.000Z',
-          #     id: '6' } ]
-    
-          
-      The default supresses the ones that are still open at the end, but we can override that
-      
-          snapshots = [snapshots[7]]
-          console.log(isc1.timeInState(snapshots, 'from', 'to', 'id', false))
-          
-          # [ { ticks: 260,
-          #     finalState: true,
-          #     finalEventAt: '2011-01-06T16:40:00.000Z',
-          #     finalTickAt: '2011-01-10T16:59:00.000Z',
-          #     id: '7' } ]
-          
-          
-      We can adjust the granularity
-    
-          rangeSpec.granularity = 'hour'
-          isc2 = new ChartTimeRange(rangeSpec).getIterator().getChartTimeInStateCalculator(timezone)
-          timeInState = isc2.timeInState(snapshots, 'from', 'to', 'id', false)
-          console.log(timeInState)
-          
-          # [ { ticks: 4,
-          #     finalState: true,
-          #     finalEventAt: '2011-01-06T16:40:00.000Z',
-          #     finalTickAt: '2011-01-10T16:00:00.000Z',
-          #     id: '7' } ]
+      This serves as documentation for the interface expected of all Lumenize Calculators. You can extend from it but it's
+      not technically necessary. You are more likely to copy this as the starting point for a new calculator.
     */
 
-    function ChartTimeInStateCalculator(iterator, tz) {
-      var allCTs, allCTsLength, ct, ctPlus1, idx, previousState, _i, _len;
-      this.iterator = iterator;
+    function iCalculator(config) {
+      this.config = config;
       /*
           @constructor
-          @param {ChartTimeIterator} iterator You must pass in a ChartTimeIterator in the correct granularity and wide enough to cover any snapshots that you will analyze with this ChartTimeInStateCalculator
-          @param {String} tz The timezone for analysis
+          @param {Object} config
+            The config properties are up to you.
       */
 
-      this.granularity = this.iterator.ctr.granularity;
-      if (tz != null) {
-        this.tz = tz;
-      } else {
-        this.tz = this.iterator.tz;
-      }
-      utils.assert(this.tz != null, 'Must specify a timezone `tz` if none specified by the iterator.');
-      this.iterator.emit = 'ChartTime';
-      utils.assert(this.tz, 'Must provide a timezone to the ChartTimeIterator used for in-state calculation');
-      allCTs = this.iterator.getAll();
-      if (this.iterator.skip < 0) {
-        allCTs.reverse();
-      }
-      this.ticks = [];
-      previousState = false;
-      allCTsLength = allCTs.length;
-      for (idx = _i = 0, _len = allCTs.length; _i < _len; idx = ++_i) {
-        ct = allCTs[idx];
-        ctPlus1 = ct.add(1);
-        if (previousState) {
-          previousState = true;
-          this.ticks.push({
-            at: ct.getShiftedISOString(this.tz),
-            state: true
-          });
-          if (idx + 1 === allCTsLength) {
-            previousState = false;
-            this.ticks.push({
-              at: ctPlus1.getShiftedISOString(this.tz),
-              state: false
-            });
-          } else {
-            if (!ctPlus1.$eq(allCTs[idx + 1])) {
-              previousState = false;
-              this.ticks.push({
-                at: ctPlus1.getShiftedISOString(this.tz),
-                state: false
-              });
-            }
-          }
-        } else {
-          this.ticks.push({
-            at: ct.getShiftedISOString(this.tz),
-            state: true
-          });
-          previousState = true;
-        }
-      }
+      throw new Error('iCalculator is an interface not a base class. You must override this constructor.');
     }
 
-    ChartTimeInStateCalculator.prototype.timeInState = function(snapshotArray, validFromField, validToField, uniqueIDField, excludeStillInState) {
-      var currentSnapshotEvent, currentTick, currentTickState, d, eventRow, finalOutput, lastTickAt, output, outputRow, row, s, snapshotEvents, snapshotIndex, snapshotLength, tickIndex, tickLength, toDelete, uniqueID, _i, _j, _len, _len1;
-      if (excludeStillInState == null) {
-        excludeStillInState = true;
-      }
+    iCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore) {
       /*
-          @method timeInState
-          @param {Object[]} snapshotArray
-          @param {String} validFromField What field in the snapshotArray indicates when the snapshot starts (inclusive)?
-          @param {String} validToField What field in the snapshotArray indicates when the snapshot ends (exclusive)?
-          @param {String} uniqueIDField What field in the snapshotArray holds the uniqueID
-          @param {Boolean} [excludeStillInState] If false, even ids that are still active on the last tick are included
-      
-          @return {Object[]} An entry for each uniqueID.
-      
-          The fields in each row in the returned Array include:
-      
-          * ticks: The number of ticks of the iterator that intersect with the snapshots
-          * finalState: true if the last snapshot for this uniqueID had not yet ended by the moment of the last tick
-          * finalEventAt: the validFrom value for the final event
-          * finalTickAt: the last tick that intersected with this uniqueID
-          * |uniqueIDField|: The uniqueID value
-      
-          Assumptions about the snapshotArray that's passed in:
-          
-          * The snapshotArray includes all snapshots where the logical state you want
-            to measure the "time in" is true. So, send the predicate you want to be true as part of the query to the snapshot service.
-          * The `validFromField` and `validToField` in the `snapshotArray` contain strings in ISO-8601 canonical
-            Zulu format (eg `'2011-01-01T12:34:56.789Z'`).
+          @method addSnapshots
+            Allows you to incrementally add snapshots to this calculator.
+          @chainable
+          @param {Object[]} snapshots An array of temporal data model snapshots.
+          @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+            interest. On the second through nth call, this should equal the previous endBefore.
+          @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+            period of interest.
+          @return {iCalculator}
       */
-
-      utils.assert(snapshotArray[0][validFromField] >= this.ticks[0].at, "The iterator used must go back at least as far as the first entry in the snapshotArray.\nFirst entry:\n  " + snapshotArray[0][validFromField] + "\nIterator start:\n  " + this.ticks[0].at);
-      lastTickAt = this.ticks[this.ticks.length - 1].at;
-      snapshotEvents = [];
-      for (_i = 0, _len = snapshotArray.length; _i < _len; _i++) {
-        s = snapshotArray[_i];
-        eventRow = {
-          at: s[validFromField],
-          state: true
-        };
-        eventRow[uniqueIDField] = s[uniqueIDField];
-        eventRow.type = 1;
-        snapshotEvents.push(eventRow);
-        if (s[validToField] < lastTickAt) {
-          eventRow = {
-            at: s[validToField],
-            state: false
-          };
-          eventRow[uniqueIDField] = s[uniqueIDField];
-          eventRow.type = 0;
-          snapshotEvents.push(eventRow);
-        }
+      throw new Error('iCalculator is an interface not a base class. You must override this addSnapshots method.');
+      if (this.upToDateISOString != null) {
+        utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
       }
-      snapshotEvents.sort(function(a, b) {
-        if (a.at > b.at) {
-          return 1;
-        } else if (a.at === b.at) {
-          if (a.type > b.type) {
-            return 1;
-          } else if (a.type === b.type) {
-            return 0;
-          } else {
-            return -1;
-          }
-        } else {
-          return -1;
-        }
-      });
-      output = {};
-      tickLength = this.ticks.length;
-      tickIndex = 0;
-      currentTick = this.ticks[tickIndex];
-      snapshotLength = snapshotEvents.length;
-      snapshotIndex = 0;
-      currentSnapshotEvent = snapshotEvents[snapshotIndex];
-      while (currentTick.at < currentSnapshotEvent.at) {
-        tickIndex++;
-        currentTick = this.ticks[tickIndex];
-      }
-      tickIndex--;
-      currentTick = this.ticks[tickIndex];
-      currentTickState = currentTick.state;
-      while (snapshotIndex < snapshotLength && tickIndex < tickLength) {
-        if (currentTick.at < currentSnapshotEvent.at) {
-          if (currentTickState) {
-            for (uniqueID in output) {
-              outputRow = output[uniqueID];
-              if (outputRow.finalState) {
-                outputRow.ticks++;
-                outputRow.finalTickAt = currentTick.at;
-              }
-            }
-          }
-          tickIndex++;
-          if (tickIndex < tickLength) {
-            currentTick = this.ticks[tickIndex];
-            currentTickState = currentTick.state;
-          }
-        } else {
-          if (output[currentSnapshotEvent[uniqueIDField]] == null) {
-            output[currentSnapshotEvent[uniqueIDField]] = {
-              ticks: 0
-            };
-          }
-          output[currentSnapshotEvent[uniqueIDField]].finalState = currentSnapshotEvent.state;
-          output[currentSnapshotEvent[uniqueIDField]].finalEventAt = currentSnapshotEvent.at;
-          snapshotIndex++;
-          currentSnapshotEvent = snapshotEvents[snapshotIndex];
-        }
-      }
-      if (excludeStillInState) {
-        toDelete = [];
-        for (uniqueID in output) {
-          outputRow = output[uniqueID];
-          if (outputRow.finalState) {
-            toDelete.push(uniqueID);
-          }
-        }
-        for (_j = 0, _len1 = toDelete.length; _j < _len1; _j++) {
-          d = toDelete[_j];
-          delete output[d];
-        }
-      } else {
-        while (tickIndex < tickLength) {
-          if (currentTickState) {
-            for (uniqueID in output) {
-              outputRow = output[uniqueID];
-              if (outputRow.finalState) {
-                outputRow.ticks++;
-                outputRow.finalTickAt = currentTick.at;
-              }
-            }
-          }
-          tickIndex++;
-          if (tickIndex < tickLength) {
-            currentTick = this.ticks[tickIndex];
-            currentTickState = currentTick.state;
-          }
-        }
-      }
-      finalOutput = [];
-      for (uniqueID in output) {
-        row = output[uniqueID];
-        row[uniqueIDField] = uniqueID;
-        finalOutput.push(row);
-      }
-      return finalOutput;
+      this.upToDateISOString = endBefore;
+      return this;
     };
 
-    return ChartTimeInStateCalculator;
+    iCalculator.prototype.getResults = function() {
+      /*
+          @method getResults
+            Returns the current state of the calculator
+          @return {Object} The type and format of what it returns is up to you.
+      */
+      throw new Error('iCalculator is an interface not a base class. You must override this getResults method.');
+    };
+
+    iCalculator.prototype.getStateForSaving = function(meta) {
+      /*
+          @method getStateForSaving
+            Enables saving the state of this calculator. See TimeInStateCalculator for a detailed example.
+          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+            within the deserialized calculator.
+          @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+            to an object store or LocalCache. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+            the calculator.
+      */
+
+      var out;
+      throw new Error('iCalculator is an interface not a base class. You must override this getStateForSaving method.');
+      out = {};
+      out.upToDateISOString = this.upToDateISOString;
+      if (meta != null) {
+        out.meta = meta;
+      }
+      return out;
+    };
+
+    iCalculator.newFromSavedState = function(p) {
+      /*
+          @method newFromSavedState
+            Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
+          @static
+          @param {String/Object} p A String or Object from a previously saved calculator state
+          @return {iCalculator}
+      */
+      throw new Error('iCalculator is an interface not a base class. You must override this @newFromSavedState method.');
+      if (utils.type(p) === 'string') {
+        p = JSON.parse(p);
+      }
+      if (p.meta != null) {
+        calculator.meta = p.meta;
+      }
+      calculator.upToDateISOString = p.upToDateISOString;
+      return calculator;
+    };
+
+    return iCalculator;
 
   })();
 
-  exports.ChartTimeInStateCalculator = ChartTimeInStateCalculator;
+  exports.iCalculator = iCalculator;
+
+}).call(this);
+
+});
+
+require.define("/src/TimeInStateCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var OLAPCube, Time, TimeInStateCalculator, Timeline, utils, _ref;
+
+  OLAPCube = require('./OLAPCube').OLAPCube;
+
+  _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time, Timeline = _ref.Timeline;
+
+  TimeInStateCalculator = (function() {
+    /*
+      @class TimeInStateCalculator
+    
+      Used to calculate how much time each uniqueID spent "in-state". You use this by querying a temporal data
+      model (like Rally's Lookback API) with a predicate indicating the "state" of interest. You'll then have a list of
+      snapshots where that predicate was true. You pass this in to the addSnapshots method of this previously instantiated
+      TimeInStateCalculator class.
+      
+      Usage:
+      
+          {TimeInStateCalculator} = require('../')
+    
+          snapshots = [ 
+            { id: 1, from: '2011-01-06T15:10:00.000Z', to: '2011-01-06T15:30:00.000Z', Name: 'Item A' }, # 20 minutes all within an hour
+            { id: 2, from: '2011-01-06T15:50:00.000Z', to: '2011-01-06T16:10:00.000Z', Name: 'Item B' }, # 20 minutes spanning an hour
+            { id: 3, from: '2011-01-07T13:00:00.000Z', to: '2011-01-07T15:20:00.000Z', Name: 'Item C' }, # start 2 hours before but overlap by 20 minutes of start
+            { id: 4, from: '2011-01-06T16:40:00.000Z', to: '2011-01-06T19:00:00.000Z', Name: 'Item D' }, # 20 minutes before end of day
+            { id: 5, from: '2011-01-06T16:50:00.000Z', to: '2011-01-07T15:10:00.000Z', Name: 'Item E' }, # 10 minutes before end of one day and 10 before the start of next
+            { id: 6, from: '2011-01-06T16:55:00.000Z', to: '2011-01-07T15:05:00.000Z', Name: 'Item F' }, # multiple cycles over several days for a total of 20 minutes of work time
+            { id: 6, from: '2011-01-07T16:55:00.000Z', to: '2011-01-10T15:05:00.000Z', Name: 'Item F modified' },
+            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: 'Item G' }  # continues past the range of consideration in this test
+          ]
+          
+          granularity = 'minute'
+          tz = 'America/Chicago'
+    
+          config =  # default work days and holidays
+            granularity: granularity
+            tz: tz
+            endBefore: '2011-01-11T00:00:00.000'
+            workDayStartOn: {hour: 9, minute: 0}  # 09:00 in Chicago is 15:00 in GMT
+            workDayEndBefore: {hour: 11, minute: 0}  # 11:00 in Chicago is 17:00 in GMT  # !TODO: Change this to 5pm when I change the samples above
+            validFromField: 'from'
+            validToField: 'to'
+            uniqueIDField: 'id'
+            trackLastValueForTheseFields: ['to', 'Name']
+    
+          startOn = '2011-01-05T00:00:00.000Z'
+          endBefore = '2011-01-11T00:00:00.000Z'
+    
+          tisc = new TimeInStateCalculator(config)
+          tisc.addSnapshots(snapshots, startOn, endBefore)
+    
+          console.log(tisc.getResults())
+          # [ { id: 1,
+          #     ticks: 20,
+          #     to_lastValue: '2011-01-06T15:30:00.000Z',
+          #     Name_lastValue: 'Item A' },
+          #   { id: 2,
+          #     ticks: 20,
+          #     to_lastValue: '2011-01-06T16:10:00.000Z',
+          #     Name_lastValue: 'Item B' },
+          #   { id: 3,
+          #     ticks: 20,
+          #     to_lastValue: '2011-01-07T15:20:00.000Z',
+          #     Name_lastValue: 'Item C' },
+          #   { id: 4,
+          #     ticks: 20,
+          #     to_lastValue: '2011-01-06T19:00:00.000Z',
+          #     Name_lastValue: 'Item D' },
+          #   { id: 5,
+          #     ticks: 20,
+          #     to_lastValue: '2011-01-07T15:10:00.000Z',
+          #     Name_lastValue: 'Item E' },
+          #   { id: 6,
+          #     ticks: 20,
+          #     to_lastValue: '2011-01-10T15:05:00.000Z',
+          #     Name_lastValue: 'Item F modified' },
+          #   { id: 7,
+          #     ticks: 260,
+          #     to_lastValue: '9999-01-01T00:00:00.000Z',
+          #     Name_lastValue: 'Item G' } ]
+    
+      But we are not done yet. We can serialize the state of this calculator and later restore it.
+    
+          savedState = tisc.getStateForSaving({somekey: 'some value'})
+    
+      Let's incrementally update the original.
+    
+          snapshots = [
+            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: 'Item G modified' },  # same snapshot as before still going
+            { id: 3, from: '2011-01-11T15:00:00.000Z', to: '2011-01-11T15:20:00.000Z', Name: 'Item C modified' },  # 20 more minutes for id 3
+            { id: 8, from: '2011-01-11T15:00:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: 'Item H' }   # 20 minutes in scope for new id 8
+          ]
+    
+          startOn = '2011-01-11T00:00:00.000Z'  # must match endBefore of prior call
+          endBefore = '2011-01-11T15:20:00.000Z'
+    
+          tisc.addSnapshots(snapshots, startOn, endBefore)
+    
+      Now, let's restore from saved state into tisc2 and give it the same updates and confirm that they match.
+    
+          tisc2 = TimeInStateCalculator.newFromSavedState(savedState)
+          tisc2.addSnapshots(snapshots, startOn, endBefore)
+    
+          console.log(tisc2.meta.somekey)
+          # some value
+    
+          console.log(JSON.stringify(tisc.getResults()) == JSON.stringify(tisc2.getResults()))
+          # true
+    */
+
+    function TimeInStateCalculator(config) {
+      /*
+          @constructor
+          @param {Object} config
+          @cfg {String} tz The timezone for analysis
+          @cfg {String} [validFromField = "_ValidFrom"]
+          @cfg {String} [validToField = "_ValidTo"]
+          @cfg {String} [uniqueIDField = "ObjectID"]
+          @cfg {String} granularity This calculator will tell you how many ticks fall within the snapshots you feed in.
+            This configuration value indicates the granularity of the ticks (i.e. Time.MINUTE, Time.HOUR, Time.DAY, etc.)
+          @cfg {String[]/String} [workDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']] List of days of the week that you work on. You can specify this as an Array of Strings
+            (['Monday', 'Tuesday', ...]) or a single comma seperated String ("Monday,Tuesday,...").
+          @cfg {Object[]} [holidays] An optional Array containing rows that are either ISOStrings or JavaScript Objects
+            (mix and match). Example: `[{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, "2012-12-24"]`
+             Notice how you can leave off the year if the holiday falls on the same day every year.
+          @cfg {Object} [workDayStartOn] An optional object in the form {hour: 8, minute: 15}. If minute is zero it can be omitted.
+            If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
+            hours span midnight. If tickGranularity is "hour" or finer, you probably want to set this; if tickGranularity is
+            "day" or coarser, probably not.
+          @cfg {Object} [workDayEndBefore] An optional object in the form {hour: 17, minute: 0}. If minute is zero it can be omitted.
+            The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
+            Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
+            than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
+            the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
+          @cfg {String[]} [trackLastValueForTheseFields] If provided, the last value of these fields will appear in the results.
+             This is useful if you want to filter the result by where the ended or if you want information to fill in the tooltip
+             for a chart.
+      */
+
+      var cubeConfig, dimensions, fieldName, metricObject, metrics, _i, _len, _ref1;
+      this.config = utils.clone(config);
+      if (this.config.validFromField == null) {
+        this.config.validFromField = "_ValidFrom";
+      }
+      if (this.config.validToField == null) {
+        this.config.validToField = "_ValidTo";
+      }
+      if (this.config.uniqueIDField == null) {
+        this.config.uniqueIDField = "ObjectID";
+      }
+      utils.assert(this.config.tz != null, "Must provide a timezone to this calculator.");
+      utils.assert(this.config.granularity != null, "Must provide a granularity to this calculator.");
+      dimensions = [
+        {
+          field: this.config.uniqueIDField
+        }
+      ];
+      metrics = [
+        {
+          field: 'ticks',
+          as: 'ticks',
+          f: 'sum'
+        }
+      ];
+      if (this.config.trackLastValueForTheseFields != null) {
+        _ref1 = this.config.trackLastValueForTheseFields;
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          fieldName = _ref1[_i];
+          metricObject = {
+            f: 'lastValue',
+            field: fieldName
+          };
+          metrics.push(metricObject);
+        }
+      }
+      cubeConfig = {
+        dimensions: dimensions,
+        metrics: metrics
+      };
+      this.cube = new OLAPCube(cubeConfig);
+      this.upToDateISOString = null;
+    }
+
+    TimeInStateCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore) {
+      /*
+          @method addSnapshots
+            Allows you to incrementally add snapshots to this calculator.
+          @chainable
+          @param {Object[]} snapshots An array of temporal data model snapshots.
+          @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+            interest. On the second through nth call, this should equal the previous endBefore.
+          @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+            period of interest.
+          @return {TimeInStateCalculator}
+      */
+
+      var s, ticks, timeline, timelineConfig, _i, _len;
+      if (this.upToDateISOString != null) {
+        utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
+      }
+      this.upToDateISOString = endBefore;
+      timelineConfig = utils.clone(this.config);
+      timelineConfig.startOn = new Time(startOn, Time.MILLISECOND, this.config.tz);
+      timelineConfig.endBefore = new Time(endBefore, Time.MILLISECOND, this.config.tz);
+      timeline = new Timeline(timelineConfig);
+      for (_i = 0, _len = snapshots.length; _i < _len; _i++) {
+        s = snapshots[_i];
+        ticks = timeline.ticksThatIntersect(s[this.config.validFromField], s[this.config.validToField], this.config.tz);
+        s.ticks = ticks.length;
+      }
+      this.cube.addFacts(snapshots);
+      return this;
+    };
+
+    TimeInStateCalculator.prototype.getResults = function() {
+      /*
+          @method getResults
+            Returns the current state of the calculator
+          @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
+      */
+
+      var cell, fieldName, filter, id, out, outRow, uniqueIDs, _i, _j, _len, _len1, _ref1;
+      out = [];
+      uniqueIDs = this.cube.getDimensionValues(this.config.uniqueIDField);
+      for (_i = 0, _len = uniqueIDs.length; _i < _len; _i++) {
+        id = uniqueIDs[_i];
+        filter = {};
+        filter[this.config.uniqueIDField] = id;
+        cell = this.cube.getCell(filter);
+        outRow = {};
+        outRow[this.config.uniqueIDField] = id;
+        outRow.ticks = cell.ticks;
+        if (this.config.trackLastValueForTheseFields != null) {
+          _ref1 = this.config.trackLastValueForTheseFields;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            fieldName = _ref1[_j];
+            outRow[fieldName + '_lastValue'] = cell[fieldName + '_lastValue'];
+          }
+        }
+        out.push(outRow);
+      }
+      return out;
+    };
+
+    TimeInStateCalculator.prototype.getStateForSaving = function(meta) {
+      /*
+          @method getStateForSaving
+            Enables saving the state of this calculator. See class documentation for a detailed example.
+          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+            within the deserialized calculator.
+          @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+            to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+            the calculator.
+      */
+
+      var out;
+      out = {
+        config: this.config,
+        cubeSavedState: this.cube.getStateForSaving(),
+        upToDateISOString: this.upToDateISOString
+      };
+      if (meta != null) {
+        out.meta = meta;
+      }
+      return out;
+    };
+
+    TimeInStateCalculator.newFromSavedState = function(p) {
+      /*
+          @method newFromSavedState
+            Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
+          @static
+          @param {String/Object} p A String or Object from a previously saved state
+          @return {TimeInStateCalculator}
+      */
+
+      var calculator;
+      if (utils.type(p) === 'string') {
+        p = JSON.parse(p);
+      }
+      calculator = new TimeInStateCalculator(p.config);
+      calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState);
+      calculator.upToDateISOString = p.upToDateISOString;
+      if (p.meta != null) {
+        calculator.meta = p.meta;
+      }
+      return calculator;
+    };
+
+    return TimeInStateCalculator;
+
+  })();
+
+  exports.TimeInStateCalculator = TimeInStateCalculator;
+
+}).call(this);
+
+});
+
+require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var OLAPCube, arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, functions, utils, _ref;
+
+  utils = require('tztime').utils;
+
+  functions = require('./functions').functions;
+
+  _ref = require('./dataTransform'), arrayOfMaps_To_CSVStyleArray = _ref.arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps = _ref.csvStyleArray_To_ArrayOfMaps;
+
+  OLAPCube = (function() {
+    /*
+      @class OLAPCube
+    
+      __An efficient, in-memory, incrementally-updateable, hierarchy-capable OLAP Cube implementation.__
+    
+      [OLAP Cubes](http://en.wikipedia.org/wiki/OLAP_cube) are a powerful abstraction that makes it easier to do everything
+      from simple group-by operations to more complex multi-dimensional and hierarchical analysis. This implementation has
+      the same conceptual ancestry as implementations found in business intelligence and OLAP database solutions. However,
+      it is meant as a light weight alternative primarily targeting the goal of making it easier for developers to implement
+      desired analysis. It also supports serialization and incremental updating so it's ideally
+      suited for visualizations and analysis that are updated on a periodic or even continuous basis.
+    
+      ## Features ##
+    
+      * In-memory
+      * Incrementally-updateable
+      * Serialize (`getStateForSaving()`) and deserialize (`newFromSavedState()`) to preserve aggregations between sessions
+      * Accepts simple JavaScript Objects as facts
+      * Storage and output as simple JavaScript Arrays of Objects
+      * Hierarchy (trees) derived from fact data assuming [materialized path](http://en.wikipedia.org/wiki/Materialized_path)
+        array model commonly used with NoSQL databases
+    
+      ## 2D Example ##
+    
+      Let's walk through a simple 2D example from facts to output. Let's say you have this set of facts:
+    
+          facts = [
+            {ProjectHierarchy: [1, 2, 3], Priority: 1, Points: 10},
+            {ProjectHierarchy: [1, 2, 4], Priority: 2, Points: 5 },
+            {ProjectHierarchy: [5]      , Priority: 1, Points: 17},
+            {ProjectHierarchy: [1, 2]   , Priority: 1, Points: 3 },
+          ]
+    
+      The ProjectHierarchy field models its hierarchy (tree) as an array containing a
+      [materialized path](http://en.wikipedia.org/wiki/Materialized_path). The first fact is "in" Project 3 whose parent is
+      Project 2, whose parent is Project 1. The second fact is "in" Project 4 whose parent is Project 2 which still has
+      Project 1 as its parent. Project 5 is another root Project like Project 1; and the fourth fact is "in" Project 2.
+      So the first fact will roll-up the tree and be aggregated against [1], and [1, 2] as well as [1, 2, 3]. Root Project 1
+      will get the data from all but the third fact which will get aggregated against root Project 5.
+    
+      We specify the ProjectHierarchy field as a dimension of type 'hierarchy' and the Priorty field as a simple value dimension.
+    
+          dimensions = [
+            {field: "ProjectHierarchy", type: 'hierarchy'},
+            {field: "Priority"}
+          ]
+    
+      This will create a 2D "cube" where each unique value for ProjectHierarchy and Priority defines a different cell.
+      Note, this happens to be a 2D "cube" (more commonly referred to as a [pivot table](http://en.wikipedia.org/wiki/Pivot_Table)),
+      but you can also have a 1D cube (a simple group-by), a 3D cube, or even an n-dimensional hypercube where n is greater than 3.
+    
+      You can specify any number of metrics to be calculated for each cell in the cube.
+    
+          metrics = [
+            {field: "Points", f: "sum", as: "Scope"}
+          ]
+    
+      You can use any of the aggregation functions found in Lumenize.functions except `count`. The count metric is
+      automatically tracked for each cell. The `as` specification is optional unless you provide a custom function. If missing,
+      it will build the name of the resulting metric from the field name and the function. So without the `as: "Scope"` the
+      second metric in the example above would have been named "Points_sum".
+    
+      You can also use custom functions in the form of `f(values) -> return <some function of values>`.
+    
+      Next, we build the config parameter from our dimension and metrics specifications.
+    
+          config = {dimensions, metrics}
+    
+      Hierarchy dimensions automatically roll up but you can also tell it to keep all totals by setting config.keepTotals to
+      true. The totals are then kept in the cells where one or more of the dimension values are set to `null`. Note, you
+      can also set keepTotals for individual dimension and should probably use that if you have more than a few dimensions
+      but we're going to set it globally here:
+    
+          config.keepTotals = true
+    
+      Now, let's create the cube.
+    
+          {OLAPCube} = require('../')
+          cube = new OLAPCube(config, facts)
+    
+      `getCell()` allows you to extract a single cell. The "total" cell for all facts where Priority = 1 can be found as follows:
+    
+          console.log(cube.getCell({Priority: 1}))
+          # { ProjectHierarchy: null, Priority: 1, _count: 3, Scope: 30 }
+    
+      Notice how the ProjectHierarchy field value is `null`. This is because it is a total cell for Priority dimension
+      for all ProjectHierarchy values. Think of `null` values in this context as wildcards.
+    
+      Similarly, we can get the total for all descendants of ProjectHierarchy = [1] regarless of Priority as follows:
+    
+          console.log(cube.getCell({ProjectHierarchy: [1]}))
+          # { ProjectHierarchy: [ 1 ], Priority: null, _count: 3, Scope: 18 }
+    
+      `getCell()` uses the cellIndex so it's very efficient. Using `getCell()` and `getDimensionValues()`, you can iterate
+      over a slice of the OLAPCube. It is usually preferable to access the cells in place like this rather than the
+      traditional OLAP approach of extracting a slice for processing.
+    
+          rowValues = cube.getDimensionValues('ProjectHierarchy')
+          columnValues = cube.getDimensionValues('Priority')
+          s = OLAPCube._padToWidth('', 7) + ' | '
+          s += ((OLAPCube._padToWidth(JSON.stringify(c), 7) for c in columnValues).join(' | '))
+          s += ' | '
+          console.log(s)
+          for r in rowValues
+            s = OLAPCube._padToWidth(JSON.stringify(r), 7) + ' | '
+            for c in columnValues
+              cell = cube.getCell({ProjectHierarchy: r, Priority: c})
+              if cell?
+                cellString = JSON.stringify(cell._count)
+              else
+                cellString = ''
+              s += OLAPCube._padToWidth(cellString, 7) + ' | '
+            console.log(s)
+          #         |    null |       1 |       2 |
+          #    null |       4 |       3 |       1 |
+          #     [1] |       3 |       2 |       1 |
+          #   [1,2] |       3 |       2 |       1 |
+          # [1,2,3] |       1 |       1 |         |
+          # [1,2,4] |       1 |         |       1 |
+          #     [5] |       1 |       1 |         |
+    
+      Or you can just call `toString()` method which extracts a 2D slice for tabular display. Both approachs will work on
+      cubes of any number of dimensions two or greater. The manual example above extracted the `count` metric. We'll tell
+      the example below to extract the `Scope` metric.
+    
+          console.log(cube.toString('ProjectHierarchy', 'Priority', 'Scope'))
+          # |        || Total |     1     2|
+          # |==============================|
+          # |Total   ||    35 |    30     5|
+          # |------------------------------|
+          # |[1]     ||    18 |    13     5|
+          # |[1,2]   ||    18 |    13     5|
+          # |[1,2,3] ||    10 |    10      |
+          # |[1,2,4] ||     5 |           5|
+          # |[5]     ||    17 |    17      |
+    
+      ## Dimension types ##
+    
+      The following dimension types are supported:
+    
+      1. Single value
+         * Number
+         * String
+         * Boolean
+         * Date
+         * Object... sorta. Technically, this works but the sort order is not obvious.
+      2. Arrays as materialized path for hierarchical (tree) data
+      3. Non-hierarchical Arrays ("tags")
+    
+      There is no need to tell the OLAPCube what type to use with the exception of #2. In that case, add `type: 'hierarchy'`
+      to the dimensions row like this:
+    
+          dimensions = [
+            {field: 'hierarchicalDimensionField', type: 'hierarchy'} #, ...
+          ]
+    
+      ## Hierarchical (tree) data ##
+    
+      This OLAP Cube implementation assumes your hierarchies (trees) are modeled as a
+      [materialized path](http://en.wikipedia.org/wiki/Materialized_path) array. This approach is commonly used with NoSQL databases like
+      [CouchDB](http://probablyprogramming.com/2008/07/04/storing-hierarchical-data-in-couchdb) and
+      [MongoDB (combining materialized path and array of ancestors)](http://docs.mongodb.org/manual/tutorial/model-tree-structures/)
+      and even SQL databases supporting array types like [Postgres](http://justcramer.com/2012/04/08/using-arrays-as-materialized-paths-in-postgres/).
+    
+      This approach differs from the traditional OLAP/MDX fixed/named level hierarchy approach. In that approach, you assume
+      that the number of levels in the hierarchy are fixed. Also, each level in the hierarchy is either represented by a different
+      column (clothing example --> level 0: SEX column - mens vs womens; level 1: TYPE column - pants vs shorts vs shirts; etc.) or
+      predetermined ranges of values in a single field (date example --> level 0: year; level 1: quarter; level 2: month; etc.)
+    
+      However, the approach used by this OLAPCube implementaion is the more general case, because it can easily simulate
+      fixed/named level hierachies whereas the reverse is not true. In the clothing example above, you would simply key
+      your dimension off of a derived field that was a combination of the SEX and TYPE columns (e.g. ['mens', 'pants'])
+    
+      ## Date/Time hierarchies ##
+    
+      Lumenize is designed to work well with the tzTime library. Here is an example of taking a bunch of ISOString data
+      and doing timezone precise hierarchical roll up based upon the date segments (year, month).
+    
+          data = [
+            {date: '2011-12-31T12:34:56.789Z', value: 10},
+            {date: '2012-01-05T12:34:56.789Z', value: 20},
+            {date: '2012-01-15T12:34:56.789Z', value: 30},
+            {date: '2012-02-01T00:00:01.000Z', value: 40},
+            {date: '2012-02-15T12:34:56.789Z', value: 50},
+          ]
+    
+          {Time} = require('../')
+    
+          config =
+            deriveFieldsOnInput: [{
+              field: 'dateSegments',
+              f: (row) ->
+                return new Time(row.date, Time.MONTH, 'America/New_York').getSegmentsAsArray()
+            }]
+            metrics: [{field: 'value', f: 'sum'}]
+            dimensions: [{field: 'dateSegments', type: 'hierarchy'}]
+    
+          cube = new OLAPCube(config, data)
+          console.log(cube.toString(undefined, undefined, 'value_sum'))
+          #    dateSegments                  value_sum
+          #            2011                         10
+          #         2011,12                         10
+          #            2012                        140
+          #          2012,1                         90
+          #          2012,2                         50
+    
+      Notice how '2012-02-01T00:00:01.000Z' got bucketed in January because the calculation was done in timezone
+      'America/New_York'.
+    
+      ## Non-hierarchical Array fields ##
+    
+      If you don't specify type: 'hierarchy' and the OLAPCube sees a field whose value is an Array in a dimension field, the
+      data in that fact would get aggregated against each element in the Array. So a non-hierarchical Array field like
+      ['x', 'y', 'z'] would get aggregated against 'x', 'y', and 'z' rather than ['x'], ['x', 'y'], and ['x','y','z]. This
+      functionality is useful for  accomplishing analytics on tags, but it can be used in other powerful ways. For instance
+      let's say you have a list of events:
+    
+          events = [
+            {name: 'Renaissance Festival', activeMonths: ['September', 'October']},
+            {name: 'Concert Series', activeMonths: ['July', 'August', 'September']},
+            {name: 'Fall Festival', activeMonths: ['September']}
+          ]
+    
+      You could figure out the number of events active in each month by specifying "activeMonths" as a dimension.
+      Lumenize.TimeInStateCalculator (and other calculators in Lumenize) use this technique.
+    */
+
+    function OLAPCube(userConfig, facts) {
+      var d, _i, _j, _len, _len1, _ref1, _ref2;
+      this.userConfig = userConfig;
+      /*
+          @constructor
+          @param {Object} config See Config options for details. DO NOT change the config settings after the OLAP class is instantiated.
+          @param {Object[]} [facts] Optional parameter allowing the population of the OLAPCube with an intitial set of facts
+            upon instantiation. Use addFacts() to add facts after instantiation.
+          @cfg {Object[]} dimensions (required) Array which specifies the fields to use as dimension fields. If the field contains a
+            hierarchy array, say so in the row, (e.g. `{field: 'SomeFieldName', type: 'hierarchy'}`). Any array values that it
+            finds in the supplied facts will be assumed to be tags rather than a hierarchy specification unless `type: 'hierarchy'`
+            is specified.
+      
+            For example, let's say you have a set of facts that look like this:
+      
+              fact = {
+                dimensionField: 'a',
+                hierarchicalDimensionField: ['1','2','3'],
+                tagDimensionField: ['x', 'y', 'z'],
+                valueField: 10
+              }
+      
+            Then a set of dimensions like this makes sense.
+      
+              config.dimensions = [
+                {field: 'dimensionField'},
+                {field: 'hierarchicalDimensionField', type: 'hierarchy'},
+                {field: 'tagDimensionField', keepTotals: true}
+              ]
+      
+            Notice how a keepTotals can be set for an individual dimension. This is preferable to setting it for the entire
+            cube in cases where you don't want totals in all dimensions.
+      
+          @cfg {Object[]} [metrics=[]] (required) Array which specifies the metrics to calculate for each cell in the cube.
+      
+            Example:
+      
+              config = {}
+              config.metrics = [
+                {field: 'field3'},                                      # defaults to metrics: ['sum']
+                {field: 'field4', metrics: [
+                  {f: 'sum'},                                           # will add a metric named field4_sum
+                  {as: 'median4', f: 'p50'},                            # renamed p50 to median4 from default of field4_p50
+                  {as: 'myCount', f: (values) -> return values.length}  # user-supplied function
+                ]}
+              ]
+      
+            If you specify a field without any metrics, it will assume you want the sum but it will not automatically
+            add the sum metric to fields with a metrics specification. User-supplied aggregation functions are also supported as
+            shown in the 'myCount' metric above.
+      
+            Note, if the metric has dependencies (e.g. average depends upon count and sum) it will automatically add those to
+            your metric definition. If you've already added a dependency but put it under a different "as", it's not smart
+            enough to sense that and it will add it again. Either live with the slight inefficiency and duplication or leave
+            dependency metrics named their default by not providing an "as" field.
+      
+          @cfg {Boolean} [keepTotals=false] Setting this will add an additional total row (indicated with field: null) along
+            all dimensions. This setting can have an impact on the memory usage and performance of the OLAPCube so
+            if things are tight, only use it if you really need it. If you don't need it for all dimension, you can specify
+            keepTotals for individual dimensions.
+          @cfg {Boolean} [keepFacts=false] Setting this will cause the OLAPCube to keep track of the facts that contributed to
+            the metrics for each cell by adding an automatic 'facts' metric. Note, facts are restored after deserialization
+            as you would expect, but they are no longer tied to the original facts. This feature, especially after a restore
+            can eat up memory.
+          @cfg {Object[]} deriveFieldsOnInput An Array of Maps in the form `{field:'myField', f:(fact)->...}`
+          @cfg {Object[]} deriveFieldsOnOutput same format as deriveFieldsOnInput, except the callback is in the form `f(row)`
+            This is only called for dirty rows that were effected by the latest round of addFacts. It's more efficient to calculate things
+            like standard deviation and percentile coverage here than in config.metrics. You just have to remember to include the dependencies
+            in config.metrics. Standard deviation depends upon `sum` and `sumSquares`. Percentile coverage depends upon `values`.
+            In fact, if you are going to capture values anyway, all of the functions are most efficiently calculated here.
+            Maybe some day, I'll write the code to analyze your metrics and move them out to here if it improves efficiency.
+      */
+
+      this.config = utils.clone(this.userConfig);
+      utils.assert(this.config.dimensions != null, 'Must provide config.dimensions.');
+      if (this.config.metrics == null) {
+        this.config.metrics = [];
+      }
+      this.cells = [];
+      this.cellIndex = {};
+      this.currentValues = {};
+      this._dimensionValues = {};
+      _ref1 = this.config.dimensions;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        d = _ref1[_i];
+        this._dimensionValues[d.field] = {};
+      }
+      if (!this.config.keepTotals) {
+        this.config.keepTotals = false;
+      }
+      if (!this.config.keepFacts) {
+        this.config.keepFacts = false;
+      }
+      _ref2 = this.config.dimensions;
+      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+        d = _ref2[_j];
+        if (this.config.keepTotals || d.keepTotals) {
+          d.keepTotals = true;
+        } else {
+          d.keepTotals = false;
+        }
+      }
+      functions.expandMetrics(this.config.metrics, true, true);
+      this.summaryMetrics = {};
+      this.addFacts(facts);
+    }
+
+    OLAPCube._possibilities = function(key, type, keepTotals) {
+      var a, len;
+      switch (utils.type(key)) {
+        case 'array':
+          if (keepTotals) {
+            a = [null];
+          } else {
+            a = [];
+          }
+          if (type === 'hierarchy') {
+            len = key.length;
+            while (len > 0) {
+              a.push(key.slice(0, len));
+              len--;
+            }
+          } else {
+            if (keepTotals) {
+              a = [null].concat(key);
+            } else {
+              a = key;
+            }
+          }
+          return a;
+        case 'string':
+        case 'number':
+          if (keepTotals) {
+            return [null, key];
+          } else {
+            return [key];
+          }
+      }
+    };
+
+    OLAPCube._decrement = function(a, rollover) {
+      var i;
+      i = a.length - 1;
+      a[i]--;
+      while (a[i] < 0) {
+        a[i] = rollover[i];
+        i--;
+        if (i < 0) {
+          return false;
+        } else {
+          a[i]--;
+        }
+      }
+      return true;
+    };
+
+    OLAPCube.prototype._expandFact = function(fact) {
+      var countdownArray, d, index, m, more, out, outRow, p, possibilitiesArray, rolloverArray, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref1, _ref2, _ref3, _ref4;
+      possibilitiesArray = [];
+      countdownArray = [];
+      rolloverArray = [];
+      _ref1 = this.config.dimensions;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        d = _ref1[_i];
+        p = OLAPCube._possibilities(fact[d.field], d.type, d.keepTotals);
+        possibilitiesArray.push(p);
+        countdownArray.push(p.length - 1);
+        rolloverArray.push(p.length - 1);
+      }
+      _ref2 = this.config.metrics;
+      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+        m = _ref2[_j];
+        this.currentValues[m.field] = [fact[m.field]];
+      }
+      out = [];
+      more = true;
+      while (more) {
+        outRow = {};
+        _ref3 = this.config.dimensions;
+        for (index = _k = 0, _len2 = _ref3.length; _k < _len2; index = ++_k) {
+          d = _ref3[index];
+          outRow[d.field] = possibilitiesArray[index][countdownArray[index]];
+        }
+        outRow._count = 1;
+        if (this.config.keepFacts) {
+          outRow._facts = [fact];
+        }
+        _ref4 = this.config.metrics;
+        for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
+          m = _ref4[_l];
+          outRow[m.as] = m.f([fact[m.field]], void 0, void 0, outRow, m.field + '_');
+        }
+        out.push(outRow);
+        more = OLAPCube._decrement(countdownArray, rolloverArray);
+      }
+      return out;
+    };
+
+    OLAPCube._extractFilter = function(row, dimensions) {
+      var d, out, _i, _len;
+      out = {};
+      for (_i = 0, _len = dimensions.length; _i < _len; _i++) {
+        d = dimensions[_i];
+        out[d.field] = row[d.field];
+      }
+      return out;
+    };
+
+    OLAPCube.prototype._mergeExpandedFactArray = function(expandedFactArray) {
+      var d, er, fieldValue, filterString, m, olapRow, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _results;
+      _results = [];
+      for (_i = 0, _len = expandedFactArray.length; _i < _len; _i++) {
+        er = expandedFactArray[_i];
+        _ref1 = this.config.dimensions;
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          d = _ref1[_j];
+          fieldValue = er[d.field];
+          this._dimensionValues[d.field][JSON.stringify(fieldValue)] = fieldValue;
+        }
+        filterString = JSON.stringify(OLAPCube._extractFilter(er, this.config.dimensions));
+        olapRow = this.cellIndex[filterString];
+        if (olapRow != null) {
+          _ref2 = this.config.metrics;
+          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+            m = _ref2[_k];
+            olapRow[m.as] = m.f(olapRow[m.field + '_values'], olapRow[m.as], this.currentValues[m.field], olapRow, m.field + '_');
+          }
+        } else {
+          olapRow = er;
+          this.cellIndex[filterString] = olapRow;
+          this.cells.push(olapRow);
+        }
+        _results.push(this.dirtyRows[filterString] = olapRow);
+      }
+      return _results;
+    };
+
+    OLAPCube.prototype.addFacts = function(facts) {
+      /*
+          @method addFacts
+            Adds facts to the OLAPCube.
+      
+          @chainable
+          @param {Object[]} facts An Array of facts to be aggregated into OLAPCube. Each fact is a Map where the keys are the field names
+            and the values are the field values (e.g. `{field1: 'a', field2: 5}`).
+      */
+
+      var d, dirtyRow, expandedFactArray, fact, fieldName, filterString, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref1, _ref2, _ref3;
+      this.dirtyRows = {};
+      if (utils.type(facts) === 'array') {
+        if (facts.length <= 0) {
+          return;
+        }
+      } else {
+        if (facts != null) {
+          facts = [facts];
+        } else {
+          return;
+        }
+      }
+      if (this.config.deriveFieldsOnInput) {
+        for (_i = 0, _len = facts.length; _i < _len; _i++) {
+          fact = facts[_i];
+          _ref1 = this.config.deriveFieldsOnInput;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            d = _ref1[_j];
+            if (d.as != null) {
+              fieldName = d.as;
+            } else {
+              fieldName = d.field;
+            }
+            fact[fieldName] = d.f(fact);
+          }
+        }
+      }
+      for (_k = 0, _len2 = facts.length; _k < _len2; _k++) {
+        fact = facts[_k];
+        this.currentValues = {};
+        expandedFactArray = this._expandFact(fact);
+        this._mergeExpandedFactArray(expandedFactArray);
+      }
+      if (this.config.deriveFieldsOnOutput != null) {
+        _ref2 = this.dirtyRows;
+        for (filterString in _ref2) {
+          dirtyRow = _ref2[filterString];
+          _ref3 = this.config.deriveFieldsOnOutput;
+          for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
+            d = _ref3[_l];
+            if (d.as != null) {
+              fieldName = d.as;
+            } else {
+              fieldName = d.field;
+            }
+            dirtyRow[fieldName] = d.f(dirtyRow);
+          }
+        }
+      }
+      this.dirtyRows = {};
+      return this;
+    };
+
+    OLAPCube.prototype.getCells = function(filterObject) {
+      /*
+          @method getCells
+            Returns a subset of the cells that match the supplied filter. You can perform slice and dice operations using
+            this. If you have criteria for all of the dimensions, you are better off using `getCell()`. Most times, it's
+            better to iterate over the unique values for the dimensions of interest using `getCell()` in place of slice or
+            dice operations.
+          @param {Object} [filterObject] Specifies the constraints that the returned cells must match in the form of
+            `{field1: value1, field2: value2}`. If this parameter is missing, the internal cells array is returned.
+          @return {Object[]} Returns the cells that match the supplied filter
+      */
+
+      var c, output, _i, _len, _ref1;
+      if (filterObject == null) {
+        return this.cells;
+      }
+      output = [];
+      _ref1 = this.cells;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        c = _ref1[_i];
+        if (utils.filterMatch(filterObject, c)) {
+          output.push(c);
+        }
+      }
+      return output;
+    };
+
+    OLAPCube.prototype.getCell = function(filter, defaultValue) {
+      /*
+          @method getCell
+            Returns the single cell matching the supplied filter. Iterating over the unique values for the dimensions of
+            interest, you can incrementally retrieve a slice or dice using this method. Since `getCell()` always uses an index,
+            in most cases, this is better than using `getCells()` to prefetch a slice or dice.
+          @param {Object} [filter={}] Specifies the constraints for the returned cell in the form of `{field1: value1, field2: value2}.
+            Any fields that are specified in config.dimensions that are missing from the filter are automatically filled in
+            with null. Calling `getCell()` with no parameter or `{}` will return the total of all dimensions (if @config.keepTotals=true).
+          @return {Object[]} Returns the cell that match the supplied filter
+      */
+
+      var cell, d, foundIt, key, normalizedFilter, value, _i, _j, _len, _len1, _ref1, _ref2;
+      if (filter == null) {
+        filter = {};
+      }
+      for (key in filter) {
+        value = filter[key];
+        foundIt = false;
+        _ref1 = this.config.dimensions;
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          d = _ref1[_i];
+          if (d.field === key) {
+            foundIt = true;
+          }
+        }
+        if (!foundIt) {
+          throw new Error("" + key + " is not a dimension for this cube.");
+        }
+      }
+      normalizedFilter = {};
+      _ref2 = this.config.dimensions;
+      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+        d = _ref2[_j];
+        if (filter.hasOwnProperty(d.field)) {
+          normalizedFilter[d.field] = filter[d.field];
+        } else {
+          if (d.keepTotals) {
+            normalizedFilter[d.field] = null;
+          } else {
+            throw new Error('Must set keepTotals to use getCell with a partial filter.');
+          }
+        }
+      }
+      cell = this.cellIndex[JSON.stringify(normalizedFilter)];
+      if (cell != null) {
+        return cell;
+      } else {
+        return defaultValue;
+      }
+    };
+
+    OLAPCube.prototype.getDimensionValues = function(field, descending) {
+      var values;
+      if (descending == null) {
+        descending = false;
+      }
+      /*
+          @method getDimensionValues
+            Returns the unique values for the specified dimension in sort order.
+          @param {String} field The field whose values you want
+          @param {Boolean} [descending=false] Set to true if you want them in reverse order
+      */
+
+      values = utils.values(this._dimensionValues[field]);
+      values.sort(OLAPCube._compare);
+      if (!descending) {
+        values.reverse();
+      }
+      return values;
+    };
+
+    OLAPCube._compare = function(a, b) {
+      var aString, bString, index, value, _i, _len;
+      if (a === null) {
+        return 1;
+      }
+      if (b === null) {
+        return -1;
+      }
+      switch (utils.type(a)) {
+        case 'number':
+        case 'boolean':
+        case 'date':
+          return b - a;
+        case 'array':
+          for (index = _i = 0, _len = a.length; _i < _len; index = ++_i) {
+            value = a[index];
+            if (value < b[index]) {
+              return 1;
+            }
+            if (value > b[index]) {
+              return -1;
+            }
+          }
+          if (a.length < b.length) {
+            return 1;
+          } else if (a.length > b.length) {
+            return -1;
+          } else {
+            return 0;
+          }
+          break;
+        case 'object':
+        case 'string':
+          aString = JSON.stringify(a);
+          bString = JSON.stringify(b);
+          if (aString < bString) {
+            return 1;
+          } else if (aString > bString) {
+            return -1;
+          } else {
+            return 0;
+          }
+          break;
+        default:
+          throw new Error("Do not know how to sort objects of type " + (utils.type(o1)) + ".");
+      }
+    };
+
+    OLAPCube.prototype.toString = function(rows, columns, metric) {
+      /*
+          @method toString
+            Produces a printable table with the first dimension as the rows, the second dimension as the columns, and the count
+            as the values in the table.
+          @param {String} [rows=<first dimension>]
+          @param {String} [columns=<second dimension>]
+          @param {String} [metric='count']
+      */
+
+      var c, cell, cellString, columnValueStrings, columnValues, field, filter, fullWidth, index, indexColumn, indexRow, maxColumnWidth, r, rowLabelWidth, rowValueStrings, rowValues, s, valueStrings, valueStringsRow, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref1;
+      if (metric == null) {
+        metric = '_count';
+      }
+      if (this.config.dimensions.length === 1) {
+        field = this.config.dimensions[0].field;
+        s = OLAPCube._padToWidth(field, 15) + OLAPCube._padToWidth(metric, 27);
+        _ref1 = this.getDimensionValues(field);
+        for (index = _i = 0, _len = _ref1.length; _i < _len; index = ++_i) {
+          r = _ref1[index];
+          filter = {};
+          filter[field] = r;
+          cell = this.getCell(filter);
+          if (cell != null) {
+            cellString = JSON.stringify(cell[metric]);
+          } else {
+            cellString = '';
+          }
+          s += '\n' + OLAPCube._padToWidth(r.toString(), 15) + OLAPCube._padToWidth(cellString, 27);
+        }
+      } else {
+        if (rows == null) {
+          rows = this.config.dimensions[0].field;
+        }
+        if (columns == null) {
+          columns = this.config.dimensions[1].field;
+        }
+        rowValues = this.getDimensionValues(rows);
+        columnValues = this.getDimensionValues(columns);
+        rowValueStrings = (function() {
+          var _j, _len1, _results;
+          _results = [];
+          for (_j = 0, _len1 = rowValues.length; _j < _len1; _j++) {
+            r = rowValues[_j];
+            _results.push(JSON.stringify(r));
+          }
+          return _results;
+        })();
+        columnValueStrings = (function() {
+          var _j, _len1, _results;
+          _results = [];
+          for (_j = 0, _len1 = columnValues.length; _j < _len1; _j++) {
+            c = columnValues[_j];
+            _results.push(JSON.stringify(c));
+          }
+          return _results;
+        })();
+        rowLabelWidth = Math.max.apply({}, (function() {
+          var _j, _len1, _results;
+          _results = [];
+          for (_j = 0, _len1 = rowValueStrings.length; _j < _len1; _j++) {
+            s = rowValueStrings[_j];
+            _results.push(s.length);
+          }
+          return _results;
+        })());
+        rowLabelWidth = Math.max(rowLabelWidth, 'Total'.length);
+        valueStrings = [];
+        maxColumnWidth = Math.max.apply({}, (function() {
+          var _j, _len1, _results;
+          _results = [];
+          for (_j = 0, _len1 = columnValueStrings.length; _j < _len1; _j++) {
+            s = columnValueStrings[_j];
+            _results.push(s.length);
+          }
+          return _results;
+        })());
+        maxColumnWidth = Math.max(maxColumnWidth, 'Total'.length);
+        for (indexRow = _j = 0, _len1 = rowValues.length; _j < _len1; indexRow = ++_j) {
+          r = rowValues[indexRow];
+          valueStringsRow = [];
+          for (indexColumn = _k = 0, _len2 = columnValues.length; _k < _len2; indexColumn = ++_k) {
+            c = columnValues[indexColumn];
+            filter = {};
+            filter[rows] = r;
+            filter[columns] = c;
+            cell = this.getCell(filter);
+            if (cell != null) {
+              cellString = JSON.stringify(cell[metric]);
+            } else {
+              cellString = '';
+            }
+            maxColumnWidth = Math.max(maxColumnWidth, cellString.length);
+            valueStringsRow.push(cellString);
+          }
+          valueStrings.push(valueStringsRow);
+        }
+        maxColumnWidth += 1;
+        s = '|' + (OLAPCube._padToWidth('', rowLabelWidth)) + ' ||';
+        for (indexColumn = _l = 0, _len3 = columnValueStrings.length; _l < _len3; indexColumn = ++_l) {
+          c = columnValueStrings[indexColumn];
+          if (c === 'null') {
+            s += OLAPCube._padToWidth('Total', maxColumnWidth) + ' |';
+          } else {
+            s += OLAPCube._padToWidth(c, maxColumnWidth);
+          }
+        }
+        fullWidth = rowLabelWidth + maxColumnWidth * columnValueStrings.length + 3;
+        if (columnValueStrings[0] === 'null') {
+          fullWidth += 2;
+        }
+        s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '=');
+        for (indexRow = _m = 0, _len4 = rowValueStrings.length; _m < _len4; indexRow = ++_m) {
+          r = rowValueStrings[indexRow];
+          s += '|\n|';
+          if (r === 'null') {
+            s += OLAPCube._padToWidth('Total', rowLabelWidth, ' ', true);
+          } else {
+            s += OLAPCube._padToWidth(r, rowLabelWidth, ' ', true);
+          }
+          s += ' ||';
+          for (indexColumn = _n = 0, _len5 = columnValueStrings.length; _n < _len5; indexColumn = ++_n) {
+            c = columnValueStrings[indexColumn];
+            s += OLAPCube._padToWidth(valueStrings[indexRow][indexColumn], maxColumnWidth);
+            if (c === 'null') {
+              s += ' |';
+            }
+          }
+          if (r === 'null') {
+            s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '-');
+          }
+        }
+        s += '|';
+      }
+      return s;
+    };
+
+    OLAPCube._padToWidth = function(s, width, padCharacter, rightPad) {
+      var padding;
+      if (padCharacter == null) {
+        padCharacter = ' ';
+      }
+      if (rightPad == null) {
+        rightPad = false;
+      }
+      padding = new Array(width - s.length + 1).join(padCharacter);
+      if (rightPad) {
+        return s + padding;
+      } else {
+        return padding + s;
+      }
+    };
+
+    OLAPCube.prototype.getStateForSaving = function(meta) {
+      /*
+          @method getStateForSaving
+            Enables saving the state of an OLAPCube.
+          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+            within the deserialized OLAPCube
+          @return {Object} Returns an Ojbect representing the state of the OLAPCube. This Object is suitable for saving to
+            to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute the OLAPCube.
+      
+              facts = [
+                {ProjectHierarchy: [1, 2, 3], Priority: 1},
+                {ProjectHierarchy: [1, 2, 4], Priority: 2},
+                {ProjectHierarchy: [5]      , Priority: 1},
+                {ProjectHierarchy: [1, 2]   , Priority: 1},
+              ]
+      
+              dimensions = [
+                {field: "ProjectHierarchy", type: 'hierarchy'},
+                {field: "Priority"}
+              ]
+      
+              config = {dimensions, metrics: []}
+              config.keepTotals = true
+      
+              originalCube = new OLAPCube(config, facts)
+      
+              dateString = '2012-12-27T12:34:56.789Z'
+              savedState = originalCube.getStateForSaving({upToDate: dateString})
+              restoredCube = OLAPCube.newFromSavedState(savedState)
+      
+              newFacts = [
+                {ProjectHierarchy: [5], Priority: 3},
+                {ProjectHierarchy: [1, 2, 4], Priority: 1}
+              ]
+              originalCube.addFacts(newFacts)
+              restoredCube.addFacts(newFacts)
+      
+              console.log(restoredCube.toString() == originalCube.toString())
+              # true
+      
+              console.log(restoredCube.meta.upToDate)
+              # 2012-12-27T12:34:56.789Z
+      */
+
+      var out;
+      out = {
+        config: this.userConfig,
+        cells: this.cells,
+        summaryMetrics: this.summaryMetrics
+      };
+      if (meta != null) {
+        out.meta = meta;
+      }
+      return out;
+    };
+
+    OLAPCube.newFromSavedState = function(p) {
+      /*
+          @method newFromSavedState
+            Deserializes a previously stringified OLAPCube and returns a new OLAPCube.
+      
+            See `getStateForSaving()` documentation for a detailed example.
+      
+            Note, if you have specified config.keepFacts = true, the values for the facts will be restored, however, they
+            will no longer be references to the original facts. For this reason, it's usually better to include a `values` or
+            `uniqueValues` metric on some ID field if you want fact drill-down support to survive a save and restore.
+          @static
+          @param {String/Object} p A String or Object from a previously saved OLAPCube state
+          @return {OLAPCube}
+      */
+
+      var c, cube, d, fieldValue, filterString, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _ref3;
+      if (utils.type(p) === 'string') {
+        p = JSON.parse(p);
+      }
+      cube = new OLAPCube(p.config);
+      cube.summaryMetrics = p.summaryMetrics;
+      if (p.meta != null) {
+        cube.meta = p.meta;
+      }
+      cube.cells = p.cells;
+      cube.cellIndex = {};
+      cube._dimensionValues = {};
+      _ref1 = cube.config.dimensions;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        d = _ref1[_i];
+        cube._dimensionValues[d.field] = {};
+      }
+      _ref2 = cube.cells;
+      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+        c = _ref2[_j];
+        filterString = JSON.stringify(OLAPCube._extractFilter(c, cube.config.dimensions));
+        cube.cellIndex[filterString] = c;
+        _ref3 = cube.config.dimensions;
+        for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+          d = _ref3[_k];
+          fieldValue = c[d.field];
+          cube._dimensionValues[d.field][JSON.stringify(fieldValue)] = fieldValue;
+        }
+      }
+      return cube;
+    };
+
+    return OLAPCube;
+
+  })();
+
+  exports.OLAPCube = OLAPCube;
+
+}).call(this);
+
+});
+
+require.define("/src/functions.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var functions, utils, _populateDependentValues;
+
+  utils = require('tztime').utils;
+
+  /*
+  @class functions
+  
+  Rules about dependencies:
+  
+    * If a function can be calculated incrementally from an oldResult and newValues, then you do not need to specify dependencies
+    * If a funciton can be calculated from other incrementally calculable results, then you need only specify those dependencies
+    * If a function needs the full list of values to be calculated (like percentile coverage), then you must specify 'values'
+    * To support the direct passing in of OLAP cube cells, you can provide a prefix (field name) so the key in dependentValues
+      can be generated
+    * 'count' is special and does not use a prefix because it is not dependent up a particular field
+    * You should calculate the dependencies before you calculate the thing that is depedent. The OLAP cube does some
+      checking to confirm you've done this.
+  */
+
+
+  functions = {};
+
+  _populateDependentValues = function(values, dependencies, dependentValues, prefix) {
+    var d, key, out, _i, _len;
+    if (dependentValues == null) {
+      dependentValues = {};
+    }
+    if (prefix == null) {
+      prefix = '';
+    }
+    out = {};
+    for (_i = 0, _len = dependencies.length; _i < _len; _i++) {
+      d = dependencies[_i];
+      if (d === 'count') {
+        if (prefix === '') {
+          key = 'count';
+        } else {
+          key = '_count';
+        }
+      } else {
+        key = prefix + d;
+      }
+      if (dependentValues[key] == null) {
+        dependentValues[key] = functions[d](values, void 0, void 0, dependentValues, prefix);
+      }
+      out[d] = dependentValues[key];
+    }
+    return out;
+  };
+
+  /*
+  @method sum
+  @static
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Number} The sum of the values
+  */
+
+
+  functions.sum = function(values, oldResult, newValues) {
+    var temp, tempValues, v, _i, _len;
+    if (oldResult != null) {
+      temp = oldResult;
+      tempValues = newValues;
+    } else {
+      temp = 0;
+      tempValues = values;
+    }
+    for (_i = 0, _len = tempValues.length; _i < _len; _i++) {
+      v = tempValues[_i];
+      temp += v;
+    }
+    return temp;
+  };
+
+  /*
+  @method sumSquares
+  @static
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Number} The sum of the squares of the values
+  */
+
+
+  functions.sumSquares = function(values, oldResult, newValues) {
+    var temp, tempValues, v, _i, _len;
+    if (oldResult != null) {
+      temp = oldResult;
+      tempValues = newValues;
+    } else {
+      temp = 0;
+      tempValues = values;
+    }
+    for (_i = 0, _len = tempValues.length; _i < _len; _i++) {
+      v = tempValues[_i];
+      temp += v * v;
+    }
+    return temp;
+  };
+
+  /*
+  @method lastValue
+  @static
+  @param {Number[]} [values] Must either provide values or newValues
+  @param {Number} [oldResult] Not used. It is included to make the interface consistent.
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Number} The last value
+  */
+
+
+  functions.lastValue = function(values, oldResult, newValues) {
+    if (newValues != null) {
+      return newValues[newValues.length - 1];
+    }
+    return values[values.length - 1];
+  };
+
+  /*
+  @method firstValue
+  @static
+  @param {Number[]} [values] Must either provide values or oldResult
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] Not used. It is included to make the interface consistent.
+  @return {Number} The first value
+  */
+
+
+  functions.firstValue = function(values, oldResult, newValues) {
+    if (oldResult != null) {
+      return oldResult;
+    }
+    return values[0];
+  };
+
+  /*
+  @method count
+  @static
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Number} The length of the values Array
+  */
+
+
+  functions.count = function(values, oldResult, newValues) {
+    if (oldResult != null) {
+      return oldResult + newValues.length;
+    }
+    return values.length;
+  };
+
+  /*
+  @method min
+  @static
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Number} The minimum value or null if no values
+  */
+
+
+  functions.min = function(values, oldResult, newValues) {
+    var temp, v, _i, _len;
+    if (oldResult != null) {
+      return functions.min(newValues.concat([oldResult]));
+    }
+    if (values.length === 0) {
+      return null;
+    }
+    temp = values[0];
+    for (_i = 0, _len = values.length; _i < _len; _i++) {
+      v = values[_i];
+      if (v < temp) {
+        temp = v;
+      }
+    }
+    return temp;
+  };
+
+  /*
+  @method max
+  @static
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Number} The maximum value or null if no values
+  */
+
+
+  functions.max = function(values, oldResult, newValues) {
+    var temp, v, _i, _len;
+    if (oldResult != null) {
+      return functions.max(newValues.concat([oldResult]));
+    }
+    if (values.length === 0) {
+      return null;
+    }
+    temp = values[0];
+    for (_i = 0, _len = values.length; _i < _len; _i++) {
+      v = values[_i];
+      if (v > temp) {
+        temp = v;
+      }
+    }
+    return temp;
+  };
+
+  /*
+  @method values
+  @static
+  @param {Object[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Array} All values (allows duplicates). Can be used for drill down.
+  */
+
+
+  functions.values = function(values, oldResult, newValues) {
+    if (oldResult != null) {
+      return oldResult.concat(newValues);
+    }
+    return values;
+  };
+
+  /*
+  @method uniqueValues
+  @static
+  @param {Object[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] for incremental calculation
+  @param {Number[]} [newValues] for incremental calculation
+  @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
+  */
+
+
+  functions.uniqueValues = function(values, oldResult, newValues) {
+    var key, r, temp, temp2, tempValues, v, value, _i, _j, _len, _len1;
+    temp = {};
+    if (oldResult != null) {
+      for (_i = 0, _len = oldResult.length; _i < _len; _i++) {
+        r = oldResult[_i];
+        temp[r] = null;
+      }
+      tempValues = newValues;
+    } else {
+      tempValues = values;
+    }
+    temp2 = [];
+    for (_j = 0, _len1 = tempValues.length; _j < _len1; _j++) {
+      v = tempValues[_j];
+      temp[v] = null;
+    }
+    for (key in temp) {
+      value = temp[key];
+      temp2.push(key);
+    }
+    return temp2;
+  };
+
+  /*
+  @method average
+  @static
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+  @param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+  @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+    you to provide those pre-calculated values.
+  @return {Number} The arithmetic mean
+  */
+
+
+  functions.average = function(values, oldResult, newValues, dependentValues, prefix) {
+    var count, sum, _ref;
+    _ref = _populateDependentValues(values, functions.average.dependencies, dependentValues, prefix), count = _ref.count, sum = _ref.sum;
+    return sum / count;
+  };
+
+  functions.average.dependencies = ['count', 'sum'];
+
+  /*
+  @method variance
+  @static
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+  @param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+  @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+    you to provide those pre-calculated values.
+  @return {Number} The variance
+  */
+
+
+  functions.variance = function(values, oldResult, newValues, dependentValues, prefix) {
+    var count, sum, sumSquares, _ref;
+    _ref = _populateDependentValues(values, functions.variance.dependencies, dependentValues, prefix), count = _ref.count, sum = _ref.sum, sumSquares = _ref.sumSquares;
+    return (count * sumSquares - sum * sum) / (count * (count - 1));
+  };
+
+  functions.variance.dependencies = ['count', 'sum', 'sumSquares'];
+
+  /*
+  @method standardDeviation
+  @static
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+  @param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+  @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+    you to provide those pre-calculated values.
+  @return {Number} The standard deviation
+  */
+
+
+  functions.standardDeviation = function(values, oldResult, newValues, dependentValues, prefix) {
+    return Math.sqrt(functions.variance(values, oldResult, newValues, dependentValues, prefix));
+  };
+
+  functions.standardDeviation.dependencies = functions.variance.dependencies;
+
+  /*
+  @method percentileCreator
+  @static
+  @param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
+  @return {Function} A funtion to calculate the percentile
+  
+  When the user passes in `p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate
+  percentile function. The returned function will find the `<n>`th percentile where `<n>` is some number in the form of
+  `##[.##]`. (e.g. `p40`, `p99`, `p99.9`).
+  
+  Note: `median` is an alias for `p50`.
+  
+  There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
+  use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
+  recommendation and makes the most sense to me.
+  */
+
+
+  functions.percentileCreator = function(p) {
+    var f;
+    f = function(values, oldResult, newValues, dependentValues, prefix) {
+      var d, k, n, sortfunc, vLength;
+      if (values == null) {
+        values = _populateDependentValues(values, ['values'], dependentValues, prefix).values;
+      }
+      sortfunc = function(a, b) {
+        return a - b;
+      };
+      vLength = values.length;
+      values.sort(sortfunc);
+      n = (p * (vLength - 1) / 100) + 1;
+      k = Math.floor(n);
+      d = n - k;
+      if (n === 1) {
+        return values[1 - 1];
+      }
+      if (n === vLength) {
+        return values[vLength - 1];
+      }
+      return values[k - 1] + d * (values[k] - values[k - 1]);
+    };
+    f.dependencies = ['values'];
+    return f;
+  };
+
+  functions.expandFandAs = function(a) {
+    /*
+      @method expandFandAs
+      @static
+      @param {Object} a Will look like this `{as: 'mySum', f: 'sum', field: 'Points'}`
+      @return {Object} returns the expanded specification
+    
+      Takes specifications for functions and expands them to include the actual function and 'as'. If you do not provide
+      an 'as' property, it will build it from the field name and function with an underscore between. Also, if the
+      'f' provided is a string, it is copied over to the 'metric' property before the 'f' property is replaced with the
+      actual function. `{field: 'a', f: 'sum'}` would expand to `{as: 'a_sum', field: 'a', metric: 'sum', f: [Function]}`.
+    */
+
+    var p;
+    utils.assert(a.f != null, "'f' missing from specification: \n" + (JSON.stringify(a, void 0, 4)));
+    if (utils.type(a.f) === 'function') {
+      utils.assert(a.as != null, 'Must provide "as" field with your aggregation when providing a user defined function');
+      a.metric = a.f.toString();
+    } else if (functions[a.f] != null) {
+      a.metric = a.f;
+      a.f = functions[a.f];
+    } else if (a.f === 'median') {
+      a.metric = 'median';
+      a.f = functions.percentileCreator(50);
+    } else if (a.f.substr(0, 1) === 'p') {
+      a.metric = a.f;
+      p = /\p(\d+(.\d+)?)/.exec(a.f)[1];
+      a.f = functions.percentileCreator(Number(p));
+    } else {
+      throw new Error("" + a.f + " is not a recognized built-in function");
+    }
+    if (a.as == null) {
+      if (a.metric === 'count') {
+        a.field = '';
+        a.metric = 'count';
+      }
+      a.as = "" + a.field + "_" + a.metric;
+      utils.assert((a.field != null) || a.f === 'count', "'field' missing from specification: \n" + (JSON.stringify(a, void 0, 4)));
+    }
+    return a;
+  };
+
+  functions.expandMetrics = function(metrics, addCountIfMissing, addValuesForCustomFunctions) {
+    var assureDependenciesAbove, confirmMetricAbove, countRow, dependencies, hasCount, index, m, metricsRow, valuesRow, _i, _j, _len, _len1;
+    if (metrics == null) {
+      metrics = [];
+    }
+    if (addCountIfMissing == null) {
+      addCountIfMissing = false;
+    }
+    if (addValuesForCustomFunctions == null) {
+      addValuesForCustomFunctions = false;
+    }
+    /*
+      @method expandMetrics
+      @static
+      @private
+    
+      This is called internally by several Lumenize Calculators. You should probably not call it.
+    */
+
+    confirmMetricAbove = function(m, fieldName, aboveThisIndex) {
+      var currentRow, i, lookingFor, metricsLength;
+      if (m === 'count') {
+        lookingFor = '_' + m;
+      } else {
+        lookingFor = fieldName + '_' + m;
+      }
+      i = 0;
+      while (i < aboveThisIndex) {
+        currentRow = metrics[i];
+        if (currentRow.as === lookingFor) {
+          return true;
+        }
+        i++;
+      }
+      i = aboveThisIndex + 1;
+      metricsLength = metrics.length;
+      while (i < metricsLength) {
+        currentRow = metrics[i];
+        if (currentRow.as === lookingFor) {
+          throw new Error("Depdencies must appear before the metric they are dependant upon. " + m + " appears after.");
+        }
+        i++;
+      }
+      return false;
+    };
+    assureDependenciesAbove = function(dependencies, fieldName, aboveThisIndex) {
+      var d, newRow, _i, _len;
+      for (_i = 0, _len = dependencies.length; _i < _len; _i++) {
+        d = dependencies[_i];
+        if (!confirmMetricAbove(d, fieldName, aboveThisIndex)) {
+          if (d === 'count') {
+            newRow = {
+              f: 'count'
+            };
+          } else {
+            newRow = {
+              f: d,
+              field: fieldName
+            };
+          }
+          functions.expandFandAs(newRow);
+          metrics.unshift(newRow);
+          return false;
+        }
+      }
+      return true;
+    };
+    if (addValuesForCustomFunctions) {
+      for (index = _i = 0, _len = metrics.length; _i < _len; index = ++_i) {
+        m = metrics[index];
+        if (utils.type(m.f) === 'function') {
+          if (m.f.dependencies == null) {
+            m.f.dependencies = [];
+          }
+          if (m.f.dependencies[0] !== 'values') {
+            m.f.dependencies.push('values');
+          }
+          if (!confirmMetricAbove('values', m.field, index)) {
+            valuesRow = {
+              f: 'values',
+              field: m.field
+            };
+            functions.expandFandAs(valuesRow);
+            metrics.unshift(valuesRow);
+          }
+        }
+      }
+    }
+    hasCount = false;
+    for (_j = 0, _len1 = metrics.length; _j < _len1; _j++) {
+      m = metrics[_j];
+      functions.expandFandAs(m);
+      if (m.metric === 'count') {
+        hasCount = true;
+      }
+    }
+    if (addCountIfMissing && !hasCount) {
+      countRow = {
+        f: 'count'
+      };
+      functions.expandFandAs(countRow);
+      metrics.unshift(countRow);
+    }
+    index = 0;
+    while (index < metrics.length) {
+      metricsRow = metrics[index];
+      if (utils.type(metricsRow.f) === 'function') {
+        dependencies = ['values'];
+      }
+      if (metricsRow.f.dependencies != null) {
+        if (!assureDependenciesAbove(metricsRow.f.dependencies, metricsRow.field, index)) {
+          index = -1;
+        }
+      }
+      index++;
+    }
+    return metrics;
+  };
+
+  exports.functions = functions;
 
 }).call(this);
 
 });
 
 require.define("/src/dataTransform.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var ChartTime, aggregationAtArray_To_HighChartsSeries, csvStyleArray_To_ArrayOfMaps, groupByAtArray_To_HighChartsSeries, snapshotArray_To_AtArray, utils;
+  var Time, arrayOfMaps_To_CSVStyleArray, arrayOfMaps_To_HighChartsSeries, csvString_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, utils, _ref;
 
-  ChartTime = require('./ChartTime').ChartTime;
-
-  utils = require('./utils');
+  _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time;
 
   csvStyleArray_To_ArrayOfMaps = function(csvStyleArray, rowKeys) {
     /*
@@ -8039,266 +11043,88 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     return arrayOfMaps;
   };
 
-  snapshotArray_To_AtArray = function(snapshotArray, listOfAtCTs, validFromField, uniqueIDField, tz, validToField) {
+  arrayOfMaps_To_CSVStyleArray = function(arrayOfMaps, keys) {
     /*
-      @method snapshotArray_To_AtArray
-      @param {Object[]} snapshotArray Array of snapshots
-      @param {Array[]} atArray Array of ChartTime objects representing the moments we want the snapshots at
-      @param {String} validFromField Specifies the field that holds a date string in ISO-8601 canonical format (eg `2011-01-01T12:34:56.789Z`)
-      @param {String} validToField Same except for the end of the snapshot's active time.
-        Defaults to '_ValidTo' for backward compatibility reasons.
-      @param {String} uniqueIDField Specifies the field that holds the unique ID. Note, no matter the input type, they will come
-         out the other side as Strings. I could fix this if it ever became a problem.
-      @param {String} tz
-      @return {Array[]}
+      @method arrayOfMaps_To_CSVStyleArray
+      @param {Object[]} arrayOfMaps
+      @param {Object} [keys] If not provided, it will use the first row and get all fields
+      @return {Array[]} The first row will be the column headers
     
-      If you have a list of snapshots representing the changes in a set of work items over time, this function will return the state of
-      each item at each moments of interest. It's useful for time-series charts where you have snapshot or change records but you need to know
-      the values at particular moments in time (the times in listOfAtCTs).
-      
-      Since this transformation is timezone dependent, you'll need to initialize ChartTime with the path to the tz files.
-      Note, that if you use the browserified version of Lumenize, you still need to call setTZPath with some dummy path.
-      I'm hoping to fix this at some point.
+      `arrayOfMaps_To_CSVStyleArray` is a convenience function that will convert an array of maps like:
     
-          {snapshotArray_To_AtArray, ChartTime} = require('../')
+          {arrayOfMaps_To_CSVStyleArray} = require('../')
     
-      It will convert an snapshotArray like:
-    
-          snapshotArray = [
-            {_ValidFrom: '1999-01-01T12:00:00.000Z', _ValidTo:'2010-01-02T12:00:00.000Z', ObjectID: 0, someColumn: 'some value'},
-            {_ValidFrom: '2011-01-01T12:00:00.000Z', _ValidTo:'2011-01-02T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
-            {_ValidFrom: '2011-01-02T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 2, someColumn: 'some value 2'},      
-            {_ValidFrom: '2011-01-02T12:00:00.000Z', _ValidTo:'2011-01-03T12:00:00.000Z', ObjectID: 3, someColumn: 'some value'},
-            {_ValidFrom: '2011-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 1, someColumn: 'some value'},
-            {_ValidFrom: '2222-01-05T12:00:00.000Z', _ValidTo:'9999-01-01T12:00:00.000Z', ObjectID: 99, someColumn: 'some value'},
+          arrayOfMaps = [
+            {column1: 10000, column2: 20000},
+            {column1: 30000, column2: 40000},
+            {column1: 50000, column2: 60000}
           ]
-          
-      And a listOfAtCTs like:
-      
-          listOfAtCTs = [new ChartTime('2011-01-02'), new ChartTime('2011-01-03'), new ChartTime('2011-01-07')]
-          
-      To an atArray with the value of each ObjectID at each of the points in the listOfAtCTs like:
-      
-          a = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, '_ValidFrom', 'ObjectID', 'America/New_York', '_ValidTo')
-          
-          console.log(a)
-      
-          # [ [ { _ValidFrom: '2011-01-01T12:00:00.000Z',
-          #       _ValidTo: '2011-01-02T12:00:00.000Z',
-          #       ObjectID: '1',
-          #       someColumn: 'some value' } ],
-          #   [ { _ValidFrom: '2011-01-02T12:00:00.000Z',
-          #       _ValidTo: '9999-01-01T12:00:00.000Z',
-          #       ObjectID: '2',
-          #       someColumn: 'some value 2' },
-          #     { _ValidFrom: '2011-01-02T12:00:00.000Z',
-          #       _ValidTo: '2011-01-03T12:00:00.000Z',
-          #       ObjectID: '3',
-          #       someColumn: 'some value' } ],
-          #   [ { _ValidFrom: '2011-01-05T12:00:00.000Z',
-          #       _ValidTo: '9999-01-01T12:00:00.000Z',
-          #       ObjectID: '1',
-          #       someColumn: 'some value' },
-          #     { _ValidFrom: '2011-01-02T12:00:00.000Z',
-          #       _ValidTo: '9999-01-01T12:00:00.000Z',
-          #       ObjectID: '2',
-          #       someColumn: 'some value 2' } ] ]
+    
+      to a CSV-style array like this:
+    
+          console.log(arrayOfMaps_To_CSVStyleArray(arrayOfMaps))
+    
+          # [ [ 'column1', 'column2' ],
+          #   [ 10000, 20000 ],
+          #   [ 30000, 40000 ],
+          #   [ 50000, 60000 ] ]
+      `
     */
 
-    var atCT, atLength, atPointer, atRow, atString, atValue, currentAtString, currentRow, currentSnapshot, currentSnapshotValidFrom, d, granularity, index, key, listOfAtStrings, output, outputRow, preOutput, snapshotLength, snapshotPointer, toDelete, uniqueID, validToString, value, _i, _j, _k, _l, _len, _len1, _len2, _len3;
-    if (validToField == null) {
-      validToField = '_ValidTo';
+    var csvStyleArray, inRow, key, outRow, value, _i, _j, _len, _len1, _ref1;
+    if (arrayOfMaps.length === 0) {
+      return [];
     }
-    snapshotArray.sort(function(a, b) {
-      if (a[validFromField] > b[validFromField]) {
-        return 1;
-      } else if (a[validFromField] === b[validFromField]) {
-        return 0;
-      } else {
-        return -1;
-      }
-    });
-    atLength = listOfAtCTs.length;
-    snapshotLength = snapshotArray.length;
-    preOutput = [];
-    if (atLength <= 0 || snapshotLength <= 0) {
-      return preOutput;
-    }
-    granularity = listOfAtCTs[0].granularity;
-    atPointer = 0;
-    snapshotPointer = 0;
-    currentSnapshot = snapshotArray[snapshotPointer];
-    currentRow = {};
-    listOfAtStrings = [];
-    for (_i = 0, _len = listOfAtCTs.length; _i < _len; _i++) {
-      atCT = listOfAtCTs[_i];
-      listOfAtStrings.push(atCT.getShiftedISOString(tz));
-    }
-    currentAtString = listOfAtStrings[atPointer];
-    currentSnapshotValidFrom = currentSnapshot[validFromField];
-    while (snapshotPointer < snapshotLength) {
-      if (currentSnapshotValidFrom >= currentAtString) {
-        preOutput.push(currentRow);
-        currentRow = utils.clone(currentRow);
-        atPointer++;
-        if (atPointer < atLength) {
-          currentAtString = listOfAtStrings[atPointer];
-        } else {
-          break;
-        }
-      } else {
-        if (currentRow[uniqueIDField] == null) {
-          currentRow[currentSnapshot[uniqueIDField]] = {};
-        }
-        for (key in currentSnapshot) {
-          value = currentSnapshot[key];
-          currentRow[currentSnapshot[uniqueIDField]][key] = value;
-        }
-        snapshotPointer++;
-        if (snapshotPointer < snapshotLength) {
-          currentSnapshot = snapshotArray[snapshotPointer];
-          currentSnapshotValidFrom = currentSnapshot[validFromField];
-        } else {
-          while (atPointer < atLength) {
-            preOutput.push(currentRow);
-            atPointer++;
-          }
-        }
+    csvStyleArray = [];
+    outRow = [];
+    if (keys == null) {
+      keys = [];
+      _ref1 = arrayOfMaps[0];
+      for (key in _ref1) {
+        value = _ref1[key];
+        keys.push(key);
       }
     }
-    for (index = _j = 0, _len1 = preOutput.length; _j < _len1; index = ++_j) {
-      atRow = preOutput[index];
-      toDelete = [];
-      atString = listOfAtStrings[index];
-      for (uniqueID in atRow) {
-        atValue = atRow[uniqueID];
-        validToString = atValue[validToField];
-        if (validToString < atString) {
-          toDelete.push(uniqueID);
-        }
+    csvStyleArray.push(keys);
+    for (_i = 0, _len = arrayOfMaps.length; _i < _len; _i++) {
+      inRow = arrayOfMaps[_i];
+      outRow = [];
+      for (_j = 0, _len1 = keys.length; _j < _len1; _j++) {
+        key = keys[_j];
+        outRow.push(inRow[key]);
       }
-      for (_k = 0, _len2 = toDelete.length; _k < _len2; _k++) {
-        d = toDelete[_k];
-        delete atRow[d];
-      }
+      csvStyleArray.push(outRow);
     }
-    output = [];
-    for (_l = 0, _len3 = preOutput.length; _l < _len3; _l++) {
-      atRow = preOutput[_l];
-      outputRow = [];
-      for (key in atRow) {
-        value = atRow[key];
-        value[uniqueIDField] = key;
-        outputRow.push(value);
-      }
-      output.push(outputRow);
-    }
-    return output;
+    return csvStyleArray;
   };
 
-  groupByAtArray_To_HighChartsSeries = function(groupByAtArray, nameField, valueField, nameFieldValues, returnPreOutput) {
-    var f, groupByRow, name, output, outputRow, perNameValueRow, preOutput, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref;
-    if (returnPreOutput == null) {
-      returnPreOutput = false;
-    }
+  arrayOfMaps_To_HighChartsSeries = function(arrayOfMaps, config) {
     /*
-      @method groupByAtArray_To_HighChartsSeries
-      @param {Array[]} groupByAtArray result of calling groupByAt()
-      @param {String} nameField
-      @param {String} valueField
-      @pararm {String[]} nameFieldValues
-      @param {Boolean} [returnPreOutput] if true, this function returns the map prior to squishing the name into the rows
-      @return {Array/Object}
-    
-      Takes an array of arrays that came from groupByAt and looks like this:
-    
-          {groupByAtArray_To_HighChartsSeries} = require('../')
-    
-          groupByAtArray = [
-            [
-              { 'CFDField': 8, KanbanState: 'Ready to pull' },
-              { 'CFDField': 5, KanbanState: 'In progress' },
-              { 'CFDField': 9, KanbanState: 'Accepted' },
-            ],
-            [
-              { 'CFDField': 2, KanbanState: 'Ready to pull' },
-              { 'CFDField': 3, KanbanState: 'In progress' },
-              { 'CFDField': 17, KanbanState: 'Accepted' },
-            ]
-          ]
-      
-      and optionally a list of nameFieldValues
-      
-          nameFieldValues = ['Ready to pull', 'In progress']  # Note, Accepted is missing
-          
-      and extracts the `valueField` under nameField to give us this
-      
-          console.log(groupByAtArray_To_HighChartsSeries(groupByAtArray, 'KanbanState', 'CFDField', nameFieldValues))
-          # [ { name: 'Ready to pull', data: [ 8, 2 ] },
-          #   { name: 'In progress', data: [ 5, 3 ] } ]
-    */
-
-    preOutput = {};
-    if (nameFieldValues == null) {
-      nameFieldValues = [];
-      _ref = groupByAtArray[0];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        f = _ref[_i];
-        nameFieldValues.push(f[nameField]);
-      }
-    }
-    for (_j = 0, _len1 = groupByAtArray.length; _j < _len1; _j++) {
-      groupByRow = groupByAtArray[_j];
-      for (_k = 0, _len2 = groupByRow.length; _k < _len2; _k++) {
-        perNameValueRow = groupByRow[_k];
-        if (preOutput[perNameValueRow[nameField]] == null) {
-          preOutput[perNameValueRow[nameField]] = [];
-        }
-        preOutput[perNameValueRow[nameField]].push(perNameValueRow[valueField]);
-      }
-    }
-    if (returnPreOutput) {
-      return preOutput;
-    }
-    output = [];
-    for (_l = 0, _len3 = nameFieldValues.length; _l < _len3; _l++) {
-      name = nameFieldValues[_l];
-      outputRow = {
-        name: name,
-        data: preOutput[name]
-      };
-      output.push(outputRow);
-    }
-    return output;
-  };
-
-  aggregationAtArray_To_HighChartsSeries = function(aggregationAtArray, aggregationSpec) {
-    /*
-      @method aggregationAtArray_To_HighChartsSeries
-      @param {Array[]} aggregationAtArray
-      @param {Object} aggregationSpec You can use the same spec you useed to call aggregateAt() as long as it includes
-        any yAxis specifications
+      @method arrayOfMaps_To_HighChartsSeries
+      @param {Array[]} arrayOfMaps
+      @param {Object} config You can use the same config you used to call aggregateAt() as long as it includes
+        your yAxis specifications
       @return {Object[]} in HighCharts form
     
       Takes an array of arrays that came from a call to aggregateAt() and looks like this:
     
-          {aggregationAtArray_To_HighChartsSeries} = require('../')
+          {arrayOfMaps_To_HighChartsSeries} = require('../')
     
-          aggregationAtArray = [
+          arrayOfMaps = [
             {"Series 1": 8, "Series 2": 5, "Series3": 10},
             {"Series 1": 2, "Series 2": 3, "Series3": 20}
           ]
       
       and a list of series configurations
       
-          aggregationSpec = [
+          config = [
             {name: "Series 1", yAxis: 1},
             {name: "Series 2"}
           ]
           
       and extracts the data into seperate series
       
-          console.log(aggregationAtArray_To_HighChartsSeries(aggregationAtArray, aggregationSpec))
+          console.log(arrayOfMaps_To_HighChartsSeries(arrayOfMaps, config))
           # [ { name: 'Series 1', data: [ 8, 2 ], yAxis: 1 },
           #   { name: 'Series 2', data: [ 5, 3 ] } ]
           
@@ -8308,17 +11134,15 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     var a, aggregationRow, idx, key, output, outputRow, preOutput, s, seriesNames, seriesRow, value, _i, _j, _k, _l, _len, _len1, _len2, _len3;
     preOutput = {};
     seriesNames = [];
-    for (_i = 0, _len = aggregationSpec.length; _i < _len; _i++) {
-      a = aggregationSpec[_i];
+    for (_i = 0, _len = config.length; _i < _len; _i++) {
+      a = config[_i];
       seriesNames.push(a.name);
     }
-    for (_j = 0, _len1 = aggregationAtArray.length; _j < _len1; _j++) {
-      aggregationRow = aggregationAtArray[_j];
-      for (_k = 0, _len2 = seriesNames.length; _k < _len2; _k++) {
-        s = seriesNames[_k];
-        if (preOutput[s] == null) {
-          preOutput[s] = [];
-        }
+    for (_j = 0, _len1 = seriesNames.length; _j < _len1; _j++) {
+      s = seriesNames[_j];
+      preOutput[s] = [];
+      for (_k = 0, _len2 = arrayOfMaps.length; _k < _len2; _k++) {
+        aggregationRow = arrayOfMaps[_k];
         preOutput[s].push(aggregationRow[s]);
       }
     }
@@ -8329,7 +11153,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
         name: s,
         data: preOutput[s]
       };
-      seriesRow = aggregationSpec[idx];
+      seriesRow = config[idx];
       for (key in seriesRow) {
         value = seriesRow[key];
         if (key !== 'name' && key !== 'data') {
@@ -8341,739 +11165,1113 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     return output;
   };
 
+  csvString_To_CSVStyleArray = function(s, asterixForUndefined) {
+    var c, cValue, headerLength, newRow, out, rawRowArray, row, rows, _i, _j, _len, _len1;
+    if (asterixForUndefined == null) {
+      asterixForUndefined = true;
+    }
+    rows = s.split('\n');
+    headerLength = rows[0].split(',').length;
+    out = [];
+    for (_i = 0, _len = rows.length; _i < _len; _i++) {
+      row = rows[_i];
+      newRow = [];
+      rawRowArray = row.split(',');
+      if (rawRowArray.length !== headerLength) {
+        throw new Error('Row length does not match header length.');
+      }
+      for (_j = 0, _len1 = rawRowArray.length; _j < _len1; _j++) {
+        c = rawRowArray[_j];
+        if (asterixForUndefined && c === '*') {
+          cValue = void 0;
+        } else {
+          cValue = JSON.parse(c);
+        }
+        newRow.push(cValue);
+      }
+      out.push(newRow);
+    }
+    return out;
+  };
+
+  exports.arrayOfMaps_To_CSVStyleArray = arrayOfMaps_To_CSVStyleArray;
+
   exports.csvStyleArray_To_ArrayOfMaps = csvStyleArray_To_ArrayOfMaps;
 
-  exports.snapshotArray_To_AtArray = snapshotArray_To_AtArray;
+  exports.arrayOfMaps_To_HighChartsSeries = arrayOfMaps_To_HighChartsSeries;
 
-  exports.groupByAtArray_To_HighChartsSeries = groupByAtArray_To_HighChartsSeries;
-
-  exports.aggregationAtArray_To_HighChartsSeries = aggregationAtArray_To_HighChartsSeries;
+  exports.csvString_To_CSVStyleArray = csvString_To_CSVStyleArray;
 
 }).call(this);
 
 });
 
-require.define("/src/aggregate.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var ChartTime, ChartTimeIterator, ChartTimeRange, aggregate, aggregateAt, deriveFieldsAt, functions, groupBy, groupByAt, percentileCreator, snapshotArray_To_AtArray, timeSeriesCalculator, timeSeriesGroupByCalculator, utils, _extractFandAs, _ref,
+require.define("/src/TransitionsCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var OLAPCube, Time, Timeline, TransitionsCalculator, utils, _ref;
+
+  OLAPCube = require('./OLAPCube').OLAPCube;
+
+  _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time, Timeline = _ref.Timeline;
+
+  TransitionsCalculator = (function() {
+    /*
+      @class TransitionsCalculator
+    
+      Used to accumlate counts and sums about transitions.
+    
+      Let's say that you want to create a throughput or velocity chart where each column on the chart represents the
+      number of work items that cross over from one state into another state in a given month/week/quarter/etc. You would
+      send a transitions to a temporal data store like Rally's Lookback API specifying both the current values and the
+      previous values. For instance, the work items crossing from "In Progress" to "Completed" could be found
+      with this query clause `"_PreviousValues.ScheduleState": {"$lte": "In Progress"}, "ScheduleState": {"$gt": "In Progress"}`
+    
+          {TransitionsCalculator, Time} = require('../')
+    
+          snapshots = [
+            { id: 1, from: '2011-01-03T00:00:00.000Z', PlanEstimate: 10 },
+            { id: 1, from: '2011-01-05T00:00:00.000Z', PlanEstimate: 10 },
+            { id: 2, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 20 },
+            { id: 3, from: '2011-01-10T00:00:00.000Z', PlanEstimate: 30 },
+            { id: 4, from: '2011-01-11T00:00:00.000Z', PlanEstimate: 40 },
+            { id: 5, from: '2011-01-17T00:00:00.000Z', PlanEstimate: 50 },
+            { id: 6, from: '2011-02-07T00:00:00.000Z', PlanEstimate: 60 },
+            { id: 7, from: '2011-02-08T00:00:00.000Z', PlanEstimate: 70 },
+          ]
+    
+      But that's not the entire story. What if something crosses over into "Completed" and beyond but crosses back. It could
+      do this several times and get counted multiple times. That would be bad. The way we deal with this is to also
+      look for the list of snapshots that pass backwards across the boundary and subract thier impact on the final calculations.
+    
+      One can think of alternative aproaches for avoiding this double counting. You could, for instance, only count the last
+      transition for each unique work item. The problem with this approach is that the backward moving transition might
+      occur in a different time period from the forward moving one. A later snapshot could invalidate an earlier calculation
+      which is bad for incremental calculation and caching. To complicate matters, the field values being summed by the
+      calculator might have changed between subsequent forward/backward transitions. The chosen algorithm is the only way I know to
+      preserve the idempotency and cachable incremental calculation properties.
+    
+          snapshotsToSubtract = [
+            { id: 1, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 10 },
+            { id: 7, from: '2011-02-09T00:00:00.000Z', PlanEstimate: 70 },
+          ]
+    
+      The calculator will keep track of the count of items automatically (think throughput), but if you want to sum up a
+      particular field (think velocity), you can specify that with the 'fieldsToSum' config property.
+    
+          fieldsToSum = ['PlanEstimate']
+    
+      Now let's build our config object.
+    
+          config =
+            asOf: '2011-02-10'  # Leave this off if you want it to continuously update to today
+            granularity: Time.MONTH
+            tz: 'America/Chicago'
+            validFromField: 'from'
+            validToField: 'to'
+            uniqueIDField: 'id'
+            fieldsToSum: fieldsToSum
+            asterixToDateTimePeriod: true  # Set to false or leave off if you are going to reformat the timePeriod
+    
+      In most cases, you'll want to leave off the `asOf` configuration property so the data can be continuously updated
+      with new snapshots as they come in. We include it in this example so the output stays stable. If we hadn't, then
+      the rows would continue to grow to encompass today.
+    
+          startOn = '2011-01-02T00:00:00.000Z'
+          endBefore = '2011-02-27T00:00:00.000Z'
+    
+          calculator = new TransitionsCalculator(config)
+          calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
+    
+          console.log(calculator.getResults())
+          # [ { timePeriod: '2011-01', count: 5, PlanEstimate: 150 },
+          #   { timePeriod: '2011-02*', count: 1, PlanEstimate: 60 } ]
+    
+      The asterix on the last row in the results is to indicate that it is a to-date value. As more snapshots come in, this
+      last row will change. The caching and incremental calcuation capability of this Calculator are designed to take
+      this into account.
+    
+      Now, let's use the same data but aggregate in granularity of weeks.
+    
+          config.granularity = Time.WEEK
+          calculator = new TransitionsCalculator(config)
+          calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
+    
+          console.log(calculator.getResults())
+          # [ { timePeriod: '2010W52', count: 1, PlanEstimate: 10 },
+          #   { timePeriod: '2011W01', count: 2, PlanEstimate: 50 },
+          #   { timePeriod: '2011W02', count: 2, PlanEstimate: 90 },
+          #   { timePeriod: '2011W03', count: 0, PlanEstimate: 0 },
+          #   { timePeriod: '2011W04', count: 0, PlanEstimate: 0 },
+          #   { timePeriod: '2011W05', count: 1, PlanEstimate: 60 },
+          #   { timePeriod: '2011W06*', count: 0, PlanEstimate: 0 } ]
+    
+      Remember, you can easily convert weeks to other granularities for display.
+    
+          weekStartingLabel = 'week starting ' + new Time('2010W52').inGranularity(Time.DAY).toString()
+          console.log(weekStartingLabel)
+          # week starting 2010-12-27
+    
+      If you want to display spinners while the chart is rendering, you can read this calculator's upToDateISOString property and
+      compare it directly to the getResults() row's timePeriod property using code like this. Yes, this works eventhough
+      upToDateISOString is an ISOString.
+    
+          row = {timePeriod: '2011W07'}
+          if calculator.upToDateISOString < row.timePeriod
+            console.log("#{row.timePeriod} not yet calculated.")
+          # 2011W07 not yet calculated.
+    */
+
+    function TransitionsCalculator(config) {
+      /*
+          @constructor
+          @param {Object} config
+          @cfg {String} tz The timezone for analysis in the form like `America/New_York`
+          @cfg {String} [validFromField = "_ValidFrom"]
+          @cfg {String} [validToField = "_ValidTo"]
+          @cfg {String} [uniqueIDField = "ObjectID"] Not used right now but when drill-down is added it will be
+          @cfg {String} granularity 'month', 'week', 'quarter', etc. Use Time.MONTH, Time.WEEK, etc.
+          @cfg {String[]} [fieldsToSum=[]] It will track the count automatically but it can keep a running sum of other fields also
+          @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
+      */
+
+      var cubeConfig, dimensions, f, metrics, _i, _len, _ref1, _ref2;
+      this.config = utils.clone(config);
+      if (this.config.validFromField == null) {
+        this.config.validFromField = "_ValidFrom";
+      }
+      if (this.config.validToField == null) {
+        this.config.validToField = "_ValidTo";
+      }
+      if (this.config.uniqueIDField == null) {
+        this.config.uniqueIDField = "ObjectID";
+      }
+      if (this.config.fieldsToSum == null) {
+        this.config.fieldsToSum = [];
+      }
+      if (this.config.asterixToDateTimePeriod == null) {
+        this.config.asterixToDateTimePeriod = false;
+      }
+      utils.assert(this.config.tz != null, "Must provide a timezone to this calculator.");
+      utils.assert(this.config.granularity != null, "Must provide a granularity to this calculator.");
+      if ((_ref1 = this.config.granularity) === Time.HOUR || _ref1 === Time.MINUTE || _ref1 === Time.SECOND || _ref1 === Time.MILLISECOND) {
+        throw new Error("Transitions calculator is not designed to work on granularities finer than 'day'");
+      }
+      dimensions = [
+        {
+          field: 'timePeriod'
+        }
+      ];
+      metrics = [
+        {
+          field: 'count',
+          f: 'sum'
+        }
+      ];
+      _ref2 = this.config.fieldsToSum;
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        f = _ref2[_i];
+        metrics.push({
+          field: f,
+          f: 'sum'
+        });
+      }
+      cubeConfig = {
+        dimensions: dimensions,
+        metrics: metrics
+      };
+      this.cube = new OLAPCube(cubeConfig);
+      this.upToDateISOString = null;
+      this.lowestTimePeriod = null;
+      if (this.config.asOf != null) {
+        this.maxTimeString = new Time(this.config.asOf, Time.MILLISECOND).getISOStringInTZ(this.config.tz);
+      } else {
+        this.maxTimeString = Time.getISOStringFromJSDate();
+      }
+      this.virgin = true;
+    }
+
+    TransitionsCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore, snapshotsToSubtract) {
+      var filteredSnapshots, filteredSnapshotsToSubstract, startOnString;
+      if (snapshotsToSubtract == null) {
+        snapshotsToSubtract = [];
+      }
+      /*
+          @method addSnapshots
+            Allows you to incrementally add snapshots to this calculator.
+          @chainable
+          @param {Object[]} snapshots An array of temporal data model snapshots.
+          @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+            interest. On the second through nth call, this should equal the previous endBefore.
+          @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+            period of interest.
+          @return {TransitionsCalculator}
+      */
+
+      if (this.upToDateISOString != null) {
+        utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
+      }
+      this.upToDateISOString = endBefore;
+      startOnString = new Time(startOn, this.config.granularity, this.config.tz).toString();
+      if (this.lowestTimePeriod != null) {
+        if (startOnString < this.lowestTimePeriod) {
+          this.lowestTimePeriod = startOnString;
+        }
+      } else {
+        this.lowestTimePeriod = startOnString;
+      }
+      filteredSnapshots = this._filterSnapshots(snapshots);
+      this.cube.addFacts(filteredSnapshots);
+      filteredSnapshotsToSubstract = this._filterSnapshots(snapshotsToSubtract, -1);
+      this.cube.addFacts(filteredSnapshotsToSubstract);
+      this.virgin = false;
+      return this;
+    };
+
+    TransitionsCalculator.prototype._filterSnapshots = function(snapshots, sign) {
+      var f, filteredSnapshots, fs, s, _i, _j, _len, _len1, _ref1;
+      if (sign == null) {
+        sign = 1;
+      }
+      filteredSnapshots = [];
+      for (_i = 0, _len = snapshots.length; _i < _len; _i++) {
+        s = snapshots[_i];
+        if (s[this.config.validFromField] <= this.maxTimeString) {
+          if (s.count != null) {
+            throw new Error('Snapshots passed into a TransitionsCalculator cannot have a `count` field.');
+          }
+          if (s.timePeriod != null) {
+            throw new Error('Snapshots passed into a TransitionsCalculator cannot have a `timePeriod` field.');
+          }
+          fs = utils.clone(s);
+          fs.count = sign * 1;
+          fs.timePeriod = new Time(s[this.config.validFromField], this.config.granularity, this.config.tz).toString();
+          _ref1 = this.config.fieldsToSum;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            f = _ref1[_j];
+            fs[f] = sign * s[f];
+          }
+          filteredSnapshots.push(fs);
+        }
+      }
+      return filteredSnapshots;
+    };
+
+    TransitionsCalculator.prototype.getResults = function() {
+      /*
+          @method getResults
+            Returns the current state of the calculator
+          @return {Object[]} Returns an Array of Maps like `{timePeriod: '2012-12', count: 10, otherField: 34}`
+      */
+
+      var cell, config, f, filter, out, outRow, t, timeLine, timePeriods, tp, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2;
+      if (this.virgin) {
+        return [];
+      }
+      out = [];
+      this.highestTimePeriod = new Time(this.maxTimeString, this.config.granularity, this.config.tz).toString();
+      config = {
+        startOn: this.lowestTimePeriod,
+        endBefore: this.highestTimePeriod,
+        granularity: this.config.granularity
+      };
+      timeLine = new Timeline(config);
+      timePeriods = (function() {
+        var _i, _len, _ref1, _results;
+        _ref1 = timeLine.getAllRaw();
+        _results = [];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          t = _ref1[_i];
+          _results.push(t.toString());
+        }
+        return _results;
+      })();
+      timePeriods.push(this.highestTimePeriod);
+      for (_i = 0, _len = timePeriods.length; _i < _len; _i++) {
+        tp = timePeriods[_i];
+        filter = {};
+        filter['timePeriod'] = tp;
+        cell = this.cube.getCell(filter);
+        outRow = {};
+        outRow.timePeriod = tp;
+        if (cell != null) {
+          outRow.count = cell.count_sum;
+          _ref1 = this.config.fieldsToSum;
+          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+            f = _ref1[_j];
+            outRow[f] = cell[f + '_sum'];
+          }
+        } else {
+          outRow.count = 0;
+          _ref2 = this.config.fieldsToSum;
+          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
+            f = _ref2[_k];
+            outRow[f] = 0;
+          }
+        }
+        out.push(outRow);
+      }
+      if (this.config.asterixToDateTimePeriod) {
+        out[out.length - 1].timePeriod += '*';
+      }
+      return out;
+    };
+
+    TransitionsCalculator.prototype.getStateForSaving = function(meta) {
+      /*
+          @method getStateForSaving
+            Enables saving the state of this calculator. See TimeInStateCalculator documentation for a detailed example.
+          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+            within the deserialized calculator.
+          @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+            to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+            the calculator.
+      */
+
+      var out;
+      out = {
+        config: this.config,
+        cubeSavedState: this.cube.getStateForSaving(),
+        upToDateISOString: this.upToDateISOString,
+        maxTimeString: this.maxTimeString,
+        lowestTimePeriod: this.lowestTimePeriod,
+        virgin: this.virgin
+      };
+      if (meta != null) {
+        out.meta = meta;
+      }
+      return out;
+    };
+
+    TransitionsCalculator.newFromSavedState = function(p) {
+      /*
+          @method newFromSavedState
+            Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
+          @static
+          @param {String/Object} p A String or Object from a previously saved state
+          @return {TransitionsCalculator}
+      */
+
+      var calculator;
+      if (utils.type(p) === 'string') {
+        p = JSON.parse(p);
+      }
+      calculator = new TransitionsCalculator(p.config);
+      calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState);
+      calculator.upToDateISOString = p.upToDateISOString;
+      calculator.maxTimeString = p.maxTimeString;
+      calculator.lowestTimePeriod = p.lowestTimePeriod;
+      calculator.virgin = p.virgin;
+      if (p.meta != null) {
+        calculator.meta = p.meta;
+      }
+      return calculator;
+    };
+
+    return TransitionsCalculator;
+
+  })();
+
+  exports.TransitionsCalculator = TransitionsCalculator;
+
+}).call(this);
+
+});
+
+require.define("/src/TimeSeriesCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+  var OLAPCube, Time, TimeSeriesCalculator, Timeline, functions, utils, _ref,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  utils = require('./utils');
+  OLAPCube = require('./OLAPCube').OLAPCube;
 
-  ChartTime = require('./ChartTime').ChartTime;
-
-  _ref = require('./ChartTimeIteratorAndRange'), ChartTimeRange = _ref.ChartTimeRange, ChartTimeIterator = _ref.ChartTimeIterator;
-
-  deriveFieldsAt = require('./derive').deriveFieldsAt;
-
-  snapshotArray_To_AtArray = require('./dataTransform').snapshotArray_To_AtArray;
+  _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time, Timeline = _ref.Timeline;
 
   functions = require('./functions').functions;
 
-  /*
-  @method percentileCreator
-  @static
-  @param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
-  @return {Function} A funtion to calculate the percentile
-  
-  When the user passes in `$p<n>` as an aggregation function, this `percentileCreator` is called to return the appropriate
-  percentile function. The returned function will find the `<n>`th percentile where `<n>` is some number in the form of
-  `##[.##]`. (e.g. `$p40`, `$p99`, `$p99.9`).
-  
-  Note: `$median` is an alias for `$p50`.
-  
-  There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
-  use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
-  recommendation and makes the most sense to me.
-  */
-
-
-  percentileCreator = function(p) {
-    return function(values) {
-      var d, k, n, sortfunc, vLength;
-      sortfunc = function(a, b) {
-        return a - b;
-      };
-      vLength = values.length;
-      values.sort(sortfunc);
-      n = (p * (vLength - 1) / 100) + 1;
-      k = Math.floor(n);
-      d = n - k;
-      if (n === 1) {
-        return values[1 - 1];
-      }
-      if (n === vLength) {
-        return values[vLength - 1];
-      }
-      return values[k - 1] + d * (values[k] - values[k - 1]);
-    };
-  };
-
-  _extractFandAs = function(a) {
-    var as, f, p;
-    if (a.as != null) {
-      as = a.as;
-    } else {
-      utils.assert(utils.type(a.f) !== 'function', 'Must provide "as" field with your aggregation when providing a user defined function');
-      as = "" + a.field + "_" + a.f;
-    }
-    if (utils.type(a.f) === 'function') {
-      f = a.f;
-    } else if (functions[a.f] != null) {
-      f = functions[a.f];
-    } else if (a.f === '$median') {
-      f = percentileCreator(50);
-    } else if (a.f.substr(0, 2) === '$p') {
-      p = /\$p(\d+(.\d+)?)/.exec(a.f)[1];
-      f = percentileCreator(Number(p));
-    } else {
-      throw new Error("" + a.f + " is not a recognized built-in function");
-    }
-    return {
-      f: f,
-      as: as
-    };
-  };
-
-  aggregate = function(list, aggregationSpec) {
+  TimeSeriesCalculator = (function() {
     /*
-      @method aggregate
-      @param {Object[]} list An Array or arbitrary rows
-      @param {Object} aggregationSpec
-      @return {Object}
+      @class TimeSeriesCalculator
+      This calculator is used to convert snapshot data into time series aggregations.
     
-      Takes a list like this:
-          
-          {aggregate} = require('../')
-      
-          list = [
-            { ObjectID: '1', KanbanState: 'In progress', PlanEstimate: 5, TaskRemainingTotal: 20 },
-            { ObjectID: '2', KanbanState: 'Ready to pull', PlanEstimate: 3, TaskRemainingTotal: 5 },
-            { ObjectID: '3', KanbanState: 'Ready to pull', PlanEstimate: 5, TaskRemainingTotal: 12 }
+      Below are two examples of using the TimeSeriesCalculator. The first is a detailed example showing how you would create
+      a set of single-metric series (line, spline, or column). The second, is an example of creating a set of group-by series
+      (like you would use to create a stacked column or stacked area chart). You can mix and match these on the same chart, but
+      one type (a set of single-metric series versus a single group-by meta-series) typically dominates.
+    
+      ## Time-series example - a burn chart ##
+    
+      Let's start with a fairly large set of snapshots and create a set of series for a burn (up/down) chart.
+    
+          lumenize = require('../')
+          {TimeSeriesCalculator, Time} = lumenize
+    
+          snapshotsCSV = [
+            ["ObjectID", "_ValidFrom",               "_ValidTo",                 "ScheduleState", "PlanEstimate", "TaskRemainingTotal", "TaskEstimateTotal"],
+    
+            [1,          "2010-10-10T15:00:00.000Z", "2011-01-02T13:00:00.000Z", "Ready to pull", 5             , 15                  , 15],
+    
+            [1,          "2011-01-02T13:00:00.000Z", "2011-01-02T15:10:00.000Z", "Ready to pull", 5             , 15                  , 15],
+            [1,          "2011-01-02T15:10:00.000Z", "2011-01-03T15:00:00.000Z", "In progress"  , 5             , 20                  , 15],
+            [2,          "2011-01-02T15:00:00.000Z", "2011-01-03T15:00:00.000Z", "Ready to pull", 3             , 5                   , 5],
+            [3,          "2011-01-02T15:00:00.000Z", "2011-01-03T15:00:00.000Z", "Ready to pull", 5             , 12                  , 12],
+    
+            [2,          "2011-01-03T15:00:00.000Z", "2011-01-04T15:00:00.000Z", "In progress"  , 3             , 5                   , 5],
+            [3,          "2011-01-03T15:00:00.000Z", "2011-01-04T15:00:00.000Z", "Ready to pull", 5             , 12                  , 12],
+            [4,          "2011-01-03T15:00:00.000Z", "2011-01-04T15:00:00.000Z", "Ready to pull", 5             , 15                  , 15],
+            [1,          "2011-01-03T15:10:00.000Z", "2011-01-04T15:00:00.000Z", "In progress"  , 5             , 12                  , 15],
+    
+            [1,          "2011-01-04T15:00:00.000Z", "2011-01-06T15:00:00.000Z", "Accepted"     , 5             , 0                   , 15],
+            [2,          "2011-01-04T15:00:00.000Z", "2011-01-06T15:00:00.000Z", "In test"      , 3             , 1                   , 5],
+            [3,          "2011-01-04T15:00:00.000Z", "2011-01-05T15:00:00.000Z", "In progress"  , 5             , 10                  , 12],
+            [4,          "2011-01-04T15:00:00.000Z", "2011-01-06T15:00:00.000Z", "Ready to pull", 5             , 15                  , 15],
+            [5,          "2011-01-04T15:00:00.000Z", "2011-01-06T15:00:00.000Z", "Ready to pull", 2             , 4                   , 4],
+    
+            [3,          "2011-01-05T15:00:00.000Z", "2011-01-07T15:00:00.000Z", "In test"      , 5             , 5                   , 12],
+    
+            [1,          "2011-01-06T15:00:00.000Z", "2011-01-07T15:00:00.000Z", "Released"     , 5             , 0                   , 15],
+            [2,          "2011-01-06T15:00:00.000Z", "2011-01-07T15:00:00.000Z", "Accepted"     , 3             , 0                   , 5],
+            [4,          "2011-01-06T15:00:00.000Z", "2011-01-07T15:00:00.000Z", "In progress"  , 5             , 7                   , 15],
+            [5,          "2011-01-06T15:00:00.000Z", "2011-01-07T15:00:00.000Z", "Ready to pull", 2             , 4                   , 4],
+    
+            [1,          "2011-01-07T15:00:00.000Z", "9999-01-01T00:00:00.000Z", "Released"     , 5            , 0                    , 15],
+            [2,          "2011-01-07T15:00:00.000Z", "9999-01-01T00:00:00.000Z", "Released"     , 3            , 0                    , 5],
+            [3,          "2011-01-07T15:00:00.000Z", "9999-01-01T00:00:00.000Z", "Accepted"     , 5            , 0                    , 12],
+            [4,          "2011-01-07T15:00:00.000Z", "9999-01-01T00:00:00.000Z", "In test"      , 5            , 3                    , 15]  # Note: ObjectID 5 deleted
           ]
-          
-      and a list of aggregationSpec like this:
     
-          aggregationSpec = [
-            {field: 'ObjectID', f: '$count'}
-            {as: 'Drill-down', field:'ObjectID', f:'$push'}
-            {field: 'PlanEstimate', f: '$sum'}
-            {as: 'mySum', field: 'PlanEstimate', f: (values) ->
-              temp = 0
-              for v in values
-                temp += v
-              return temp
+          snapshots = lumenize.csvStyleArray_To_ArrayOfMaps(snapshotsCSV)
+    
+      Let's add our first aggregation specification. You can add virtual fields to the input rows by providing your own callback function.
+    
+          deriveFieldsOnInput = [
+            {as: 'PercentRemaining', f: (row) -> 100 * row.TaskRemainingTotal / row.TaskEstimateTotal }
+          ]
+    
+      You can have as many of these derived fields as you wish. They are calculated in order to it's OK to use an earlier
+      derived field when calculating a later one.
+    
+      Next, we use the native fields in the snapshots, plus our derived field above to calculate most of the chart
+      series. Sums and counts are bread and butter, but all Lumenize.functions functions are supported (standardDeviation,
+      median, percentile coverage, etc.) and Lumenize includes some functions specifically well suited to burn chart
+      calculations (filteredSum, and filteredCount) as we shall now demonstrate.
+    
+          acceptedValues = ['Accepted', 'Released']
+    
+          metrics = [
+            {as: 'StoryCountBurnUp', f: 'filteredCount', filterField: 'ScheduleState', filterValues: acceptedValues},
+            {as: 'StoryUnitBurnUp', field: 'PlanEstimate', f: 'filteredSum', filterField: 'ScheduleState', filterValues: acceptedValues},
+            {as: 'StoryUnitScope', field: 'PlanEstimate', f: 'sum'},
+            {as: 'StoryCountScope', f: 'count'},
+            {as: 'TaskUnitBurnDown', field: 'TaskRemainingTotal', f: 'sum'},
+            {as: 'TaskUnitScope', field: 'TaskEstimateTotal', f: 'sum'},
+            {as: 'MedianPercentRemaining', field: 'PercentRemaining', f: 'median'}
+          ]
+    
+      Let's break this down. The first series uses a `filteredCount` function. What this says is "count the number of items
+      where the ScheduleState is either 'Accepted' or 'Released' and store that in a series named 'StoryCountBurnUp'. The
+      second series is very similar but instead of counting, we are summing the PlanEstimate field and sticking it in
+      the StoryUnitBurnUp series. The next four series are simple sums or counts (no filtering) and the final series
+      is a gratuitous use of the 'median' function least you forget that it can do more than counts and sums.
+    
+      Next, we specify the summary metrics for the chart. We're not really interested in displaying any summary metrics for
+      this chart but we need to calculate the max values of two of the existing series in order to add the two ideal line series.
+      Notice how the summary metric for TaskUnitBurnDown_max_index uses an earlier summary metric. They are calculated
+      in order and made avalable in the scope of the callback function to enable this.
+    
+          summaryMetricsConfig = [
+            {field: 'TaskUnitScope', f: 'max'},
+            {field: 'TaskUnitBurnDown', f: 'max'},
+            {as: 'TaskUnitBurnDown_max_index', f: (seriesData, summaryMetrics) ->
+              for row, index in seriesData
+                if row.TaskUnitBurnDown is summaryMetrics.TaskUnitBurnDown_max
+                  return index
             }
           ]
-          
-      and returns the aggregations like this:
-        
-          a = aggregate(list, aggregationSpec)
-          console.log(a)
-     
-          #   { 'ObjectID_$count': 3, 
-          #     'Drill-down': [ '1', '2', '3' ], 
-          #     'PlanEstimate_$sum': 13, 
-          #     mySum: 13 } 
-          
-      For each aggregation, you must provide a `field` and `f` (function) value. You can optionally 
-      provide an alias for the aggregation with the 'as` field. There are a number of built in functions 
-      documented above.
-      
-      Alternatively, you can provide your own function (it takes one parameter, which is an
-      Array of values to aggregate) like the `mySum` example in our `aggregationSpec` list above.
-    */
-
-    var a, as, f, output, row, valuesArray, _i, _j, _len, _len1, _ref1;
-    output = {};
-    for (_i = 0, _len = aggregationSpec.length; _i < _len; _i++) {
-      a = aggregationSpec[_i];
-      valuesArray = [];
-      for (_j = 0, _len1 = list.length; _j < _len1; _j++) {
-        row = list[_j];
-        valuesArray.push(row[a.field]);
-      }
-      _ref1 = _extractFandAs(a), f = _ref1.f, as = _ref1.as;
-      output[as] = f(valuesArray);
-    }
-    return output;
-  };
-
-  aggregateAt = function(atArray, aggregationSpec) {
-    /*
-      @method aggregateAt
-      @param {Array[]} atArray
-      @param {Object[]} aggregationSpec
-      @return {Object[]}
     
-      Each sub-Array in atArray is passed to the `aggregate` function and the results are collected into a single array output.
-      This is essentially a wrapper around the aggregate function so the spec parameter is the same. You can think of
-      it as using a `map`.
-    */
-
-    var a, idx, output, row, _i, _len;
-    output = [];
-    for (idx = _i = 0, _len = atArray.length; _i < _len; idx = ++_i) {
-      row = atArray[idx];
-      a = aggregate(row, aggregationSpec);
-      output.push(a);
-    }
-    return output;
-  };
-
-  groupBy = function(list, spec) {
-    /*
-      @method groupBy
-      @param {Object[]} list An Array of rows
-      @param {Object} spec
-      @return {Object[]}
+      The calculations from the summary metrics above are passed into the calculations for 'deriveFieldsAfterSummary'.
+      Here is where we calculate two alternatives for the burn down ideal line.
     
-      Takes a list like this:
-          
-          {groupBy} = require('../')
-      
-          list = [
-            { ObjectID: '1', KanbanState: 'In progress', PlanEstimate: 5, TaskRemainingTotal: 20 },
-            { ObjectID: '2', KanbanState: 'Ready to pull', PlanEstimate: 3, TaskRemainingTotal: 5 },
-            { ObjectID: '3', KanbanState: 'Ready to pull', PlanEstimate: 5, TaskRemainingTotal: 12 }
+          deriveFieldsAfterSummary = [
+            {as: 'Ideal', f: (row, index, summaryMetrics, seriesData) ->
+              max = summaryMetrics.TaskUnitScope_max
+              increments = seriesData.length - 1
+              incrementAmount = max / increments
+              return Math.floor(100 * (max - index * incrementAmount)) / 100
+            },
+            {as: 'Ideal2', f: (row, index, summaryMetrics, seriesData) ->
+              if index < summaryMetrics.TaskUnitBurnDown_max_index
+                return null
+              else
+                max = summaryMetrics.TaskUnitBurnDown_max
+                increments = seriesData.length - 1 - summaryMetrics.TaskUnitBurnDown_max_index
+                incrementAmount = max / increments
+                return Math.floor(100 * (max - (index - summaryMetrics.TaskUnitBurnDown_max_index) * incrementAmount)) / 100
+            }
           ]
-          
-      and a spec like this:
     
-          spec = {
-            groupBy: 'KanbanState',
-            aggregationSpec: [
-              {field: 'ObjectID', f: '$count'}
-              {as: 'Drill-down', field:'ObjectID', f:'$push'}
-              {field: 'PlanEstimate', f: '$sum'}
-              {as: 'mySum', field: 'PlanEstimate', f: (values) ->
-                temp = 0
-                for v in values
-                  temp += v
-                return temp
-              }
-            ]
+      The two above series ignore the row values and simply key off of the index and summaryMetrics, but you could have
+      used the row values to, for instance, add two existing series to create a third.
+    
+      Notice how the entire seriesData is available inside of your provided callback. This would allow you to derive a metric
+      off of rows other than the current row like you would for a sliding-window calculation (Shewarts method).
+    
+      Just like all Lumenize Calculators, we can set holidays to be knocked out of the results.
+    
+          holidays = [
+            {year: 2011, month: 1, day: 5}  # Made up holiday to test knockout
+          ]
+    
+      Let's build the config Object from the above specifications and instantiate the calculator.
+    
+          config =
+            deriveFieldsOnInput: deriveFieldsOnInput
+            metrics: metrics
+            summaryMetricsConfig: summaryMetricsConfig
+            deriveFieldsAfterSummary: deriveFieldsAfterSummary
+            granularity: lumenize.Time.DAY
+            tz: 'America/Chicago'
+            holidays: holidays
+            workDays: 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday' # They work on Sundays
+    
+          calculator = new TimeSeriesCalculator(config)
+    
+      We can now send our snapshots into the calculator.
+    
+          startOnISOString = new Time('2011-01-02').getISOStringInTZ(config.tz)
+          upToDateISOString = new Time('2011-01-10').getISOStringInTZ(config.tz)
+          calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
+    
+      Note, you must specify a startOnISOString and upToDateISOString. If you send in another round of snapshots, the new startOnISOString must match
+      the upToDateISOString of the prior call to addSnapshots(). This is the key to  making sure that incremental calculations don't
+      skip or double count anything. You can even send in the same snapshots in a later round and they won't be double
+      counted. This idempotency property is also accomplished by the precise startOnISOString (current) upToDateISOString (prior) alignment.
+      If you restore the calculator from a saved state, the upToDate property will contain the prior upToDateISOString. You can use
+      this to compose a query that gets all of the snapshots necessary for the update. Just query with
+      `_ValidTo: {$gte: upToDate}`. Note, this will refetch all the snapshots that were still active the last time
+      you updated the calculator. This is expected and necessary.
+    
+      Let's print out our results and see what we have.
+    
+          keys = ['label', 'StoryUnitScope', 'StoryCountScope', 'StoryCountBurnUp',
+            'StoryUnitBurnUp', 'TaskUnitBurnDown', 'TaskUnitScope', 'Ideal', 'Ideal2', 'MedianPercentRemaining']
+    
+          csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
+    
+          console.log(csv.slice(1))
+          #  [ [ '2011-01-02', 13, 3, 0, 0, 37, 32, 51, null, 100 ],
+          #    [ '2011-01-03', 18, 4, 0, 0, 44, 47, 42.5, 44, 100 ],
+          #    [ '2011-01-04', 20, 5, 1, 5, 25, 51, 34, 35.2, 41.666666666666664 ],
+          #    [ '2011-01-06', 20, 5, 2, 8, 16, 51, 25.5, 26.4, 41.666666666666664 ],
+          #    [ '2011-01-07', 18, 4, 3, 13, 3, 47, 17, 17.59, 0 ],
+          #    [ '2011-01-09', 18, 4, 3, 13, 3, 47, 8.5, 8.79, 0 ],
+          #    [ '2011-01-10', 18, 4, 3, 13, 3, 47, 0, 0, 0 ] ]
+    
+      ## Time-series group-by example ##
+    
+          allowedValues = ['Ready to pull', 'In progress', 'In test', 'Accepted', 'Released']
+    
+      It supports both count and sum for group-by metrics
+    
+          metrics = [
+            {f: 'groupBySum', field: 'PlanEstimate', groupByField: 'ScheduleState', allowedValues: allowedValues},
+            {f: 'groupByCount', groupByField: 'ScheduleState', allowedValues: allowedValues, prefix: 'Count '},
+            {as: 'MedianTaskRemainingTotal', field: 'TaskRemainingTotal', f: 'median'}  # An example of how you might overlay a line series
+          ]
+    
+          holidays = [
+            {year: 2011, month: 1, day: 5}  # Made up holiday to test knockout
+          ]
+    
+          config =  # default workDays
+            metrics: metrics
+            granularity: Time.DAY
+            tz: 'America/Chicago'
+            holidays: holidays
+            workDays: 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday' # They work on Sundays
+    
+          calculator = new TimeSeriesCalculator(config)
+    
+          startOnISOString = new Time('2010-12-31').getISOStringInTZ(config.tz)
+          upToDateISOString = new Time('2011-01-09').getISOStringInTZ(config.tz)
+          calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
+    
+      Here is the output of the sum metrics
+    
+          keys = ['label'].concat(allowedValues)
+          csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
+          console.log(csv.slice(1))
+          # [ [ '2010-12-31', 5, 0, 0, 0, 0 ],
+          #   [ '2011-01-02', 8, 5, 0, 0, 0 ],
+          #   [ '2011-01-03', 10, 8, 0, 0, 0 ],
+          #   [ '2011-01-04', 7, 0, 8, 5, 0 ],
+          #   [ '2011-01-06', 2, 5, 5, 3, 5 ],
+          #   [ '2011-01-07', 0, 0, 5, 5, 8 ],
+          #   [ '2011-01-09', 0, 0, 5, 5, 8 ] ]
+    
+      Here is the output of the count metrics
+    
+          keys = ['label'].concat('Count ' + a for a in allowedValues)
+          csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
+          console.log(csv.slice(1))
+          # [ [ '2010-12-31', 1, 0, 0, 0, 0 ],
+          #   [ '2011-01-02', 2, 1, 0, 0, 0 ],
+          #   [ '2011-01-03', 2, 2, 0, 0, 0 ],
+          #   [ '2011-01-04', 2, 0, 2, 1, 0 ],
+          #   [ '2011-01-06', 1, 1, 1, 1, 1 ],
+          #   [ '2011-01-07', 0, 0, 1, 1, 2 ],
+          #   [ '2011-01-09', 0, 0, 1, 1, 2 ] ]
+    
+      We didn't output the MedianTaskRemainingTotal metric but it's in there. I included it to demonstrate that you can
+      calculate non-group-by series along side group-by series.
+    */
+
+    function TimeSeriesCalculator(config) {
+      /*
+          @constructor
+          @param {Object} config
+          @cfg {String} tz The timezone for analysis
+          @cfg {String} [validFromField = "_ValidFrom"]
+          @cfg {String} [validToField = "_ValidTo"]
+          @cfg {String} [uniqueIDField = "ObjectID"]
+          @cfg {String} granularity 'month', 'week', 'quarter', 'day', etc. Use Time.MONTH, Time.WEEK, etc.
+          @cfg {String[]/String} [workDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']] List of days of the week that you work on. You can specify this as an Array of Strings
+             (['Monday', 'Tuesday', ...]) or a single comma seperated String ("Monday,Tuesday,...").
+          @cfg {Object[]} [holidays] An optional Array containing rows that are either ISOStrings or JavaScript Objects
+            (mix and match). Example: `[{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, "2012-12-24"]`
+             Notice how you can leave off the year if the holiday falls on the same day every year.
+          @cfg {Object} [workDayStartOn] An optional object in the form {hour: 8, minute: 15}. If minute is zero it can be omitted.
+             If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
+             hours span midnight. If tickGranularity is "hour" or finer, you probably want to set this; if tickGranularity is
+             "day" or coarser, probably not.
+          @cfg {Object} [workDayEndBefore] An optional object in the form {hour: 17, minute: 0}. If minute is zero it can be omitted.
+             The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
+             Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
+             than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
+             the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
+      
+          @cfg {Object[]} [metrics=[]] (required) Array which specifies the metrics to calculate for tick in time.
+      
+            Example:
+      
+              config = {}
+              config.metrics = [
+                {field: 'field3'},                                      # defaults to metrics: ['sum']
+                {field: 'field4', metrics: [
+                  {f: 'sum'},                                           # will add a metric named field4_sum
+                  {as: 'median4', f: 'p50'},                            # renamed p50 to median4 from default of field4_p50
+                  {as: 'myCount', f: (values) -> return values.length}  # user-supplied function
+                ]}
+              ]
+      
+            If you specify a field without any metrics, it will assume you want the sum but it will not automatically
+            add the sum metric to fields with a metrics specification. User-supplied aggregation functions are also supported as
+            shown in the 'myCount' metric above.
+      
+            Note, if the metric has dependencies (e.g. average depends upon count and sum) it will automatically add those to
+            your metric definition. If you've already added a dependency but put it under a different "as", it's not smart
+            enough to sense that and it will add it again. Either live with the duplication or leave
+            dependency metrics named their default by not providing an "as" field.
+          @cfg {Object[]} deriveFieldsOnInput An Array of Maps in the form `{field:'myField', f:(fact)->...}`
+          @cfg {Object[]} deriveFieldsOnOutput same format at deriveFieldsOnInput, except the callback is in the form `f(row)`
+            This is only called for dirty rows that were effected by the latest round of additions in an incremental calculation.
+          @cfg {Object[]} [summaryMetricsConfig] Allows you to specify a list of metrics to calculate on the results before returning.
+            These can either be in the form of `{as: 'myMetric', field: 'field4`, f:'sum'}` which would extract all of the values
+            for field `field4` and pass it as the values parameter to the `f` (`sum` in this example) function (from Lumenize.functions), or
+            it can be in the form of `{as: 'myMetric', f:(seriesData, summaryMetrics) -> ...}`. Note, they are calculated
+            in order, so you can use the result of an earlier summaryMetric to calculate a later one.
+          @cfg {Object[]} [deriveFieldsAfterSummary] same format at deriveFieldsOnInput, except the callback is in the form `f(row, index, summaryMetrics, seriesData)`
+            This is called on all rows every time you call getResults() so it's less efficient than deriveFieldsOnOutput. Only use it if you need
+            the summaryMetrics in your calculation.
+          @cfg {String/ISOString/Date/Lumenize.Time} [startOn=-infinity] This becomes the master startOn for the entire calculator limiting
+            the calculator to only emit ticks equal to this or later.
+          @cfg {String/ISOString/Date/Lumenize.Time} [endBefore=infinity] This becomes the master endBefore for the entire calculator
+            limiting the calculator to only emit ticks before this.
+      */
+
+      var a, dimensions, f, field, fieldsMap, filterValue, filteredCountCreator, filteredSumCreator, inputCubeDimensions, inputCubeMetrics, m, newMetrics, row, ticks, timeline, timelineConfig, tl, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
+      this.config = utils.clone(config);
+      this.tickToLabelLookup = {};
+      if (this.config.validFromField == null) {
+        this.config.validFromField = "_ValidFrom";
+      }
+      if (this.config.validToField == null) {
+        this.config.validToField = "_ValidTo";
+      }
+      if (this.config.uniqueIDField == null) {
+        this.config.uniqueIDField = "ObjectID";
+      }
+      utils.assert(this.config.tz != null, "Must provide a timezone to this calculator.");
+      utils.assert(this.config.granularity != null, "Must provide a granularity to this calculator.");
+      newMetrics = [];
+      _ref1 = this.config.metrics;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        a = _ref1[_i];
+        if ((_ref2 = a.f) === 'groupBySum' || _ref2 === 'groupByCount') {
+          if (a.prefix == null) {
+            a.prefix = '';
           }
-            
-      Returns the aggregations like this:
-        
-          a = groupBy(list, spec)
-          console.log(a)
-    
-          #   [ { KanbanState: 'In progress',
-          #       'ObjectID_$count': 1,
-          #       'Drill-down': [ '1' ], 
-          #       'PlanEstimate_$sum': 5, 
-          #       mySum: 5 },
-          #     { KanbanState: 'Ready to pull',
-          #       'ObjectID_$count': 2, 
-          #       'Drill-down': [ '2', '3' ], 
-          #       'PlanEstimate_$sum': 8, 
-          #       mySum: 8 } ]
-          
-      The first element of this specification is the `groupBy` field. This is analagous to
-      the `GROUP BY` column in an SQL expression.
-      
-      Uses the same aggregation functions as the `aggregate` function.
-    */
-
-    var a, as, f, groupByValue, grouped, output, outputRow, row, valuesArray, valuesForThisGroup, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2;
-    grouped = {};
-    for (_i = 0, _len = list.length; _i < _len; _i++) {
-      row = list[_i];
-      if (grouped[row[spec.groupBy]] == null) {
-        grouped[row[spec.groupBy]] = [];
-      }
-      grouped[row[spec.groupBy]].push(row);
-    }
-    output = [];
-    for (groupByValue in grouped) {
-      valuesForThisGroup = grouped[groupByValue];
-      outputRow = {};
-      outputRow[spec.groupBy] = groupByValue;
-      _ref1 = spec.aggregationSpec;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        a = _ref1[_j];
-        valuesArray = [];
-        for (_k = 0, _len2 = valuesForThisGroup.length; _k < _len2; _k++) {
-          row = valuesForThisGroup[_k];
-          valuesArray.push(row[a.field]);
-        }
-        _ref2 = _extractFandAs(a), f = _ref2.f, as = _ref2.as;
-        outputRow[as] = f(valuesArray);
-      }
-      output.push(outputRow);
-    }
-    return output;
-  };
-
-  groupByAt = function(atArray, spec) {
-    /*
-      @method groupByAt
-      @param {Array[]} atArray
-      @param {Object} spec
-      @return {Array[]}
-    
-      Each row in atArray is passed to the `groupBy` function and the results are collected into a single output.
-      
-      This function also finds all the unique groupBy values in all rows of the output and pads the output with blank/zero rows to cover
-      each unique groupBy value.
-      
-      This is essentially a wrapper around the groupBy function so the spec parameter is the same with the addition of the `uniqueValues` field.
-      The ordering specified in `spec.uniqueValues` (optional) will be honored. Any additional unique values that aggregateAt finds will be added to
-      the uniqueValues list at the end. This gives you the best of both worlds. The ability to specify the order without the risk of the
-      data containing more values than you originally thought when you created spec.uniqueValues.
-      
-      Note: `groupByAt` has the side-effect that `spec.uniqueValues` are upgraded with the missing values.
-      You can use this if you want to do more calculations at the calling site.
-    */
-
-    var a, as, blank, f, idx, key, newRow, output, row, t, temp, tempGroupBy, tempKey, tempRow, tgb, u, uniqueValues, value, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref1, _ref2;
-    temp = [];
-    for (idx = _i = 0, _len = atArray.length; _i < _len; idx = ++_i) {
-      row = atArray[idx];
-      tempGroupBy = groupBy(row, spec);
-      tempRow = {};
-      for (_j = 0, _len1 = tempGroupBy.length; _j < _len1; _j++) {
-        tgb = tempGroupBy[_j];
-        tempKey = tgb[spec.groupBy];
-        delete tgb[spec.groupBy];
-        tempRow[tempKey] = tgb;
-      }
-      temp.push(tempRow);
-    }
-    if (spec.uniqueValues != null) {
-      uniqueValues = spec.uniqueValues;
-    } else {
-      uniqueValues = [];
-    }
-    for (_k = 0, _len2 = temp.length; _k < _len2; _k++) {
-      t = temp[_k];
-      for (key in t) {
-        value = t[key];
-        if (__indexOf.call(uniqueValues, key) < 0) {
-          uniqueValues.push(key);
-        }
-      }
-    }
-    blank = {};
-    _ref1 = spec.aggregationSpec;
-    for (_l = 0, _len3 = _ref1.length; _l < _len3; _l++) {
-      a = _ref1[_l];
-      _ref2 = _extractFandAs(a), f = _ref2.f, as = _ref2.as;
-      blank[as] = f([]);
-    }
-    output = [];
-    for (_m = 0, _len4 = temp.length; _m < _len4; _m++) {
-      t = temp[_m];
-      row = [];
-      for (_n = 0, _len5 = uniqueValues.length; _n < _len5; _n++) {
-        u = uniqueValues[_n];
-        if (t[u] != null) {
-          t[u][spec.groupBy] = u;
-          row.push(t[u]);
+          _ref3 = a.allowedValues;
+          for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+            filterValue = _ref3[_j];
+            row = {
+              as: a.prefix + filterValue,
+              filterField: a.groupByField,
+              filterValues: [filterValue]
+            };
+            if (a.f === 'groupBySum') {
+              row.field = a.field;
+              row.f = 'filteredSum';
+            } else {
+              row.f = 'filteredCount';
+            }
+            newMetrics.push(row);
+          }
         } else {
-          newRow = utils.clone(blank);
-          newRow[spec.groupBy] = u;
-          row.push(newRow);
+          newMetrics.push(a);
         }
       }
-      output.push(row);
-    }
-    return output;
-  };
-
-  timeSeriesCalculator = function(snapshotArray, config) {
-    /*
-      @method timeSeriesCalculator
-      @param {Object[]} snapshotArray
-      @param {Object} config
-      @return {Object} Returns an Object {listOfAtCTs, aggregationAtArray}
-    
-      Takes an MVCC style `snapshotArray` array and returns the time series calculations `At` each moment specified by
-      the ChartTimeRange spec (`rangeSpec`) within the config object.
-      
-      This is really just a thin wrapper around various ChartTime calculations, so look at the documentation for each of
-      those to get the detail picture of what this timeSeriesCalculator does. The general flow is:
-      
-      1. Use `ChartTimeRange.getTimeline()` against the `rangeSpec` to find the points for the x-axis.
-         The output of this work is a `listOfAtCTs` array.
-      2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
-         The output of this operation is called an `atArray`
-      3. Use `deriveFieldsAt` to add fields in each object in the `atArray` whose values are derived from the other fields in the object.
-      4. Use `aggregateAt` to calculate aggregations into an `aggregationAtArray` which contains chartable values.
-    */
-
-    var aggregationAtArray, atArray, listOfAtCTs;
-    listOfAtCTs = new ChartTimeRange(config.rangeSpec).getTimeline();
-    atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField);
-    deriveFieldsAt(atArray, config.derivedFields);
-    aggregationAtArray = aggregateAt(atArray, config.aggregationSpec);
-    return {
-      listOfAtCTs: listOfAtCTs,
-      aggregationAtArray: aggregationAtArray
-    };
-  };
-
-  timeSeriesGroupByCalculator = function(snapshotArray, config) {
-    /*
-      @method timeSeriesGroupByCalculator
-      @param {Object[]} snapshotArray
-      @param {Object} config
-      @return {Object} Returns an Object {listOfAtCTs, groupByAtArray, uniqueValues}
-    
-      Takes an MVCC style `snapshotArray` array and returns the data groupedBy a particular field `At` each moment specified by
-      the ChartTimeRange spec (`rangeSpec`) within the config object. 
-      
-      This is really just a thin wrapper around various ChartTime calculations, so look at the documentation for each of
-      those to get the detail picture of what this timeSeriesGroupByCalculator does. The general flow is:
-      
-      1. Use `ChartTimeRange` and `ChartTimeIterator` against the `rangeSpec` to find the points for the x-axis.
-         The output of this work is a `listOfAtCTs` array.
-      2. Use `snapshotArray_To_AtArray` to figure out what state those objects were in at each point in the `listOfAtCTs` array.
-         The output of this operation is called an `atArray`
-      3. Use `groupByAt` to create a `groupByAtArray` of grouped aggregations to chart
-    */
-
-    var aggregationSpec, atArray, groupByAtArray, listOfAtCTs;
-    listOfAtCTs = new ChartTimeRange(config.rangeSpec).getTimeline();
-    atArray = snapshotArray_To_AtArray(snapshotArray, listOfAtCTs, config.snapshotValidFromField, config.snapshotUniqueID, config.timezone, config.snapshotValidToField);
-    aggregationSpec = {
-      groupBy: config.groupByField,
-      uniqueValues: utils.clone(config.groupByFieldValues),
-      aggregationSpec: [
+      this.config.metrics = newMetrics;
+      filteredCountCreator = function(filterField, filterValues) {
+        var f;
+        f = function(row) {
+          var _ref4;
+          if (_ref4 = row[filterField], __indexOf.call(filterValues, _ref4) >= 0) {
+            return 1;
+          } else {
+            return 0;
+          }
+        };
+        return f;
+      };
+      filteredSumCreator = function(field, filterField, filterValues) {
+        var f;
+        f = function(row) {
+          var _ref4;
+          if (_ref4 = row[filterField], __indexOf.call(filterValues, _ref4) >= 0) {
+            return row[field];
+          } else {
+            return 0;
+          }
+        };
+        return f;
+      };
+      _ref4 = this.config.metrics;
+      for (_k = 0, _len2 = _ref4.length; _k < _len2; _k++) {
+        a = _ref4[_k];
+        if ((_ref5 = a.f) === 'filteredCount' || _ref5 === 'filteredSum') {
+          if (a.f === 'filteredCount') {
+            f = filteredCountCreator(a.filterField, a.filterValues);
+          } else {
+            f = filteredSumCreator(a.field, a.filterField, a.filterValues);
+          }
+          if (a.as == null) {
+            throw new Error("Must provide `as` specification for a `" + a.f + "` metric.");
+          }
+          if (this.config.deriveFieldsOnInput == null) {
+            this.config.deriveFieldsOnInput = [];
+          }
+          this.config.deriveFieldsOnInput.push({
+            as: a.as,
+            f: f
+          });
+          a.f = 'sum';
+          a.field = a.as;
+        }
+      }
+      inputCubeDimensions = [
         {
-          as: 'GroupBy',
-          field: config.aggregationField,
-          f: config.aggregationFunction
+          field: this.config.uniqueIDField
         }, {
-          as: 'Count',
-          field: 'ObjectID',
-          f: '$count'
-        }, {
-          as: 'DrillDown',
-          field: 'ObjectID',
-          f: '$push'
+          field: 'tick'
         }
-      ]
-    };
-    groupByAtArray = groupByAt(atArray, aggregationSpec);
-    return {
-      listOfAtCTs: listOfAtCTs,
-      groupByAtArray: groupByAtArray,
-      uniqueValues: utils.clone(aggregationSpec.uniqueValues)
-    };
-  };
-
-  exports.percentileCreator = percentileCreator;
-
-  exports.aggregate = aggregate;
-
-  exports.aggregateAt = aggregateAt;
-
-  exports.groupBy = groupBy;
-
-  exports.groupByAt = groupByAt;
-
-  exports.timeSeriesCalculator = timeSeriesCalculator;
-
-  exports.timeSeriesGroupByCalculator = timeSeriesGroupByCalculator;
-
-}).call(this);
-
-});
-
-require.define("/src/derive.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var deriveFields, deriveFieldsAt;
-
-  deriveFields = function(list, derivedFieldsSpec) {
-    /*
-      @method deriveFields
-      @param {Object[]} list
-      @param {Object[]} derivedFieldsSpec
-    
-      This function works on the list in place meaning that it's all side effect.
-    
-      To use this, you must `require` it
-      
-          {deriveFields, deriveFieldsAt} = require('../')
-    
-      Takes a list like:
-    
-          list = [
-            {a: 1, b: 2},
-            {a: 3, b: 4}
-          ]
-          
-      and a list of derivations like:
-      
-          derivations = [
-            {name: 'sum', f: (row) -> row.a + row.b}
-          ]
-      
-      and upgrades the list in place with the derived fields like:
-      
-          deriveFields(list, derivations)
-          
-          console.log(list)
-          # [ { a: 1, b: 2, sum: 3 }, { a: 3, b: 4, sum: 7 } ]
-    
-      Note: the derivations are calculated in order so you can use the output of one derivation as the input to one
-      that appears later in the derivedFieldsSpec list.
-    */
-
-    var d, row, _i, _len, _results;
-    _results = [];
-    for (_i = 0, _len = list.length; _i < _len; _i++) {
-      row = list[_i];
-      _results.push((function() {
-        var _j, _len1, _results1;
-        _results1 = [];
-        for (_j = 0, _len1 = derivedFieldsSpec.length; _j < _len1; _j++) {
-          d = derivedFieldsSpec[_j];
-          _results1.push(row[d.name] = d.f(row));
+      ];
+      fieldsMap = {};
+      _ref6 = this.config.metrics;
+      for (_l = 0, _len3 = _ref6.length; _l < _len3; _l++) {
+        m = _ref6[_l];
+        if (m.field != null) {
+          fieldsMap[m.field] = true;
         }
-        return _results1;
-      })());
-    }
-    return _results;
-  };
-
-  deriveFieldsAt = function(atArray, derivedFieldsSpec) {
-    /*
-      @method deriveFieldsAt
-      @param {Array[]} atArray
-      @param {Object[]} derivedFieldsSpec
-      @return {Array[]}
-      Sends every sub-array in atArray to deriveFields upgrading the atArray in place.
-    */
-
-    var a, _i, _len, _results;
-    _results = [];
-    for (_i = 0, _len = atArray.length; _i < _len; _i++) {
-      a = atArray[_i];
-      _results.push(deriveFields(a, derivedFieldsSpec));
-    }
-    return _results;
-  };
-
-  exports.deriveFields = deriveFields;
-
-  exports.deriveFieldsAt = deriveFieldsAt;
-
-}).call(this);
-
-});
-
-require.define("/src/functions.coffee",function(require,module,exports,__dirname,__filename,process,global){
-/*
-@class functions
-*/
-
-
-(function() {
-  var functions;
-
-  functions = {};
-
-  /*
-  @method $sum
-  @static
-  @param {Number[]} values
-  @return {Number} The sum of the values
-  */
-
-
-  functions.$sum = function(values) {
-    var temp, v, _i, _len;
-    temp = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      temp += v;
-    }
-    return temp;
-  };
-
-  /*
-  @method $sumSquares
-  @static
-  @param {Number[]} values
-  @return {Number} The sum of the squares of the values
-  */
-
-
-  functions.$sumSquares = function(values) {
-    var temp, v, _i, _len;
-    temp = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      temp += v * v;
-    }
-    return temp;
-  };
-
-  /*
-  @method $count
-  @static
-  @param {Number[]} values
-  @return {Number} The length of the values Array
-  */
-
-
-  functions.$count = function(values) {
-    return values.length;
-  };
-
-  /*
-  @method $min
-  @static
-  @param {Number[]} values
-  @return {Number} The minimum value or null if no values
-  */
-
-
-  functions.$min = function(values) {
-    var temp, v, _i, _len;
-    if (values.length === 0) {
-      return null;
-    }
-    temp = values[0];
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      if (v < temp) {
-        temp = v;
+      }
+      inputCubeMetrics = [];
+      for (field in fieldsMap) {
+        inputCubeMetrics.push({
+          field: field,
+          f: 'firstValue',
+          as: field
+        });
+      }
+      this.inputCubeConfig = {
+        dimensions: inputCubeDimensions,
+        metrics: inputCubeMetrics,
+        deriveFieldsOnInput: this.config.deriveFieldsOnInput
+      };
+      dimensions = [
+        {
+          field: 'tick'
+        }
+      ];
+      this.cubeConfig = {
+        dimensions: dimensions,
+        metrics: this.config.metrics,
+        deriveFieldsOnOutput: this.config.deriveFieldsOnOutput
+      };
+      this.toDateCubeConfig = utils.clone(this.cubeConfig);
+      this.toDateCubeConfig.deriveFieldsOnInput = this.config.deriveFieldsOnInput;
+      this.cube = new OLAPCube(this.cubeConfig);
+      this.upToDateISOString = null;
+      if (this.config.summaryMetricsConfig != null) {
+        _ref7 = this.config.summaryMetricsConfig;
+        for (_m = 0, _len4 = _ref7.length; _m < _len4; _m++) {
+          m = _ref7[_m];
+          functions.expandFandAs(m);
+        }
+      }
+      if (config.startOn != null) {
+        this.masterStartOnTime = new Time(config.startOn, this.config.granularity, this.config.tz);
+      } else {
+        this.masterStartOnTime = new Time('BEFORE_FIRST', this.config.granularity);
+      }
+      if (config.endBefore != null) {
+        this.masterEndBeforeTime = new Time(config.endBefore, this.config.granularity, this.config.tz);
+      } else {
+        this.masterEndBeforeTime = new Time('PAST_LAST', this.config.granularity);
+      }
+      if ((config.startOn != null) && (config.endBefore != null)) {
+        timelineConfig = utils.clone(this.config);
+        timelineConfig.startOn = this.masterStartOnTime;
+        timelineConfig.endBefore = this.masterEndBeforeTime;
+        timeline = new Timeline(timelineConfig);
+        ticks = timeline.getAll('Timeline', this.config.tz, this.config.granularity);
+        for (_n = 0, _len5 = ticks.length; _n < _len5; _n++) {
+          tl = ticks[_n];
+          this.tickToLabelLookup[tl.endBefore.getISOStringInTZ(config.tz)] = tl.startOn.toString();
+        }
       }
     }
-    return temp;
-  };
 
-  /*
-  @method $max
-  @static
-  @param {Number[]} values
-  @return {Number} The maximum value or null if no values
-  */
+    TimeSeriesCalculator.prototype.addSnapshots = function(snapshots, startOnISOString, upToDateISOString) {
+      /*
+          @method addSnapshots
+            Allows you to incrementally add snapshots to this calculator.
+          @chainable
+          @param {Object[]} snapshots An array of temporal data model snapshots.
+          @param {String} startOnISOString A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+            interest. On the second through nth call, this should equal the previous upToDateISOString.
+          @param {String} upToDateISOString A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+            period of interest.
+          @return {TimeInStateCalculator}
+      */
 
-
-  functions.$max = function(values) {
-    var temp, v, _i, _len;
-    if (values.length === 0) {
-      return null;
-    }
-    temp = values[0];
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      if (v > temp) {
-        temp = v;
+      var advanceOneTimeline, advanceOneTimelineConfig, advanceOneTimelineIterator, endBeforeTime, inputCube, s, startOnTime, ticks, timeline, timelineConfig, tl, validSnapshots, _i, _j, _k, _len, _len1, _len2, _ref1;
+      if (this.upToDateISOString != null) {
+        utils.assert(this.upToDateISOString === startOnISOString, "startOnISOString (" + startOnISOString + ") parameter should equal upToDateISOString of previous call (" + this.upToDateISOString + ") to addSnapshots.");
       }
-    }
-    return temp;
-  };
+      this.upToDateISOString = upToDateISOString;
+      advanceOneTimelineConfig = utils.clone(this.config);
+      advanceOneTimelineConfig.startOn = new Time(upToDateISOString, this.config.granularity, this.config.tz);
+      delete advanceOneTimelineConfig.endBefore;
+      advanceOneTimelineConfig.limit = 2;
+      advanceOneTimeline = new Timeline(advanceOneTimelineConfig);
+      advanceOneTimelineIterator = advanceOneTimeline.getIterator();
+      advanceOneTimelineIterator.next();
+      endBeforeTime = advanceOneTimelineIterator.next();
+      timelineConfig = utils.clone(this.config);
+      startOnTime = new Time(startOnISOString, this.config.granularity, this.config.tz);
+      if (startOnTime.greaterThan(this.masterStartOnTime)) {
+        timelineConfig.startOn = startOnTime;
+      } else {
+        timelineConfig.startOn = this.masterStartOnTime;
+      }
+      if (endBeforeTime.lessThan(this.masterEndBeforeTime)) {
+        timelineConfig.endBefore = endBeforeTime;
+      } else {
+        timelineConfig.endBefore = this.masterEndBeforeTime;
+      }
+      this.asOfISOString = timelineConfig.endBefore.getISOStringInTZ(this.config.tz);
+      timeline = new Timeline(timelineConfig);
+      ticks = timeline.getAll('Timeline', this.config.tz, this.config.granularity);
+      for (_i = 0, _len = ticks.length; _i < _len; _i++) {
+        tl = ticks[_i];
+        this.tickToLabelLookup[tl.endBefore.getISOStringInTZ(this.config.tz)] = tl.startOn.toString();
+      }
+      validSnapshots = [];
+      for (_j = 0, _len1 = snapshots.length; _j < _len1; _j++) {
+        s = snapshots[_j];
+        ticks = timeline.ticksThatIntersect(s[this.config.validFromField], s[this.config.validToField], this.config.tz);
+        if (ticks.length > 0) {
+          s.tick = ticks;
+          validSnapshots.push(s);
+        }
+      }
+      inputCube = new OLAPCube(this.inputCubeConfig, validSnapshots);
+      this.cube.addFacts(inputCube.getCells());
+      if (true || this.masterEndBeforeTime.greaterThanOrEqual(endBeforeTime)) {
+        this.toDateSnapshots = [];
+        for (_k = 0, _len2 = snapshots.length; _k < _len2; _k++) {
+          s = snapshots[_k];
+          if ((s[this.config.validToField] > (_ref1 = this.asOfISOString) && _ref1 >= s[this.config.validFromField])) {
+            this.toDateSnapshots.push(s);
+          }
+        }
+      } else {
+        this.toDateSnapshots = void 0;
+      }
+      return this;
+    };
 
-  /*
-  @method $push
-  @static
-  @param {Number[]} values
-  @return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
-  */
+    TimeSeriesCalculator.prototype.getResults = function() {
+      /*
+          @method getResults
+            Returns the current state of the calculator
+          @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
+      */
 
+      var cell, d, foundFirstNullCell, index, labels, m, row, s, seriesData, startOn, summaryMetric, summaryMetrics, t, tickIndex, ticks, toDateCell, toDateCube, values, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _m, _n, _o, _ref1, _ref2, _ref3, _ref4, _ref5;
+      ticks = utils._.keys(this.tickToLabelLookup).sort();
+      labels = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = ticks.length; _i < _len; _i++) {
+          t = ticks[_i];
+          _results.push(this.tickToLabelLookup[t]);
+        }
+        return _results;
+      }).call(this);
+      if ((this.toDateSnapshots != null) && this.toDateSnapshots.length > 0) {
+        _ref1 = this.toDateSnapshots;
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          s = _ref1[_i];
+          s.tick = 'To Date';
+        }
+        toDateCube = new OLAPCube(this.toDateCubeConfig, this.toDateSnapshots);
+        toDateCell = toDateCube.getCells()[0];
+        delete toDateCell._count;
+      }
+      seriesData = [];
+      foundFirstNullCell = false;
+      for (tickIndex = _j = 0, _len1 = ticks.length; _j < _len1; tickIndex = ++_j) {
+        t = ticks[tickIndex];
+        cell = utils.clone(this.cube.getCell({
+          tick: t
+        }));
+        if (cell != null) {
+          delete cell._count;
+        } else {
+          startOn = new Time(labels[tickIndex]).getISOStringInTZ(this.config.tz);
+          if (toDateCell && (startOn < (_ref2 = this.asOfISOString) && _ref2 <= t)) {
+            cell = toDateCell;
+          } else {
+            cell = {};
+            _ref3 = this.config.metrics;
+            for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
+              m = _ref3[_k];
+              cell[m.as] = null;
+            }
+          }
+          cell.tick = t;
+        }
+        cell.label = this.tickToLabelLookup[cell.tick];
+        seriesData.push(cell);
+      }
+      if (this.config.summaryMetricsConfig != null) {
+        summaryMetrics = {};
+        _ref4 = this.config.summaryMetricsConfig;
+        for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
+          summaryMetric = _ref4[_l];
+          if (summaryMetric.field != null) {
+            values = [];
+            for (_m = 0, _len4 = seriesData.length; _m < _len4; _m++) {
+              row = seriesData[_m];
+              values.push(row[summaryMetric.field]);
+            }
+            summaryMetrics[summaryMetric.as] = summaryMetric.f(values);
+          } else {
+            summaryMetrics[summaryMetric.as] = summaryMetric.f(seriesData, summaryMetrics);
+          }
+        }
+      }
+      if (this.config.deriveFieldsAfterSummary != null) {
+        for (index = _n = 0, _len5 = seriesData.length; _n < _len5; index = ++_n) {
+          row = seriesData[index];
+          _ref5 = this.config.deriveFieldsAfterSummary;
+          for (_o = 0, _len6 = _ref5.length; _o < _len6; _o++) {
+            d = _ref5[_o];
+            row[d.as] = d.f(row, index, summaryMetrics, seriesData);
+          }
+        }
+      }
+      return {
+        seriesData: seriesData,
+        summaryMetrics: summaryMetrics
+      };
+    };
 
-  functions.$push = function(values) {
-    var temp, v, _i, _len;
-    temp = [];
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      temp.push(v);
-    }
-    return temp;
-  };
+    TimeSeriesCalculator.prototype.getStateForSaving = function(meta) {
+      /*
+          @method getStateForSaving
+            Enables saving the state of this calculator. See class documentation for a detailed example.
+          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+            within the deserialized calculator.
+          @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+            to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+            the calculator.
+      */
 
-  /*
-  @method $addToSet
-  @static
-  @param {Number[]} values
-  @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
-  */
+      var out;
+      out = {
+        config: this.config,
+        cubeSavedState: this.cube.getStateForSaving(),
+        upToDateISOString: this.upToDateISOString
+      };
+      if (meta != null) {
+        out.meta = meta;
+      }
+      return out;
+    };
 
+    TimeSeriesCalculator.newFromSavedState = function(p) {
+      /*
+          @method newFromSavedState
+            Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
+          @static
+          @param {String/Object} p A String or Object from a previously saved state
+          @return {TimeInStateCalculator}
+      */
 
-  functions.$addToSet = function(values) {
-    var key, temp, temp2, v, value, _i, _len;
-    temp = {};
-    temp2 = [];
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      temp[v] = null;
-    }
-    for (key in temp) {
-      value = temp[key];
-      temp2.push(key);
-    }
-    return temp2;
-  };
+      var calculator;
+      if (utils.type(p) === 'string') {
+        p = JSON.parse(p);
+      }
+      calculator = new TimeSeriesCalculator(p.config);
+      calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState);
+      calculator.upToDateISOString = p.upToDateISOString;
+      if (p.meta != null) {
+        calculator.meta = p.meta;
+      }
+      return calculator;
+    };
 
-  /*
-  @method $average
-  @static
-  @param {Number[]} values
-  @return {Number} The arithmetic mean
-  */
+    return TimeSeriesCalculator;
 
+  })();
 
-  functions.$average = function(values) {
-    var count, sum, v, _i, _len;
-    count = values.length;
-    sum = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      sum += v;
-    }
-    return sum / count;
-  };
-
-  /*
-  @method $variance
-  @static
-  @param {Number[]} values
-  @return {Number} The variance
-  */
-
-
-  functions.$variance = function(values) {
-    var n, sum, sumSquares, v, _i, _len;
-    n = values.length;
-    sum = 0;
-    sumSquares = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
-      sum += v;
-      sumSquares += v * v;
-    }
-    return (n * sumSquares - sum * sum) / (n * (n - 1));
-  };
-
-  /*
-  @method $standardDeviation
-  @static
-  @param {Number[]} values
-  @return {Number} The standard deviation
-  */
-
-
-  functions.$standardDeviation = function(values) {
-    return Math.sqrt(functions.$variance(values));
-  };
-
-  exports.functions = functions;
+  exports.TimeSeriesCalculator = TimeSeriesCalculator;
 
 }).call(this);
 
 });
 
 require.define("/src/histogram.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var functions, histogram;
+  var functions, histogram, utils;
 
   functions = require('./functions').functions;
 
-  histogram = function(rows, valueField) {
+  utils = require('tztime').utils;
+
+  histogram = function(rows, valueField, noClipping) {
+    var b, bucket, bucketCount, bucketSize, buckets, c, chartMax, chartMin, chartValues, chartValuesMinusOutliers, clipped, i, iqr, max, percentile, q1, q3, row, total, upperBound, valueMax, _i, _j, _k, _l, _len, _len1, _len2;
+    if (noClipping == null) {
+      noClipping = false;
+    }
     /*
       @method histogram
       @param {Object[]} rows
@@ -9117,14 +12315,14 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
           {buckets, chartMax} = histogram(rows, 'age')
           for b in buckets
             console.log(b.label, b.count)
-          # 0-13 2
-          # 13-26 7
-          # 26-39 6
-          # 39-52 1
-          # 52-65 1
+          # 0-12 2
+          # 12-24 5
+          # 24-36 8
+          # 36-48 1
+          # 48-60 1
           
           console.log(chartMax)
-          # 65
+          # 60
       
       This histogram calculator will also attempt to lump outliers into a single bucket at the top.
           
@@ -9134,7 +12332,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
       
           lastBucket = buckets[buckets.length - 1]
           console.log(lastBucket.label, lastBucket.count)
-          # 68-86* 1
+          # 48-86* 2
           
       The asterix `*` is there to indicate that this bucket is not the same size as the others and non-linear.
       The histogram calculator will also "clip" the values for these outliers so that you can
@@ -9143,11 +12341,10 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
       the bounds of the top band where the actual max value is scaled down to the `chartMax`
       
           lastBucket = buckets[buckets.length - 1]
-          console.log(lastBucket.rows[0].age, lastBucket.rows[0].clippedChartValue)
-          # 85 84.05555555555556
+          console.log(lastBucket.rows[1].age, lastBucket.rows[1].clippedChartValue)
+          # 85 59.68421052631579
     */
 
-    var average, b, bucket, bucketCount, bucketSize, buckets, c, chartMax, chartMin, chartValues, chartValuesMinusOutliers, clipped, i, percentile, row, standardDeviation, total, upperBound, valueMax, _i, _j, _k, _l, _len, _len1, _len2;
     chartValues = (function() {
       var _i, _len, _results;
       _results = [];
@@ -9157,29 +12354,40 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
       }
       return _results;
     })();
-    average = functions.$average(chartValues);
-    standardDeviation = functions.$standardDeviation(chartValues);
-    upperBound = average + 2 * standardDeviation;
-    chartValuesMinusOutliers = (function() {
-      var _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = chartValues.length; _i < _len; _i++) {
-        c = chartValues[_i];
-        if (c < upperBound) {
-          _results.push(c);
-        }
+    max = functions.max(chartValues);
+    max = Math.max(max, 1);
+    if (noClipping) {
+      upperBound = max;
+      chartValuesMinusOutliers = chartValues;
+    } else {
+      q3 = functions.percentileCreator(75)(chartValues);
+      q1 = functions.percentileCreator(25)(chartValues);
+      iqr = q3 - q1;
+      upperBound = q3 + 1.5 * iqr;
+      if (isNaN(upperBound) || upperBound > max) {
+        upperBound = max;
       }
-      return _results;
-    })();
+      chartValuesMinusOutliers = (function() {
+        var _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = chartValues.length; _i < _len; _i++) {
+          c = chartValues[_i];
+          if (c <= upperBound) {
+            _results.push(c);
+          }
+        }
+        return _results;
+      })();
+    }
     bucketCount = Math.floor(Math.sqrt(chartValuesMinusOutliers.length));
     if (bucketCount < 3) {
-      return void 0;
+      bucketCount = 2;
     }
     bucketSize = Math.floor(upperBound / bucketCount) + 1;
     upperBound = bucketSize * bucketCount;
     chartMin = 0;
     chartMax = upperBound + bucketSize;
-    valueMax = Math.floor(functions.$max(chartValues)) + 1;
+    valueMax = Math.floor(functions.max(chartValues)) + 1;
     valueMax = Math.max(chartMax, valueMax);
     for (_i = 0, _len = rows.length; _i < _len; _i++) {
       row = rows[_i];
@@ -9220,7 +12428,11 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     for (_l = 0, _len2 = buckets.length; _l < _len2; _l++) {
       b = buckets[_l];
       percentile += b.count / total;
-      b.percentile = percentile;
+      if (isNaN(percentile)) {
+        b.percentile = 0;
+      } else {
+        b.percentile = percentile;
+      }
     }
     buckets[buckets.length - 1].percentile = 1.0;
     return {

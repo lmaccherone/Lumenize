@@ -1,6 +1,7 @@
 functions = require('./functions').functions
+utils = require('tztime').utils
 
-histogram = (rows, valueField) ->
+histogram = (rows, valueField, noClipping = false) ->
   ###
   @method histogram
   @param {Object[]} rows
@@ -44,14 +45,14 @@ histogram = (rows, valueField) ->
       {buckets, chartMax} = histogram(rows, 'age')
       for b in buckets
         console.log(b.label, b.count)
-      # 0-13 2
-      # 13-26 7
-      # 26-39 6
-      # 39-52 1
-      # 52-65 1
+      # 0-12 2
+      # 12-24 5
+      # 24-36 8
+      # 36-48 1
+      # 48-60 1
       
       console.log(chartMax)
-      # 65
+      # 60
   
   This histogram calculator will also attempt to lump outliers into a single bucket at the top.
       
@@ -61,7 +62,7 @@ histogram = (rows, valueField) ->
   
       lastBucket = buckets[buckets.length - 1]
       console.log(lastBucket.label, lastBucket.count)
-      # 68-86* 1
+      # 48-86* 2
       
   The asterix `*` is there to indicate that this bucket is not the same size as the others and non-linear.
   The histogram calculator will also "clip" the values for these outliers so that you can
@@ -70,23 +71,31 @@ histogram = (rows, valueField) ->
   the bounds of the top band where the actual max value is scaled down to the `chartMax`
   
       lastBucket = buckets[buckets.length - 1]
-      console.log(lastBucket.rows[0].age, lastBucket.rows[0].clippedChartValue)
-      # 85 84.05555555555556
+      console.log(lastBucket.rows[1].age, lastBucket.rows[1].clippedChartValue)
+      # 85 59.68421052631579
             
   ###
   chartValues = (row[valueField] for row in rows)
-  
-  average = functions.$average(chartValues)
-  standardDeviation = functions.$standardDeviation(chartValues)
-  upperBound = average + 2 * standardDeviation
-  
-  chartValuesMinusOutliers = (c for c in chartValues when c < upperBound)
+  max = functions.max(chartValues)
+  max = Math.max(max, 1)
+
+  if noClipping
+    upperBound = max
+    chartValuesMinusOutliers = chartValues
+  else
+    q3 = functions.percentileCreator(75)(chartValues)
+    q1 = functions.percentileCreator(25)(chartValues)
+    iqr = q3 - q1
+    upperBound = q3 + 1.5 * iqr  # This is the Tukey recommendation http://exploringdata.net/why_1_5.htm
+    if isNaN(upperBound) or upperBound > max
+      upperBound = max
+    chartValuesMinusOutliers = (c for c in chartValues when c <= upperBound)
   
   bucketCount = Math.floor(Math.sqrt(chartValuesMinusOutliers.length))
   
   if bucketCount < 3
-    return undefined  # !TODO: Decide how to handle this
-  
+    bucketCount = 2
+
   bucketSize = Math.floor(upperBound / bucketCount) + 1
   
   upperBound = bucketSize * bucketCount
@@ -94,7 +103,7 @@ histogram = (rows, valueField) ->
   chartMin = 0
   chartMax = upperBound + bucketSize  # This will be at the very top of the top bucket
   
-  valueMax = Math.floor(functions.$max(chartValues)) + 1
+  valueMax = Math.floor(functions.max(chartValues)) + 1
   valueMax = Math.max(chartMax, valueMax)
   
   # add clippedChartValues to timeInState
@@ -133,7 +142,10 @@ histogram = (rows, valueField) ->
   percentile = 0
   for b in buckets
     percentile += b.count / total
-    b.percentile = percentile
+    if isNaN(percentile)
+      b.percentile = 0
+    else
+      b.percentile = percentile
   buckets[buckets.length - 1].percentile = 1.0
     
   return {buckets, bucketSize, chartMax, clipped, valueMax}

@@ -1,7 +1,7 @@
 [![build status](https://secure.travis-ci.org/lmaccherone/Lumenize.png)](http://travis-ci.org/lmaccherone/Lumenize)
 # Lumenize #
 
-Copyright (c) 2009-2012, Lawrence S. Maccherone, Jr.
+Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.
 
 _Illuminating the forest AND the trees in your data._
 
@@ -9,18 +9,18 @@ Lumenize is a collection of tools for making awesome visualizations out of your 
 
 ## Features ##
 
-* Create time-series axis for charts
-  * Knockout weekends, holidays, non-workhours
-  * Work with timezone precision
-  * Work in any granularity
-    * Year, quarter, week, day, hour, etc.
-    * No more recording `2012-03-05T00:00:00.000Z` when you really just mean `2012-03-05`
-    * Create and use custom granularities: `R02I04-07` = Seventh day of fourth iteration in second release
+* Fast, light, flexible client-side OLAP Cube with hierarchical rollup support
 * Create aggregations from temporal data models like Rally's Lookback API
-* Tested - Over 300 tests
-* [Documented](http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html) - Robust documentation for an open source library
-* [DocTested](https://github.com/lmaccherone/coffeedoctest) - The examples will always match the code because it fails automated testing
-   when they don't
+  * TimeSeriesCalculator - Show how performance changed over time. Visualize cumulative flow.
+  * TimeInStateCalculator - Calculate the ratio of wait to touch time. Find 98 percentile
+    of lead time to set service level agreements.
+  * TransitionsCalculator - Throughput. Velocity. 
+* Bundled with the [tzTime](https://github.com/lmaccherone/tzTime) library (same author) for
+  timezone precise x-axis. Knockout weekends, holidays, non-work hours, etc.
+* Tested - Over 400 tests (including tzTime)
+* [Documented (Lumenize)](http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html) [(tzTime)](http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html) - Robust documentation and examples
+* [DocTested](https://github.com/lmaccherone/coffeedoctest) - The examples will always match 
+  the code because it fails automated testing when they don't
 
 ## Credits ##
 
@@ -31,7 +31,8 @@ Authors:
 
 Used when running:
 
-* [timezoneJS](https://github.com/mde/timezone-js) - library for [tz file](http://www.twinsun.com/tz/tz-link.htm) parsing. Although I haven't touched the actual tz file parsing code, I have modified timezoneJS fairly significantly. The original included a drop-in replacement for JavaScript's Date object which I have removed. I also modified it to work on node.js and in the browser once "browserified" by bundling the tz files.
+* [tzTime](https://github.com/lmaccherone/tzTime) (by Larry Maccherone with Olson file
+  parsing from [timezoneJS](https://github.com/mde/timezone-js))
 
 Used when developing:
 
@@ -44,7 +45,7 @@ Used when developing:
 * [wrench](https://github.com/ryanmcgrath/wrench-js)
 * [marked](https://github.com/chjj/marked)
 
-## Using from a browser ##
+## Usage in a browser ##
 
 To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
 
@@ -52,51 +53,24 @@ To use in a browser, either host it on your own site, or if your volume is low e
 
 Replace `{{version}}` with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:
 
-`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/v0.4.3/deploy/Lumenize-min.js"></script>`
+`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/v0.6.1/deploy/Lumenize-min.js"></script>`
 
-The package is fairly large ~212KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip the package so it's only ~45KB over the wire.
+The package is fairly large ~204KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip the package so it's only ~45KB over the wire.
 
 Then at the top of the javascript where you want to call it, put the following:
 
 `var lumenize = require('./lumenize');`
-
-Then to use it, you can either create local aliases like:
-
-`var ChartTime = lumenize.ChartTime;`
-
-or you can just use the lumenize namespace:
-
-`var stdDev = lumenize.functions.$standardDeviation([20, 30, 50]);`
+`var stdDev = lumenize.functions.standardDeviation([20, 30, 50]);`
     
-## Installation for node.js usage ##
+## Usage in node.js ##
 
 To install, run the following from the root folder of your project:
 
 `npm install Lumenize --save`
 
-## Contributing to Lumenize ##
-    
-If you want to add functionality to Lumenize, you'll need a working dev environment which is based upon node.js, so the first step is to install that on your system.
-Once Node.js is installed, you should be able to run a few node package manager (npm) commands. Install the following:
+Then in your code:
 
-* `sudo npm -g install coffee-script`
-* `sudo npm -g install nodeunit`
- 
-Add the following to your ~/.profile or your ~/.bash_profile file
-  
-`NODE_PATH=/usr/local/lib/node_modules; export NODE_PATH`
-
-After edit, restart your session or use command `source ~/.[bash_]profile` to activate the changes immediately.
-
-Once you have the above installed, add tests for your upgrades and make sure all test pass with:
-
-`cake test`
-    
-Also, add examples in the "docstrings", then generate the docs (which will also confirm that the examples give the expected output when run):
-
-`cake docs`
-
-Once you have that all working, submit a pull request on GitHub.
+`var lumenize = require('Lumenize')`
 
 ## Documentation and source code ##
 
@@ -107,8 +81,77 @@ Once you have that all working, submit a pull request on GitHub.
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
-* 0.5.0 - 2012-12-15 (not pushed to github yet)
+* 0.6.7 - 2013-02-14 - Updated to latest version of jsduckify
+* 0.6.6 - 2013-02-11 - More precise toDateCell when incrementally calculated.
+* 0.6.5 - 2013-02-09 - Fixed bug on TimeSeriesCalculator where toDateCell was including more
+  than it should and was possible located wrong. Changed histogram to use Q3 + 1.5 * IQR as
+  outlier detector and added option to not do outlier clipping. Lots of little documentation
+  updates. Updated to tzTime 0.6.5.
+* 0.6.4 - 2013-02-08 - Fixed bug where Friday current will double count Friday in labels by 
+  adding a tick on Saturday. Now it advances all the way to Sunday night.
+* 0.6.3 - 2013-02-07 - Updated to tzTime 0.6.4 (potentially backward breaking to those who 
+  were incorrectly instantiating Time objects from an ISOString without providing a timezone)
+  Also, changed the way TimeSeriesCalculator takes into account the start so it works as
+  expected if it falls on a weekend. This is also potentially backward breaking.
+* 0.6.2 - 2013-02-06 - Close issue #10
+* 0.6.1 - 2013-02-03 - Updated to the laster version of tzTime 0.6.2
+* 0.6.0 - 2013-02-03 **Major backward breaking changes** 
+  * Time, Timeline, and TimelineIterator have been split out to their own package, 
+    [tzTime](https://github.com/lmaccherone/tzTime)
+  * Lumenize has been simplfified down to four main classes: TimeSeriesCalculator, 
+    TransitionsCalculator, TimeInStateCalculator, and OLAPCube
+  * There are still a few addional helpers for data transformation and a histogram calculator 
+    function. 
+  * The three main calculators implement the same interface and take similar config objects. 
+  * They provide a superset of all of the functionality previously found in Lumenize. 
+  * They all use the OLAPCube abstraction so they are much easier to understand, maintain, and 
+    upgrade. 
+  * They now all support incremental updating, and serialization so you can cache results of 
+    an earlier calculation and restart justfeeding in the updated information. 
+  * All this AND significant performance gains.
+  
+  Things removed and gone forever:
+  
+  * Removed the concept of an "AtArray" and any functions that used it including 
+    deriveFieldsAt, aggregationAtArray_To_HighChartsSeries, 
+    groupByAtArray_To_HighChartsSeries, and snapshotArray_To_AtArray 
+  * Similarly, the function-form of timeSeriesCalculator and timeSeriesGroupByCalculator have
+    been removed. Use the class-form replacement.
+  * GroupBy functionality is now contained in the TimeSeriesCalculator. There is no seperate
+    class for it like there was a seperate function for it before.
+  * Removed aggregate, derive, and groupBy. Their functionality is now contained in the 3 main
+    calculators.
+    
+* 0.5.8 - 2013-01-31 - TimeSeriesCalculator now includes groupBy support. There will be
+  no TimeSeriesGroupByCalculator.
+* 0.5.7 - 2013-01-27 - TimeSeriesCalculator evolved based upon learning from Burn Chart
+* 0.5.6 - 2013-01-24 - TimeSeriesCalculator class introduced (incremental, OLAP, etc.)
+* 0.5.5 - 2013-01-17 - Histogram now works all the way down to 0
+* 0.5.4 - 2013-01-17 - Histogram now works for bucketCount < 3
+* 0.5.3 - 2013-01-13 - Bug fix to work with Rally's Throughput chart
+* 0.5.2 - 2013-01-13 
+  * Added TransitionsCalculator using OLAPCube
+  * OLAPCube now allows for keepTotals on individual dimensions while still supporting
+    the global config.keepTotals    
+* 0.5.1 - 2013-01-06 **Backward breaking change**
+  * TimeInStateCalculator now requires you to specify `config.trackLastValueForTheseFields`
+    for any fields you want the last value maintained. Previously, the _ValidTo was 
+    automatically tracked.
+  * OLAPCube now has flattened input and flattened output
+  * Minor bug fixes
+* 0.5.0 - 2012-12-15 **Major backward breaking changes - not released to npm**
   * Major refactor of names/variables for inclusion in Rally's App SDK
+  * All functions that previously started with a `$` no longer do
+  * `$push()` is now `values()`
+  * `$addToSet()` is now `uniqueValues()`
+  * More parameters are pushed into the config Object parameter
+  * OLAPCube introduced. It's a great general purpose calculator and surprisingly it is as
+    efficient as the hand-coded calculators. I reimplemented the TimeInStateCalculator
+    to use the OLAPCube, which gave it incremental updating for free.
+  * ChartTime is now Time, ChartTimeRange is now Timeline, ChartTimeIterator is now 
+    TimelineIterator. All three have various other backward breaking changes mostly having to
+    do with defaults, method names, and method signatures. There are no semantic changes. 
+  * ChartTimeInStateCalculator is now TimeInStateCalculator.
 * 0.4.8 - 2012-12-08 - Turn off prefer global
 * 0.4.7 - 2012-12-08 - Updated dependencies
 * 0.4.6 - 2012-12-06 - More testing build and automatic npm publishing
@@ -117,22 +160,25 @@ In November of 2012, Lumenize wanted to start keeping old versions around becaus
 * 0.4.3 - 2012-11-28 - Cleaning up doc issues
 * 0.4.2 - 2012-11-28 - Playing with using git tags for keeping old versions
 * 0.4.1 - 2012-11-28 - Playing with using git branches for keeping old versions
-* 0.4.0 - 2012-11-27
-  * **Backward breaking change** No longer required/allowed to call ChartTime.setTZPath()
+* 0.4.0 - 2012-11-27 **Backward breaking change** 
+  * No longer required/allowed to call Time.setTZPath()
   * Using JSDuck for documentation now
   * Build system now keeps old deploy versions
   * Pre-compiled directory removed
-  * Bug fix for TimeInStateCalculator and snapshotArray_To_AtArray. They now sort (correctly). snapshotArray_To_AtArray will now also 
-    propertly remove from later ticks any entity that falls out of scope. Previously, deletions were not registered correctly by
+  * Bug fix for TimeInStateCalculator and snapshotArray_To_AtArray. They now sort (correctly). 
+    snapshotArray_To_AtArray will now also propertly remove from later ticks any entity that
+    falls out of scope. Previously, deletions were not registered correctly by
     snapshotArray_To_AtArray.
 * 0.3.0 - 2012-10-13
-  * Support for instantiating ChartTime objects relative to now using strings (e.g. 'this day in Pacific/Fiji')
-  * Added tests and fixed some bugs for rangeSpecs
-* 0.2.7 - 2012-10-10 - **Backward breaking change** to the structure of the data returned by groupBy() to match groupByAt()
+  * Support for instantiating Time objects relative to now using strings (e.g. 'this day in
+    Pacific/Fiji')
+  * Added tests and fixed some bugs for timelineConfigs
+* 0.2.7 - 2012-10-10 **Backward breaking change** 
+  * Change to the structure of the data returned by groupBy() to match groupByAt()
 
 ## MIT License ##
 
-Copyright (c) 2011, 2012, Lawrence S. Maccherone, Jr.
+Copyright (c) 2011, 2012, 2013 Lawrence S. Maccherone, Jr.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation 

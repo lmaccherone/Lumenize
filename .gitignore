@@ -3,5 +3,12 @@
 .DS_Store
 coffeedoctest_temp
 js
-play/.node-xmlhttprequest-sync-*
 node_modules
+src/*.map
+src/*.js
+test/*.map
+test/*.js
+play/*.map
+play/*.js
+lumenize.js
+lumenize.map

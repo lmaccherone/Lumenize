@@ -1,6 +1,6 @@
 {
   "name": "Lumenize",
-  "version": "0.4.8",
+  "version": "0.6.6",
   "main": "./lumenize",
   "description": "Illuminating the forest AND the trees in your data.",
   "keywords": [
@@ -9,7 +9,11 @@
     "infographics",
     "software engineering",
     "date",
-    "time"
+    "time",
+    "OLAP",
+    "business intelligence",
+    "BI",
+    "statistics"
   ],
   "author": {
     "name": "Larry Maccherone",
@@ -20,17 +24,19 @@
     "node": "0.8.x"
   },
   "repository": {
-    "type" : "git",
-    "url" : "http://github.com/lmaccherone/Lumenize.git"
+    "type": "git",
+    "url": "http://github.com/lmaccherone/Lumenize.git"
   },
   "preferGlobal": false,
   "dependencies": {
-    "coffee-script": "1.4.x"
+    "coffee-script": "1.4.x",
+    "tztime": "~0.6.1",
+    "jsduckify": "~0.2.2"
   },
   "devDependencies": {
     "coffeedoctest": "0.4.x",
     "uglify-js": "2.2.x",
-    "nodeunit": "0.7.x",
+    "nodeunit": "~0.7.4",
     "browserify": "1.16.x",
     "jsduckify": "0.2.x",
     "wrench": "1.4.x",
@@ -39,12 +45,12 @@
     "fileify-lm": "~0.3.1"
   },
   "scripts": {
-    "test": "cake test-all"
+    "test": "cake testall"
   },
   "licenses": [
-     {
-         "type": "MIT",
-         "url": "http://www.opensource.org/licenses/MIT"
-     }
-   ]
+    {
+      "type": "MIT",
+      "url": "http://www.opensource.org/licenses/MIT"
+    }
+  ]
 }

@@ -3,24 +3,24 @@
         "name": "Lumenize",
         "groups": [
             {
-                "name": "Primary Functions",
+                "name": "Overview, Transform, and Histogram",
                 "classes": [
                     "Lumenize"
+                ]
+            },
+            {
+                "name": "Primary Classes",
+                "classes": [
+                    "*.TimeSeriesCalculator",
+                    "*.TimeInStateCalculator",
+                    "*.TransitionsCalculator",
+                    "*.OLAPCube"
                 ]
             },
             {
                 "name": "Supporting Functions",
                 "classes": [
                     "*.functions"
-                ]
-            },
-            {
-                "name": "Supporting Classes",
-                "classes": [
-                    "*.ChartTime",
-                    "*.ChartTimeRange",
-                    "*.ChartTimeIterator",
-                    "*.ChartTimeInStateCalculator"
                 ]
             }
         ]

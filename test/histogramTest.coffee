@@ -1,7 +1,6 @@
-charttime = require('../')
-{histogram} = charttime
-utils = require('../src/utils')
-
+lumenize = require('../')
+{histogram} = lumenize
+{utils} = require('tztime')
 
 exports.histogramTest =
 
@@ -26,36 +25,37 @@ exports.histogramTest =
       {age: 25},
     ]
 
-    {buckets, chartMax} = histogram(rows, 'age')
-    
-    expected = [ 
-      { label: '0-13',  count: 2 },
-      { label: '13-26', count: 7 },
-      { label: '26-39', count: 6 },
-      { label: '39-52', count: 1 },
-      { label: '52-65', count: 1 } 
+    histogramResults = histogram(rows, 'age')
+    {buckets, chartMax, clipped, valueMax} = histogramResults
+
+    expected = [
+      { label: '0-12',  count: 2 },
+      { label: '12-24', count: 5 },
+      { label: '24-36', count: 8 },
+      { label: '36-48', count: 1 },
+      { label: '48-60', count: 1 }
     ]
 
     for b, idx in buckets
       test.ok(utils.match(expected[idx], b))
       for row in b.rows
         test.equal(row.age, row.clippedChartValue)
-      
+
     test.equal(buckets[0].rows[0].age, 7)
-    
+
     # Adding an outlier
     rows.push({age: 85})
 
-    {buckets, chartMax} = histogram(rows, 'age')
+    {buckets, chartMax, clipped} = histogram(rows, 'age')
 
-    expected = [ 
-      { label: '0-17',  count: 4 },
-      { label: '17-34', count: 10 },
-      { label: '34-51', count: 2 },
-      { label: '51-68', count: 1 },
-      { label: '68-86*', count: 1 } 
+    expected = [
+      { label: '0-12',  count: 2 },
+      { label: '12-24', count: 5 },
+      { label: '24-36', count: 8 },
+      { label: '36-48', count: 1 },
+      { label: '48-86*', count: 2 }
     ]
-    
+
     for b, idx in buckets
       test.ok(utils.match(expected[idx], b))
       for row in b.rows
@@ -64,5 +64,45 @@ exports.histogramTest =
         else
           test.equal(row.age == row.clippedChartValue, false)
           test.ok(row.clippedChartValue <= chartMax)
-    
+
+    # one more time but supress clipping
+    {buckets, chartMax, clipped} = histogram(rows, 'age', true)
+
+    expected = [
+      { label: '0-22',  count: 4 },
+      { label: '22-44', count: 12 },
+      { label: '44-66', count: 1 },
+      { label: '66-88', count: 1 },
+      { label: '88-110', count: 0 }
+    ]
+
+    for b, idx in buckets
+      test.ok(utils.match(expected[idx], b))
+      for row in b.rows
+        if b.label.indexOf('*') == -1
+          test.equal(row.age, row.clippedChartValue)
+        else
+          test.equal(row.age == row.clippedChartValue, false)
+          test.ok(row.clippedChartValue <= chartMax)
+
+    test.done()
+
+  testOneRow: (test) ->
+    rows = [
+      {age:  7},
+    ]
+
+    histogramResults = histogram(rows, 'age')
+
+    test.equal(histogramResults.bucketSize, 4)
+
+    test.done()
+
+  testZeroRows: (test) ->
+    rows = []
+
+    histogramResults = histogram(rows, 'age')
+
+    test.equal(histogramResults.bucketSize, 1)
+
     test.done()

@@ -16,65 +16,147 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
+{utils} = require('tztime')
+
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions'>/**
 </span> * @class Lumenize.functions
+ * 
+ * Rules about dependencies:
+ * 
+ *   * If a function can be calculated incrementally from an oldResult and newValues, then you do not need to specify dependencies
+ *   * If a funciton can be calculated from other incrementally calculable results, then you need only specify those dependencies
+ *   * If a function needs the full list of values to be calculated (like percentile coverage), then you must specify 'values'
+ *   * To support the direct passing in of OLAP cube cells, you can provide a prefix (field name) so the key in dependentValues
+ *     can be generated
+ *   * 'count' is special and does not use a prefix because it is not dependent up a particular field
+ *   * You should calculate the dependencies before you calculate the thing that is depedent. The OLAP cube does some
+ *     checking to confirm you've done this.
  */
 /* &lt;CoffeeScript&gt;
 functions = {}
 
+_populateDependentValues = (values, dependencies, dependentValues = {}, prefix = '') -&gt;
+  out = {}
+  for d in dependencies
+    if d == 'count'
+      if prefix == ''
+        key = 'count'
+      else
+        key = '_count'
+    else
+      key = prefix + d
+    unless dependentValues[key]?
+      dependentValues[key] = functions[d](values, undefined, undefined, dependentValues, prefix)
+    out[d] = dependentValues[key]
+  return out
+
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-functions-static-method-S-sum'>/**
-</span> * @method $sum
+<span id='Lumenize-functions-static-method-sum'>/**
+</span> * @method sum
  * @member Lumenize.functions
  * @static
  * @param {Number[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The sum of the values
  */
 /* &lt;CoffeeScript&gt;
-functions.$sum = (values) -&gt;
-  temp = 0
-  for v in values
+functions.sum = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    temp = oldResult
+    tempValues = newValues
+  else
+    temp = 0
+    tempValues = values
+  for v in tempValues
     temp += v
   return temp
 
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-functions-static-method-S-sumSquares'>/**
-</span> * @method $sumSquares
+<span id='Lumenize-functions-static-method-sumSquares'>/**
+</span> * @method sumSquares
  * @member Lumenize.functions
  * @static
  * @param {Number[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The sum of the squares of the values
  */
 /* &lt;CoffeeScript&gt;
-functions.$sumSquares = (values) -&gt;
-  temp = 0
-  for v in values
+functions.sumSquares = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    temp = oldResult
+    tempValues = newValues
+  else
+    temp = 0
+    tempValues = values
+  for v in tempValues
     temp += v * v
   return temp
 
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-functions-static-method-S-count'>/**
-</span> * @method $count
+<span id='Lumenize-functions-static-method-lastValue'>/**
+</span> * @method lastValue
  * @member Lumenize.functions
  * @static
  * @param {Number[]} values
+ * @param {Number} [oldResult] Not used. It is included to make the interface consistent.
+ * @param {Number[]} [newValues] for incremental calculation
+ * @return {Number} The last value
+ */
+/* &lt;CoffeeScript&gt;
+functions.lastValue = (values, oldResult, newValues) -&gt;
+  if newValues?
+    return newValues[newValues.length - 1]
+  return values[values.length - 1]
+
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-static-method-firstValue'>/**
+</span> * @method firstValue
+ * @member Lumenize.functions
+ * @static
+ * @param {Number[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] Not used. It is included to make the interface consistent.
+ * @return {Number} The first value
+ */
+/* &lt;CoffeeScript&gt;
+functions.firstValue = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    return oldResult
+  return values[0]
+
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-static-method-count'>/**
+</span> * @method count
+ * @member Lumenize.functions
+ * @static
+ * @param {Number[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The length of the values Array
  */
 /* &lt;CoffeeScript&gt;
-functions.$count = (values) -&gt;
+functions.count = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    return oldResult + newValues.length
   return values.length
 
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-functions-static-method-S-min'>/**
-</span> * @method $min
+<span id='Lumenize-functions-static-method-min'>/**
+</span> * @method min
  * @member Lumenize.functions
  * @static
  * @param {Number[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The minimum value or null if no values
  */
 /* &lt;CoffeeScript&gt;
-functions.$min = (values) -&gt;
+functions.min = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    return functions.min(newValues.concat([oldResult]))
   if values.length == 0
     return null
   temp = values[0]
@@ -84,15 +166,19 @@ functions.$min = (values) -&gt;
   return temp
 
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-functions-static-method-S-max'>/**
-</span> * @method $max
+<span id='Lumenize-functions-static-method-max'>/**
+</span> * @method max
  * @member Lumenize.functions
  * @static
  * @param {Number[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The maximum value or null if no values
  */
 /* &lt;CoffeeScript&gt;
-functions.$max = (values) -&gt;
+functions.max = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    return functions.max(newValues.concat([oldResult]))
   if values.length == 0
     return null
   temp = values[0]
@@ -102,83 +188,252 @@ functions.$max = (values) -&gt;
   return temp
 
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-functions-static-method-S-push'>/**
-</span> * @method $push
+<span id='Lumenize-functions-static-method-values'>/**
+</span> * @method values
  * @member Lumenize.functions
  * @static
- * @param {Number[]} values
- * @return {Array} All values (allows duplicates). Can be used for drill down when you know they will be unique.
+ * @param {Object[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
+ * @return {Array} All values (allows duplicates). Can be used for drill down.
  */
 /* &lt;CoffeeScript&gt;
-functions.$push = (values) -&gt;
-  temp = []
-  for v in values
-    temp.push(v)
-  return temp
+functions.values = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    return oldResult.concat(newValues)
+  return values
+#  temp = []
+#  for v in values
+#    temp.push(v)
+#  return temp
 
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-functions-static-method-S-addToSet'>/**
-</span> * @method $addToSet
+<span id='Lumenize-functions-static-method-uniqueValues'>/**
+</span> * @method uniqueValues
  * @member Lumenize.functions
  * @static
- * @param {Number[]} values
+ * @param {Object[]} values
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
  * @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
  */
 /* &lt;CoffeeScript&gt;
-functions.$addToSet = (values) -&gt;
+functions.uniqueValues = (values, oldResult, newValues) -&gt;
   temp = {}
+  if oldResult?
+    for r in oldResult
+      temp[r] = null
+    tempValues = newValues
+  else
+    tempValues = values
   temp2 = []
-  for v in values
+  for v in tempValues
     temp[v] = null
   for key, value of temp
     temp2.push(key)
   return temp2
 
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-functions-static-method-S-average'>/**
-</span> * @method $average
+<span id='Lumenize-functions-static-method-average'>/**
+</span> * @method average
  * @member Lumenize.functions
  * @static
  * @param {Number[]} values
  * @return {Number} The arithmetic mean
  */
 /* &lt;CoffeeScript&gt;
-functions.$average = (values) -&gt;
-  count = values.length
-  sum = 0
-  for v in values
-    sum += v
+functions.average = (values, oldResult, newValues, dependentValues, prefix) -&gt;
+  {count, sum} = _populateDependentValues(values, functions.average.dependencies, dependentValues, prefix)
   return sum / count
 
+functions.average.dependencies = ['count', 'sum']
+
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-functions-static-method-S-variance'>/**
-</span> * @method $variance
+<span id='Lumenize-functions-static-method-variance'>/**
+</span> * @method variance
  * @member Lumenize.functions
  * @static
  * @param {Number[]} values
  * @return {Number} The variance
  */
 /* &lt;CoffeeScript&gt;
-functions.$variance = (values) -&gt;
-  n = values.length
-  sum = 0
-  sumSquares = 0
-  for v in values
-    sum += v
-    sumSquares += v * v
-  return (n * sumSquares - sum * sum) / (n * (n - 1))
+functions.variance = (values, oldResult, newValues, dependentValues, prefix) -&gt;
+  {count, sum, sumSquares} = _populateDependentValues(values, functions.variance.dependencies, dependentValues, prefix)
+  return (count * sumSquares - sum * sum) / (count * (count - 1))
+
+functions.variance.dependencies = ['count', 'sum', 'sumSquares']
 
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-functions-static-method-S-standardDeviation'>/**
-</span> * @method $standardDeviation
+<span id='Lumenize-functions-static-method-standardDeviation'>/**
+</span> * @method standardDeviation
  * @member Lumenize.functions
  * @static
  * @param {Number[]} values
  * @return {Number} The standard deviation
  */
 /* &lt;CoffeeScript&gt;
-functions.$standardDeviation = (values) -&gt;
-  return Math.sqrt(functions.$variance(values))
+functions.standardDeviation = (values, oldResult, newValues, dependentValues, prefix) -&gt;
+  return Math.sqrt(functions.variance(values, oldResult, newValues, dependentValues, prefix))
+
+functions.standardDeviation.dependencies = functions.variance.dependencies
+
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-static-method-percentileCreator'>/**
+</span> * @method percentileCreator
+ * @member Lumenize.functions
+ * @static
+ * @param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
+ * @return {Function} A funtion to calculate the percentile
+ * 
+ * When the user passes in `p&lt;n&gt;` as an aggregation function, this `percentileCreator` is called to return the appropriate
+ * percentile function. The returned function will find the `&lt;n&gt;`th percentile where `&lt;n&gt;` is some number in the form of
+ * `##[.##]`. (e.g. `p40`, `p99`, `p99.9`).
+ * 
+ * Note: `median` is an alias for `p50`.
+ * 
+ * There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
+ * use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
+ * recommendation and makes the most sense to me.
+ */
+/* &lt;CoffeeScript&gt;
+functions.percentileCreator = (p) -&gt;
+  f = (values, oldResult, newValues, dependentValues, prefix) -&gt;
+    unless values?
+      {values} = _populateDependentValues(values, ['values'], dependentValues, prefix)
+    sortfunc = (a, b) -&gt;
+      return a - b
+    vLength = values.length
+    values.sort(sortfunc)
+    n = (p * (vLength - 1) / 100) + 1
+    k = Math.floor(n)
+    d = n - k
+    if n == 1
+      return values[1 - 1]
+    if n == vLength
+      return values[vLength - 1]
+    return values[k - 1] + d * (values[k] - values[k - 1])
+  f.dependencies = ['values']
+  return f
+
+functions.expandFandAs = (a) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-static-method-expandFandAs'>  /**
+</span>   * @method expandFandAs
+   * @member Lumenize.functions
+   * @static
+   * @param {Object} a Will look like this `{as: 'mySum', f: 'sum', field: 'Points'}`
+   * @return {Object} returns the expanded specification
+   * 
+   * Takes specifications for functions and expands them to include the actual function and 'as'. If you do not provide
+   * an 'as' property, it will build it from the field name and function with an underscore between. Also, if the
+   * 'f' provided is a string, it is copied over to the 'metric' property before the 'f' property is replaced with the
+   * actual function. `{field: 'a', f: 'sum'}` would expand to `{as: 'a_sum', field: 'a', metric: 'sum', f: [Function]}`.
+   */
+/* &lt;CoffeeScript&gt;
+  utils.assert(a.f?, &quot;'f' missing from specification: \n#{JSON.stringify(a, undefined, 4)}&quot;)
+  if utils.type(a.f) == 'function'
+    utils.assert(a.as?, 'Must provide &quot;as&quot; field with your aggregation when providing a user defined function')
+    a.metric = a.f.toString()
+  else if functions[a.f]?
+    a.metric = a.f
+    a.f = functions[a.f]
+  else if a.f == 'median'
+    a.metric = 'median'
+    a.f = functions.percentileCreator(50)
+  else if a.f.substr(0, 1) == 'p'
+    a.metric = a.f
+    p = /\p(\d+(.\d+)?)/.exec(a.f)[1]
+    a.f = functions.percentileCreator(Number(p))
+  else
+    throw new Error(&quot;#{a.f} is not a recognized built-in function&quot;)
+
+  unless a.as?
+    if a.metric == 'count'
+      a.field = ''
+      a.metric = 'count'
+    a.as = &quot;#{a.field}_#{a.metric}&quot;
+    utils.assert(a.field? or a.f == 'count', &quot;'field' missing from specification: \n#{JSON.stringify(a, undefined, 4)}&quot;)
+  return a
+
+functions.expandMetrics = (metrics = [], addCountIfMissing = false, addValuesForCustomFunctions = false) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-static-method-expandMetrics'>  /**
+</span>   * @method expandMetrics
+   * @member Lumenize.functions
+   * @static
+   * @private
+   * 
+   * This is called internally by several Lumenize Calculators. You should probably not call it.
+   */
+/* &lt;CoffeeScript&gt;
+  confirmMetricAbove = (m, fieldName, aboveThisIndex) -&gt;
+    if m is 'count'
+      lookingFor = '_' + m
+    else
+      lookingFor = fieldName + '_' + m
+    i = 0
+    while i &lt; aboveThisIndex
+      currentRow = metrics[i]
+      if currentRow.as == lookingFor
+        return true
+      i++
+    # OK, it's not above, let's now see if it's below. Then throw error.
+    i = aboveThisIndex + 1
+    metricsLength = metrics.length
+    while i &lt; metricsLength
+      currentRow = metrics[i]
+      if currentRow.as == lookingFor
+        throw new Error(&quot;Depdencies must appear before the metric they are dependant upon. #{m} appears after.&quot;)
+      i++
+    return false
+
+  assureDependenciesAbove = (dependencies, fieldName, aboveThisIndex) -&gt;
+    for d in dependencies
+      unless confirmMetricAbove(d, fieldName, aboveThisIndex)
+        if d == 'count'
+          newRow = {f: 'count'}
+        else
+          newRow = {f: d, field: fieldName}
+        functions.expandFandAs(newRow)
+        metrics.unshift(newRow)
+        return false
+    return true
+
+  # add values for custom functions
+  if addValuesForCustomFunctions
+    for m, index in metrics
+      if utils.type(m.f) is 'function'
+        unless m.f.dependencies?
+          m.f.dependencies = []
+        unless m.f.dependencies[0] is 'values'
+          m.f.dependencies.push('values')
+        unless confirmMetricAbove('values', m.field, index)
+          valuesRow = {f: 'values', field: m.field}
+          functions.expandFandAs(valuesRow)
+          metrics.unshift(valuesRow)
+
+  hasCount = false
+  for m in metrics
+    functions.expandFandAs(m)
+    if m.metric is 'count'
+      hasCount = true
+
+  if addCountIfMissing and not hasCount
+    countRow = {f: 'count'}
+    functions.expandFandAs(countRow)
+    metrics.unshift(countRow)
+
+  index = 0
+  while index &lt; metrics.length  # intentionally not caching length because the loop can add rows
+    metricsRow = metrics[index]
+    if utils.type(metricsRow.f) is 'function'
+      dependencies = ['values']
+    if metricsRow.f.dependencies?
+      unless assureDependenciesAbove(metricsRow.f.dependencies, metricsRow.field, index)
+        index = -1
+    index++
+
+  return metrics
 
 exports.functions = functions
 &lt;/CoffeeScript&gt; */</pre>
