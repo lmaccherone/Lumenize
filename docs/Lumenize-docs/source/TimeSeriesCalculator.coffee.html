@@ -305,11 +305,11 @@ class TimeSeriesCalculator # implements iCalculator
    *   your metric definition. If you've already added a dependency but put it under a different &quot;as&quot;, it's not smart
    *   enough to sense that and it will add it again. Either live with the duplication or leave
    *   dependency metrics named their default by not providing an &quot;as&quot; field.
-   * @cfg {Object[]} deriveFieldsOnInput An Array of Maps in the form `{field:'myField', f:(fact)-&gt;...}`
-   * @cfg {Object[]} deriveFieldsOnOutput same format at deriveFieldsOnInput, except the callback is in the form `f(row)`
+   * @cfg {Object[]} [deriveFieldsOnInput] An Array of Maps in the form `{field:'myField', f:(fact)-&gt;...}`
+   * @cfg {Object[]} [deriveFieldsOnOutput] same format at deriveFieldsOnInput, except the callback is in the form `f(row)`
    *   This is only called for dirty rows that were effected by the latest round of additions in an incremental calculation.
    * @cfg {Object[]} [summaryMetricsConfig] Allows you to specify a list of metrics to calculate on the results before returning.
-   *   These can either be in the form of `{as: 'myMetric', field: 'field4`, f:'sum'}` which would extract all of the values
+   *   These can either be in the form of `{as: 'myMetric', field: 'field4', f:'sum'}` which would extract all of the values
    *   for field `field4` and pass it as the values parameter to the `f` (`sum` in this example) function (from Lumenize.functions), or
    *   it can be in the form of `{as: 'myMetric', f:(seriesData, summaryMetrics) -&gt; ...}`. Note, they are calculated
    *   in order, so you can use the result of an earlier summaryMetric to calculate a later one.

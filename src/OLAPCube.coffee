@@ -206,12 +206,13 @@ class OLAPCube
 
       cube = new OLAPCube(config, data)
       console.log(cube.toString(undefined, undefined, 'value_sum'))
-      #    dateSegments                  value_sum
-      #            2011                         10
-      #         2011,12                         10
-      #            2012                        140
-      #          2012,1                         90
-      #          2012,2                         50
+      # | dateSegments | value_sum |
+      # |==========================|
+      # | [2011]       |        10 |
+      # | [2011,12]    |        10 |
+      # | [2012]       |       140 |
+      # | [2012,1]     |        90 |
+      # | [2012,2]     |        50 |
 
   Notice how '2012-02-01T00:00:01.000Z' got bucketed in January because the calculation was done in timezone
   'America/New_York'.
@@ -576,6 +577,7 @@ class OLAPCube
     @method toString
       Produces a printable table with the first dimension as the rows, the second dimension as the columns, and the count
       as the values in the table.
+    @return {String} A string which will render as a table when written to the console.
     @param {String} [rows=<first dimension>]
     @param {String} [columns=<second dimension>]
     @param {String} [metric='count']
