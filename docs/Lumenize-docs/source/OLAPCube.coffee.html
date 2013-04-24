@@ -168,9 +168,10 @@ class OLAPCube
    * 1. Single value
    *    * Number
    *    * String
-   *    * Boolean
-   *    * Date
-   *    * Object... sorta. Technically, this works but the sort order is not obvious.
+   *    * Does not work:
+   *      * Boolean - known to fail
+   *      * Object - may sorta work but sort-order at least is not obvious
+   *      * Date - not tested but may actually work
    * 2. Arrays as materialized path for hierarchical (tree) data
    * 3. Non-hierarchical Arrays (&quot;tags&quot;)
    * 
@@ -224,12 +225,13 @@ class OLAPCube
    * 
    *     cube = new OLAPCube(config, data)
    *     console.log(cube.toString(undefined, undefined, 'value_sum'))
-   *     #    dateSegments                  value_sum
-   *     #            2011                         10
-   *     #         2011,12                         10
-   *     #            2012                        140
-   *     #          2012,1                         90
-   *     #          2012,2                         50
+   *     # | dateSegments | value_sum |
+   *     # |==========================|
+   *     # | [2011]       |        10 |
+   *     # | [2011,12]    |        10 |
+   *     # | [2012]       |       140 |
+   *     # | [2012,1]     |        90 |
+   *     # | [2012,2]     |        50 |
    * 
    * Notice how '2012-02-01T00:00:01.000Z' got bucketed in January because the calculation was done in timezone
    * 'America/New_York'.
@@ -255,7 +257,7 @@ class OLAPCube
    * @param {Object} config See Config options for details. DO NOT change the config settings after the OLAP class is instantiated.
    * @param {Object[]} [facts] Optional parameter allowing the population of the OLAPCube with an intitial set of facts
    *   upon instantiation. Use addFacts() to add facts after instantiation.
-   * @cfg {Object[]} dimensions (required) Array which specifies the fields to use as dimension fields. If the field contains a
+   * @cfg {Object[]} dimensions Array which specifies the fields to use as dimension fields. If the field contains a
    *   hierarchy array, say so in the row, (e.g. `{field: 'SomeFieldName', type: 'hierarchy'}`). Any array values that it
    *   finds in the supplied facts will be assumed to be tags rather than a hierarchy specification unless `type: 'hierarchy'`
    *   is specified.
@@ -280,7 +282,7 @@ class OLAPCube
    *   Notice how a keepTotals can be set for an individual dimension. This is preferable to setting it for the entire
    *   cube in cases where you don't want totals in all dimensions.
    * 
-   * @cfg {Object[]} [metrics=[]] (required) Array which specifies the metrics to calculate for each cell in the cube.
+   * @cfg {Object[]} [metrics=[]] Array which specifies the metrics to calculate for each cell in the cube.
    * 
    *   Example:
    * 
@@ -311,8 +313,8 @@ class OLAPCube
    *   the metrics for each cell by adding an automatic 'facts' metric. Note, facts are restored after deserialization
    *   as you would expect, but they are no longer tied to the original facts. This feature, especially after a restore
    *   can eat up memory.
-   * @cfg {Object[]} deriveFieldsOnInput An Array of Maps in the form `{field:'myField', f:(fact)-&gt;...}`
-   * @cfg {Object[]} deriveFieldsOnOutput same format as deriveFieldsOnInput, except the callback is in the form `f(row)`
+   * @cfg {Object[]} [deriveFieldsOnInput] An Array of Maps in the form `{field:'myField', f:(fact)-&gt;...}`
+   * @cfg {Object[]} [deriveFieldsOnOutput] same format as deriveFieldsOnInput, except the callback is in the form `f(row)`
    *   This is only called for dirty rows that were effected by the latest round of addFacts. It's more efficient to calculate things
    *   like standard deviation and percentile coverage here than in config.metrics. You just have to remember to include the dependencies
    *   in config.metrics. Standard deviation depends upon `sum` and `sumSquares`. Percentile coverage depends upon `values`.
@@ -398,7 +400,7 @@ class OLAPCube
       rolloverArray.push(p.length - 1)  # !TODO: If I need some speed, we could calculate the rolloverArray once and make a copy to the countdownArray for each run
 
     for m in @config.metrics
-      @currentValues[m.field] = [fact[m.field]]
+      @currentValues[m.field] = [fact[m.field]]  # !TODO: Add default values here. I think this is the only place it is needed. write tests with incremental update to confirm.
     out = []
     more = true
     while more
@@ -579,9 +581,9 @@ class OLAPCube
         return b - a
       when 'array'
         for value, index in a
-          if value &lt; b[index]
+          if b.length - 1 &gt;= index and value &lt; b[index]
             return 1
-          if value &gt; b[index]
+          if b.length - 1 &gt;= index and value &gt; b[index]
             return -1
         if a.length &lt; b.length
           return 1
@@ -599,7 +601,7 @@ class OLAPCube
         else
           return 0
       else
-        throw new Error(&quot;Do not know how to sort objects of type #{utils.type(o1)}.&quot;)
+        throw new Error(&quot;Do not know how to sort objects of type #{utils.type(a)}.&quot;)
 
   toString: (rows, columns, metric) -&gt;
 &lt;/CoffeeScript&gt; */
@@ -608,6 +610,7 @@ class OLAPCube
      * @member Lumenize.OLAPCube
      *   Produces a printable table with the first dimension as the rows, the second dimension as the columns, and the count
      *   as the values in the table.
+     * @return {String} A string which will render as a table when written to the console.
      * @param {String} [rows=&lt;first dimension&gt;]
      * @param {String} [columns=&lt;second dimension&gt;]
      * @param {String} [metric='count']
@@ -615,76 +618,106 @@ class OLAPCube
 /* &lt;CoffeeScript&gt;
     unless metric?
       metric = '_count'
-    if @config.dimensions.length == 1  # !TODO: Upgrade this 1-dimension portion to be as nice as the 2+ dimension version below
-      field = @config.dimensions[0].field
-      s = OLAPCube._padToWidth(field, 15) + OLAPCube._padToWidth(metric, 27)
+    if @config.dimensions.length == 1
+      return @toStringOneDimension(@config.dimensions[0].field, metric)
+    else
+      return @toStringTwoDimensions(rows, columns, metric)
 
-      for r, index in @getDimensionValues(field)
+  toStringOneDimension: (field, metric) -&gt;
+    rowValues = @getDimensionValues(field)
+    rowValueStrings = (JSON.stringify(r) for r in rowValues)
+    rowLabelWidth = Math.max.apply({}, (s.length for s in rowValueStrings))
+    rowLabelWidth = Math.max(rowLabelWidth, 'Total'.length, field.length)
+    maxColumnWidth = metric.length
+    valueStrings = []
+    for r, indexRow in rowValues
+      filter = {}
+      filter[field] = r
+      cell = @getCell(filter)
+      if cell?
+        cellString = JSON.stringify(cell[metric])
+      else
+        cellString = ''
+      maxColumnWidth = Math.max(maxColumnWidth, cellString.length)
+      valueStrings.push(cellString)
+
+    maxColumnWidth += 1
+    fullWidth = rowLabelWidth + maxColumnWidth + 4
+
+    s = '| ' + (OLAPCube._padToWidth(field, rowLabelWidth, ' ', true)) + ' |'
+    s += OLAPCube._padToWidth(metric, maxColumnWidth) + ' |'
+    s += '\n|' + OLAPCube._padToWidth('', fullWidth, '=') + '|'
+    for r, indexRow in rowValueStrings
+      s += '\n| '
+      if r == 'null'
+        s += OLAPCube._padToWidth('Total', rowLabelWidth, ' ', true)
+      else
+        s += OLAPCube._padToWidth(r, rowLabelWidth, ' ', true)
+      s += ' |' + OLAPCube._padToWidth(valueStrings[indexRow], maxColumnWidth) + ' |'
+
+      if r == 'null'
+        s += '\n|' + OLAPCube._padToWidth('', fullWidth, '-') + '|'
+    return s
+
+  toStringTwoDimensions: (rows, columns, metric) -&gt;
+    unless rows?
+      rows = @config.dimensions[0].field
+    unless columns?
+      columns = @config.dimensions[1].field
+    rowValues = @getDimensionValues(rows)
+    columnValues = @getDimensionValues(columns)
+    rowValueStrings = (JSON.stringify(r) for r in rowValues)
+    columnValueStrings = (JSON.stringify(c) for c in columnValues)
+    rowLabelWidth = Math.max.apply({}, (s.length for s in rowValueStrings))
+    rowLabelWidth = Math.max(rowLabelWidth, 'Total'.length)
+    valueStrings = []
+    maxColumnWidth = Math.max.apply({}, (s.length for s in columnValueStrings))
+    maxColumnWidth = Math.max(maxColumnWidth, 'Total'.length)
+    for r, indexRow in rowValues
+      valueStringsRow = []
+      for c, indexColumn in columnValues
         filter = {}
-        filter[field] = r
+        filter[rows] = r
+        filter[columns] = c
         cell = @getCell(filter)
         if cell?
           cellString = JSON.stringify(cell[metric])
         else
           cellString = ''
-        s += '\n' + OLAPCube._padToWidth(r.toString(), 15) + OLAPCube._padToWidth(cellString, 27)
-    else  # 2 or more dimensions
-      unless rows?
-        rows = @config.dimensions[0].field
-      unless columns?
-        columns = @config.dimensions[1].field
-      rowValues = @getDimensionValues(rows)
-      columnValues = @getDimensionValues(columns)
-      rowValueStrings = (JSON.stringify(r) for r in rowValues)
-      columnValueStrings = (JSON.stringify(c) for c in columnValues)
-      rowLabelWidth = Math.max.apply({}, (s.length for s in rowValueStrings))
-      rowLabelWidth = Math.max(rowLabelWidth, 'Total'.length)
-      valueStrings = []
-      maxColumnWidth = Math.max.apply({}, (s.length for s in columnValueStrings))
-      maxColumnWidth = Math.max(maxColumnWidth, 'Total'.length)
-      for r, indexRow in rowValues
-        valueStringsRow = []
-        for c, indexColumn in columnValues
-          filter = {}
-          filter[rows] = r
-          filter[columns] = c
-          cell = @getCell(filter)
-          if cell?
-            cellString = JSON.stringify(cell[metric])
-          else
-            cellString = ''
-          maxColumnWidth = Math.max(maxColumnWidth, cellString.length)
-          valueStringsRow.push(cellString)
-        valueStrings.push(valueStringsRow)
-      maxColumnWidth += 1
-      s = '|' + (OLAPCube._padToWidth('', rowLabelWidth)) + ' ||'
+        maxColumnWidth = Math.max(maxColumnWidth, cellString.length)
+        valueStringsRow.push(cellString)
+      valueStrings.push(valueStringsRow)
+    maxColumnWidth += 1
+    s = '|' + (OLAPCube._padToWidth('', rowLabelWidth)) + ' ||'
 
+    for c, indexColumn in columnValueStrings
+      if c == 'null'
+        s += OLAPCube._padToWidth('Total', maxColumnWidth) + ' |'
+      else
+        s += OLAPCube._padToWidth(c, maxColumnWidth)
+    fullWidth = rowLabelWidth + maxColumnWidth * columnValueStrings.length + 3
+    if columnValueStrings[0] == 'null'
+      fullWidth += 2
+    s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '=')
+    for r, indexRow in rowValueStrings
+      s += '|\n|'
+      if r == 'null'
+        s += OLAPCube._padToWidth('Total', rowLabelWidth, ' ', true)
+      else
+        s += OLAPCube._padToWidth(r, rowLabelWidth, ' ', true)
+      s += ' ||'
       for c, indexColumn in columnValueStrings
+        s += OLAPCube._padToWidth(valueStrings[indexRow][indexColumn], maxColumnWidth)
         if c == 'null'
-          s += OLAPCube._padToWidth('Total', maxColumnWidth) + ' |'
-        else
-          s += OLAPCube._padToWidth(c, maxColumnWidth)
-      fullWidth = rowLabelWidth + maxColumnWidth * columnValueStrings.length + 3
-      if columnValueStrings[0] == 'null'
-        fullWidth += 2
-      s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '=')
-      for r, indexRow in rowValueStrings
-        s += '|\n|'
-        if r == 'null'
-          s += OLAPCube._padToWidth('Total', rowLabelWidth, ' ', true)
-        else
-          s += OLAPCube._padToWidth(r, rowLabelWidth, ' ', true)
-        s += ' ||'
-        for c, indexColumn in columnValueStrings
-          s += OLAPCube._padToWidth(valueStrings[indexRow][indexColumn], maxColumnWidth)
-          if c == 'null'
-            s += ' |'
-        if r == 'null'
-          s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '-')
-      s += '|'
+          s += ' |'
+      if r == 'null'
+        s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '-')
+    s += '|'
     return s
 
   @_padToWidth: (s, width, padCharacter = ' ', rightPad = false) -&gt;
+    if s.length &gt; width
+      return s.substr(0, width)
     padding = new Array(width - s.length + 1).join(padCharacter)
     if rightPad
       return s + padding

@@ -199,6 +199,10 @@ exports.Test =
 
     test.deepEqual(classifier.predict({TeamSize: 29, HasChildProject: 0}, true), {'0': 0.6956521739130435, '1': 0.30434782608695654})
 
+    savedState = classifier.getStateForSaving('some meta data')
+    newClassifier = BayesianClassifier.newFromSavedState(savedState)
+    test.equal(newClassifier.meta, 'some meta data')
+    test.deepEqual(newClassifier.predict({TeamSize: 29, HasChildProject: 0}, true), {'0': 0.6956521739130435, '1': 0.30434782608695654})
 
     test.done()
 

@@ -3,36 +3,39 @@ utils = require('tztime').utils
 OLAPCube = require('./OLAPCube').OLAPCube
 
 class Classifier
+  ###
+  @class Classifier
 
-  constructor: (@config) ->
-    @outputField = @config.outputField
-    @features = @config.features
+  __Base class for all Classifiers__
+
+  See individual subclasses for usage details
+  ###
 
   @getBucketCountMinMax: (values) ->
-    bucketCount = Math.floor(Math.sqrt(values.length)) + 1
-    if bucketCount < 3
+    targetBucketCount = Math.floor(Math.sqrt(values.length)) + 1
+    if targetBucketCount < 3
       throw new Error("Need more training data")
     min = functions.min(values)  # !TODO: Optimize this for a single loop
     max = functions.max(values)
-    return {bucketCount, min, max}
+    return {targetBucketCount, min, max}
 
   @generateConstantWidthBucketer: (values) ->
-    {bucketCount, min, max} = Classifier.getBucketCountMinMax(values)
-    bucketSize = (max - min) / bucketCount
+    {targetBucketCount, min, max} = Classifier.getBucketCountMinMax(values)
+    bucketSize = (max - min) / targetBucketCount
     bucketer = []  # each row is {startOn, endBelow} meaning bucket  startOn <= x < endBelow
     bucketer.push({startOn: null, endBelow: min + bucketSize})
-    for i in [1..bucketCount - 2]
+    for i in [1..targetBucketCount - 2]
       bucketer.push({startOn: min + bucketSize * i, endBelow: min + bucketSize * (i + 1)})
-    bucketer.push({startOn: min + bucketSize * (bucketCount - 1), endBelow: null})
+    bucketer.push({startOn: min + bucketSize * (targetBucketCount - 1), endBelow: null})
     return bucketer
 
   @generateConstantQuantityBucketer: (values) ->
-    {bucketCount, min, max} = Classifier.getBucketCountMinMax(values)
-    bucketSize = 100 / bucketCount
+    {targetBucketCount, min, max} = Classifier.getBucketCountMinMax(values)
+    bucketSize = 100 / targetBucketCount
     bucketer = []  # each row is {startOn, endBelow} meaning bucket  startOn <= x < endBelow
     currentBoundary = functions.percentileCreator(bucketSize)(values)
     bucketer.push({startOn: null, endBelow: currentBoundary})
-    for i in [1..bucketCount - 2]
+    for i in [1..targetBucketCount - 2]
       lastBoundary = currentBoundary
       currentBoundary = functions.percentileCreator(bucketSize * (i + 1))(values)
       bucketer.push({startOn: lastBoundary, endBelow: currentBoundary})
@@ -58,29 +61,28 @@ class Classifier
     splitAt = (values[bestIndex - 1] + values[bestIndex]) / 2
     return {splitAt, left: bestLeft, right: bestRight}
 
-  @findBucketSplits: (currentSplits, values, bucketCount) ->
-    if values.length < 5
-      return null
+  @areAllSame: (values) ->
     firstValue = values[0]
-    areAllSame = true
     for value in values
       if value != firstValue
-        areAllSame = false
-        break
-    if areAllSame
+        return false
+    return true
+
+  @findBucketSplits: (currentSplits, values, targetBucketCount) ->
+    if values.length < 5 or Classifier.areAllSame(values)
       return null
     {splitAt, left, right} = Classifier.optimalSplitFor2Buckets(values)
     currentSplits.push(splitAt)
-    if currentSplits.length < bucketCount
-      Classifier.findBucketSplits(currentSplits, left, bucketCount)
-      Classifier.findBucketSplits(currentSplits, right, bucketCount)  # Note, it's possible to have more than bucketCount this way
+    if currentSplits.length < targetBucketCount
+      Classifier.findBucketSplits(currentSplits, left, targetBucketCount)
+      Classifier.findBucketSplits(currentSplits, right, targetBucketCount)  # Note, it's possible to have more than targetBucketCount this way
     return currentSplits
 
-  @generateVOptimalBucketer: (values) ->
-    {bucketCount, min, max} = Classifier.getBucketCountMinMax(values)
+  @generateVOptimalBucketer: (values) ->  # !TODO: Split out bucketers and use with histogram when upgrading histogram
+    {targetBucketCount, min, max} = Classifier.getBucketCountMinMax(values)
     values.sort((a, b) -> return a - b)
     splits = []
-    Classifier.findBucketSplits(splits, values, bucketCount)
+    Classifier.findBucketSplits(splits, values, targetBucketCount)
     splits.sort((a, b) -> return a - b)
 
     bucketer = []  # each row is {startOn, endBelow} meaning bucket  startOn <= x < endBelow
@@ -117,8 +119,195 @@ class Classifier
 
 
 class BayesianClassifier extends Classifier
+  ###
+  @class BayesianClassifier
+
+  __A Bayesian classifier with non-parametric modeling of distributions using v-optimal bucketing.__
+
+  If you look for libraries for Bayesian classification, the primary use case is spam filtering and they assume that
+  the presence or absence of a word is the only feature you are interested in. This is a more general purpose tool.
+
+  ## Features ##
+
+  * Works even for bi-modal and other non-normal distributions
+  * No requirement that you identify the distribution
+  * Uses [non-parametric modeling](http://en.wikipedia.org/wiki/Non-parametric_statistics)
+  * Uses v-optimal bucketing so it deals well with outliers and sharp cliffs
+  * Serialize (`getStateForSaving()`) and deserialize (`newFromSavedState()`) to preserve training between sessions
+
+  ## Why the assumption of a normal distribution is bad in some cases ##
+
+  The [wikipedia example of using Bayes](https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Sex_classification) tries
+  to determine if someone was male or female based upon the height, weight
+  and shoe size. The assumption is that men are generally larger, heavier, and have larger shoe size than women. In the
+  example, they use the mean and variance of the male-only and female-only populations to characterize those
+  distributions. This works because these characteristics are generally normally distributed **and the distribution for
+  men is generally to the right of the distribution for women**.
+
+  However, let's ask a group of folks who work together if they consider themselves a team and let's try to use the size
+  of the group as a feature to predict what a new group would say. If the group is very small (1-2 people), they are
+  less likely to consider themselves a team (partnership maybe), but if they are too large (say > 10), they are also
+  unlikely to refer to themselves as a team. The non-team distribution is bimodal, looking at its mean and variance
+  completely mis-characterizes it. Also, the distribution is zero bound so it's likely to be asymmetric, which also
+  poses problems for a normal distribution assumption.
+
+  ## So what do we do instead? ##
+
+  This classifier uses the actual sampled percentage for buckets of the data. This approach is often referred to
+  as "building a non-parametric model", although "distribution-free" strikes me a better label.
+
+  **Pros/Cons**. The use of a non-parametric approach will allow us to deal with non-normal distributions (asymmetric,
+  bimodal, etc.) without ever having to identify which nominal distribution is the best fit or having to ask the user
+  (who may not know) what distribution to use. The downside to this approach is that it generally requires a larger
+  training set. You will need to experiment to determine how small is too small wrt training set size.
+
+  This approach is hinted at in the [wikipedia article on Bayesian classifiers](https://en.wikipedia.org/wiki/Naive_Bayes_classifier)
+  as "binning to discretize the feature values, to obtain a new set of Bernoulli-distributed features". However, this
+  classifier does not new separate Bernoulli features for each bin. Rather, it creates a mapping function from a feature
+  value to a probability that the particular value is coincident with a particular outputField value. This mapping
+  function is different for each bin.
+
+  ## V-optimal bucketing ##
+
+  There are two common approaches to bucketing:
+
+  1. Make each bucket be equal in width along the x-axis (like we would for a histogram) (equi-width)
+  2. Make each bucket have roughly the same number of data points (equi-depth)
+
+  It turns out neither of the above works out well for this use case. Rather, there is an approach called [v-optimal
+  bucketing](http://en.wikipedia.org/wiki/V-optimal_histograms) which attempts to find the optimal boundaries in the
+  data. The basic idea is to look for the splits that
+  provide the minimum total error-squared where the "error" for each point is the distance of that point from the
+  arithmetic mean.
+
+  The algorithm used here for v-optimal bucketing is slightly inspired by
+  [this non-recursive code](http://www.mathcs.emory.edu/~cheung/Courses/584-StreamDB/Syllabus/06-Histograms/v-opt3.html).
+  However, this version is recursive and I've made some different choices about when to terminate the splitting. To
+  understand the essence of the algorithm used, you need only look at the 9 lines of code in the `findBucketSplits()` function.
+  The `optimalSplitFor2Buckets()` function will split the values into two buckets. It tries each possible split
+  starting with only one in the bucket on the left all the way down to a split with only one in the bucket on the right.
+
+  ## Simple example ##
+
+  First we need to require the classifier.
+
+      {BayesianClassifier} = require('../')
+
+  Before we start, let's take a look at our training set. The assumption is that we think TeamSize and HasChildProject
+  will be predictors for RealTeam.
+
+      trainingSet = [
+        {TeamSize: 5, HasChildProject: 0, RealTeam: 1},
+        {TeamSize: 3, HasChildProject: 1, RealTeam: 0},
+        {TeamSize: 3, HasChildProject: 1, RealTeam: 1},
+        {TeamSize: 1, HasChildProject: 0, RealTeam: 0},
+        {TeamSize: 2, HasChildProject: 1, RealTeam: 0},
+        {TeamSize: 2, HasChildProject: 0, RealTeam: 0},
+        {TeamSize: 15, HasChildProject: 1, RealTeam: 0},
+        {TeamSize: 27, HasChildProject: 1, RealTeam: 0},
+        {TeamSize: 13, HasChildProject: 1, RealTeam: 1},
+        {TeamSize: 7, HasChildProject: 0, RealTeam: 1},
+        {TeamSize: 7, HasChildProject: 0, RealTeam: 0},
+        {TeamSize: 9, HasChildProject: 1, RealTeam: 1},
+        {TeamSize: 6, HasChildProject: 0, RealTeam: 1},
+        {TeamSize: 5, HasChildProject: 0, RealTeam: 1},
+        {TeamSize: 5, HasChildProject: 0, RealTeam: 0},
+      ]
+
+  Now, let's set up a simple config indicating our assumptions. Note how the type for TeamSize is 'continuous'
+  whereas the type for HasChildProject is 'discrete' eventhough a number is stored. Continuous types must be numbers
+  but discrete types can either be numbers or strings.
+
+      config =
+        outputField: "RealTeam"
+        features: [
+          {field: 'TeamSize', type: 'continuous'},
+          {field: 'HasChildProject', type: 'discrete'}
+        ]
+
+  We can now instantiate the classifier with that config,
+
+      classifier = new BayesianClassifier(config)
+
+  and pass in our training set.
+
+      percentWins = classifier.train(trainingSet)
+
+  The call to `train()` returns the percentage of times that the trained classifier gets the right answer for the training
+  set. This should usually be pretty high. Anything below say, 70% and you probably don't have the right "features"
+  in your training set or you don't have enough training set data. Our made up exmple is a borderline case.
+
+      console.log(percentWins)
+      # 0.7333333333333333
+
+  Now, let's see how the trained classifier is used to predict "RealTeam"-ness. We simply pass in an object with
+  fields for each of our features. A very small team with child projects are definitely not a RealTeam.
+
+      console.log(classifier.predict({TeamSize: 1, HasChildProject: 1}))
+      # 0
+
+  However, a mid-sized project with no child projects most certainly is a RealTeam.
+
+      console.log(classifier.predict({TeamSize: 7, HasChildProject: 0}))
+      # 1
+
+  Here is a less obvious case, with one indicator going one way (too big) and another going the other way (no child projects).
+
+      console.log(classifier.predict({TeamSize: 29, HasChildProject: 0}))
+      # 0
+
+  If you want to know the strength of the prediction, you can pass in `true` as the second parameter.
+
+      console.log(classifier.predict({TeamSize: 29, HasChildProject: 0}, true))
+      # { '0': 0.6956521739130435, '1': 0.30434782608695654 }
+
+  We're only 69.6% sure this is not a RealTeam. Notice how the keys for the output are strings eventhough we passed in values
+  of type Number for the RealTeam field in our training set.
+
+  Like the Lumenize calculators, you can save and restore the state of a trained classifier.
+
+      savedState = classifier.getStateForSaving('some meta data')
+      newClassifier = BayesianClassifier.newFromSavedState(savedState)
+      console.log(newClassifier.meta)
+      # some meta data
+
+  It will make the same predictions.
+
+      console.log(newClassifier.predict({TeamSize: 29, HasChildProject: 0}, true))
+      # { '0': 0.6956521739130435, '1': 0.30434782608695654 }
+
+  ###
+
+  constructor: (@userConfig) ->
+    ###
+    @constructor
+    @param {Object} userConfig See Config options for details.
+    @cfg {String} outputField String indicating which field in the training set is what we are trying to predict
+    @cfg {Object[]} features Array of Maps which specifies the fields to use as features. Each row in the array should
+     be in the form of `{field: <fieldName>, type: <'continuous' | 'discrete'>}`. Note, that you can even declare Number type
+     fields as 'discrete'. It is preferable to do this if you know that it can only be one of a hand full of values
+     (0 vs 1 for example).
+
+     **WARNING: If you choose 'discrete' for the feature type, then ALL possible values for that feature must appear
+     in the training set. If the classifier is asked to make a prediction with a value that it has never seen
+     before, it will fail catostrophically.**
+    ###
+    @config = utils.clone(@userConfig)
+    @outputField = @config.outputField
+    @features = @config.features
+
 
   train: (userSuppliedTrainingSet) ->
+    ###
+    @method train
+     Train the classifier with a training set.
+    @return {Number} The percentage of time that the trained classifier returns the expected outputField for the rows
+     in the training set. If this is low (say below 70%), you need more predictive fields and/or more data in your
+     training set.
+    @param {Object[]} userSuppliedTrainingSet an Array of Maps containing a field for the outputField as well as a field
+     for each of the features specified in the config.
+    ###
+
     # make a copy of the trainingSet
     trainingSet = utils.clone(userSuppliedTrainingSet)
 
@@ -200,6 +389,18 @@ class BayesianClassifier extends Classifier
     return percentWins
 
   predict: (row, returnProbabilities = false) ->
+    ###
+    @method predict
+     Use the trained classifier to make a prediction.
+    @return {String|Number|Object} If returnProbabilities is false (the default), then it will return the prediction.
+     If returnProbabilities is true, then it will return an Object indicating the probability for each possible
+     outputField value.
+    @param {Object} row an Object containing a field for each of the features specified by the config.
+    @param {Boolean} [returnProbabilities = false] If true, then the output will indicate the probabilities of each
+     possible outputField value. Otherwise, the output of a call to `predict()` will return the predicted value with
+     the highest probability.
+    ###
+
     row = @discreteizeRow(row)
     probabilities = {}
     for outputValue, probability of @baseProbabilities
@@ -237,14 +438,17 @@ class BayesianClassifier extends Classifier
     ###
     @method getStateForSaving
       Enables saving the state of a Classifier.
+
+      See the bottom of the "Simple example" for example code of using this
+      saving and restoring functionality.
+
     @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
       within the deserialized Classifier
     @return {Object} Returns an Ojbect representing the state of the Classifier. This Object is suitable for saving to
-      to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute the Classifier.
-
-        example TBD
+      an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute the Classifier.
     ###
     out =
+      userConfig: @userConfig
       outputField: @outputField
       outputValues: @outputValues
       baseProbabilities: @baseProbabilities
@@ -259,7 +463,8 @@ class BayesianClassifier extends Classifier
     @method newFromSavedState
       Deserializes a previously stringified Classifier and returns a new Classifier.
 
-      See `getStateForSaving()` documentation for a detailed example.
+      See the bottom of the "Simple example" for example code of using this
+      saving and restoring functionality.
 
     @static
     @param {String/Object} p A String or Object from a previously saved Classifier state
@@ -268,7 +473,7 @@ class BayesianClassifier extends Classifier
     if utils.type(p) is 'string'
       p = JSON.parse(p)
 
-    classifier = new BayesianClassifier(p.config)
+    classifier = new BayesianClassifier(p.userConfig)
     classifier.outputField = p.outputField
     classifier.outputValues = p.outputValues
     classifier.baseProbabilities = p.baseProbabilities
