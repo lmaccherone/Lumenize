@@ -1,4 +1,5 @@
 {utils} = require('tztime')
+JSON = require('JSON2')
 
 ###
 @class functions

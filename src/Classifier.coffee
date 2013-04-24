@@ -1,6 +1,7 @@
 functions = require('./functions').functions
 utils = require('tztime').utils
 OLAPCube = require('./OLAPCube').OLAPCube
+JSON = require('JSON2')
 
 class Classifier
   ###

@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.6.7
+Lumenize version: 0.6.8
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -4613,7 +4613,9 @@ And last, additional functionality is provided by:
 
 
 (function() {
-  var datatransform, tzTime;
+  var JSON, datatransform, tzTime;
+
+  JSON = require('JSON2');
 
   tzTime = require('tztime');
 
@@ -4660,6 +4662,703 @@ And last, additional functionality is provided by:
   exports.Classifier = require('./src/Classifier').Classifier;
 
 }).call(this);
+
+/*
+//@ sourceMappingURL=lumenize.map
+*/
+
+});
+
+require.define("/node_modules/JSON2/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"index.js"}
+});
+
+require.define("/node_modules/JSON2/index.js",function(require,module,exports,__dirname,__filename,process,global){// For use in Node.js
+
+var JSON2 = require('./json2');
+var cycle = require('./cycle');
+
+JSON2.decycle = cycle.decycle;
+JSON2.retrocycle = cycle.retrocycle;
+
+module.exports = JSON2;
+
+});
+
+require.define("/node_modules/JSON2/json2.js",function(require,module,exports,__dirname,__filename,process,global){/*
+    json2.js
+    2011-10-19
+
+    Public Domain.
+
+    NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+
+    See http://www.JSON.org/js.html
+
+
+    This code should be minified before deployment.
+    See http://javascript.crockford.com/jsmin.html
+
+    USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
+    NOT CONTROL.
+
+
+    This file creates a global JSON object containing two methods: stringify
+    and parse.
+
+        JSON.stringify(value, replacer, space)
+            value       any JavaScript value, usually an object or array.
+
+            replacer    an optional parameter that determines how object
+                        values are stringified for objects. It can be a
+                        function or an array of strings.
+
+            space       an optional parameter that specifies the indentation
+                        of nested structures. If it is omitted, the text will
+                        be packed without extra whitespace. If it is a number,
+                        it will specify the number of spaces to indent at each
+                        level. If it is a string (such as '\t' or '&nbsp;'),
+                        it contains the characters used to indent at each level.
+
+            This method produces a JSON text from a JavaScript value.
+
+            When an object value is found, if the object contains a toJSON
+            method, its toJSON method will be called and the result will be
+            stringified. A toJSON method does not serialize: it returns the
+            value represented by the name/value pair that should be serialized,
+            or undefined if nothing should be serialized. The toJSON method
+            will be passed the key associated with the value, and this will be
+            bound to the value
+
+            For example, this would serialize Dates as ISO strings.
+
+                Date.prototype.toJSON = function (key) {
+                    function f(n) {
+                        // Format integers to have at least two digits.
+                        return n < 10 ? '0' + n : n;
+                    }
+
+                    return this.getUTCFullYear()   + '-' +
+                         f(this.getUTCMonth() + 1) + '-' +
+                         f(this.getUTCDate())      + 'T' +
+                         f(this.getUTCHours())     + ':' +
+                         f(this.getUTCMinutes())   + ':' +
+                         f(this.getUTCSeconds())   + 'Z';
+                };
+
+            You can provide an optional replacer method. It will be passed the
+            key and value of each member, with this bound to the containing
+            object. The value that is returned from your method will be
+            serialized. If your method returns undefined, then the member will
+            be excluded from the serialization.
+
+            If the replacer parameter is an array of strings, then it will be
+            used to select the members to be serialized. It filters the results
+            such that only members with keys listed in the replacer array are
+            stringified.
+
+            Values that do not have JSON representations, such as undefined or
+            functions, will not be serialized. Such values in objects will be
+            dropped; in arrays they will be replaced with null. You can use
+            a replacer function to replace those with JSON values.
+            JSON.stringify(undefined) returns undefined.
+
+            The optional space parameter produces a stringification of the
+            value that is filled with line breaks and indentation to make it
+            easier to read.
+
+            If the space parameter is a non-empty string, then that string will
+            be used for indentation. If the space parameter is a number, then
+            the indentation will be that many spaces.
+
+            Example:
+
+            text = JSON.stringify(['e', {pluribus: 'unum'}]);
+            // text is '["e",{"pluribus":"unum"}]'
+
+
+            text = JSON.stringify(['e', {pluribus: 'unum'}], null, '\t');
+            // text is '[\n\t"e",\n\t{\n\t\t"pluribus": "unum"\n\t}\n]'
+
+            text = JSON.stringify([new Date()], function (key, value) {
+                return this[key] instanceof Date ?
+                    'Date(' + this[key] + ')' : value;
+            });
+            // text is '["Date(---current time---)"]'
+
+
+        JSON.parse(text, reviver)
+            This method parses a JSON text to produce an object or array.
+            It can throw a SyntaxError exception.
+
+            The optional reviver parameter is a function that can filter and
+            transform the results. It receives each of the keys and values,
+            and its return value is used instead of the original value.
+            If it returns what it received, then the structure is not modified.
+            If it returns undefined then the member is deleted.
+
+            Example:
+
+            // Parse the text. Values that look like ISO date strings will
+            // be converted to Date objects.
+
+            myData = JSON.parse(text, function (key, value) {
+                var a;
+                if (typeof value === 'string') {
+                    a =
+/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
+                    if (a) {
+                        return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
+                            +a[5], +a[6]));
+                    }
+                }
+                return value;
+            });
+
+            myData = JSON.parse('["Date(09/09/2001)"]', function (key, value) {
+                var d;
+                if (typeof value === 'string' &&
+                        value.slice(0, 5) === 'Date(' &&
+                        value.slice(-1) === ')') {
+                    d = new Date(value.slice(5, -1));
+                    if (d) {
+                        return d;
+                    }
+                }
+                return value;
+            });
+
+
+    This is a reference implementation. You are free to copy, modify, or
+    redistribute.
+*/
+
+/*jslint evil: true, regexp: true */
+
+/*members "", "\b", "\t", "\n", "\f", "\r", "\"", JSON, "\\", apply,
+    call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
+    getUTCMinutes, getUTCMonth, getUTCSeconds, hasOwnProperty, join,
+    lastIndex, length, parse, prototype, push, replace, slice, stringify,
+    test, toJSON, toString, valueOf
+*/
+
+
+(function (JSON) {
+    'use strict';
+
+    function f(n) {
+        // Format integers to have at least two digits.
+        return n < 10 ? '0' + n : n;
+    }
+
+    /* DDOPSON-2012-04-16 - mutating global prototypes is NOT allowed for a well-behaved module.  
+     * It's also unneeded, since Date already defines toJSON() to the same ISOwhatever format below
+     * Thus, we skip this logic for the CommonJS case where 'exports' is defined
+     */
+    if (typeof exports === 'undefined') {
+      if (typeof Date.prototype.toJSON !== 'function') {
+          Date.prototype.toJSON = function (key) {
+
+              return isFinite(this.valueOf())
+                  ? this.getUTCFullYear()     + '-' +
+                      f(this.getUTCMonth() + 1) + '-' +
+                      f(this.getUTCDate())      + 'T' +
+                      f(this.getUTCHours())     + ':' +
+                      f(this.getUTCMinutes())   + ':' +
+                      f(this.getUTCSeconds())   + 'Z'
+                  : null;
+          };
+      }
+      
+      if (typeof String.prototype.toJSON !== 'function') {
+        String.prototype.toJSON = function (key) { return this.valueOf(); };
+      }
+
+      if (typeof Number.prototype.toJSON !== 'function') {
+        Number.prototype.toJSON = function (key) { return this.valueOf(); };
+      }
+      
+      if (typeof Boolean.prototype.toJSON !== 'function') {
+        Boolean.prototype.toJSON = function (key) { return this.valueOf(); };
+      }
+    }
+    var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+        escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+        gap,
+        indent,
+        meta = {    // table of character substitutions
+            '\b': '\\b',
+            '\t': '\\t',
+            '\n': '\\n',
+            '\f': '\\f',
+            '\r': '\\r',
+            '"' : '\\"',
+            '\\': '\\\\'
+        },
+        rep;
+
+
+    function quote(string) {
+
+// If the string contains no control characters, no quote characters, and no
+// backslash characters, then we can safely slap some quotes around it.
+// Otherwise we must also replace the offending characters with safe escape
+// sequences.
+
+        escapable.lastIndex = 0;
+        return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
+            var c = meta[a];
+            return typeof c === 'string'
+                ? c
+                : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+        }) + '"' : '"' + string + '"';
+    }
+
+
+    function str(key, holder) {
+
+// Produce a string from holder[key].
+
+        var i,          // The loop counter.
+            k,          // The member key.
+            v,          // The member value.
+            length,
+            mind = gap,
+            partial,
+            value = holder[key];
+
+// If the value has a toJSON method, call it to obtain a replacement value.
+
+        if (value && typeof value === 'object' &&
+                typeof value.toJSON === 'function') {
+            value = value.toJSON(key);
+        }
+
+// If we were called with a replacer function, then call the replacer to
+// obtain a replacement value.
+
+        if (typeof rep === 'function') {
+            value = rep.call(holder, key, value);
+        }
+
+// What happens next depends on the value's type.
+
+        switch (typeof value) {
+        case 'string':
+            return quote(value);
+
+        case 'number':
+
+// JSON numbers must be finite. Encode non-finite numbers as null.
+
+            return isFinite(value) ? String(value) : 'null';
+
+        case 'boolean':
+        case 'null':
+
+// If the value is a boolean or null, convert it to a string. Note:
+// typeof null does not produce 'null'. The case is included here in
+// the remote chance that this gets fixed someday.
+
+            return String(value);
+
+// If the type is 'object', we might be dealing with an object or an array or
+// null.
+
+        case 'object':
+
+// Due to a specification blunder in ECMAScript, typeof null is 'object',
+// so watch out for that case.
+
+            if (!value) {
+                return 'null';
+            }
+
+// Make an array to hold the partial results of stringifying this object value.
+
+            gap += indent;
+            partial = [];
+
+// Is the value an array?
+
+            if (Object.prototype.toString.apply(value) === '[object Array]') {
+
+// The value is an array. Stringify every element. Use null as a placeholder
+// for non-JSON values.
+
+                length = value.length;
+                for (i = 0; i < length; i += 1) {
+                    partial[i] = str(i, value) || 'null';
+                }
+
+// Join all of the elements together, separated with commas, and wrap them in
+// brackets.
+
+                v = partial.length === 0
+                    ? '[]'
+                    : gap
+                    ? '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']'
+                    : '[' + partial.join(',') + ']';
+                gap = mind;
+                return v;
+            }
+
+// If the replacer is an array, use it to select the members to be stringified.
+
+            if (rep && typeof rep === 'object') {
+                length = rep.length;
+                for (i = 0; i < length; i += 1) {
+                    if (typeof rep[i] === 'string') {
+                        k = rep[i];
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+                        }
+                    }
+                }
+            } else {
+
+// Otherwise, iterate through all of the keys in the object.
+
+                for (k in value) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+                        }
+                    }
+                }
+            }
+
+// Join all of the member texts together, separated with commas,
+// and wrap them in braces.
+
+            v = partial.length === 0
+                ? '{}'
+                : gap
+                ? '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}'
+                : '{' + partial.join(',') + '}';
+            gap = mind;
+            return v;
+        }
+    }
+
+// If the JSON object does not yet have a stringify method, give it one.
+
+    if (typeof JSON.stringify !== 'function') {
+        JSON.stringify = function (value, replacer, space) {
+
+// The stringify method takes a value and an optional replacer, and an optional
+// space parameter, and returns a JSON text. The replacer can be a function
+// that can replace values, or an array of strings that will select the keys.
+// A default replacer method can be provided. Use of the space parameter can
+// produce text that is more easily readable.
+
+            var i;
+            gap = '';
+            indent = '';
+
+// If the space parameter is a number, make an indent string containing that
+// many spaces.
+
+            if (typeof space === 'number') {
+                for (i = 0; i < space; i += 1) {
+                    indent += ' ';
+                }
+
+// If the space parameter is a string, it will be used as the indent string.
+
+            } else if (typeof space === 'string') {
+                indent = space;
+            }
+
+// If there is a replacer, it must be a function or an array.
+// Otherwise, throw an error.
+
+            rep = replacer;
+            if (replacer && typeof replacer !== 'function' &&
+                    (typeof replacer !== 'object' ||
+                    typeof replacer.length !== 'number')) {
+                throw new Error('JSON.stringify');
+            }
+
+// Make a fake root object containing our value under the key of ''.
+// Return the result of stringifying the value.
+
+            return str('', {'': value});
+        };
+    }
+
+
+// If the JSON object does not yet have a parse method, give it one.
+
+    if (typeof JSON.parse !== 'function') {
+        JSON.parse = function (text, reviver) {
+
+// The parse method takes a text and an optional reviver function, and returns
+// a JavaScript value if the text is a valid JSON text.
+
+            var j;
+
+            function walk(holder, key) {
+
+// The walk method is used to recursively walk the resulting structure so
+// that modifications can be made.
+
+                var k, v, value = holder[key];
+                if (value && typeof value === 'object') {
+                    for (k in value) {
+                        if (Object.prototype.hasOwnProperty.call(value, k)) {
+                            v = walk(value, k);
+                            if (v !== undefined) {
+                                value[k] = v;
+                            } else {
+                                delete value[k];
+                            }
+                        }
+                    }
+                }
+                return reviver.call(holder, key, value);
+            }
+
+
+// Parsing happens in four stages. In the first stage, we replace certain
+// Unicode characters with escape sequences. JavaScript handles many characters
+// incorrectly, either silently deleting them, or treating them as line endings.
+
+            text = String(text);
+            cx.lastIndex = 0;
+            if (cx.test(text)) {
+                text = text.replace(cx, function (a) {
+                    return '\\u' +
+                        ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+                });
+            }
+
+// In the second stage, we run the text against regular expressions that look
+// for non-JSON patterns. We are especially concerned with '()' and 'new'
+// because they can cause invocation, and '=' because it can cause mutation.
+// But just to be safe, we want to reject all unexpected forms.
+
+// We split the second stage into 4 regexp operations in order to work around
+// crippling inefficiencies in IE's and Safari's regexp engines. First we
+// replace the JSON backslash pairs with '@' (a non-JSON character). Second, we
+// replace all simple value tokens with ']' characters. Third, we delete all
+// open brackets that follow a colon or comma or that begin the text. Finally,
+// we look to see that the remaining characters are only whitespace or ']' or
+// ',' or ':' or '{' or '}'. If that is so, then the text is safe for eval.
+
+            if (/^[\],:{}\s]*$/
+                    .test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@')
+                        .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
+                        .replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+
+// In the third stage we use the eval function to compile the text into a
+// JavaScript structure. The '{' operator is subject to a syntactic ambiguity
+// in JavaScript: it can begin a block or an object literal. We wrap the text
+// in parens to eliminate the ambiguity.
+
+                j = eval('(' + text + ')');
+
+// In the optional fourth stage, we recursively walk the new structure, passing
+// each name/value pair to a reviver function for possible transformation.
+
+                return typeof reviver === 'function'
+                    ? walk({'': j}, '')
+                    : j;
+            }
+
+// If the text is not JSON parseable, then a SyntaxError is thrown.
+
+            throw new SyntaxError('JSON.parse');
+        };
+    }
+})(
+    
+    // Create a JSON object only if one does not already exist. We create the
+    // methods in a closure to avoid creating global variables.
+    
+  (typeof exports !== 'undefined') ? 
+    exports : 
+    (window.JSON ? 
+      (window.JSON) :
+      (window.JSON = {})
+    )
+);
+
+});
+
+require.define("/node_modules/JSON2/cycle.js",function(require,module,exports,__dirname,__filename,process,global){// cycle.js
+// 2011-08-24
+
+/*jslint evil: true, regexp: true */
+
+/*members $ref, apply, call, decycle, hasOwnProperty, length, prototype, push,
+    retrocycle, stringify, test, toString
+*/
+
+(function (exports) {
+
+if (typeof exports.decycle !== 'function') {
+    exports.decycle = function decycle(object) {
+        'use strict';
+
+// Make a deep copy of an object or array, assuring that there is at most
+// one instance of each object or array in the resulting structure. The
+// duplicate references (which might be forming cycles) are replaced with
+// an object of the form
+//      {$ref: PATH}
+// where the PATH is a JSONPath string that locates the first occurance.
+// So,
+//      var a = [];
+//      a[0] = a;
+//      return JSON.stringify(JSON.decycle(a));
+// produces the string '[{"$ref":"$"}]'.
+
+// JSONPath is used to locate the unique object. $ indicates the top level of
+// the object or array. [NUMBER] or [STRING] indicates a child member or
+// property.
+
+        var objects = [],   // Keep a reference to each unique object or array
+            paths = [];     // Keep the path to each unique object or array
+
+        return (function derez(value, path) {
+
+// The derez recurses through the object, producing the deep copy.
+
+            var i,          // The loop counter
+                name,       // Property name
+                nu;         // The new object or array
+
+            switch (typeof value) {
+            case 'object':
+
+// typeof null === 'object', so get out if this value is not really an object.
+
+                if (!value) {
+                    return null;
+                }
+
+// If the value is an object or array, look to see if we have already
+// encountered it. If so, return a $ref/path object. This is a hard way,
+// linear search that will get slower as the number of unique objects grows.
+
+                for (i = 0; i < objects.length; i += 1) {
+                    if (objects[i] === value) {
+                        return {$ref: paths[i]};
+                    }
+                }
+
+// Otherwise, accumulate the unique value and its path.
+
+                objects.push(value);
+                paths.push(path);
+
+// If it is an array, replicate the array.
+
+                if (Object.prototype.toString.apply(value) === '[object Array]') {
+                    nu = [];
+                    for (i = 0; i < value.length; i += 1) {
+                        nu[i] = derez(value[i], path + '[' + i + ']');
+                    }
+                } else {
+
+// If it is an object, replicate the object.
+
+                    nu = {};
+                    for (name in value) {
+                        if (Object.prototype.hasOwnProperty.call(value, name)) {
+                            nu[name] = derez(value[name],
+                                path + '[' + JSON.stringify(name) + ']');
+                        }
+                    }
+                }
+                return nu;
+            case 'number':
+            case 'string':
+            case 'boolean':
+                return value;
+            }
+        }(object, '$'));
+    };
+}
+
+
+if (typeof exports.retrocycle !== 'function') {
+    exports.retrocycle = function retrocycle($) {
+        'use strict';
+
+// Restore an object that was reduced by decycle. Members whose values are
+// objects of the form
+//      {$ref: PATH}
+// are replaced with references to the value found by the PATH. This will
+// restore cycles. The object will be mutated.
+
+// The eval function is used to locate the values described by a PATH. The
+// root object is kept in a $ variable. A regular expression is used to
+// assure that the PATH is extremely well formed. The regexp contains nested
+// * quantifiers. That has been known to have extremely bad performance
+// problems on some browsers for very long strings. A PATH is expected to be
+// reasonably short. A PATH is allowed to belong to a very restricted subset of
+// Goessner's JSONPath.
+
+// So,
+//      var s = '[{"$ref":"$"}]';
+//      return JSON.retrocycle(JSON.parse(s));
+// produces an array containing a single element which is the array itself.
+
+        var px =
+            /^\$(?:\[(?:\d+|\"(?:[^\\\"\u0000-\u001f]|\\([\\\"\/bfnrt]|u[0-9a-zA-Z]{4}))*\")\])*$/;
+
+        (function rez(value) {
+
+// The rez function walks recursively through the object looking for $ref
+// properties. When it finds one that has a value that is a path, then it
+// replaces the $ref object with a reference to the value that is found by
+// the path.
+
+            var i, item, name, path;
+
+            if (value && typeof value === 'object') {
+                if (Object.prototype.toString.apply(value) === '[object Array]') {
+                    for (i = 0; i < value.length; i += 1) {
+                        item = value[i];
+                        if (item && typeof item === 'object') {
+                            path = item.$ref;
+                            if (typeof path === 'string' && px.test(path)) {
+                                value[i] = eval(path);
+                            } else {
+                                rez(item);
+                            }
+                        }
+                    }
+                } else {
+                    for (name in value) {
+                        if (typeof value[name] === 'object') {
+                            item = value[name];
+                            if (item) {
+                                path = item.$ref;
+                                if (typeof path === 'string' && px.test(path)) {
+                                    value[name] = eval(path);
+                                } else {
+                                    rez(item);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }($));
+        return $;
+    };
+}
+}) (
+  (typeof exports !== 'undefined') ? 
+    exports : 
+    (window.JSON ? 
+      (window.JSON) :
+      (window.JSON = {})
+    )
+);
 
 });
 
@@ -6305,7 +7004,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
 });
 
 require.define("/node_modules/tztime/src/utils.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var AssertException, ErrorBase, assert, clone, exactMatch, filterMatch, isArray, keys, match, startsWith, trim, type, values,
+  var AssertException, ErrorBase, assert, clone, exactMatch, filterMatch, isArray, keys, log, match, startsWith, trim, type, values,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -6491,6 +7190,19 @@ require.define("/node_modules/tztime/src/utils.coffee",function(require,module,e
       return _results;
     })();
   };
+
+  log = function(s) {
+    var pre;
+    if ((typeof document !== "undefined" && document !== null ? document.createElement : void 0) != null) {
+      pre = document.createElement('pre');
+      pre.innerHTML = s;
+      return document.body.appendChild(pre);
+    } else {
+      return console.log(s);
+    }
+  };
+
+  exports.log = log;
 
   exports.AssertException = AssertException;
 
@@ -8362,7 +9074,7 @@ require.define("fs",function(require,module,exports,__dirname,__filename,process
 });
 
 require.define("/node_modules/tztime/src/Timeline.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var Time, Timeline, TimelineIterator, timezoneJS, utils,
+  var JSON, Time, Timeline, TimelineIterator, timezoneJS, utils,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Time = require('./Time').Time;
@@ -8370,6 +9082,8 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
   timezoneJS = require('./timezone-js.js').timezoneJS;
 
   utils = require('./utils');
+
+  JSON = require('JSON2');
 
   Timeline = (function() {
     /*
@@ -9114,23 +9828,25 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
 
 });
 
-require.define("/src/iCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var iCalculator;
+require.define("/src/iCalculator.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.6.2
+(function() {
+  var JSON, iCalculator;
+
+  JSON = require('JSON2');
 
   iCalculator = (function() {
     /*
-      @class iCalculator
+    @class iCalculator
     
-      This serves as documentation for the interface expected of all Lumenize Calculators. You can extend from it but it's
-      not technically necessary. You are more likely to copy this as the starting point for a new calculator.
+    This serves as documentation for the interface expected of all Lumenize Calculators. You can extend from it but it's
+    not technically necessary. You are more likely to copy this as the starting point for a new calculator.
     */
-
     function iCalculator(config) {
       this.config = config;
       /*
-          @constructor
-          @param {Object} config
-            The config properties are up to you.
+      @constructor
+      @param {Object} config
+        The config properties are up to you.
       */
 
       throw new Error('iCalculator is an interface not a base class. You must override this constructor.');
@@ -9138,15 +9854,15 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
 
     iCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore) {
       /*
-          @method addSnapshots
-            Allows you to incrementally add snapshots to this calculator.
-          @chainable
-          @param {Object[]} snapshots An array of temporal data model snapshots.
-          @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
-            interest. On the second through nth call, this should equal the previous endBefore.
-          @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
-            period of interest.
-          @return {iCalculator}
+      @method addSnapshots
+        Allows you to incrementally add snapshots to this calculator.
+      @chainable
+      @param {Object[]} snapshots An array of temporal data model snapshots.
+      @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+        interest. On the second through nth call, this should equal the previous endBefore.
+      @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+        period of interest.
+      @return {iCalculator}
       */
       throw new Error('iCalculator is an interface not a base class. You must override this addSnapshots method.');
       if (this.upToDateISOString != null) {
@@ -9158,25 +9874,26 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
 
     iCalculator.prototype.getResults = function() {
       /*
-          @method getResults
-            Returns the current state of the calculator
-          @return {Object} The type and format of what it returns is up to you.
+      @method getResults
+        Returns the current state of the calculator
+      @return {Object} The type and format of what it returns is up to you.
       */
       throw new Error('iCalculator is an interface not a base class. You must override this getResults method.');
     };
 
     iCalculator.prototype.getStateForSaving = function(meta) {
       /*
-          @method getStateForSaving
-            Enables saving the state of this calculator. See TimeInStateCalculator for a detailed example.
-          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
-            within the deserialized calculator.
-          @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
-            to an object store or LocalCache. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
-            the calculator.
+      @method getStateForSaving
+        Enables saving the state of this calculator. See TimeInStateCalculator for a detailed example.
+      @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+        within the deserialized calculator.
+      @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+        to an object store or LocalCache. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+        the calculator.
       */
 
       var out;
+
       throw new Error('iCalculator is an interface not a base class. You must override this getStateForSaving method.');
       out = {};
       out.upToDateISOString = this.upToDateISOString;
@@ -9188,11 +9905,11 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
 
     iCalculator.newFromSavedState = function(p) {
       /*
-          @method newFromSavedState
-            Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
-          @static
-          @param {String/Object} p A String or Object from a previously saved calculator state
-          @return {iCalculator}
+      @method newFromSavedState
+        Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
+      @static
+      @param {String/Object} p A String or Object from a previously saved calculator state
+      @return {iCalculator}
       */
       throw new Error('iCalculator is an interface not a base class. You must override this @newFromSavedState method.');
       if (utils.type(p) === 'string') {
@@ -9213,148 +9930,155 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
 
 }).call(this);
 
+/*
+//@ sourceMappingURL=iCalculator.map
+*/
+
 });
 
-require.define("/src/TimeInStateCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var OLAPCube, Time, TimeInStateCalculator, Timeline, utils, _ref;
+require.define("/src/TimeInStateCalculator.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.6.2
+(function() {
+  var JSON, OLAPCube, Time, TimeInStateCalculator, Timeline, utils, _ref;
 
   OLAPCube = require('./OLAPCube').OLAPCube;
 
   _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time, Timeline = _ref.Timeline;
 
+  JSON = require('JSON2');
+
   TimeInStateCalculator = (function() {
     /*
-      @class TimeInStateCalculator
+    @class TimeInStateCalculator
     
-      Used to calculate how much time each uniqueID spent "in-state". You use this by querying a temporal data
-      model (like Rally's Lookback API) with a predicate indicating the "state" of interest. You'll then have a list of
-      snapshots where that predicate was true. You pass this in to the addSnapshots method of this previously instantiated
-      TimeInStateCalculator class.
-      
-      Usage:
-      
-          {TimeInStateCalculator} = require('../')
+    Used to calculate how much time each uniqueID spent "in-state". You use this by querying a temporal data
+    model (like Rally's Lookback API) with a predicate indicating the "state" of interest. You'll then have a list of
+    snapshots where that predicate was true. You pass this in to the addSnapshots method of this previously instantiated
+    TimeInStateCalculator class.
     
-          snapshots = [ 
-            { id: 1, from: '2011-01-06T15:10:00.000Z', to: '2011-01-06T15:30:00.000Z', Name: 'Item A' }, # 20 minutes all within an hour
-            { id: 2, from: '2011-01-06T15:50:00.000Z', to: '2011-01-06T16:10:00.000Z', Name: 'Item B' }, # 20 minutes spanning an hour
-            { id: 3, from: '2011-01-07T13:00:00.000Z', to: '2011-01-07T15:20:00.000Z', Name: 'Item C' }, # start 2 hours before but overlap by 20 minutes of start
-            { id: 4, from: '2011-01-06T16:40:00.000Z', to: '2011-01-06T19:00:00.000Z', Name: 'Item D' }, # 20 minutes before end of day
-            { id: 5, from: '2011-01-06T16:50:00.000Z', to: '2011-01-07T15:10:00.000Z', Name: 'Item E' }, # 10 minutes before end of one day and 10 before the start of next
-            { id: 6, from: '2011-01-06T16:55:00.000Z', to: '2011-01-07T15:05:00.000Z', Name: 'Item F' }, # multiple cycles over several days for a total of 20 minutes of work time
-            { id: 6, from: '2011-01-07T16:55:00.000Z', to: '2011-01-10T15:05:00.000Z', Name: 'Item F modified' },
-            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: 'Item G' }  # continues past the range of consideration in this test
-          ]
-          
-          granularity = 'minute'
-          tz = 'America/Chicago'
+    Usage:
     
-          config =  # default work days and holidays
-            granularity: granularity
-            tz: tz
-            endBefore: '2011-01-11T00:00:00.000'
-            workDayStartOn: {hour: 9, minute: 0}  # 09:00 in Chicago is 15:00 in GMT
-            workDayEndBefore: {hour: 11, minute: 0}  # 11:00 in Chicago is 17:00 in GMT  # !TODO: Change this to 5pm when I change the samples above
-            validFromField: 'from'
-            validToField: 'to'
-            uniqueIDField: 'id'
-            trackLastValueForTheseFields: ['to', 'Name']
+        {TimeInStateCalculator} = require('../')
     
-          startOn = '2011-01-05T00:00:00.000Z'
-          endBefore = '2011-01-11T00:00:00.000Z'
+        snapshots = [ 
+          { id: 1, from: '2011-01-06T15:10:00.000Z', to: '2011-01-06T15:30:00.000Z', Name: 'Item A' }, # 20 minutes all within an hour
+          { id: 2, from: '2011-01-06T15:50:00.000Z', to: '2011-01-06T16:10:00.000Z', Name: 'Item B' }, # 20 minutes spanning an hour
+          { id: 3, from: '2011-01-07T13:00:00.000Z', to: '2011-01-07T15:20:00.000Z', Name: 'Item C' }, # start 2 hours before but overlap by 20 minutes of start
+          { id: 4, from: '2011-01-06T16:40:00.000Z', to: '2011-01-06T19:00:00.000Z', Name: 'Item D' }, # 20 minutes before end of day
+          { id: 5, from: '2011-01-06T16:50:00.000Z', to: '2011-01-07T15:10:00.000Z', Name: 'Item E' }, # 10 minutes before end of one day and 10 before the start of next
+          { id: 6, from: '2011-01-06T16:55:00.000Z', to: '2011-01-07T15:05:00.000Z', Name: 'Item F' }, # multiple cycles over several days for a total of 20 minutes of work time
+          { id: 6, from: '2011-01-07T16:55:00.000Z', to: '2011-01-10T15:05:00.000Z', Name: 'Item F modified' },
+          { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: 'Item G' }  # continues past the range of consideration in this test
+        ]
+        
+        granularity = 'minute'
+        tz = 'America/Chicago'
     
-          tisc = new TimeInStateCalculator(config)
-          tisc.addSnapshots(snapshots, startOn, endBefore)
+        config =  # default work days and holidays
+          granularity: granularity
+          tz: tz
+          endBefore: '2011-01-11T00:00:00.000'
+          workDayStartOn: {hour: 9, minute: 0}  # 09:00 in Chicago is 15:00 in GMT
+          workDayEndBefore: {hour: 11, minute: 0}  # 11:00 in Chicago is 17:00 in GMT  # !TODO: Change this to 5pm when I change the samples above
+          validFromField: 'from'
+          validToField: 'to'
+          uniqueIDField: 'id'
+          trackLastValueForTheseFields: ['to', 'Name']
     
-          console.log(tisc.getResults())
-          # [ { id: 1,
-          #     ticks: 20,
-          #     to_lastValue: '2011-01-06T15:30:00.000Z',
-          #     Name_lastValue: 'Item A' },
-          #   { id: 2,
-          #     ticks: 20,
-          #     to_lastValue: '2011-01-06T16:10:00.000Z',
-          #     Name_lastValue: 'Item B' },
-          #   { id: 3,
-          #     ticks: 20,
-          #     to_lastValue: '2011-01-07T15:20:00.000Z',
-          #     Name_lastValue: 'Item C' },
-          #   { id: 4,
-          #     ticks: 20,
-          #     to_lastValue: '2011-01-06T19:00:00.000Z',
-          #     Name_lastValue: 'Item D' },
-          #   { id: 5,
-          #     ticks: 20,
-          #     to_lastValue: '2011-01-07T15:10:00.000Z',
-          #     Name_lastValue: 'Item E' },
-          #   { id: 6,
-          #     ticks: 20,
-          #     to_lastValue: '2011-01-10T15:05:00.000Z',
-          #     Name_lastValue: 'Item F modified' },
-          #   { id: 7,
-          #     ticks: 260,
-          #     to_lastValue: '9999-01-01T00:00:00.000Z',
-          #     Name_lastValue: 'Item G' } ]
+        startOn = '2011-01-05T00:00:00.000Z'
+        endBefore = '2011-01-11T00:00:00.000Z'
     
-      But we are not done yet. We can serialize the state of this calculator and later restore it.
+        tisc = new TimeInStateCalculator(config)
+        tisc.addSnapshots(snapshots, startOn, endBefore)
     
-          savedState = tisc.getStateForSaving({somekey: 'some value'})
+        console.log(tisc.getResults())
+        # [ { id: 1,
+        #     ticks: 20,
+        #     to_lastValue: '2011-01-06T15:30:00.000Z',
+        #     Name_lastValue: 'Item A' },
+        #   { id: 2,
+        #     ticks: 20,
+        #     to_lastValue: '2011-01-06T16:10:00.000Z',
+        #     Name_lastValue: 'Item B' },
+        #   { id: 3,
+        #     ticks: 20,
+        #     to_lastValue: '2011-01-07T15:20:00.000Z',
+        #     Name_lastValue: 'Item C' },
+        #   { id: 4,
+        #     ticks: 20,
+        #     to_lastValue: '2011-01-06T19:00:00.000Z',
+        #     Name_lastValue: 'Item D' },
+        #   { id: 5,
+        #     ticks: 20,
+        #     to_lastValue: '2011-01-07T15:10:00.000Z',
+        #     Name_lastValue: 'Item E' },
+        #   { id: 6,
+        #     ticks: 20,
+        #     to_lastValue: '2011-01-10T15:05:00.000Z',
+        #     Name_lastValue: 'Item F modified' },
+        #   { id: 7,
+        #     ticks: 260,
+        #     to_lastValue: '9999-01-01T00:00:00.000Z',
+        #     Name_lastValue: 'Item G' } ]
     
-      Let's incrementally update the original.
+    But we are not done yet. We can serialize the state of this calculator and later restore it.
     
-          snapshots = [
-            { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: 'Item G modified' },  # same snapshot as before still going
-            { id: 3, from: '2011-01-11T15:00:00.000Z', to: '2011-01-11T15:20:00.000Z', Name: 'Item C modified' },  # 20 more minutes for id 3
-            { id: 8, from: '2011-01-11T15:00:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: 'Item H' }   # 20 minutes in scope for new id 8
-          ]
+        savedState = tisc.getStateForSaving({somekey: 'some value'})
     
-          startOn = '2011-01-11T00:00:00.000Z'  # must match endBefore of prior call
-          endBefore = '2011-01-11T15:20:00.000Z'
+    Let's incrementally update the original.
     
-          tisc.addSnapshots(snapshots, startOn, endBefore)
+        snapshots = [
+          { id: 7, from: '2011-01-06T16:40:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: 'Item G modified' },  # same snapshot as before still going
+          { id: 3, from: '2011-01-11T15:00:00.000Z', to: '2011-01-11T15:20:00.000Z', Name: 'Item C modified' },  # 20 more minutes for id 3
+          { id: 8, from: '2011-01-11T15:00:00.000Z', to: '9999-01-01T00:00:00.000Z', Name: 'Item H' }   # 20 minutes in scope for new id 8
+        ]
     
-      Now, let's restore from saved state into tisc2 and give it the same updates and confirm that they match.
+        startOn = '2011-01-11T00:00:00.000Z'  # must match endBefore of prior call
+        endBefore = '2011-01-11T15:20:00.000Z'
     
-          tisc2 = TimeInStateCalculator.newFromSavedState(savedState)
-          tisc2.addSnapshots(snapshots, startOn, endBefore)
+        tisc.addSnapshots(snapshots, startOn, endBefore)
     
-          console.log(tisc2.meta.somekey)
-          # some value
+    Now, let's restore from saved state into tisc2 and give it the same updates and confirm that they match.
     
-          console.log(JSON.stringify(tisc.getResults()) == JSON.stringify(tisc2.getResults()))
-          # true
+        tisc2 = TimeInStateCalculator.newFromSavedState(savedState)
+        tisc2.addSnapshots(snapshots, startOn, endBefore)
+    
+        console.log(tisc2.meta.somekey)
+        # some value
+    
+        console.log(JSON.stringify(tisc.getResults()) == JSON.stringify(tisc2.getResults()))
+        # true
     */
-
     function TimeInStateCalculator(config) {
       /*
-          @constructor
-          @param {Object} config
-          @cfg {String} tz The timezone for analysis
-          @cfg {String} [validFromField = "_ValidFrom"]
-          @cfg {String} [validToField = "_ValidTo"]
-          @cfg {String} [uniqueIDField = "ObjectID"]
-          @cfg {String} granularity This calculator will tell you how many ticks fall within the snapshots you feed in.
-            This configuration value indicates the granularity of the ticks (i.e. Time.MINUTE, Time.HOUR, Time.DAY, etc.)
-          @cfg {String[]/String} [workDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']] List of days of the week that you work on. You can specify this as an Array of Strings
-            (['Monday', 'Tuesday', ...]) or a single comma seperated String ("Monday,Tuesday,...").
-          @cfg {Object[]} [holidays] An optional Array containing rows that are either ISOStrings or JavaScript Objects
-            (mix and match). Example: `[{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, "2012-12-24"]`
-             Notice how you can leave off the year if the holiday falls on the same day every year.
-          @cfg {Object} [workDayStartOn] An optional object in the form {hour: 8, minute: 15}. If minute is zero it can be omitted.
-            If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
-            hours span midnight. If tickGranularity is "hour" or finer, you probably want to set this; if tickGranularity is
-            "day" or coarser, probably not.
-          @cfg {Object} [workDayEndBefore] An optional object in the form {hour: 17, minute: 0}. If minute is zero it can be omitted.
-            The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
-            Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
-            than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
-            the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
-          @cfg {String[]} [trackLastValueForTheseFields] If provided, the last value of these fields will appear in the results.
-             This is useful if you want to filter the result by where the ended or if you want information to fill in the tooltip
-             for a chart.
+      @constructor
+      @param {Object} config
+      @cfg {String} tz The timezone for analysis
+      @cfg {String} [validFromField = "_ValidFrom"]
+      @cfg {String} [validToField = "_ValidTo"]
+      @cfg {String} [uniqueIDField = "ObjectID"]
+      @cfg {String} granularity This calculator will tell you how many ticks fall within the snapshots you feed in.
+        This configuration value indicates the granularity of the ticks (i.e. Time.MINUTE, Time.HOUR, Time.DAY, etc.)
+      @cfg {String[]/String} [workDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']] List of days of the week that you work on. You can specify this as an Array of Strings
+        (['Monday', 'Tuesday', ...]) or a single comma seperated String ("Monday,Tuesday,...").
+      @cfg {Object[]} [holidays] An optional Array containing rows that are either ISOStrings or JavaScript Objects
+        (mix and match). Example: `[{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, "2012-12-24"]`
+         Notice how you can leave off the year if the holiday falls on the same day every year.
+      @cfg {Object} [workDayStartOn] An optional object in the form {hour: 8, minute: 15}. If minute is zero it can be omitted.
+        If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
+        hours span midnight. If tickGranularity is "hour" or finer, you probably want to set this; if tickGranularity is
+        "day" or coarser, probably not.
+      @cfg {Object} [workDayEndBefore] An optional object in the form {hour: 17, minute: 0}. If minute is zero it can be omitted.
+        The use of workDayStartOn and workDayEndBefore only make sense when the granularity is "hour" or finer.
+        Note: If the business closes at 5:00pm, you'll want to leave workDayEndBefore to 17:00, rather
+        than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
+        the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
+      @cfg {String[]} [trackLastValueForTheseFields] If provided, the last value of these fields will appear in the results.
+         This is useful if you want to filter the result by where the ended or if you want information to fill in the tooltip
+         for a chart.
       */
 
       var cubeConfig, dimensions, fieldName, metricObject, metrics, _i, _len, _ref1;
+
       this.config = utils.clone(config);
       if (this.config.validFromField == null) {
         this.config.validFromField = "_ValidFrom";
@@ -9400,18 +10124,19 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
 
     TimeInStateCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore) {
       /*
-          @method addSnapshots
-            Allows you to incrementally add snapshots to this calculator.
-          @chainable
-          @param {Object[]} snapshots An array of temporal data model snapshots.
-          @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
-            interest. On the second through nth call, this should equal the previous endBefore.
-          @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
-            period of interest.
-          @return {TimeInStateCalculator}
+      @method addSnapshots
+        Allows you to incrementally add snapshots to this calculator.
+      @chainable
+      @param {Object[]} snapshots An array of temporal data model snapshots.
+      @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+        interest. On the second through nth call, this should equal the previous endBefore.
+      @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+        period of interest.
+      @return {TimeInStateCalculator}
       */
 
       var s, ticks, timeline, timelineConfig, _i, _len;
+
       if (this.upToDateISOString != null) {
         utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
       }
@@ -9431,12 +10156,13 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
 
     TimeInStateCalculator.prototype.getResults = function() {
       /*
-          @method getResults
-            Returns the current state of the calculator
-          @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
+      @method getResults
+        Returns the current state of the calculator
+      @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
       */
 
       var cell, fieldName, filter, id, out, outRow, uniqueIDs, _i, _j, _len, _len1, _ref1;
+
       out = [];
       uniqueIDs = this.cube.getDimensionValues(this.config.uniqueIDField);
       for (_i = 0, _len = uniqueIDs.length; _i < _len; _i++) {
@@ -9461,16 +10187,17 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
 
     TimeInStateCalculator.prototype.getStateForSaving = function(meta) {
       /*
-          @method getStateForSaving
-            Enables saving the state of this calculator. See class documentation for a detailed example.
-          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
-            within the deserialized calculator.
-          @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
-            to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
-            the calculator.
+      @method getStateForSaving
+        Enables saving the state of this calculator. See class documentation for a detailed example.
+      @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+        within the deserialized calculator.
+      @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+        to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+        the calculator.
       */
 
       var out;
+
       out = {
         config: this.config,
         cubeSavedState: this.cube.getStateForSaving(),
@@ -9484,14 +10211,15 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
 
     TimeInStateCalculator.newFromSavedState = function(p) {
       /*
-          @method newFromSavedState
-            Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
-          @static
-          @param {String/Object} p A String or Object from a previously saved state
-          @return {TimeInStateCalculator}
+      @method newFromSavedState
+        Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
+      @static
+      @param {String/Object} p A String or Object from a previously saved state
+      @return {TimeInStateCalculator}
       */
 
       var calculator;
+
       if (utils.type(p) === 'string') {
         p = JSON.parse(p);
       }
@@ -9512,17 +10240,23 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
 
 }).call(this);
 
+/*
+//@ sourceMappingURL=TimeInStateCalculator.map
+*/
+
 });
 
 require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.6.2
 (function() {
-  var OLAPCube, arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, functions, utils, _ref;
+  var JSON, OLAPCube, arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, functions, utils, _ref;
 
   utils = require('tztime').utils;
 
   functions = require('./functions').functions;
 
   _ref = require('./dataTransform'), arrayOfMaps_To_CSVStyleArray = _ref.arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps = _ref.csvStyleArray_To_ArrayOfMaps;
+
+  JSON = require('JSON2');
 
   OLAPCube = (function() {
     /*
@@ -10546,9 +11280,11 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
 
 require.define("/src/functions.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.6.2
 (function() {
-  var functions, utils, _populateDependentValues;
+  var JSON, functions, utils, _populateDependentValues;
 
   utils = require('tztime').utils;
+
+  JSON = require('JSON2');
 
   /*
   @class functions
@@ -11122,13 +11858,19 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
 
 }).call(this);
 
+/*
+//@ sourceMappingURL=functions.map
+*/
+
 });
 
 require.define("/src/dataTransform.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.6.2
 (function() {
-  var Time, arrayOfMaps_To_CSVStyleArray, arrayOfMaps_To_HighChartsSeries, csvString_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, utils, _ref;
+  var JSON, Time, arrayOfMaps_To_CSVStyleArray, arrayOfMaps_To_HighChartsSeries, csvString_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, utils, _ref;
 
   _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time;
+
+  JSON = require('JSON2');
 
   csvStyleArray_To_ArrayOfMaps = function(csvStyleArray, rowKeys) {
     /*
@@ -11353,134 +12095,137 @@ require.define("/src/dataTransform.js",function(require,module,exports,__dirname
 
 });
 
-require.define("/src/TransitionsCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var OLAPCube, Time, Timeline, TransitionsCalculator, utils, _ref;
+require.define("/src/TransitionsCalculator.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.6.2
+(function() {
+  var JSON, OLAPCube, Time, Timeline, TransitionsCalculator, utils, _ref;
 
   OLAPCube = require('./OLAPCube').OLAPCube;
 
   _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time, Timeline = _ref.Timeline;
 
+  JSON = require('JSON2');
+
   TransitionsCalculator = (function() {
     /*
-      @class TransitionsCalculator
+    @class TransitionsCalculator
     
-      Used to accumlate counts and sums about transitions.
+    Used to accumlate counts and sums about transitions.
     
-      Let's say that you want to create a throughput or velocity chart where each column on the chart represents the
-      number of work items that cross over from one state into another state in a given month/week/quarter/etc. You would
-      send a transitions to a temporal data store like Rally's Lookback API specifying both the current values and the
-      previous values. For instance, the work items crossing from "In Progress" to "Completed" could be found
-      with this query clause `"_PreviousValues.ScheduleState": {"$lte": "In Progress"}, "ScheduleState": {"$gt": "In Progress"}`
+    Let's say that you want to create a throughput or velocity chart where each column on the chart represents the
+    number of work items that cross over from one state into another state in a given month/week/quarter/etc. You would
+    send a transitions to a temporal data store like Rally's Lookback API specifying both the current values and the
+    previous values. For instance, the work items crossing from "In Progress" to "Completed" could be found
+    with this query clause `"_PreviousValues.ScheduleState": {"$lte": "In Progress"}, "ScheduleState": {"$gt": "In Progress"}`
     
-          {TransitionsCalculator, Time} = require('../')
+        {TransitionsCalculator, Time} = require('../')
     
-          snapshots = [
-            { id: 1, from: '2011-01-03T00:00:00.000Z', PlanEstimate: 10 },
-            { id: 1, from: '2011-01-05T00:00:00.000Z', PlanEstimate: 10 },
-            { id: 2, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 20 },
-            { id: 3, from: '2011-01-10T00:00:00.000Z', PlanEstimate: 30 },
-            { id: 4, from: '2011-01-11T00:00:00.000Z', PlanEstimate: 40 },
-            { id: 5, from: '2011-01-17T00:00:00.000Z', PlanEstimate: 50 },
-            { id: 6, from: '2011-02-07T00:00:00.000Z', PlanEstimate: 60 },
-            { id: 7, from: '2011-02-08T00:00:00.000Z', PlanEstimate: 70 },
-          ]
+        snapshots = [
+          { id: 1, from: '2011-01-03T00:00:00.000Z', PlanEstimate: 10 },
+          { id: 1, from: '2011-01-05T00:00:00.000Z', PlanEstimate: 10 },
+          { id: 2, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 20 },
+          { id: 3, from: '2011-01-10T00:00:00.000Z', PlanEstimate: 30 },
+          { id: 4, from: '2011-01-11T00:00:00.000Z', PlanEstimate: 40 },
+          { id: 5, from: '2011-01-17T00:00:00.000Z', PlanEstimate: 50 },
+          { id: 6, from: '2011-02-07T00:00:00.000Z', PlanEstimate: 60 },
+          { id: 7, from: '2011-02-08T00:00:00.000Z', PlanEstimate: 70 },
+        ]
     
-      But that's not the entire story. What if something crosses over into "Completed" and beyond but crosses back. It could
-      do this several times and get counted multiple times. That would be bad. The way we deal with this is to also
-      look for the list of snapshots that pass backwards across the boundary and subract thier impact on the final calculations.
+    But that's not the entire story. What if something crosses over into "Completed" and beyond but crosses back. It could
+    do this several times and get counted multiple times. That would be bad. The way we deal with this is to also
+    look for the list of snapshots that pass backwards across the boundary and subract thier impact on the final calculations.
     
-      One can think of alternative aproaches for avoiding this double counting. You could, for instance, only count the last
-      transition for each unique work item. The problem with this approach is that the backward moving transition might
-      occur in a different time period from the forward moving one. A later snapshot could invalidate an earlier calculation
-      which is bad for incremental calculation and caching. To complicate matters, the field values being summed by the
-      calculator might have changed between subsequent forward/backward transitions. The chosen algorithm is the only way I know to
-      preserve the idempotency and cachable incremental calculation properties.
+    One can think of alternative aproaches for avoiding this double counting. You could, for instance, only count the last
+    transition for each unique work item. The problem with this approach is that the backward moving transition might
+    occur in a different time period from the forward moving one. A later snapshot could invalidate an earlier calculation
+    which is bad for incremental calculation and caching. To complicate matters, the field values being summed by the
+    calculator might have changed between subsequent forward/backward transitions. The chosen algorithm is the only way I know to
+    preserve the idempotency and cachable incremental calculation properties.
     
-          snapshotsToSubtract = [
-            { id: 1, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 10 },
-            { id: 7, from: '2011-02-09T00:00:00.000Z', PlanEstimate: 70 },
-          ]
+        snapshotsToSubtract = [
+          { id: 1, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 10 },
+          { id: 7, from: '2011-02-09T00:00:00.000Z', PlanEstimate: 70 },
+        ]
     
-      The calculator will keep track of the count of items automatically (think throughput), but if you want to sum up a
-      particular field (think velocity), you can specify that with the 'fieldsToSum' config property.
+    The calculator will keep track of the count of items automatically (think throughput), but if you want to sum up a
+    particular field (think velocity), you can specify that with the 'fieldsToSum' config property.
     
-          fieldsToSum = ['PlanEstimate']
+        fieldsToSum = ['PlanEstimate']
     
-      Now let's build our config object.
+    Now let's build our config object.
     
-          config =
-            asOf: '2011-02-10'  # Leave this off if you want it to continuously update to today
-            granularity: Time.MONTH
-            tz: 'America/Chicago'
-            validFromField: 'from'
-            validToField: 'to'
-            uniqueIDField: 'id'
-            fieldsToSum: fieldsToSum
-            asterixToDateTimePeriod: true  # Set to false or leave off if you are going to reformat the timePeriod
+        config =
+          asOf: '2011-02-10'  # Leave this off if you want it to continuously update to today
+          granularity: Time.MONTH
+          tz: 'America/Chicago'
+          validFromField: 'from'
+          validToField: 'to'
+          uniqueIDField: 'id'
+          fieldsToSum: fieldsToSum
+          asterixToDateTimePeriod: true  # Set to false or leave off if you are going to reformat the timePeriod
     
-      In most cases, you'll want to leave off the `asOf` configuration property so the data can be continuously updated
-      with new snapshots as they come in. We include it in this example so the output stays stable. If we hadn't, then
-      the rows would continue to grow to encompass today.
+    In most cases, you'll want to leave off the `asOf` configuration property so the data can be continuously updated
+    with new snapshots as they come in. We include it in this example so the output stays stable. If we hadn't, then
+    the rows would continue to grow to encompass today.
     
-          startOn = '2011-01-02T00:00:00.000Z'
-          endBefore = '2011-02-27T00:00:00.000Z'
+        startOn = '2011-01-02T00:00:00.000Z'
+        endBefore = '2011-02-27T00:00:00.000Z'
     
-          calculator = new TransitionsCalculator(config)
-          calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
+        calculator = new TransitionsCalculator(config)
+        calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
     
-          console.log(calculator.getResults())
-          # [ { timePeriod: '2011-01', count: 5, PlanEstimate: 150 },
-          #   { timePeriod: '2011-02*', count: 1, PlanEstimate: 60 } ]
+        console.log(calculator.getResults())
+        # [ { timePeriod: '2011-01', count: 5, PlanEstimate: 150 },
+        #   { timePeriod: '2011-02*', count: 1, PlanEstimate: 60 } ]
     
-      The asterix on the last row in the results is to indicate that it is a to-date value. As more snapshots come in, this
-      last row will change. The caching and incremental calcuation capability of this Calculator are designed to take
-      this into account.
+    The asterix on the last row in the results is to indicate that it is a to-date value. As more snapshots come in, this
+    last row will change. The caching and incremental calcuation capability of this Calculator are designed to take
+    this into account.
     
-      Now, let's use the same data but aggregate in granularity of weeks.
+    Now, let's use the same data but aggregate in granularity of weeks.
     
-          config.granularity = Time.WEEK
-          calculator = new TransitionsCalculator(config)
-          calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
+        config.granularity = Time.WEEK
+        calculator = new TransitionsCalculator(config)
+        calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
     
-          console.log(calculator.getResults())
-          # [ { timePeriod: '2010W52', count: 1, PlanEstimate: 10 },
-          #   { timePeriod: '2011W01', count: 2, PlanEstimate: 50 },
-          #   { timePeriod: '2011W02', count: 2, PlanEstimate: 90 },
-          #   { timePeriod: '2011W03', count: 0, PlanEstimate: 0 },
-          #   { timePeriod: '2011W04', count: 0, PlanEstimate: 0 },
-          #   { timePeriod: '2011W05', count: 1, PlanEstimate: 60 },
-          #   { timePeriod: '2011W06*', count: 0, PlanEstimate: 0 } ]
+        console.log(calculator.getResults())
+        # [ { timePeriod: '2010W52', count: 1, PlanEstimate: 10 },
+        #   { timePeriod: '2011W01', count: 2, PlanEstimate: 50 },
+        #   { timePeriod: '2011W02', count: 2, PlanEstimate: 90 },
+        #   { timePeriod: '2011W03', count: 0, PlanEstimate: 0 },
+        #   { timePeriod: '2011W04', count: 0, PlanEstimate: 0 },
+        #   { timePeriod: '2011W05', count: 1, PlanEstimate: 60 },
+        #   { timePeriod: '2011W06*', count: 0, PlanEstimate: 0 } ]
     
-      Remember, you can easily convert weeks to other granularities for display.
+    Remember, you can easily convert weeks to other granularities for display.
     
-          weekStartingLabel = 'week starting ' + new Time('2010W52').inGranularity(Time.DAY).toString()
-          console.log(weekStartingLabel)
-          # week starting 2010-12-27
+        weekStartingLabel = 'week starting ' + new Time('2010W52').inGranularity(Time.DAY).toString()
+        console.log(weekStartingLabel)
+        # week starting 2010-12-27
     
-      If you want to display spinners while the chart is rendering, you can read this calculator's upToDateISOString property and
-      compare it directly to the getResults() row's timePeriod property using code like this. Yes, this works eventhough
-      upToDateISOString is an ISOString.
+    If you want to display spinners while the chart is rendering, you can read this calculator's upToDateISOString property and
+    compare it directly to the getResults() row's timePeriod property using code like this. Yes, this works eventhough
+    upToDateISOString is an ISOString.
     
-          row = {timePeriod: '2011W07'}
-          if calculator.upToDateISOString < row.timePeriod
-            console.log("#{row.timePeriod} not yet calculated.")
-          # 2011W07 not yet calculated.
+        row = {timePeriod: '2011W07'}
+        if calculator.upToDateISOString < row.timePeriod
+          console.log("#{row.timePeriod} not yet calculated.")
+        # 2011W07 not yet calculated.
     */
-
     function TransitionsCalculator(config) {
       /*
-          @constructor
-          @param {Object} config
-          @cfg {String} tz The timezone for analysis in the form like `America/New_York`
-          @cfg {String} [validFromField = "_ValidFrom"]
-          @cfg {String} [validToField = "_ValidTo"]
-          @cfg {String} [uniqueIDField = "ObjectID"] Not used right now but when drill-down is added it will be
-          @cfg {String} granularity 'month', 'week', 'quarter', etc. Use Time.MONTH, Time.WEEK, etc.
-          @cfg {String[]} [fieldsToSum=[]] It will track the count automatically but it can keep a running sum of other fields also
-          @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
+      @constructor
+      @param {Object} config
+      @cfg {String} tz The timezone for analysis in the form like `America/New_York`
+      @cfg {String} [validFromField = "_ValidFrom"]
+      @cfg {String} [validToField = "_ValidTo"]
+      @cfg {String} [uniqueIDField = "ObjectID"] Not used right now but when drill-down is added it will be
+      @cfg {String} granularity 'month', 'week', 'quarter', etc. Use Time.MONTH, Time.WEEK, etc.
+      @cfg {String[]} [fieldsToSum=[]] It will track the count automatically but it can keep a running sum of other fields also
+      @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
       */
 
       var cubeConfig, dimensions, f, metrics, _i, _len, _ref1, _ref2;
+
       this.config = utils.clone(config);
       if (this.config.validFromField == null) {
         this.config.validFromField = "_ValidFrom";
@@ -11538,19 +12283,20 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
 
     TransitionsCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore, snapshotsToSubtract) {
       var filteredSnapshots, filteredSnapshotsToSubstract, startOnString;
+
       if (snapshotsToSubtract == null) {
         snapshotsToSubtract = [];
       }
       /*
-          @method addSnapshots
-            Allows you to incrementally add snapshots to this calculator.
-          @chainable
-          @param {Object[]} snapshots An array of temporal data model snapshots.
-          @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
-            interest. On the second through nth call, this should equal the previous endBefore.
-          @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
-            period of interest.
-          @return {TransitionsCalculator}
+      @method addSnapshots
+        Allows you to incrementally add snapshots to this calculator.
+      @chainable
+      @param {Object[]} snapshots An array of temporal data model snapshots.
+      @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+        interest. On the second through nth call, this should equal the previous endBefore.
+      @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+        period of interest.
+      @return {TransitionsCalculator}
       */
 
       if (this.upToDateISOString != null) {
@@ -11575,6 +12321,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
 
     TransitionsCalculator.prototype._filterSnapshots = function(snapshots, sign) {
       var f, filteredSnapshots, fs, s, _i, _j, _len, _len1, _ref1;
+
       if (sign == null) {
         sign = 1;
       }
@@ -11604,12 +12351,13 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
 
     TransitionsCalculator.prototype.getResults = function() {
       /*
-          @method getResults
-            Returns the current state of the calculator
-          @return {Object[]} Returns an Array of Maps like `{timePeriod: '2012-12', count: 10, otherField: 34}`
+      @method getResults
+        Returns the current state of the calculator
+      @return {Object[]} Returns an Array of Maps like `{timePeriod: '2012-12', count: 10, otherField: 34}`
       */
 
       var cell, config, f, filter, out, outRow, t, timeLine, timePeriods, tp, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2;
+
       if (this.virgin) {
         return [];
       }
@@ -11623,6 +12371,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
       timeLine = new Timeline(config);
       timePeriods = (function() {
         var _i, _len, _ref1, _results;
+
         _ref1 = timeLine.getAllRaw();
         _results = [];
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
@@ -11664,16 +12413,17 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
 
     TransitionsCalculator.prototype.getStateForSaving = function(meta) {
       /*
-          @method getStateForSaving
-            Enables saving the state of this calculator. See TimeInStateCalculator documentation for a detailed example.
-          @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
-            within the deserialized calculator.
-          @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
-            to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
-            the calculator.
+      @method getStateForSaving
+        Enables saving the state of this calculator. See TimeInStateCalculator documentation for a detailed example.
+      @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+        within the deserialized calculator.
+      @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+        to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+        the calculator.
       */
 
       var out;
+
       out = {
         config: this.config,
         cubeSavedState: this.cube.getStateForSaving(),
@@ -11690,14 +12440,15 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
 
     TransitionsCalculator.newFromSavedState = function(p) {
       /*
-          @method newFromSavedState
-            Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
-          @static
-          @param {String/Object} p A String or Object from a previously saved state
-          @return {TransitionsCalculator}
+      @method newFromSavedState
+        Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
+      @static
+      @param {String/Object} p A String or Object from a previously saved state
+      @return {TransitionsCalculator}
       */
 
       var calculator;
+
       if (utils.type(p) === 'string') {
         p = JSON.parse(p);
       }
@@ -11721,11 +12472,15 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
 
 }).call(this);
 
+/*
+//@ sourceMappingURL=TransitionsCalculator.map
+*/
+
 });
 
 require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.6.2
 (function() {
-  var OLAPCube, Time, TimeSeriesCalculator, Timeline, functions, utils, _ref,
+  var JSON, OLAPCube, Time, TimeSeriesCalculator, Timeline, functions, utils, _ref,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   OLAPCube = require('./OLAPCube').OLAPCube;
@@ -11733,6 +12488,8 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
   _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time, Timeline = _ref.Timeline;
 
   functions = require('./functions').functions;
+
+  JSON = require('JSON2');
 
   TimeSeriesCalculator = (function() {
     /*
@@ -13102,7 +13859,7 @@ require.define("/src/DataFlow.js",function(require,module,exports,__dirname,__fi
 
 require.define("/src/Classifier.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.6.2
 (function() {
-  var BayesianClassifier, Classifier, OLAPCube, functions, utils,
+  var BayesianClassifier, Classifier, JSON, OLAPCube, functions, utils,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -13111,6 +13868,8 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
   utils = require('tztime').utils;
 
   OLAPCube = require('./OLAPCube').OLAPCube;
+
+  JSON = require('JSON2');
 
   Classifier = (function() {
     function Classifier() {}

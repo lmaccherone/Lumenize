@@ -5,6 +5,7 @@
 
 OLAPCube = require('./OLAPCube').OLAPCube
 {utils, Time, Timeline} = require('tztime')
+JSON = require('JSON2')
 
 class TransitionsCalculator # implements iCalculator
   ###

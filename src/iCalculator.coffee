@@ -1,3 +1,5 @@
+JSON = require('JSON2')
+
 class iCalculator
   ###
   @class iCalculator

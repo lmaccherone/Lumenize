@@ -49,17 +49,20 @@ Used when developing:
 
 To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
 
-`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/v{{version}}/deploy/Lumenize-min.js"></script>`
+`<script type="text/javascript" src="https://storage.googleapis.com/versions.lumenize.com/v{{version}}/Lumenize-min.js"></script>`
 
 Replace `{{version}}` with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:
 
-`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/v0.6.1/deploy/Lumenize-min.js"></script>`
+`<script type="text/javascript" src="https://storage.googleapis.com/versions.lumenize.com/v0.6.8/Lumenize-min.js"></script>`
 
-The package is fairly large ~204KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip the package so it's only ~45KB over the wire.
+The package is fairly large ~260KB but most of that is the embedded timezone files which compress really well.
 
 Then at the top of the javascript where you want to call it, put the following:
 
 `var lumenize = require('./lumenize');`
+
+And call it like this.
+
 `var stdDev = lumenize.functions.standardDeviation([20, 30, 50]);`
     
 ## Usage in node.js ##
@@ -81,7 +84,9 @@ Then in your code:
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
-* 0.6.7 - 2013-02-14 - Updated to latest version of jsduckify
+
+* 0.6.8 - 2013-04-24 - Uses JSON2 for IE7 compatibility
+* 0.6.7 - 2013-04-24 - Updated to latest version of jsduckify. Added Bayesian Classifier
 * 0.6.6 - 2013-02-11 - More precise toDateCell when incrementally calculated.
 * 0.6.5 - 2013-02-09 - Fixed bug on TimeSeriesCalculator where toDateCell was including more
   than it should and was possible located wrong. Changed histogram to use Q3 + 1.5 * IQR as
