@@ -173,23 +173,28 @@ parsing from <a href="https://github.com/mde/timezone-js">timezoneJS</a>)</li>
 <p>To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
 
 </p>
-<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://raw.github.com/lmaccherone/Lumenize/v{{version}}/deploy/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code>
+<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://storage.googleapis.com/versions.lumenize.com/v{{version}}/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code>
 
 </p>
 <p>Replace <code>{{version}}</code> with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:
 
 </p>
-<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://raw.github.com/lmaccherone/Lumenize/v0.6.1/deploy/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code>
+<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://storage.googleapis.com/versions.lumenize.com/v0.6.8/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code>
 
 </p>
-<p>The package is fairly large ~204KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip the package so it&#39;s only ~45KB over the wire.
+<p>The package is fairly large ~260KB but most of that is the embedded timezone files which compress really well.
 
 </p>
 <p>Then at the top of the javascript where you want to call it, put the following:
 
 </p>
 <p><code>var lumenize = require(&#39;./lumenize&#39;);</code>
-<code>var stdDev = lumenize.functions.standardDeviation([20, 30, 50]);</code>
+
+</p>
+<p>And call it like this.
+
+</p>
+<p><code>var stdDev = lumenize.functions.standardDeviation([20, 30, 50]);</code>
 
 </p>
 <h2>Usage in node.js</h2>
@@ -213,9 +218,11 @@ parsing from <a href="https://github.com/mde/timezone-js">timezoneJS</a>)</li>
 <h2>Changelog</h2>
 <p>In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
+
 </p>
 <ul>
-<li>0.6.7 - 2013-02-14 - Updated to latest version of jsduckify</li>
+<li>0.6.8 - 2013-04-24 - Uses JSON2 for IE7 compatibility</li>
+<li>0.6.7 - 2013-04-24 - Updated to latest version of jsduckify. Added Bayesian Classifier</li>
 <li>0.6.6 - 2013-02-11 - More precise toDateCell when incrementally calculated.</li>
 <li>0.6.5 - 2013-02-09 - Fixed bug on TimeSeriesCalculator where toDateCell was including more
 than it should and was possible located wrong. Changed histogram to use Q3 + 1.5 * IQR as

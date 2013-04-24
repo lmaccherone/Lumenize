@@ -1,4 +1,5 @@
 {utils, Time} = require('tztime')
+JSON = require('JSON2')
 
 csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
   ###
