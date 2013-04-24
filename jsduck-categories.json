@@ -9,7 +9,7 @@
                 ]
             },
             {
-                "name": "Primary Classes",
+                "name": "Calculators and OLAP",
                 "classes": [
                     "*.TimeSeriesCalculator",
                     "*.TimeInStateCalculator",
@@ -18,9 +18,11 @@
                 ]
             },
             {
-                "name": "Supporting Functions",
+                "name": "Functions, OLAP, and Bayesian Classifier",
                 "classes": [
-                    "*.functions"
+                    "*.functions",
+                    "*.OLAPCube",
+                    "*.BayesianClassifier"
                 ]
             }
         ]
