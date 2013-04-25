@@ -18,7 +18,7 @@ Lumenize is a collection of tools for making awesome visualizations out of your 
 * Bundled with the [tzTime](https://github.com/lmaccherone/tzTime) library (same author) for
   timezone precise x-axis. Knockout weekends, holidays, non-work hours, etc.
 * Tested - Over 400 tests (including tzTime)
-* [Documented (Lumenize)](http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html) [(tzTime)](http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html) - Robust documentation and examples
+* [Documented (Lumenize)](http://commondatastorage.googleapis.com/versions.lumenize.com/docs/Lumenize-docs/index.html) [(tzTime)](http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html) - Robust documentation and examples
 * [DocTested](https://github.com/lmaccherone/coffeedoctest) - The examples will always match 
   the code because it fails automated testing when they don't
 
@@ -77,7 +77,7 @@ Then in your code:
 
 ## Documentation and source code ##
 
-* [API Documentation](http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html)
+* [API Documentation](http://commondatastorage.googleapis.com/versions.lumenize.com/docs/Lumenize-docs/index.html)
 * [Source Repository](https://github.com/lmaccherone/Lumenize)
 
 ## Changelog ##
