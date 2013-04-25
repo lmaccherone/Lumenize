@@ -84,7 +84,7 @@ Then in your code:
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
-
+* 0.6.9 - 2013-04-24 - Upgraded to bug fixed latest tzTime
 * 0.6.8 - 2013-04-24 - Uses JSON2 for IE7 compatibility
 * 0.6.7 - 2013-04-24 - Updated to latest version of jsduckify. Added Bayesian Classifier
 * 0.6.6 - 2013-02-11 - More precise toDateCell when incrementally calculated.
