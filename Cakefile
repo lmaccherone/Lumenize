@@ -76,7 +76,9 @@ task('pub-docs', 'Push master to gh-pages on github', () ->
 
 pubDocsRaw = () ->
   process.chdir(__dirname)
-  runAsync('git push -f origin master:gh-pages')
+#  runAsync('git push -f origin master:gh-pages')
+  console.log('pushing docs to Google Cloud Storage')
+  runSync('gsutil cp -R docs gs://versions.lumenize.com/docs')
 
 task('publish', 'Publish to npm', () ->
   process.chdir(__dirname)
@@ -96,7 +98,6 @@ task('publish', 'Publish to npm', () ->
         if fs.existsSync('npm-debug.log')
           console.error('`npm publish` failed. See npm-debug.log for details.')
         else
-          console.log('running pubDocsRaw()')
           pubDocsRaw()
           console.log('running git tag')
           runSync("git tag v#{require('./package.json').version}")
