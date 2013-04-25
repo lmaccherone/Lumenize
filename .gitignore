@@ -12,3 +12,6 @@ play/*.map
 play/*.js
 lumenize.js
 lumenize.map
+deploy
+.js
+.map
