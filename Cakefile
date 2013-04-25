@@ -125,6 +125,8 @@ task('build', 'Build with browserify and place in ./deploy', () ->
     #{b.bundle()}
   """
   deployFileName = "deploy/#{name}.js"
+  unless fs.existsSync('deploy')
+    fs.mkdirSync('deploy')
   fs.writeFileSync(deployFileName, fileString)
 
   minFileString = uglify.minify(deployFileName).code
