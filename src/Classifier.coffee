@@ -160,12 +160,12 @@ class BayesianClassifier extends Classifier
   **Pros/Cons**. The use of a non-parametric approach will allow us to deal with non-normal distributions (asymmetric,
   bimodal, etc.) without ever having to identify which nominal distribution is the best fit or having to ask the user
   (who may not know) what distribution to use. The downside to this approach is that it generally requires a larger
-  training set. You will need to experiment to determine how small is too small wrt training set size.
+  training set. You will need to experiment to determine how small is too small for your situation.
 
   This approach is hinted at in the [wikipedia article on Bayesian classifiers](https://en.wikipedia.org/wiki/Naive_Bayes_classifier)
   as "binning to discretize the feature values, to obtain a new set of Bernoulli-distributed features". However, this
-  classifier does not new separate Bernoulli features for each bin. Rather, it creates a mapping function from a feature
-  value to a probability that the particular value is coincident with a particular outputField value. This mapping
+  classifier does not create new separate Bernoulli features for each bin. Rather, it creates a mapping function from a feature
+  value to a probability indicating how often the feature value is coincident with a particular outputField value. This mapping
   function is different for each bin.
 
   ## V-optimal bucketing ##
@@ -183,7 +183,7 @@ class BayesianClassifier extends Classifier
 
   The algorithm used here for v-optimal bucketing is slightly inspired by
   [this non-recursive code](http://www.mathcs.emory.edu/~cheung/Courses/584-StreamDB/Syllabus/06-Histograms/v-opt3.html).
-  However, this version is recursive and I've made some different choices about when to terminate the splitting. To
+  However, the implementation here is recursive and I've made some different choices about when to terminate the splitting. To
   understand the essence of the algorithm used, you need only look at the 9 lines of code in the `findBucketSplits()` function.
   The `optimalSplitFor2Buckets()` function will split the values into two buckets. It tries each possible split
   starting with only one in the bucket on the left all the way down to a split with only one in the bucket on the right.
@@ -257,13 +257,14 @@ class BayesianClassifier extends Classifier
       console.log(classifier.predict({TeamSize: 29, HasChildProject: 0}))
       # 0
 
-  If you want to know the strength of the prediction, you can pass in `true` as the second parameter.
+  If you want to know the strength of the prediction, you can pass in `true` as the second parameter to the `predict()` method.
 
       console.log(classifier.predict({TeamSize: 29, HasChildProject: 0}, true))
       # { '0': 0.6956521739130435, '1': 0.30434782608695654 }
 
   We're only 69.6% sure this is not a RealTeam. Notice how the keys for the output are strings eventhough we passed in values
-  of type Number for the RealTeam field in our training set.
+  of type Number for the RealTeam field in our training set. We had no choice in this case because keys of JavaScript
+  Objects must be strings. However, the classifier is smart enough to know that you wanted
 
   Like the Lumenize calculators, you can save and restore the state of a trained classifier.
 
@@ -452,6 +453,7 @@ class BayesianClassifier extends Classifier
       userConfig: @userConfig
       outputField: @outputField
       outputValues: @outputValues
+      outputFieldTypeIsNumber: @outputFieldTypeIsNumber
       baseProbabilities: @baseProbabilities
       features: @features
 
@@ -477,6 +479,7 @@ class BayesianClassifier extends Classifier
     classifier = new BayesianClassifier(p.userConfig)
     classifier.outputField = p.outputField
     classifier.outputValues = p.outputValues
+    classifier.outputFieldTypeIsNumber = p.outputFieldTypeIsNumber
     classifier.baseProbabilities = p.baseProbabilities
     classifier.features = p.features
 
