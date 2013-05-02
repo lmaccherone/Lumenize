@@ -74,6 +74,7 @@ config = [
   {result3b: functionThatReturnsResult3b, parameters: ['@result1'], wrap: true}
   {result4: 'go', scopeClass: CalculatorWithCallback4, constructorParameters: [{}, '@result3b', '@result3a']}
   # also but not shown {result99: someFunctionThatUsesThis, scope: someBigObjectToHoldThisScope} it will call the function with setting someBigObjectToHoldThisScope as the "this" for the function. This can hold scope from prior calls as well as store new data for later stages.
+  # Also not show is the ability to add parameters to the trigger function (like 'go'). We'd just use `parameters`
 ]
 
 # !TODO: Support parameters: ['@result2b.fieldName']

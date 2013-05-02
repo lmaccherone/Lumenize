@@ -93,7 +93,7 @@ exports.Test =
       field: "TeamSize",
       type: "continuous",
       bins: [
-        {value: 'B0', startOn: null, endBelow: 5.5, probabilities: {"0": 0.77, "1": 0.23}},  # use the index as the value
+        {value: 'B0', startOn: null, endBelow: 5.5, probabilities: {"0": 0.77, "1": 0.23}},
         {value: 'B1', startOn: 5.5, endBelow: 20.5, probabilities: {"0": 0.5, "1": 0.5}},
         {value: 'B2', startOn: 20.5, endBelow: null, probabilities: {"0": 0.8, "1": 0.2}}
       ]

@@ -77,6 +77,7 @@ anova = (rawData, overallPredicate, field, groups, ci = 0.95) ->
   xStdDev = functions.standardDeviation(xValues)
   yStdDev = functions.standardDeviation(yValues)
 
+  # This normalizes everything for the residual plot and histogram
   for r in residualPlot
     r.x = r.x / xStdDev
     r.y = r.y / yStdDev
