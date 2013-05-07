@@ -94,33 +94,37 @@ arrayOfMaps_To_HighChartsSeries = (arrayOfMaps, config) ->
   ###
   @method arrayOfMaps_To_HighChartsSeries
   @param {Array[]} arrayOfMaps
-  @param {Object} config You can use the same config you used to call aggregateAt() as long as it includes
-    your yAxis specifications
+  @param {Object} config You can use the same config you used to call TimeSeriesCalculator including your yAxis specifications
   @return {Object[]} in HighCharts form
 
-  Takes an array of arrays that came from a call to aggregateAt() and looks like this:
+  Takes an array of arrays that came from a call to TimeSeriesCalculator and looks like this:
 
       {arrayOfMaps_To_HighChartsSeries} = require('../')
 
       arrayOfMaps = [
         {"Series 1": 8, "Series 2": 5, "Series3": 10},
-        {"Series 1": 2, "Series 2": 3, "Series3": 20}
+        {"Series 1": 2, "Series 2": 3},
+        {"Series 1": 1, "Series 2": 2, "Series3": 40},
       ]
   
   and a list of series configurations
   
       config = [
         {name: "Series 1", yAxis: 1},
-        {name: "Series 2"}
+        {name: "Series 2"},
+        {name: "Series3"}
       ]
       
   and extracts the data into seperate series
   
       console.log(arrayOfMaps_To_HighChartsSeries(arrayOfMaps, config))
-      # [ { name: 'Series 1', data: [ 8, 2 ], yAxis: 1 },
-      #   { name: 'Series 2', data: [ 5, 3 ] } ]
+      # [ { name: 'Series 1', data: [ 8, 2, 1 ], yAxis: 1 },
+      #   { name: 'Series 2', data: [ 5, 3, 2 ] },
+      #   { name: 'Series3', data: [ 10, null, 40 ] } ]
       
-  Notice how the extra fields from the series array are included in the output.
+  Notice how the extra fields from the series array are included in the output. Also, notice how the missing second
+  value for Series3 was replaced with a null. HighCharts will skip right over this for category charts as you would
+  expect.
   ###
   
   preOutput = {}
@@ -132,7 +136,10 @@ arrayOfMaps_To_HighChartsSeries = (arrayOfMaps, config) ->
   for s in seriesNames
     preOutput[s] = []
     for aggregationRow in arrayOfMaps
-      preOutput[s].push(aggregationRow[s])
+      value = aggregationRow[s]
+      unless value?
+        value = null
+      preOutput[s].push(value)
 
   # Squash the nameField into each sub row
   output = []

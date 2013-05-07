@@ -38,7 +38,7 @@ snapshotsCSV = [
 
 snapshots = csvStyleArray_To_ArrayOfMaps(snapshotsCSV)
 
-exports.TimeSeriesCalculator =
+exports.TimeSeriesCalculatorTest =
 
   testBasic: (test) ->
 
@@ -300,7 +300,7 @@ exports.TimeSeriesCalculator =
         {tick: '2011-01-09T06:00:00.000Z', StoryCountBurnUp: 3, StoryUnitBurnUp: 13, label: '2011-01-07'},
         {tick: '2011-01-10T06:00:00.000Z', StoryCountBurnUp: 3, StoryUnitBurnUp: 13, label: '2011-01-09'}
       ],
-      summaryMetrics: undefined
+      summaryMetrics: {}
     }
 
     test.deepEqual(calculator.getResults(), expected)

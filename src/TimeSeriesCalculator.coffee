@@ -530,8 +530,8 @@ class TimeSeriesCalculator # implements iCalculator
       seriesData.push(cell)
 
     # derive summary metrics
+    summaryMetrics = {}
     if @config.summaryMetricsConfig?
-      summaryMetrics = {}
       for summaryMetric in @config.summaryMetricsConfig
         if summaryMetric.field?
           # get all values of that field
@@ -547,6 +547,46 @@ class TimeSeriesCalculator # implements iCalculator
       for row, index in seriesData
         for d in @config.deriveFieldsAfterSummary
           row[d.as] = d.f(row, index, summaryMetrics, seriesData)
+
+    # derive projections
+    if @config.projectionsConfig?
+      # add to last point in seriesData
+      lastIndex = seriesData.length - 1
+      lastPoint = seriesData[lastIndex]
+      lastTick = lastPoint.tick  # !TODO: May need to do something different if there is an upToDateCell
+      for projectionSeries in @config.projectionsConfig.series
+        as = projectionSeries.as || projectionSeries.field + "_projection"
+        lastPoint[as] = lastPoint[projectionSeries.field]
+
+      # set slope if missing
+      for projectionSeries in @config.projectionsConfig.series
+        unless projectionSeries.slope?
+          unless projectionSeries.startIndex?
+            projectionSeries.startIndex = 0  # upgrade to v-optimal
+          startIndex = projectionSeries.startIndex
+          startPoint = seriesData[startIndex]
+          projectionSeries.slope = (lastPoint[projectionSeries.field] - startPoint[projectionSeries.field]) / (lastIndex - startIndex)
+
+      # get projectionTimelineIterator
+      projectionTimelineConfig = utils.clone(@config)
+      projectionTimelineConfig.startOn = new Time(lastTick, @config.granularity, @config.tz)
+      delete projectionTimelineConfig.endBefore
+      projectionTimelineConfig.limit = @config.projectionsConfig.limit || 300
+      projectionTimeline = new Timeline(projectionTimelineConfig)
+      projectionTimelineIterator = projectionTimeline.getIterator('Timeline')
+
+      pointsAddedCount = 0
+      projectedPoint = null
+      while projectionTimelineIterator.hasNext() and (not projectedPoint? or (not @config.projectionsConfig.continueWhile? or @config.projectionsConfig.continueWhile(projectedPoint))) # STOPPED HERE
+        pointsAddedCount++
+        projectedPoint = {}
+        tick = projectionTimelineIterator.next()
+        projectedPoint.tick = tick.endBefore.getISOStringInTZ(@config.tz)
+        projectedPoint.label = tick.startOn.toString()
+        for projectionSeries in @config.projectionsConfig.series
+          as = projectionSeries.as || projectionSeries.field + "_projection"
+          projectedPoint[as] = lastPoint[projectionSeries.field] + pointsAddedCount * projectionSeries.slope
+        seriesData.push(projectedPoint)
 
     return {seriesData, summaryMetrics}
 
