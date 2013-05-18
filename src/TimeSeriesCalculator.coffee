@@ -268,7 +268,7 @@ class TimeSeriesCalculator # implements iCalculator
        than 17:01. Think about it, you'll be open 4:59:59.999pm, but you'll be closed at 5:00pm. This also makes all of
        the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
 
-    @cfg {Object[]} [metrics=[]] (required) Array which specifies the metrics to calculate for tick in time.
+    @cfg {Object[]} [metrics=[]] Array which specifies the metrics to calculate for tick in time.
 
       Example:
 
@@ -301,6 +301,101 @@ class TimeSeriesCalculator # implements iCalculator
     @cfg {Object[]} [deriveFieldsAfterSummary] same format at deriveFieldsOnInput, except the callback is in the form `f(row, index, summaryMetrics, seriesData)`
       This is called on all rows every time you call getResults() so it's less efficient than deriveFieldsOnOutput. Only use it if you need
       the summaryMetrics in your calculation.
+    @cfg {Object} [projectionsConfig] Allows you to project series into the future
+
+      Example:
+
+        projectionsConfig = {
+          limit: 100  # optional, defaults to 300
+          continueWhile: (point) ->  # Optional but recommended
+            return point.StoryCountScope_projection > point.StoryCountBurnUp_projection
+          minFractionToConsider: 1.0 / 2.0  # optional, defaults to 1/3
+          minCountToConsider: 3  # optional, defaults to 15
+          series: [
+            {as: 'ScopeProjection', field: 'StoryUnitScope', slope: 0.5},
+            {field: 'StoryCountScope', slope: 0},  # 0 slope is a level projection
+            {field: 'StoryCountBurnUp'},  # Will use v-Optimal (least squares of difference in slope / count)
+            {field: 'field5', startIndex: 0}  # 0 will use entire series. Add grab-handle to allow user to specify some other index
+          ]
+        }
+
+      When a projectionsConfig is provided, the TimeSeriesCalculator will add points to the output seriesData showing
+      the series being projected. These projected series will always start at the last point of the series and go out from there.
+      By default, they are named the same as the series (field) they are projecting with '_projection' concatenated onto the end.
+      However, this name can be overridden by using the `as` field of the series configuration.
+
+      In addition to adding to the dataSeries, a summary of the projection is provided in the `projections` sub-field
+      returned when you call `getResults()`. The format of this sub-field is something like this:
+
+        projections = {
+          "limit": 100,
+          "series": [
+            {"as": "ScopeProjection", "field": "StoryUnitScope", "slope": 0.5},
+            {"field": "StoryCountScope", "slope": 0},
+            {"field": "StoryCountBurnUp", "startIndex": 0, "slope": 0.6},
+            {"field": "field5", "startIndex": 0, "slope": 0.123259838293}
+          ],
+          "minFractionToConsider": 0.5,
+          "minCountToConsider": 3,
+          "pointsAddedCount": 6,
+          "lastPoint": {
+            "tick": "2011-01-17T06:00:00.000Z",
+            "label": "2011-01-16",
+            "ScopeProjection": 21,
+            "StoryCountScope_projection": 4,
+            "StoryCountBurnUp_projection": 6.6
+          }
+        }
+
+      You can inspect this returned Object to see what slope it used for each series. Also, if you were not
+      rendering a chart but just wanted to use this calculator to make a holiday-knockout-precise forecast, you could
+      inspect the `lastPoint.tick` field to identify when this work is forecast to finish.
+
+      One thing to keep in mind when using this functionality is that these calculators in general and these projections
+      in particular, is that the x-axis is a complex Timeline of ticks rather than simple linear calander time.
+      So, these projections will take into account any holidays specified in the future.
+
+      The `projectionsConfig` is a fairly complicated configuration in its own right. It is embedded in the config object
+      for the overall TimeSeriesCalculator but it has a bunch of sub-configuration also. The five top level items are:
+      `limit`, `continueWhile`, `minFractionToConsider`, `minCountToConsider`, and `series`.
+
+      `limit` and `continueWhile`
+      are used to control how far in the future the projection will go. It will stop at `limit` even if the `continueWhile`
+      is always met. This will prevent the projection from becoming an infinite loop. The `continueWhile` predicate
+      is technically not required but in almost all cases you will not know how far into the future you want to go
+      so you will have to use it.
+
+      `minFractionToConsider` and `minCountToConsider` are used for series where you allow the calculator to find
+      the optimal starting point for the projection (the default behavior). It's very common for projects to start out slowly and then ramp up.
+      The optimal algorithm is designed to find this knee where the difference in slope of the projection is the minimum
+      of the square of the difference between the overall slope and all the sub-slopes between this starting point going up to the point before
+      the last point. This minimum is also divided by the number of sub-slopes so using more data points for the projection
+      is favored over using fewer. These two configuration parameters, `minFractionToConsider`, and `minCountToConsider`
+      tell the v-optimal algorthim the minimum number or portion of points to consider. This prevents the algorithm
+      from just using the slope of the last few points if they happen to be v-optimal. They currently default to the max of 1/3rd of the project or
+      15 (3 work weeks if granularity is 'days'). Note, that the `minCountToConsider` default is optimized for
+      granularity of 'days'. If you were to use granularity of weeks, I would suggest a much lower number like 3 to 5.
+      If you were to use granularity of 'months' then maybe 2-3 months would suffice.
+
+      The `series` sub-config is similar to the main series config, with a required `field` field and an optional
+      `as` field. The remaining two possible fields (`startIndex` and `slope`) are both optional. They are also mutually
+      exclusive with the `slope` trumping the `startIndex` in cases where both are mistakenly provided.
+      If both are ommitted, then the projection will attempt to find the optimal starting point for the projection using the
+      algorithm described above.
+
+      If the `slope` is specified, it will override any `startingIndex` specification. You will commonly set this
+      to 0 for scope series where you want the projection to only consider the current scope. If you set this manually,
+      be sure to remember that the "run" (slope = rise / run) is ticks along the x-axis (holidays and weekends knocked out),
+      not true calendar time. Also, note that in the output
+      (`getResults().projections.series`), the slope will always be set even if you did not specify one in your original
+      configuration. The startIndex or optimal (default) behaviors operate by 1st setting this slope.
+
+      The `startingIndex` is specified if you want to tell the projection from what point in time, the projection should
+      start. Maybe the project doubled staff 3 months into the project and you want the projection to start from there.
+      The common usage for this functionality is to provide a grab-handle on the chart and allow the user to use his
+      insight combined with the visualization of the data series to pick his own optimal starting point. Note, if you
+      specify a `startingIndex` you should not specify a `slope` and vice-versa.
+
     @cfg {String/ISOString/Date/Lumenize.Time} [startOn=-infinity] This becomes the master startOn for the entire calculator limiting
       the calculator to only emit ticks equal to this or later.
     @cfg {String/ISOString/Date/Lumenize.Time} [endBefore=infinity] This becomes the master endBefore for the entire calculator
@@ -549,20 +644,35 @@ class TimeSeriesCalculator # implements iCalculator
           row[d.as] = d.f(row, index, summaryMetrics, seriesData)
 
     # derive projections
+    projections = {}
     if @config.projectionsConfig?
+      projections = utils.clone(@config.projectionsConfig)
       # add to last point in seriesData
       lastIndex = seriesData.length - 1
       lastPoint = seriesData[lastIndex]
       lastTick = lastPoint.tick  # !TODO: May need to do something different if there is an upToDateCell
-      for projectionSeries in @config.projectionsConfig.series
+      for projectionSeries in projections.series
         as = projectionSeries.as || projectionSeries.field + "_projection"
         lastPoint[as] = lastPoint[projectionSeries.field]
 
       # set slope if missing
-      for projectionSeries in @config.projectionsConfig.series
+      for projectionSeries in projections.series
         unless projectionSeries.slope?
           unless projectionSeries.startIndex?
-            projectionSeries.startIndex = 0  # upgrade to v-optimal
+            unless projections.minFractionToConsider?
+              projections.minFractionToConsider = 1.0 / 3.0
+            unless projections.minCountToConsider?
+              projections.minCountToConsider = 15
+
+            highestIndexAllowed1 = Math.floor((1 - projections.minFractionToConsider) * seriesData.length) - 1
+            highestIndexAllowed2 = seriesData.length - 1 - projections.minCountToConsider
+            highestIndexAllowed = Math.min(highestIndexAllowed1, highestIndexAllowed2)
+
+            if highestIndexAllowed < 1
+              projectionSeries.startIndex = 0
+            else
+              projectionSeries.startIndex = TimeSeriesCalculator._findVOptimalProjectionStartIndex(seriesData, projectionSeries.field, highestIndexAllowed)
+
           startIndex = projectionSeries.startIndex
           startPoint = seriesData[startIndex]
           projectionSeries.slope = (lastPoint[projectionSeries.field] - startPoint[projectionSeries.field]) / (lastIndex - startIndex)
@@ -571,24 +681,57 @@ class TimeSeriesCalculator # implements iCalculator
       projectionTimelineConfig = utils.clone(@config)
       projectionTimelineConfig.startOn = new Time(lastTick, @config.granularity, @config.tz)
       delete projectionTimelineConfig.endBefore
-      projectionTimelineConfig.limit = @config.projectionsConfig.limit || 300
+      projectionTimelineConfig.limit = projections.limit || 300
       projectionTimeline = new Timeline(projectionTimelineConfig)
       projectionTimelineIterator = projectionTimeline.getIterator('Timeline')
 
       pointsAddedCount = 0
       projectedPoint = null
-      while projectionTimelineIterator.hasNext() and (not projectedPoint? or (not @config.projectionsConfig.continueWhile? or @config.projectionsConfig.continueWhile(projectedPoint))) # STOPPED HERE
+      while projectionTimelineIterator.hasNext() and (not projectedPoint? or (not projections.continueWhile? or projections.continueWhile(projectedPoint)))
         pointsAddedCount++
         projectedPoint = {}
         tick = projectionTimelineIterator.next()
         projectedPoint.tick = tick.endBefore.getISOStringInTZ(@config.tz)
         projectedPoint.label = tick.startOn.toString()
-        for projectionSeries in @config.projectionsConfig.series
+        for projectionSeries in projections.series
           as = projectionSeries.as || projectionSeries.field + "_projection"
           projectedPoint[as] = lastPoint[projectionSeries.field] + pointsAddedCount * projectionSeries.slope
         seriesData.push(projectedPoint)
 
-    return {seriesData, summaryMetrics}
+      projections.pointsAddedCount = pointsAddedCount
+      projections.lastPoint = projectedPoint
+
+    return {seriesData, summaryMetrics, projections}
+
+  @_findVOptimalProjectionStartIndex: (seriesData, field, highestIndexAllowed) ->
+    utils.assert(highestIndexAllowed < seriesData.length - 2, "Cannot use the last two points for calculating v-optimal slope.")
+
+    lastIndex = seriesData.length - 1
+    lastPoint = seriesData[lastIndex]
+
+    slopeToEnd = (index) =>
+      return (lastPoint[field] - seriesData[index][field]) / (lastIndex - index)
+
+    calculateTotalErrorSquared = (index) =>
+      trialSlope = slopeToEnd(index)
+      totalErrorSquared = 0
+      for i in [(index + 1)..(lastIndex - 1)]
+        currentSlope = slopeToEnd(i)
+        error = trialSlope - currentSlope
+        totalErrorSquared += error * error
+      return totalErrorSquared
+
+    minNormalizedErrorSquared = Number.MAX_VALUE
+    indexForMinNormalizedErrorSquared = highestIndexAllowed
+    for i in [highestIndexAllowed..0]
+      errorSquared = calculateTotalErrorSquared(i)
+      normalizedErrorSquared = errorSquared / (seriesData.length - 2 - i)
+      if normalizedErrorSquared <= minNormalizedErrorSquared
+        minNormalizedErrorSquared = normalizedErrorSquared
+        indexForMinNormalizedErrorSquared = i
+
+    return indexForMinNormalizedErrorSquared
+
 
   getStateForSaving: (meta) ->
     ###

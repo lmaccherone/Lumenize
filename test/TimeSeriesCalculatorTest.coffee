@@ -196,7 +196,8 @@ exports.TimeSeriesCalculatorTest =
         "TaskUnitScope_max": 51,
         "TaskUnitBurnDown_max": 44,
         "TaskUnitBurnDown_max_index": 1
-      }
+      },
+      projections: {}
     }
 
     test.deepEqual(calculator.getResults(), expected)
@@ -300,7 +301,8 @@ exports.TimeSeriesCalculatorTest =
         {tick: '2011-01-09T06:00:00.000Z', StoryCountBurnUp: 3, StoryUnitBurnUp: 13, label: '2011-01-07'},
         {tick: '2011-01-10T06:00:00.000Z', StoryCountBurnUp: 3, StoryUnitBurnUp: 13, label: '2011-01-09'}
       ],
-      summaryMetrics: {}
+      summaryMetrics: {},
+      projections: {}
     }
 
     test.deepEqual(calculator.getResults(), expected)

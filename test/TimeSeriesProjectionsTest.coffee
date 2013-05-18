@@ -61,7 +61,7 @@ exports.TimeSeriesProjection =
       limit: 6,
       series: [
         {as: 'ScopeProjection', field: 'StoryUnitScope', slope: 0.5},
-        {field: 'StoryCountScope', slope: 0},  # How you do a level projection
+        {field: 'StoryCountScope', slope: 0},  # 0 slope is a level projection
         {field: 'StoryCountBurnUp'}
       ]
     }
@@ -87,48 +87,48 @@ exports.TimeSeriesProjection =
           "tick": "2011-01-03T06:00:00.000Z",
           "StoryUnitScope": 13,
           "StoryCountScope": 3,
-          "StoryCountBurnUp": 0,
           "StoryUnitBurnUp": 0,
+          "StoryCountBurnUp": 0,
           "label": "2011-01-02",
         },
         {
           "tick": "2011-01-04T06:00:00.000Z",
           "StoryUnitScope": 18,
           "StoryCountScope": 4,
-          "StoryCountBurnUp": 0,
           "StoryUnitBurnUp": 0,
+          "StoryCountBurnUp": 0,
           "label": "2011-01-03",
         },
         {
           "tick": "2011-01-06T06:00:00.000Z",
           "StoryUnitScope": 20,
           "StoryCountScope": 5,
-          "StoryCountBurnUp": 1,
           "StoryUnitBurnUp": 5,
+          "StoryCountBurnUp": 1,
           "label": "2011-01-04",
         },
         {
           "tick": "2011-01-07T06:00:00.000Z",
           "StoryUnitScope": 20,
           "StoryCountScope": 5,
-          "StoryCountBurnUp": 2,
           "StoryUnitBurnUp": 8,
+          "StoryCountBurnUp": 2,
           "label": "2011-01-06",
         },
         {
           "tick": "2011-01-09T06:00:00.000Z",
           "StoryUnitScope": 18,
           "StoryCountScope": 4,
-          "StoryCountBurnUp": 3,
           "StoryUnitBurnUp": 13,
+          "StoryCountBurnUp": 3,
           "label": "2011-01-07",
         },
         {
           "tick": "2011-01-10T06:00:00.000Z",
           "StoryUnitScope": 18,
           "StoryCountScope": 4,
-          "StoryCountBurnUp": 3,
           "StoryUnitBurnUp": 13,
+          "StoryCountBurnUp": 3,
           "label": "2011-01-09",
           "ScopeProjection": 18,
           "StoryCountScope_projection": 4,
@@ -177,7 +177,36 @@ exports.TimeSeriesProjection =
           "StoryCountBurnUp_projection": 6.6
         }
       ],
-      summaryMetrics: {}
+      summaryMetrics: {},
+      projections: {
+        "limit": 6,
+        "series": [
+          {
+            "as": "ScopeProjection",
+            "field": "StoryUnitScope",
+            "slope": 0.5
+          },
+          {
+            "field": "StoryCountScope",
+            "slope": 0
+          },
+          {
+            "field": "StoryCountBurnUp",
+            "startIndex": 0,
+            "slope": 0.6
+          }
+        ],
+        "minFractionToConsider": 0.3333333333333333,
+        "minCountToConsider": 15,
+        "pointsAddedCount": 6
+        "lastPoint": {
+          "tick": "2011-01-17T06:00:00.000Z",
+          "label": "2011-01-16",
+          "ScopeProjection": 21,
+          "StoryCountScope_projection": 4,
+          "StoryCountBurnUp_projection": 6.6
+        }
+      }
     }
 
     test.deepEqual(calculator.getResults(), expected)
@@ -203,7 +232,7 @@ exports.TimeSeriesProjection =
       continueWhile: (point) ->
         return point.StoryCountScope_projection > point.StoryCountBurnUp_projection
       series: [
-        {field: 'StoryCountScope', slope: 0.4},  # How you do a level projection
+        {field: 'StoryCountScope', slope: 0.4},
         {field: 'StoryCountBurnUp'}
       ]
     }
@@ -234,7 +263,47 @@ exports.TimeSeriesProjection =
 
     test.done()
 
-  testIncremental: (test) ->
+  testVOptimal: (test) ->
+    data = [{y: 1}, {y: 2}, {y: 3}, {y: 5}]
+    result = TimeSeriesCalculator._findVOptimalProjectionStartIndex(data, 'y', 1)
+    test.equal(result, 0)
+
+    data.push({y: 8})
+    result = TimeSeriesCalculator._findVOptimalProjectionStartIndex(data, 'y', 2)
+    test.equal(result, 2)
+
+    # shallow slope switching to steep slope should find the bend
+    seriesDataCSV = [["a"],[1],[2],[3],[4],[5],[6],[7],[8],[9],[10],[20],[30],[40],[50],[60],[70],[80],[90],[100]]
+    seriesData = csvStyleArray_To_ArrayOfMaps(seriesDataCSV)
+    index = TimeSeriesCalculator._findVOptimalProjectionStartIndex(seriesData, 'a', 16)
+    test.equal(index, 9)
+
+    # steep slope switching to shallow slope should find the bend
+    seriesDataCSV = [["a"],[0],[10],[20],[30],[40],[50],[60],[70],[80],[90],[100],[101],[102],[103],[104],[105],[106],[107],[108]]
+    seriesData = csvStyleArray_To_ArrayOfMaps(seriesDataCSV)
+    index = TimeSeriesCalculator._findVOptimalProjectionStartIndex(seriesData, 'a', 16)
+    test.equal(index, 10)
+
+    # shallow slope switching to steep slope should find the bend
+    seriesDataCSV = [["a"],[1],[2],[3],[4],[5],[6],[7],[8],[9],[10],[22],[29],[38],[47],[63],[72],[79],[86],[100]]
+    seriesData = csvStyleArray_To_ArrayOfMaps(seriesDataCSV)
+    index = TimeSeriesCalculator._findVOptimalProjectionStartIndex(seriesData, 'a', 16)
+    test.equal(index, 9)
+
+    # steep slope switching to shallow slope should find the bend
+    seriesDataCSV = [["a"],[0],[10],[20],[30],[40],[50],[60],[70],[80],[90],[100],[102],[102],[104],[105],[105],[106],[106],[108]]
+    seriesData = csvStyleArray_To_ArrayOfMaps(seriesDataCSV)
+    index = TimeSeriesCalculator._findVOptimalProjectionStartIndex(seriesData, 'a', 16)
+    test.equal(index, 10)
+
+    test.done()
+
+  testVOptimalEndToEnd: (test) ->
+
+    moreSnapshots = utils.clone(snapshots)
+
+    moreSnapshots[16].PlanEstimate = 50
+    moreSnapshots[20].PlanEstimate = 100
 
     granularity = Time.DAY
     tz = 'America/Chicago'
@@ -242,98 +311,40 @@ exports.TimeSeriesProjection =
       {year: 2011, month: 1, day: 5}  # Made up holiday to test knockout
     ]
 
-    deriveFieldsOnInput = [
-      {as: 'AcceptedStoryCount', f: (row) ->
-        if row.ScheduleState in ['Accepted', 'Released']
-          return 1
-        else
-          return 0
-      },
-      {as: 'AcceptedStoryPoints', f: (row) ->
-        if row.ScheduleState in ['Accepted', 'Released']
-          return row.PlanEstimate
-        else
-          return 0
-      }
-    ]
-
     metrics = [
       {as: 'StoryUnitScope', field: 'PlanEstimate', f: 'sum'},
-      {as: 'StoryCountScope', f: 'count'},
-      {as: 'StoryCountBurnUp', field: 'AcceptedStoryCount', f: 'sum'},
-      {as: 'StoryUnitBurnUp', field: 'AcceptedStoryPoints', f: 'sum'},
-      {as: 'TaskUnitBurnDown', field: 'TaskRemainingTotal', f: 'sum'},
-      {as: 'TaskUnitScope', field: 'TaskEstimateTotal', f: 'sum'}  # Note, we don't have the task count denormalized in stories so we can't have TaskCountScope nor TaskUnitBurnDown
+      {as: 'StoryUnitBurnUp', field: 'PlanEstimate', f: 'filteredSum', filterField: 'ScheduleState', filterValues: acceptedValues}
     ]
 
-    config =  # default workDays
-      deriveFieldsOnInput: deriveFieldsOnInput
+    projectionsConfig = {
+      continueWhile: (point) ->
+        return point.StoryCountScope_projection > point.StoryCountBurnUp_projection
+      series: [
+        {field: 'StoryUnitScope', slope: 0.4},
+        {field: 'StoryUnitBurnUp'}
+      ],
+      minFractionToConsider: 0,
+      minCountToConsider: 2
+    }
+
+    config =
       metrics: metrics
+      projectionsConfig: projectionsConfig
       granularity: granularity
       tz: tz
       holidays: holidays
       workDays: 'Sunday,Monday,Tuesday,Wednesday,Thursday,Friday' # They work on Sundays
 
-    config2 = utils.clone(config)
-
-    calculator = new TimeSeriesCalculator(config)
-    startOnISOString = new Time('2011-01-03').getISOStringInTZ(tz)
-    upToDateISOString = new Time('2011-01-10').getISOStringInTZ(tz)
-    calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
-
-    calculator2 = new TimeSeriesCalculator(config2)
-
-    startOnISOString = new Time('2011-01-03').getISOStringInTZ(tz)
-    upToDateISOString = new Time('2011-01-05').getISOStringInTZ(tz)
-    calculator2.addSnapshots(snapshots.slice(0, 9), startOnISOString, upToDateISOString)
-
-    startOnISOString = upToDateISOString
-    upToDateISOString = new Time('2011-01-10').getISOStringInTZ(tz)
-    calculator2.addSnapshots(snapshots.slice(5), startOnISOString, upToDateISOString)
-
-    test.deepEqual(calculator.getResults(), calculator2.getResults())
-
-    test.done()
-
-
-  testIncrementalTicksAndLabels: (test) ->
-    csvStyleArray = [
-      ["ObjectID",    "_ValidFrom",               "_ValidTo",                 "Value"],
-      [1,             "2011-01-03T01:00:00.000Z", "2011-01-04T04:59:59.999Z", 10,    ], # Start and end in 01-03 in NY
-      [1,             "2011-01-04T04:59:59.999Z", "2011-01-05T05:00:00.000Z", 5,     ], # Start on 01-03 end in 01-04 but last moment
-      [1,             "2011-01-05T05:00:00.000Z", "2011-01-06T15:00:00.000Z", 3,     ], # Start on 01-05 but very first momement end in middle of 01-06
-      [1,             "2011-01-06T15:00:00.000Z", "9999-01-01T00:00:00.000Z", 2,     ],
-    ]
-
-    snapshots = csvStyleArray_To_ArrayOfMaps(csvStyleArray)
-
-    config =
-      granularity: Time.DAY
-      tz: "America/New_York"
-      metrics: [
-        {field: 'Value', f: 'sum'}
-      ]
-
     calculator = new TimeSeriesCalculator(config)
 
-    startOnISOString = new Time("2010-12-29").getISOStringInTZ(config.tz)
-    upToDateISOString = new Time("2011-01-06").getISOStringInTZ(config.tz)
-    calculator.addSnapshots(snapshots, startOnISOString, upToDateISOString)
+    startOnISOString = new Time('2011-01-01').getISOStringInTZ(tz)
+    upToDateISOString = new Time('2011-01-09').getISOStringInTZ(tz)
 
-    expected = [
-      {tick: '2010-12-30T05:00:00.000Z', label: '2010-12-29'},
-      {tick: '2010-12-31T05:00:00.000Z', label: '2010-12-30'},
-      {tick: '2011-01-03T05:00:00.000Z', label: '2010-12-31'},
-      {tick: '2011-01-04T05:00:00.000Z', label: '2011-01-03'},
-      {tick: '2011-01-05T05:00:00.000Z', label: '2011-01-04'},
-      {tick: '2011-01-06T05:00:00.000Z', label: '2011-01-05'},
-      {tick: '2011-01-07T05:00:00.000Z', label: '2011-01-06'}
-    ]
+    calculator.addSnapshots(moreSnapshots, startOnISOString, upToDateISOString)
+    projectionSeries = calculator.getResults().projections.series[1]
 
-    results = ({tick: r.tick, label: r.label} for r in calculator.getResults().seriesData)
-
-    test.deepEqual(results, expected)
+    test.equal(projectionSeries.startIndex, 0)
+    test.equal(projectionSeries.slope, 22)
 
     test.done()
-
 
