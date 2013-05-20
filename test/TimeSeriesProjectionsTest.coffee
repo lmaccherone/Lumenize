@@ -90,6 +90,7 @@ exports.TimeSeriesProjection =
           "StoryUnitBurnUp": 0,
           "StoryCountBurnUp": 0,
           "label": "2011-01-02",
+          "StoryCountBurnUp_projection": 0
         },
         {
           "tick": "2011-01-04T06:00:00.000Z",
@@ -266,7 +267,7 @@ exports.TimeSeriesProjection =
   testVOptimal: (test) ->
     data = [{y: 1}, {y: 2}, {y: 3}, {y: 5}]
     result = TimeSeriesCalculator._findVOptimalProjectionStartIndex(data, 'y', 1)
-    test.equal(result, 0)
+    test.equal(result, 1)
 
     data.push({y: 8})
     result = TimeSeriesCalculator._findVOptimalProjectionStartIndex(data, 'y', 2)
