@@ -383,12 +383,12 @@ class TimeSeriesCalculator # implements iCalculator
    * 
    *   `minFractionToConsider` and `minCountToConsider` are used for series where you allow the calculator to find
    *   the optimal starting point for the projection (the default behavior). It's very common for projects to start out slowly and then ramp up.
-   *   The optimal algorithm is designed to find this knee where the difference in slope of the projection is the minimum
-   *   of the square of the difference between the overall slope and all the sub-slopes between this starting point going up to the point before
-   *   the last point. This minimum is also divided by the number of sub-slopes so using more data points for the projection
+   *   The optimal algorithm is designed to find this knee where the difference in angle of the projection is the minimum
+   *   of the square of the difference between the overall angle and all the sub-angles between this starting point going up to the point before
+   *   the last point. This minimum is also divided by the number of points so using more data points for the projection
    *   is favored over using fewer. These two configuration parameters, `minFractionToConsider`, and `minCountToConsider`
    *   tell the v-optimal algorthim the minimum number or portion of points to consider. This prevents the algorithm
-   *   from just using the slope of the last few points if they happen to be v-optimal. They currently default to the max of 1/3rd of the project or
+   *   from just using the angle of the last few points if they happen to be v-optimal. They currently default to the max of 1/3rd of the project or
    *   15 (3 work weeks if granularity is 'days'). Note, that the `minCountToConsider` default is optimized for
    *   granularity of 'days'. If you were to use granularity of weeks, I would suggest a much lower number like 3 to 5.
    *   If you were to use granularity of 'months' then maybe 2-3 months would suffice.
@@ -404,13 +404,18 @@ class TimeSeriesCalculator # implements iCalculator
    *   be sure to remember that the &quot;run&quot; (slope = rise / run) is ticks along the x-axis (holidays and weekends knocked out),
    *   not true calendar time. Also, note that in the output
    *   (`getResults().projections.series`), the slope will always be set even if you did not specify one in your original
-   *   configuration. The startIndex or optimal (default) behaviors operate by 1st setting this slope.
+   *   configuration. The startIndex or optimal (default) behaviors operate by setting this slope.
    * 
    *   The `startingIndex` is specified if you want to tell the projection from what point in time, the projection should
    *   start. Maybe the project doubled staff 3 months into the project and you want the projection to start from there.
    *   The common usage for this functionality is to provide a grab-handle on the chart and allow the user to use his
    *   insight combined with the visualization of the data series to pick his own optimal starting point. Note, if you
    *   specify a `startingIndex` you should not specify a `slope` and vice-versa.
+   * 
+   *   Note, that if you specify a `startIndex` or one is derived for you using the optimal algorithm, then the projection
+   *   series will reach back into the seriesData to this startIndex. If you are using HighCharts, you will want to set
+   *   connectNulls to true for projection series that have a startIndex. Projection series where you specify a `slope`
+   *   start at the end of the dataSeries and only project into the future.
    * 
    * @cfg {String/ISOString/Date/Lumenize.Time} [startOn=-infinity] This becomes the master startOn for the entire calculator limiting
    *   the calculator to only emit ticks equal to this or later.
@@ -700,6 +705,10 @@ class TimeSeriesCalculator # implements iCalculator
 
           startIndex = projectionSeries.startIndex
           startPoint = seriesData[startIndex]
+          # Add first point in projection series for series where a startIndex is specified
+          as = projectionSeries.as || projectionSeries.field + &quot;_projection&quot;
+          startPoint[as] = startPoint[projectionSeries.field]
+          # calculate slope
           projectionSeries.slope = (lastPoint[projectionSeries.field] - startPoint[projectionSeries.field]) / (lastIndex - startIndex)
 
       # get projectionTimelineIterator
@@ -739,10 +748,13 @@ class TimeSeriesCalculator # implements iCalculator
 
     calculateTotalErrorSquared = (index) =&gt;
       trialSlope = slopeToEnd(index)
+      trialAngle = Math.atan(trialSlope)
       totalErrorSquared = 0
       for i in [(index + 1)..(lastIndex - 1)]
         currentSlope = slopeToEnd(i)
-        error = trialSlope - currentSlope
+        currentAngle = Math.atan(currentSlope)
+#        error = trialSlope - currentSlope
+        error = trialAngle - currentAngle
         totalErrorSquared += error * error
       return totalErrorSquared
 
