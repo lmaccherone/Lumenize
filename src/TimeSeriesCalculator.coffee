@@ -1,5 +1,4 @@
 # !TODO: Add drill-down support with uniqueIDField or maybe keepFacts = true
-# !TODO: Add support for projection series that will actually add ticks to the timeline
 
 OLAPCube = require('./OLAPCube').OLAPCube
 {utils, Time, Timeline} = require('tztime')
@@ -314,7 +313,7 @@ class TimeSeriesCalculator # implements iCalculator
           series: [
             {as: 'ScopeProjection', field: 'StoryUnitScope', slope: 0.5},
             {field: 'StoryCountScope', slope: 0},  # 0 slope is a level projection
-            {field: 'StoryCountBurnUp'},  # Will use v-Optimal (least squares of difference in slope / count)
+            {field: 'StoryCountBurnUp'},  # Will use v-Optimal (least squares of difference in angle / count)
             {field: 'field5', startIndex: 0}  # 0 will use entire series. Add grab-handle to allow user to specify some other index
           ]
         }

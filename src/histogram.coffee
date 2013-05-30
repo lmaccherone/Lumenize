@@ -4,8 +4,12 @@ utils = require('tztime').utils
 histogram = (rows, valueField, noClipping = false) ->
   ###
   @method histogram
+  This histogram function is designed to work with data that is zero bound
+
   @param {Object[]} rows
   @param {String} valueField Specifies the field containing the data to calculate the histogram
+  @param {Boolean} [noClipping = false] If set to true, then it will not create a non-linear band for the outliers. The
+   default behavior (noClipping = false) is to lump together outliers into a single bucket at the top.
   @return {Object[]}
 
   Returns an object containing the following:
@@ -17,9 +21,9 @@ histogram = (rows, valueField, noClipping = false) ->
   * valueMax - The actual maximum value found. Will always be >= chartMax
 
   Given an array of rows like:
-  
+
       {histogram} = require('../')
-  
+
       rows = [
         {age:  7},
         {age: 25},
@@ -39,9 +43,9 @@ histogram = (rows, valueField, noClipping = false) ->
         {age: 22},
         {age: 25},
       ]
-      
+
   histogram will calculate a histogram. There will be sqrt(n) + 1 buckets
-  
+
       {buckets, chartMax} = histogram(rows, 'age')
       for b in buckets
         console.log(b.label, b.count)
@@ -50,26 +54,26 @@ histogram = (rows, valueField, noClipping = false) ->
       # 24-36 8
       # 36-48 1
       # 48-60 1
-      
+
       console.log(chartMax)
       # 60
-  
+
   This histogram calculator will also attempt to lump outliers into a single bucket at the top.
-      
+
       rows.push({age: 85})
-  
+
       {buckets, chartMax} = histogram(rows, 'age')
-  
+
       lastBucket = buckets[buckets.length - 1]
       console.log(lastBucket.label, lastBucket.count)
       # 48-86* 2
-      
+
   The asterix `*` is there to indicate that this bucket is not the same size as the others and non-linear.
   The histogram calculator will also "clip" the values for these outliers so that you can
-  display them in a scatter chart on a linear scale with the last band compressed. 
+  display them in a scatter chart on a linear scale with the last band compressed.
   The `clippedChartValue` will be guaranteed to be below the `chartMax` by interpolating it's position between
   the bounds of the top band where the actual max value is scaled down to the `chartMax`
-  
+
       lastBucket = buckets[buckets.length - 1]
       console.log(lastBucket.rows[1].age, lastBucket.rows[1].clippedChartValue)
       # 85 59.68421052631579
