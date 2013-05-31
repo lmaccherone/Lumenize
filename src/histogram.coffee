@@ -1,13 +1,184 @@
 functions = require('./functions').functions
 utils = require('tztime').utils
 
-histogram = (rows, valueField, noClipping = false) ->
+histogram = {}
+
+getBucketCountMinMax = (values) ->
+  targetBucketCount = Math.floor(Math.sqrt(values.length)) + 1
+  if targetBucketCount < 3
+    targetBucketCount = 2
+  min = functions.min(values)  # !TODO: Optimize this for a single loop
+  max = functions.max(values)
+  return {targetBucketCount, min, max}
+
+roundUpToSignificance = (value, significance) ->
+  unless significance?
+    return value
+  multiple = 1 / significance
+  return Math.ceil(value * multiple) / multiple
+
+roundDownToSignificance = (value, significance) ->
+  unless significance?
+    return value
+  multiple = 1 / significance
+  return Math.floor(value * multiple) / multiple
+
+setParameters = (rows, valueField, firstStartOn, lastEndBelow, bucketCount, significance) ->
+  if valueField?
+    values = (row[valueField] for row in rows)
+  else
+    values = rows
+  {targetBucketCount, min, max} = getBucketCountMinMax(values)
+  unless bucketCount?
+    bucketCount = targetBucketCount
+  if firstStartOn?
+    lowerBase = firstStartOn
+  else
+    lowerBase = roundDownToSignificance(min, significance)
+    firstStartOn = -Infinity
+  if lastEndBelow?
+    upperBase = lastEndBelow
+  else
+    upperBase = roundUpToSignificance(max, significance)
+    lastEndBelow = Infinity
+
+  return {values, bucketCount, firstStartOn, lowerBase, lastEndBelow, upperBase}
+
+histogram.bucketsConstantWidth = (rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount) ->
+
+  {values, bucketCount, firstStartOn, lowerBase, lastEndBelow, upperBase} = setParameters(rows, valueField, firstStartOn, lastEndBelow, bucketCount, significance)
+
+  bucketSize = roundDownToSignificance((upperBase - lowerBase) / bucketCount, significance)
+  if bucketSize <= 0
+    throw new Error("Calculated bucketSizes <= 0 are not allowed. Try a smaller significance.")
+
+  buckets = []  # each row is {index, startOn, endBelow, label} meaning bucket  startOn <= x < endBelow
+  lastEdge = lowerBase + bucketSize
+
+  # first bucket
+  bucket = {index: 0, startOn: firstStartOn, endBelow: lastEdge}
+  if firstStartOn is -Infinity
+    bucket.label = "< #{bucket.endBelow}"
+  else
+    bucket.label = "#{bucket.startOn}-#{bucket.endBelow}"
+  buckets.push(bucket)
+
+  # all the buckets in the middle
+  for i in [1..bucketCount - 2]
+    edge = lastEdge + bucketSize
+    buckets.push({index: i, startOn: lastEdge, endBelow: edge, label: "#{lastEdge}-#{edge}"})
+    lastEdge = edge
+
+  # last bucket
+  if lastEdge >= lastEndBelow
+    throw new Error("Somehow, the last bucket didn't work out. Try a smaller significance.")
+  bucket = {index:bucketCount - 1, startOn: lastEdge, endBelow: lastEndBelow}
+  if lastEndBelow is Infinity
+    bucket.label = ">= #{bucket.startOn}"
+  else
+    bucket.label = "#{bucket.startOn}-#{bucket.endBelow}"
+  buckets.push(bucket)
+
+  return buckets
+
+histogram.buckets = (rows, valueField, type = histogram.bucketsConstantWidth, significance, firstStartOn, lastEndBelow, bucketCount) ->
   ###
-  @method histogram
-  This histogram function is designed to work with data that is zero bound
+  @method getBuckets
+  @static
+  @param {Object[]/Number[]} rows If no valueField is provided or the valueField parameter is null, then the first parameter is
+  assumed to be an Array of Numbers representing the values to bucket. Otherwise, it is assumed to be an Array of Objects
+  with a bunch of fields.
+  @param {String} [valueField] Specifies the field containing the values to calculate the histogram on
+  @param {function} [type = histogram.constantWidth] Specifies how to pick the edges of the buckets. Three standard schemes
+    are provided: histogram.bucketsConstantWidth, histogram.bucketsConstantDepth, and histogram.bucketsVOptimal.
+    However, you can inject your own.
+  @param {Number} [significance] The multiple to which you want to round the bucket edges. 1 means whole numbers.
+   0.1 means to round to tenths. 0.01 to hundreds. Etc. If you provide all of these last four parameters, ensure
+   that (lastEndBelow - firstStartOn) / bucketCount will naturally come out in the significance specified. So,
+   (100 - 0) / 100 = 1. This works well with a significance of 1, 0.1, 0.01, etc. But (13 - 0) / 10  = 1.3. This
+   would not work with a significance of 1. However, a signficance of 0.1 would work fine.
+  @param {Number} [firstStartOn] This will be the endBefore of the first bucket. Think of it as the min value.
+  @param {Number} [lastEndBelow] This will be the startOn of the last bucket. Think of it as the max value.
+  @param {Number} [bucketCount] If provided, the histogram will have this many buckets.
+  @return {Object[]}
+
+  Returns an Array of Objects (buckets) in the form of {index, startOn, endBelow, label}
+
+  The buckets array that is returned will have these properties:
+
+  * Each bucket (row) will have these fields {index, startOn, endBelow, label}.
+  * If firstStartOn is not provided, it will be -Infinity
+  * If lastEndBelow is not provided, it will be Infinity.
+  ###
+  buckets = type(rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount)
+
+  return buckets
+
+histogram.getBucketer = (buckets) ->
+  ###
+  @method getBucketer
+  @static
+  @param {Object[]} buckets Array of objects where each row is in the form {index, startOn, endBelow, label}
+  @return {function}
+
+  Returns a function `bucketer(value)` that will return the bucket given a value
+  ###
+  bucketer = (value) ->
+    for b in buckets
+      if b.startOn <= value < b.endBelow
+        return b
+    throw new Error("Could not find bucket for value: #{value}")
+  return bucketer
+
+histogram.histogramCreator = (buckets) ->
+  ###
+  @method histogramCreator
+  @static
+  @param {Object[]} buckets Array of Objects as output from a get...Buckets() function. Each row {index, startOn, endBelow, label}
+  @return {function}
+
+  Returns a function that will supply you with a histogram when data is passed in. The returned function has this
+  signature `h(rows, valueField) -> <Histogram>`. If a valueField is provided then it will extract the values from
+  that field in the rows parameter. If not, it will assume that the rows parameter is an Array of Numbers containing
+  the values to histogram. This function returns a <Histogram> which is an Array of Objects where each row is in this form
+  {index, startOn, endBelow, label, count}.
+  ###
+  h = (rows, valueField) ->
+    bucketer = histogram.getBucketer(buckets)
+
+    if valueField?
+      values = (row[valueField] for row in rows)
+    else
+      values = rows
+
+    histogram = utils.clone(buckets)
+    histogramRow.count = 0 for histogramRow in histogram
+    for v in values
+      bucket = bucketer(v)
+      histogram[bucket.index].count++
+    return histogram
+
+  return h
+
+histogram.histogram = (rows, valueField, type = histogram.constantWidth, significance, firstStartOn, lastEndBelow, bucketCount) ->
+  ###
+
+  ###
+  buckets = buckets(rows, valueField, type, significance, firstStartOn, lastEndBelow, bucketCount)
+
+
+histogram.clipping = (rows, valueField, noClipping = false) ->
+  ###
+  @method clipping
+
+  Note: The calling pattern and functionality of this method is legacy and a bit different from the other members of
+  this histogram module. I just haven't yet had the opportunity to upgrade it to the new pattern.
+
+  This histogram function is designed to work with data that is zero bound on the low end and might have outliers
+  on the high end. It's not very general purpose but it's ideal for distributions that have a long-fat-tail.
 
   @param {Object[]} rows
-  @param {String} valueField Specifies the field containing the data to calculate the histogram
+  @param {String} valueField Specifies the field containing the values to calculate the histogram on
   @param {Boolean} [noClipping = false] If set to true, then it will not create a non-linear band for the outliers. The
    default behavior (noClipping = false) is to lump together outliers into a single bucket at the top.
   @return {Object[]}
@@ -46,7 +217,7 @@ histogram = (rows, valueField, noClipping = false) ->
 
   histogram will calculate a histogram. There will be sqrt(n) + 1 buckets
 
-      {buckets, chartMax} = histogram(rows, 'age')
+      {buckets, chartMax} = histogram.clipping(rows, 'age')
       for b in buckets
         console.log(b.label, b.count)
       # 0-12 2
@@ -62,7 +233,7 @@ histogram = (rows, valueField, noClipping = false) ->
 
       rows.push({age: 85})
 
-      {buckets, chartMax} = histogram(rows, 'age')
+      {buckets, chartMax} = histogram.clipping(rows, 'age')
 
       lastBucket = buckets[buckets.length - 1]
       console.log(lastBucket.label, lastBucket.count)
