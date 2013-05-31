@@ -25,25 +25,24 @@ rows = [
 exports.histogramTest =
 
   testControlledBucketing: (test) ->
-    buckets = histogram.getBuckets([], null, 1, 0, 100, 100)
+
+    buckets = histogram.buckets([], null, null, 1, 0, 100, 100)
 
     test.equal(buckets.length, 100)
     for b, index in buckets
       test.equal(b.index, index)
 
-    bucketer = histogram.getBucketer(buckets)
-
-    test.equal(10, bucketer(10.234).index)
+    test.equal(10, histogram.bucket(10.234, buckets).index)
 
     f = () ->
-      bucketer(100)
+      histogram.bucket(100, buckets)
 
     test.throws(f)
 
     test.done()
 
   testCalculatedBucketing: (test) ->
-    buckets = histogram.getBuckets(rows, 'age', 1)
+    buckets = histogram.buckets(rows, 'age', null, 1)
 
     expected = [
       { index: 0, startOn: -Infinity, endBelow: 16, label: '< 16' },
@@ -55,19 +54,27 @@ exports.histogramTest =
 
     test.deepEqual(expected, buckets)
 
-    bucketer = histogram.getBucketer(buckets)
+    test.equal(0, histogram.bucket(10.234, buckets).index)
+    test.equal(0, histogram.bucket(-1234567, buckets).index)
+    test.equal(2, histogram.bucket(25, buckets).index)
+    test.equal(2, histogram.bucket(25.24, buckets).index)
+    test.equal(4, histogram.bucket(1234567, buckets).index)
 
-    test.equal(0, bucketer(10.234).index)
-    test.equal(0, bucketer(-1234567).index)
-    test.equal(2, bucketer(25).index)
-    test.equal(2, bucketer(25.24).index)
-    test.equal(4, bucketer(1234567).index)
+    h = histogram.histogramFromBuckets(rows, 'age', buckets)
+
+    counts = (row.count for row in h)
+    expected = [ 3, 4, 7, 2, 1 ]
+    test.deepEqual(counts, expected)
+
+    h2 = histogram.histogram(rows, 'age', null, 1)
+
+    test.deepEqual(h, h2)
 
     test.done()
 
   testBy10: (test) ->
 
-    buckets = histogram.getBuckets(rows, 'age', 10)
+    buckets = histogram.buckets(rows, 'age', null, 10)
 
     expected = [
       { index: 0, startOn: -Infinity, endBelow: 10, label: '< 10' },

@@ -1,6 +1,20 @@
 functions = require('./functions').functions
 utils = require('tztime').utils
 
+###
+@class histogram
+
+Rules about dependencies:
+
+  * If a function can be calculated incrementally from an oldResult and newValues, then you do not need to specify dependencies
+  * If a funciton can be calculated from other incrementally calculable results, then you need only specify those dependencies
+  * If a function needs the full list of values to be calculated (like percentile coverage), then you must specify 'values'
+  * To support the direct passing in of OLAP cube cells, you can provide a prefix (field name) so the key in dependentValues
+    can be generated
+  * 'count' is special and does not use a prefix because it is not dependent up a particular field
+  * You should calculate the dependencies before you calculate the thing that is depedent. The OLAP cube does some
+    checking to confirm you've done this.
+###
 histogram = {}
 
 getBucketCountMinMax = (values) ->
@@ -110,66 +124,81 @@ histogram.buckets = (rows, valueField, type = histogram.bucketsConstantWidth, si
   * If firstStartOn is not provided, it will be -Infinity
   * If lastEndBelow is not provided, it will be Infinity.
   ###
-  buckets = type(rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount)
+  return type(rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount)
 
-  return buckets
-
-histogram.getBucketer = (buckets) ->
+histogram.bucket = (value, buckets) ->
   ###
-  @method getBucketer
+  @method bucket
   @static
+  @param {Number} value The value to bucket
   @param {Object[]} buckets Array of objects where each row is in the form {index, startOn, endBelow, label}
-  @return {function}
+  @return {Object}
 
-  Returns a function `bucketer(value)` that will return the bucket given a value
+  Returns the bucket that contains the given value
   ###
-  bucketer = (value) ->
-    for b in buckets
-      if b.startOn <= value < b.endBelow
-        return b
-    throw new Error("Could not find bucket for value: #{value}")
-  return bucketer
+  for b in buckets
+    if b.startOn <= value < b.endBelow
+      return b
+  throw new Error("Could not find bucket for value: #{value}")
 
-histogram.histogramCreator = (buckets) ->
+histogram.histogramFromBuckets = (rows, valueField, buckets) ->
   ###
-  @method histogramCreator
+  @method histogramFromBuckets
   @static
+  @param {Object[]} rows
+  @param {String} valueField Specifies the field containing the values to calculate the histogram on
   @param {Object[]} buckets Array of Objects as output from a get...Buckets() function. Each row {index, startOn, endBelow, label}
   @return {function}
 
-  Returns a function that will supply you with a histogram when data is passed in. The returned function has this
-  signature `h(rows, valueField) -> <Histogram>`. If a valueField is provided then it will extract the values from
+  Returns a histogram from rows using the provided buckets. If a valueField is provided then it will extract the values from
   that field in the rows parameter. If not, it will assume that the rows parameter is an Array of Numbers containing
   the values to histogram. This function returns a <Histogram> which is an Array of Objects where each row is in this form
   {index, startOn, endBelow, label, count}.
   ###
-  h = (rows, valueField) ->
-    bucketer = histogram.getBucketer(buckets)
+  if valueField?
+    values = (row[valueField] for row in rows)
+  else
+    values = rows
 
-    if valueField?
-      values = (row[valueField] for row in rows)
-    else
-      values = rows
-
-    histogram = utils.clone(buckets)
-    histogramRow.count = 0 for histogramRow in histogram
-    for v in values
-      bucket = bucketer(v)
-      histogram[bucket.index].count++
-    return histogram
-
+  h = utils.clone(buckets)
+  histogramRow.count = 0 for histogramRow in h
+  for v in values
+    bucket = histogram.bucket(v, buckets)
+    h[bucket.index].count++
   return h
 
 histogram.histogram = (rows, valueField, type = histogram.constantWidth, significance, firstStartOn, lastEndBelow, bucketCount) ->
   ###
+  @method histogram
+  @static
+  @param {Object[]/Number[]} rows If no valueField is provided or the valueField parameter is null, then the first parameter is
+  assumed to be an Array of Numbers representing the values to bucket. Otherwise, it is assumed to be an Array of Objects
+  with a bunch of fields.
+  @param {String} [valueField] Specifies the field containing the values to calculate the histogram on
+  @param {function} [type = histogram.constantWidth] Specifies how to pick the edges of the buckets. Three standard schemes
+    are provided: histogram.bucketsConstantWidth, histogram.bucketsConstantDepth, and histogram.bucketsVOptimal.
+    However, you can inject your own.
+  @param {Number} [significance] The multiple to which you want to round the bucket edges. 1 means whole numbers.
+   0.1 means to round to tenths. 0.01 to hundreds. Etc. If you provide all of these last four parameters, ensure
+   that (lastEndBelow - firstStartOn) / bucketCount will naturally come out in the significance specified. So,
+   (100 - 0) / 100 = 1. This works well with a significance of 1, 0.1, 0.01, etc. But (13 - 0) / 10  = 1.3. This
+   would not work with a significance of 1. However, a signficance of 0.1 would work fine.
+  @param {Number} [firstStartOn] This will be the endBefore of the first bucket. Think of it as the min value.
+  @param {Number} [lastEndBelow] This will be the startOn of the last bucket. Think of it as the max value.
+  @param {Number} [bucketCount] If provided, the histogram will have this many buckets.
+  @return {Object[]}
 
+  Returns an Array of Objects (buckets) in the form of {index, startOn, endBelow, label, count} where count is the
+  number of values in each bucket.
   ###
-  buckets = buckets(rows, valueField, type, significance, firstStartOn, lastEndBelow, bucketCount)
+  buckets = histogram.buckets(rows, valueField, type, significance, firstStartOn, lastEndBelow, bucketCount)
+  return histogram.histogramFromBuckets(rows, valueField, buckets)
 
 
 histogram.clipping = (rows, valueField, noClipping = false) ->
   ###
   @method clipping
+  @static
 
   Note: The calling pattern and functionality of this method is legacy and a bit different from the other members of
   this histogram module. I just haven't yet had the opportunity to upgrade it to the new pattern.

@@ -19,11 +19,23 @@
 functions = require('./functions').functions
 utils = require('tztime').utils
 
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-histogram'>/**
+</span> * @class Lumenize.histogram
+ * 
+ * Rules about dependencies:
+ * 
+ *   * If a function can be calculated incrementally from an oldResult and newValues, then you do not need to specify dependencies
+ *   * If a funciton can be calculated from other incrementally calculable results, then you need only specify those dependencies
+ *   * If a function needs the full list of values to be calculated (like percentile coverage), then you must specify 'values'
+ *   * To support the direct passing in of OLAP cube cells, you can provide a prefix (field name) so the key in dependentValues
+ *     can be generated
+ *   * 'count' is special and does not use a prefix because it is not dependent up a particular field
+ *   * You should calculate the dependencies before you calculate the thing that is depedent. The OLAP cube does some
+ *     checking to confirm you've done this.
+ */
+/* &lt;CoffeeScript&gt;
 histogram = {}
-
-histogram.CONSTANT_WIDTH = &quot;Constant width&quot;
-histogram.CONSTANT_DEPTH = &quot;Constant depth&quot;
-histogram.V_OPTIMAL = &quot;V-optimal&quot;  # unsupported at this time.
 
 getBucketCountMinMax = (values) -&gt;
   targetBucketCount = Math.floor(Math.sqrt(values.length)) + 1
@@ -66,7 +78,7 @@ setParameters = (rows, valueField, firstStartOn, lastEndBelow, bucketCount, sign
 
   return {values, bucketCount, firstStartOn, lowerBase, lastEndBelow, upperBase}
 
-histogram.getBucketsConstantWidth = (rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount) -&gt;
+histogram.bucketsConstantWidth = (rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount) -&gt;
 
   {values, bucketCount, firstStartOn, lowerBase, lastEndBelow, upperBase} = setParameters(rows, valueField, firstStartOn, lastEndBelow, bucketCount, significance)
 
@@ -103,18 +115,19 @@ histogram.getBucketsConstantWidth = (rows, valueField, significance, firstStartO
 
   return buckets
 
-histogram.getBuckets = (rows, valueField, type = histogram.CONSTANT_WIDTH, significance, firstStartOn, lastEndBelow, bucketCount) -&gt;
+histogram.buckets = (rows, valueField, type = histogram.bucketsConstantWidth, significance, firstStartOn, lastEndBelow, bucketCount) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-static-method-getBuckets'>  /**
+<span id='Lumenize-histogram-static-method-getBuckets'>  /**
 </span>   * @method getBuckets
-   * @member Lumenize
+   * @member Lumenize.histogram
    * @static
    * @param {Object[]/Number[]} rows If no valueField is provided or the valueField parameter is null, then the first parameter is
    * assumed to be an Array of Numbers representing the values to bucket. Otherwise, it is assumed to be an Array of Objects
    * with a bunch of fields.
    * @param {String} [valueField] Specifies the field containing the values to calculate the histogram on
-   * @param {String} [type = histogram.CONSTANT_WIDTH] Specifies how to pick the edges of the buckets. Valid values are
-   *   histogram.CONSTANT_WIDTH, histogram.CONSTANT_DEPTH, and histogram.V_OPTIMAL.
+   * @param {function} [type = histogram.constantWidth] Specifies how to pick the edges of the buckets. Three standard schemes
+   *   are provided: histogram.bucketsConstantWidth, histogram.bucketsConstantDepth, and histogram.bucketsVOptimal.
+   *   However, you can inject your own.
    * @param {Number} [significance] The multiple to which you want to round the bucket edges. 1 means whole numbers.
    *  0.1 means to round to tenths. 0.01 to hundreds. Etc. If you provide all of these last four parameters, ensure
    *  that (lastEndBelow - firstStartOn) / bucketCount will naturally come out in the significance specified. So,
@@ -123,10 +136,9 @@ histogram.getBuckets = (rows, valueField, type = histogram.CONSTANT_WIDTH, signi
    * @param {Number} [firstStartOn] This will be the endBefore of the first bucket. Think of it as the min value.
    * @param {Number} [lastEndBelow] This will be the startOn of the last bucket. Think of it as the max value.
    * @param {Number} [bucketCount] If provided, the histogram will have this many buckets.
-   * 
-   * This is a constant width bucketer.
-   * 
    * @return {Object[]}
+   * 
+   * Returns an Array of Objects (buckets) in the form of {index, startOn, endBelow, label}
    * 
    * The buckets array that is returned will have these properties:
    * 
@@ -135,47 +147,71 @@ histogram.getBuckets = (rows, valueField, type = histogram.CONSTANT_WIDTH, signi
    * * If lastEndBelow is not provided, it will be Infinity.
    */
 /* &lt;CoffeeScript&gt;
+  buckets = type(rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount)
 
-histogram.histogramCreator = (buckets) -&gt;
+  return buckets
+
+histogram.bucket = (value, buckets) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-static-method-histogramCreator'>  /**
-</span>   * @method histogramCreator
-   * @member Lumenize
+<span id='Lumenize-histogram-static-method-bucket'>  /**
+</span>   * @method bucket
+   * @member Lumenize.histogram
    * @static
-   * @param {Object[]} buckets Array of Objects as output from a get...Buckets() function. Each row {index, startOn, endBelow, label}
-   * @return {function} Returns a function that will supply
+   * @param {Number} value The value to bucket
+   * @param {Object[]} buckets Array of objects where each row is in the form {index, startOn, endBelow, label}
+   * @return {Object}
+   * 
+   * Returns the bucket that contains the given value
    */
 /* &lt;CoffeeScript&gt;
+  for b in buckets
+    if b.startOn &lt;= value &lt; b.endBelow
+      return b
+  throw new Error(&quot;Could not find bucket for value: #{value}&quot;)
 
-histogram.histogram = (rows, valueField, type = histogram.CONSTANT_WIDTH) -&gt;
-
-
-histogram.getBucketer = (buckets) -&gt;
+histogram.histogramFromBuckets = (rows, valueField, buckets) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-static-method-getBucketer'>  /**
-</span>   * @method getBucketer
-   * @member Lumenize
+<span id='Lumenize-histogram-static-method-histogramFromBuckets'>  /**
+</span>   * @method histogramFromBuckets
+   * @member Lumenize.histogram
    * @static
-   * @param {Object[]} buckets Array of objects where each row is in the form {index, startOn, endBelow, label}
+   * @param {Object[]} rows
+   * @param {String} valueField Specifies the field containing the values to calculate the histogram on
+   * @param {Object[]} buckets Array of Objects as output from a get...Buckets() function. Each row {index, startOn, endBelow, label}
    * @return {function}
    * 
-   * Returns a function `bucketer(value)` that will return the bucket given a value
+   * Returns a histogram from rows using the provided buckets. If a valueField is provided then it will extract the values from
+   * that field in the rows parameter. If not, it will assume that the rows parameter is an Array of Numbers containing
+   * the values to histogram. This function returns a &lt;Histogram&gt; which is an Array of Objects where each row is in this form
+   * {index, startOn, endBelow, label, count}.
    */
 /* &lt;CoffeeScript&gt;
-  bucketer = (value) -&gt;
-    for b in buckets
-      if b.startOn &lt;= value &lt; b.endBelow
-        return b
-    throw new Error(&quot;Could not find bucket for value: #{value}&quot;)
-  return bucketer
+  if valueField?
+    values = (row[valueField] for row in rows)
+  else
+    values = rows
+
+  h = utils.clone(buckets)
+  histogramRow.count = 0 for histogramRow in h
+  for v in values
+    bucket = histogram.bucket(v, buckets)
+    h[bucket.index].count++
+  return h
+
+histogram.histogram = (rows, valueField, type = histogram.constantWidth, significance, firstStartOn, lastEndBelow, bucketCount) -&gt;
+  ###
+
+  ###
+  buckets = buckets(rows, valueField, type, significance, firstStartOn, lastEndBelow, bucketCount)
+
 
 histogram.clipping = (rows, valueField, noClipping = false) -&gt;
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-method-clipping'>  /**
+<span id='Lumenize-histogram-method-clipping'>  /**
 </span>   * @method clipping
-   * @member Lumenize
+   * @member Lumenize.histogram
    * 
-   * Note: The calling pattern and functionality of this method is legacy and very different from the other members of
+   * Note: The calling pattern and functionality of this method is legacy and a bit different from the other members of
    * this histogram module. I just haven't yet had the opportunity to upgrade it to the new pattern.
    * 
    * This histogram function is designed to work with data that is zero bound on the low end and might have outliers
