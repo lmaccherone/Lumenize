@@ -45,6 +45,8 @@ setParameters = (rows, valueField, firstStartOn, lastEndBelow, bucketCount, sign
   {targetBucketCount, min, max} = getBucketCountMinMax(values)
   unless bucketCount?
     bucketCount = targetBucketCount
+  if bucketCount < 3
+    throw new Error("bucketCount must be >= 3.")
   if firstStartOn?
     lowerBase = firstStartOn
   else
@@ -95,9 +97,83 @@ histogram.bucketsConstantWidth = (rows, valueField, significance, firstStartOn, 
 
   return buckets
 
+histogram.bucketsConstantDepth = (rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount) ->
+  {values, bucketCount, firstStartOn, lowerBase, lastEndBelow, upperBase} = setParameters(rows, valueField, firstStartOn, lastEndBelow, bucketCount, significance)
+
+  bucketSize = 100 / bucketCount
+  buckets = []  # each row is {index, startOn, endBelow, label} meaning bucket  startOn <= x < endBelow
+
+  # first bucket
+  currentBoundary = roundDownToSignificance(functions.percentileCreator(bucketSize)(values), significance)
+  bucket = {index: 0, startOn: firstStartOn, endBelow: currentBoundary}
+  if firstStartOn is -Infinity
+    bucket.label = "< #{bucket.endBelow}"
+  else
+    bucket.label = "#{bucket.startOn}-#{bucket.endBelow}"
+  buckets.push(bucket)
+
+  # all the buckets in the middle
+  for i in [1..bucketCount - 2]
+    lastBoundary = currentBoundary
+    currentBoundary = roundDownToSignificance(functions.percentileCreator(bucketSize * (i + 1))(values), significance)
+    buckets.push({index: i, startOn: lastBoundary, endBelow: currentBoundary, label: "#{lastBoundary}-#{currentBoundary}"})
+
+  # last bucket
+  if lastBoundary >= lastEndBelow
+    throw new Error("Somehow, the last bucket didn't work out. Try a different bucketCount.")
+  bucket = {index:bucketCount - 1, startOn: currentBoundary, endBelow: lastEndBelow}
+  if lastEndBelow is Infinity
+    bucket.label = ">= #{bucket.startOn}"
+  else
+    bucket.label = "#{bucket.startOn}-#{bucket.endBelow}"
+  buckets.push(bucket)
+
+  return buckets
+
+histogram.bucketsPercentile = (rows, valueField) ->
+  ###
+  @method bucketsPercentile
+
+  This is a short cut to creating a set of exactly 100 buckets to be used for bucketing (or scoring) values in percentiles.
+  The index of the bucket.
+
+  Let's say you are a teacher and you only give out A's, B's, C's, and F's. You have 10 students in your class and you
+  want the top 10% to get an A. This should only be one student, no matter what he scores. The next 30% of students
+  to get a B. The next 50% of students to get a C and the last 10% to get an F (again, only 1 student). Let's say the
+  final distribution of their grades is as follows:
+
+     grades = [
+       {name: 'Joe', average: 105}, # extra credit
+       {name: 'Almost Joe', average: 104.9},  # missed it by that much
+       {name: 'Jeff', average: 93},
+       {name: 'John', average: 92}
+     ]
+
+  @static
+  @param {Object[]/Number[]} rows If no valueField is provided or the valueField parameter is null, then the first parameter is
+  assumed to be an Array of Numbers representing the values to bucket. Otherwise, it is assumed to be an Array of Objects
+  with a bunch of fields.
+
+  @return {Object[]}
+
+  Returns an Array of Objects (buckets) in the form of {index, startOn, endBelow, label}
+
+  To convert a value into a percentile call `histogram.bucket(value, bucketsFromCallToBucketsPercentile)`
+
+  The buckets array that is returned will have these properties:
+
+  * Each bucket (row) will have these fields {index, startOn, endBelow, label}.
+  * There will be exactly 100 buckets.
+  * The index of the first one will be 0.
+  * The index of the last one will be 99.
+  * The first startOn will be -Infinity
+  * The last endBelow will be Infinity.
+  ###
+  return histogram.bucketsConstantDepth(rows, valueField, null, null, null, 100)
+
 histogram.buckets = (rows, valueField, type = histogram.bucketsConstantWidth, significance, firstStartOn, lastEndBelow, bucketCount) ->
   ###
-  @method getBuckets
+  @method buckets
   @static
   @param {Object[]/Number[]} rows If no valueField is provided or the valueField parameter is null, then the first parameter is
   assumed to be an Array of Numbers representing the values to bucket. Otherwise, it is assumed to be an Array of Objects
@@ -111,6 +187,7 @@ histogram.buckets = (rows, valueField, type = histogram.bucketsConstantWidth, si
    that (lastEndBelow - firstStartOn) / bucketCount will naturally come out in the significance specified. So,
    (100 - 0) / 100 = 1. This works well with a significance of 1, 0.1, 0.01, etc. But (13 - 0) / 10  = 1.3. This
    would not work with a significance of 1. However, a signficance of 0.1 would work fine.
+
   @param {Number} [firstStartOn] This will be the endBefore of the first bucket. Think of it as the min value.
   @param {Number} [lastEndBelow] This will be the startOn of the last bucket. Think of it as the max value.
   @param {Number} [bucketCount] If provided, the histogram will have this many buckets.

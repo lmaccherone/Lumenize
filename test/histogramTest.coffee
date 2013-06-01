@@ -88,6 +88,49 @@ exports.histogramTest =
 
     test.done()
 
+  testConstantDepth: (test) ->
+    values = [1, 2, 3, 4, 5, 10, 20, 30, 40, 50, 100, 200, 300, 400, 500]
+
+    h = histogram.histogram(values, null, histogram.bucketsConstantDepth, 1, null, null, 3)
+
+    counts = (row.count for row in h)
+    test.deepEqual([5, 5, 5], counts)
+
+    test.done()
+
+  testPercentile: (test) ->
+    values = []
+    for i in [1..50]
+      values.push(i * 10 - 1000)
+    for i in [1..50]
+      values.push(i * 10 + 1000)
+
+    buckets = histogram.bucketsPercentile(values)
+
+    test.equal(buckets[49].label, '-504.90000000000003-255')
+
+    h = histogram.histogramFromBuckets(values, null, buckets)
+    counts = (row.count for row in h)
+
+    for c in counts
+      test.equal(c, 1)
+
+    values = []
+    for i in [1..100]
+      values.push(i * 10 - 1000)
+    for i in [1..100]
+      values.push(i * 10 + 1000)
+
+    buckets = histogram.bucketsPercentile(values)
+
+    h = histogram.histogramFromBuckets(values, null, buckets)
+    counts = (row.count for row in h)
+
+    for c in counts
+      test.equal(c, 2)
+
+    test.done()
+
 #  testHistogram: (test) ->
 #    rows = [
 #      {age:  7},
