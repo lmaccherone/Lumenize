@@ -33,11 +33,7 @@ exports.histogramTest =
       test.equal(b.index, index)
 
     test.equal(10, histogram.bucket(10.234, buckets).index)
-
-    f = () ->
-      histogram.bucket(100, buckets)
-
-    test.throws(f)
+    test.equal(null, histogram.bucket(100, buckets))
 
     test.done()
 
@@ -131,105 +127,69 @@ exports.histogramTest =
 
     test.done()
 
-#  testHistogram: (test) ->
-#    rows = [
-#      {age:  7},
-#      {age: 25},
-#      {age: 23},
-#      {age: 27},
-#      {age: 34},
-#      {age: 55},
-#      {age: 42},
-#      {age: 13},
-#      {age: 11},
-#      {age: 23},
-#      {age: 31},
-#      {age: 32},
-#      {age: 29},
-#      {age: 16},
-#      {age: 31},
-#      {age: 22},
-#      {age: 25},
-#    ]
-#
-#    histogramResults = histogram(rows, 'age')
-#    {buckets, chartMax, clipped, valueMax} = histogramResults
-#
-#    expected = [
-#      { label: '0-12',  count: 2 },
-#      { label: '12-24', count: 5 },
-#      { label: '24-36', count: 8 },
-#      { label: '36-48', count: 1 },
-#      { label: '48-60', count: 1 }
-#    ]
-#
-#    for b, idx in buckets
-#      test.ok(utils.match(expected[idx], b))
-#      for row in b.rows
-#        test.equal(row.age, row.clippedChartValue)
-#
-#    test.equal(buckets[0].rows[0].age, 7)
-#
-#    # Adding an outlier
-#    rows.push({age: 85})
-#
-#    {buckets, chartMax, clipped} = histogram(rows, 'age')
-#
-#    expected = [
-#      { label: '0-12',  count: 2 },
-#      { label: '12-24', count: 5 },
-#      { label: '24-36', count: 8 },
-#      { label: '36-48', count: 1 },
-#      { label: '48-86*', count: 2 }
-#    ]
-#
-#    for b, idx in buckets
-#      test.ok(utils.match(expected[idx], b))
-#      for row in b.rows
-#        if b.label.indexOf('*') == -1
-#          test.equal(row.age, row.clippedChartValue)
-#        else
-#          test.equal(row.age == row.clippedChartValue, false)
-#          test.ok(row.clippedChartValue <= chartMax)
-#
-#    # one more time but supress clipping
-#    {buckets, chartMax, clipped} = histogram(rows, 'age', true)
-#
-#    expected = [
-#      { label: '0-22',  count: 4 },
-#      { label: '22-44', count: 12 },
-#      { label: '44-66', count: 1 },
-#      { label: '66-88', count: 1 },
-#      { label: '88-110', count: 0 }
-#    ]
-#
-#    for b, idx in buckets
-#      test.ok(utils.match(expected[idx], b))
-#      for row in b.rows
-#        if b.label.indexOf('*') == -1
-#          test.equal(row.age, row.clippedChartValue)
-#        else
-#          test.equal(row.age == row.clippedChartValue, false)
-#          test.ok(row.clippedChartValue <= chartMax)
-#
-#    test.done()
-#
-#  testOneRow: (test) ->
-#    rows = [
-#      {age:  7},
-#    ]
-#
-#    histogramResults = histogram(rows, 'age')
-#
-#    test.equal(histogramResults.bucketSize, 4)
-#
-#    test.done()
-#
-#  testZeroRows: (test) ->
-#    rows = []
-#
-#    histogramResults = histogram(rows, 'age')
-#
-#    test.equal(histogramResults.bucketSize, 1)
-#
-#    test.done()
+  testZeroAndOneRows: (test) ->
+    rows = [10]
+    h = histogram.histogram(rows)
+    test.equal(h[0].count, 1)
+
+    rows = []
+    h = histogram.histogram(rows)
+    test.equal(h[0].count, 0)
+
+    test.done()
+
+  testPercentileExample: (test) ->
+    grades = [
+      # A 90th percentile and above
+      {name: 'Joe', average: 105}, # extra credit
+      # B 60th percentile and above
+      {name: 'Jeff', average: 104.9}, # missed it by that much
+      {name: 'John', average: 92},
+      {name: 'Jess', average: 90},
+      # C 10th percentile and above
+      {name: 'Joseph', average: 87},
+      {name: 'Julie', average: 87},
+      {name: 'Juan', average: 75},
+      {name: 'Jill', average: 73},
+      {name: 'Jon', average: 71},
+      # F rest
+      {name: 'Jorge', average: 32}
+    ]
+
+    {histogram} = require('../')
+    buckets = histogram.bucketsPercentile(grades, 'average')
+
+    getGrade = (average, buckets) ->
+      percentile = histogram.bucket(average, buckets).index
+      if percentile >= 90
+        return 'A'
+      else if percentile >= 60
+        return 'B'
+      else if percentile >= 10
+        return 'C'
+      else
+        return 'F'
+
+    test.equal(getGrade(grades[0].average, buckets), 'A')
+    test.equal(getGrade(grades[1].average, buckets), 'B')
+    test.equal(getGrade(grades[2].average, buckets), 'B')
+    test.equal(getGrade(grades[3].average, buckets), 'B')
+    test.equal(getGrade(grades[4].average, buckets), 'C')
+    test.equal(getGrade(grades[5].average, buckets), 'C')
+    test.equal(getGrade(grades[6].average, buckets), 'C')
+    test.equal(getGrade(grades[7].average, buckets), 'C')
+    test.equal(getGrade(grades[8].average, buckets), 'C')
+    test.equal(getGrade(grades[9].average, buckets), 'F')
+
+    # 0 Joe A
+    # 1 Jeff B
+    # 2 John B
+    # 3 Jess B
+    # 4 Joseph C
+    # 5 Julie C
+    # 6 Juan C
+    # 7 Jill C
+    # 8 Jon C
+    # 9 Jorge F
+
+    test.done()

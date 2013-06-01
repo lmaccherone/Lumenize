@@ -1,21 +1,68 @@
 functions = require('./functions').functions
 utils = require('tztime').utils
 
-###
-@class histogram
-
-Rules about dependencies:
-
-  * If a function can be calculated incrementally from an oldResult and newValues, then you do not need to specify dependencies
-  * If a funciton can be calculated from other incrementally calculable results, then you need only specify those dependencies
-  * If a function needs the full list of values to be calculated (like percentile coverage), then you must specify 'values'
-  * To support the direct passing in of OLAP cube cells, you can provide a prefix (field name) so the key in dependentValues
-    can be generated
-  * 'count' is special and does not use a prefix because it is not dependent up a particular field
-  * You should calculate the dependencies before you calculate the thing that is depedent. The OLAP cube does some
-    checking to confirm you've done this.
-###
 histogram = {}
+
+justHereForDocsAndDoctest = () ->
+  ###
+  @class histogram
+
+  This module has functionality that will allow you to create histograms and do bucketing.
+
+  Features:
+
+    * Three bucketing strategies:
+      1. constant width (default)
+      2. constant depth - for an example of using this mode, look at the source code for the `bucketPercentile()` function
+      3. [v-optimal](http://en.wikipedia.org/wiki/V-optimal_histograms)
+    * Two operating modes modes:
+      1. Automatic. Call histogram with data and all of your parameters and out pops a histogram.
+      2. Piecemeal. Create buckets, put data into buckets, generate histograms from data and pre-calculated buckets.
+         Sometimes you are less interested in the histogram than you are in the bucketing.
+
+  Let's walk through some examples of both modes. But first a general discussion about how these functions accept raw data.
+
+  ## Getting data into the histogram functions ##
+
+  We have two ways to define data. We can pass in an Array of Objects and specify the field to use.
+
+      grades = [
+        {name: 'Joe', average: 105},
+        {name: 'Jeff', average: 104.9}, # ...
+
+      ]
+
+      {histogram} = require('../')
+      h = histogram.histogram(grades, 'average')
+
+      console.log(h)
+      # [ { index: 0,
+      #     startOn: -Infinity,
+      #     endBelow: Infinity,
+      #     label: 'all',
+      #     count: 2 } ]
+
+  Or, we can just pass in a list of values
+
+      grades = [105, 104.9, 99, 98.7, 85, 78, 54, 98, 78, 20]
+      h = histogram.histogram(grades)
+      console.log((row.label + ': ' + row.count for row in h))
+      # [ '< 41.25: 1', '41.25-62.5: 1', '62.5-83.75: 2', '>= 83.75: 6' ]
+
+  ## Automatic histogram creation ##
+
+  The above examples for the two ways of getting data into the histogram functions also demonstrates the use of
+  automatic histogram creation. There are additional parameters to this function that allow you to control the
+  type of bucketing (constantWidth, constantDepth, etc.), min and max values, significance of the bucket boundaries, etc.
+  See the individual functions for details on these parameters.
+
+  ## Piecemeal usage ##
+
+  Sometimes you don't actually want a histogram. You want a way to create constantWidth or constantDepth or v-optimal buckets
+  and you want a tool to know which bucket a particular value falls into. The cannonical example of this is for calculating
+  percentiles for standardized testing... or for grading on a curve. The documentation for the `percentileBuckets()`
+  function walks you through an example like this.
+  ###
 
 getBucketCountMinMax = (values) ->
   targetBucketCount = Math.floor(Math.sqrt(values.length)) + 1
@@ -45,8 +92,6 @@ setParameters = (rows, valueField, firstStartOn, lastEndBelow, bucketCount, sign
   {targetBucketCount, min, max} = getBucketCountMinMax(values)
   unless bucketCount?
     bucketCount = targetBucketCount
-  if bucketCount < 3
-    throw new Error("bucketCount must be >= 3.")
   if firstStartOn?
     lowerBase = firstStartOn
   else
@@ -64,11 +109,17 @@ histogram.bucketsConstantWidth = (rows, valueField, significance, firstStartOn, 
 
   {values, bucketCount, firstStartOn, lowerBase, lastEndBelow, upperBase} = setParameters(rows, valueField, firstStartOn, lastEndBelow, bucketCount, significance)
 
+  buckets = []  # each row is {index, startOn, endBelow, label} meaning bucket  startOn <= x < endBelow
+
+  if bucketCount < 3
+    bucket = {index: 0, startOn: firstStartOn, endBelow: lastEndBelow, label: 'all'}
+    buckets.push(bucket)
+    return buckets
+
   bucketSize = roundDownToSignificance((upperBase - lowerBase) / bucketCount, significance)
   if bucketSize <= 0
     throw new Error("Calculated bucketSizes <= 0 are not allowed. Try a smaller significance.")
 
-  buckets = []  # each row is {index, startOn, endBelow, label} meaning bucket  startOn <= x < endBelow
   lastEdge = lowerBase + bucketSize
 
   # first bucket
@@ -99,6 +150,11 @@ histogram.bucketsConstantWidth = (rows, valueField, significance, firstStartOn, 
 
 histogram.bucketsConstantDepth = (rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount) ->
   {values, bucketCount, firstStartOn, lowerBase, lastEndBelow, upperBase} = setParameters(rows, valueField, firstStartOn, lastEndBelow, bucketCount, significance)
+
+  if bucketCount < 3
+    bucket = {index: 0, startOn: firstStartOn, endBelow: lastEndBelow, label: 'all'}
+    buckets.push(bucket)
+    return buckets
 
   bucketSize = 100 / bucketCount
   buckets = []  # each row is {index, startOn, endBelow, label} meaning bucket  startOn <= x < endBelow
@@ -135,19 +191,72 @@ histogram.bucketsPercentile = (rows, valueField) ->
   @method bucketsPercentile
 
   This is a short cut to creating a set of exactly 100 buckets to be used for bucketing (or scoring) values in percentiles.
-  The index of the bucket.
+  The index of the bucket is the percentile. Note: You can't score in the 100th percentile because you can't beat your own score.
+  If you have a higher score than anybody else, you didn't beat your own score. So, you aren't better than 100%. If there are
+  less than 100 total scores then you technically can't even be in the 99th percentile. This function is hard-coded
+  to only create 100 buckets. However, if you wanted to calculate fractional percentiles. Say you want to know who
+  is in the 99.9th percentile, then you could simulate that yourself by calling bucketsConstantDepth with 1000 as
+  the bucketCount parameter.
 
-  Let's say you are a teacher and you only give out A's, B's, C's, and F's. You have 10 students in your class and you
+  Let's say you are a teacher and you only give out A's, B's, C's, and F's. Let's say you
   want the top 10% to get an A. This should only be one student, no matter what he scores. The next 30% of students
-  to get a B. The next 50% of students to get a C and the last 10% to get an F (again, only 1 student). Let's say the
-  final distribution of their grades is as follows:
+  to get a B. The next 50% of students to get a C and the last 10% to get an F (again, only 1 student). So with 10 students,
+  the final distribution of grades will be this:
 
-     grades = [
-       {name: 'Joe', average: 105}, # extra credit
-       {name: 'Almost Joe', average: 104.9},  # missed it by that much
-       {name: 'Jeff', average: 93},
-       {name: 'John', average: 92}
-     ]
+    * A: 1
+    * B: 3
+    * C: 5
+    * F: 1
+    * Total: 10
+
+  Let's say you have these grades:
+
+      grades = [
+        {name: 'Joe', average: 105},    # 1 A 90th percentile and above
+        {name: 'Jeff', average: 104.9}, # 1 B 60th percentile and above
+        {name: 'John', average: 92},    # 2
+        {name: 'Jess', average: 90},    # 3
+        {name: 'Joseph', average: 87},  # 1 C 10th percentile and above
+        {name: 'Julie', average: 87},   # 2
+        {name: 'Juan', average: 75},    # 3
+        {name: 'Jill', average: 73},    # 4
+        {name: 'Jon', average: 71},     # 5
+        {name: 'Jorge', average: 32}    # 1 F rest
+      ]
+
+  Now, let's create the percentile buckets for this by calling bucketsPercentile.
+
+      {histogram} = require('../')
+      buckets = histogram.bucketsPercentile(grades, 'average')
+
+  Let's create a little helper function to convert the percentiles to grades. It includes a call to `histogram.bucket`.
+
+      getGrade = (average, buckets) ->
+        percentile = histogram.bucket(average, buckets).index
+        if percentile >= 90
+          return 'A'
+        else if percentile >= 60
+          return 'B'
+        else if percentile >= 10
+          return 'C'
+        else
+          return 'F'
+
+  Now, if we loop over this and call getGrade, we can print out the final grade for each student.
+
+      for student in grades
+        console.log(student.name, getGrade(student.average, buckets))
+
+      # Joe A
+      # Jeff B
+      # John B
+      # Jess B
+      # Joseph C
+      # Julie C
+      # Juan C
+      # Jill C
+      # Jon C
+      # Jorge F
 
   @static
   @param {Object[]/Number[]} rows If no valueField is provided or the valueField parameter is null, then the first parameter is
@@ -169,7 +278,7 @@ histogram.bucketsPercentile = (rows, valueField) ->
   * The first startOn will be -Infinity
   * The last endBelow will be Infinity.
   ###
-  return histogram.bucketsConstantDepth(rows, valueField, null, null, null, 100)
+  return histogram.buckets(rows, valueField, histogram.bucketsConstantDepth, null, null, null, 100)
 
 histogram.buckets = (rows, valueField, type = histogram.bucketsConstantWidth, significance, firstStartOn, lastEndBelow, bucketCount) ->
   ###
@@ -181,15 +290,15 @@ histogram.buckets = (rows, valueField, type = histogram.bucketsConstantWidth, si
   @param {String} [valueField] Specifies the field containing the values to calculate the histogram on
   @param {function} [type = histogram.constantWidth] Specifies how to pick the edges of the buckets. Three standard schemes
     are provided: histogram.bucketsConstantWidth, histogram.bucketsConstantDepth, and histogram.bucketsVOptimal.
-    However, you can inject your own.
+    You could inject your own but this function simply calls that so you may as well just create the buckets yourself.
   @param {Number} [significance] The multiple to which you want to round the bucket edges. 1 means whole numbers.
    0.1 means to round to tenths. 0.01 to hundreds. Etc. If you provide all of these last four parameters, ensure
    that (lastEndBelow - firstStartOn) / bucketCount will naturally come out in the significance specified. So,
    (100 - 0) / 100 = 1. This works well with a significance of 1, 0.1, 0.01, etc. But (13 - 0) / 10  = 1.3. This
    would not work with a significance of 1. However, a signficance of 0.1 would work fine.
 
-  @param {Number} [firstStartOn] This will be the endBefore of the first bucket. Think of it as the min value.
-  @param {Number} [lastEndBelow] This will be the startOn of the last bucket. Think of it as the max value.
+  @param {Number} [firstStartOn] This will be the startOn of the first bucket. Think of it as the min value.
+  @param {Number} [lastEndBelow] This will be the endBelow of the last bucket. Think of it as the max value.
   @param {Number} [bucketCount] If provided, the histogram will have this many buckets.
   @return {Object[]}
 
@@ -211,26 +320,34 @@ histogram.bucket = (value, buckets) ->
   @param {Object[]} buckets Array of objects where each row is in the form {index, startOn, endBelow, label}
   @return {Object}
 
-  Returns the bucket that contains the given value
+  Returns the bucket that contains the given value unless the data fits in none of the buckets, in which case, it returns
+  `null`.
+
+  Note: With default parameters, the buckets generated by this module will cover -Infinity to Infinity, (i.e. all
+  possible values). However, if you hand generate your own buckets or you use firstStartOn or lastEndBelow parameters,
+  when calling histogram.buckets, then it's possible for values to fall into no buckets.
+  You can effectively use this as a way to filter out outliers or unexpected
+  negative values. Also note that the firstStartOn (min) is inclusive, but the lastEndBelow (max) is exclusive. If
+  you set the lastEndBelow to 100, then no values of 100 will get bucketed. You can't score in the 100th percentile
+  because you can't beat your own score. This is simlar logic.
   ###
   for b in buckets
     if b.startOn <= value < b.endBelow
       return b
-  throw new Error("Could not find bucket for value: #{value}")
+  return null
 
 histogram.histogramFromBuckets = (rows, valueField, buckets) ->
   ###
   @method histogramFromBuckets
   @static
-  @param {Object[]} rows
+  @param {Object[]/Number[]} rows If no valueField is provided or the valueField parameter is null, then the first parameter is
+   assumed to be an Array of Numbers representing the values to bucket. Otherwise, it is assumed to be an Array of Objects
+   with a bunch of fields.
   @param {String} valueField Specifies the field containing the values to calculate the histogram on
   @param {Object[]} buckets Array of Objects as output from a get...Buckets() function. Each row {index, startOn, endBelow, label}
-  @return {function}
+  @return {Object[]}
 
-  Returns a histogram from rows using the provided buckets. If a valueField is provided then it will extract the values from
-  that field in the rows parameter. If not, it will assume that the rows parameter is an Array of Numbers containing
-  the values to histogram. This function returns a <Histogram> which is an Array of Objects where each row is in this form
-  {index, startOn, endBelow, label, count}.
+  Returns a histogram from rows using the provided buckets. See histogram.histogram() for details on the returned Array.
   ###
   if valueField?
     values = (row[valueField] for row in rows)
@@ -241,7 +358,8 @@ histogram.histogramFromBuckets = (rows, valueField, buckets) ->
   histogramRow.count = 0 for histogramRow in h
   for v in values
     bucket = histogram.bucket(v, buckets)
-    h[bucket.index].count++
+    if bucket?
+      h[bucket.index].count++
   return h
 
 histogram.histogram = (rows, valueField, type = histogram.constantWidth, significance, firstStartOn, lastEndBelow, bucketCount) ->
@@ -249,8 +367,8 @@ histogram.histogram = (rows, valueField, type = histogram.constantWidth, signifi
   @method histogram
   @static
   @param {Object[]/Number[]} rows If no valueField is provided or the valueField parameter is null, then the first parameter is
-  assumed to be an Array of Numbers representing the values to bucket. Otherwise, it is assumed to be an Array of Objects
-  with a bunch of fields.
+   assumed to be an Array of Numbers representing the values to bucket. Otherwise, it is assumed to be an Array of Objects
+   with a bunch of fields.
   @param {String} [valueField] Specifies the field containing the values to calculate the histogram on
   @param {function} [type = histogram.constantWidth] Specifies how to pick the edges of the buckets. Three standard schemes
     are provided: histogram.bucketsConstantWidth, histogram.bucketsConstantDepth, and histogram.bucketsVOptimal.
@@ -260,13 +378,20 @@ histogram.histogram = (rows, valueField, type = histogram.constantWidth, signifi
    that (lastEndBelow - firstStartOn) / bucketCount will naturally come out in the significance specified. So,
    (100 - 0) / 100 = 1. This works well with a significance of 1, 0.1, 0.01, etc. But (13 - 0) / 10  = 1.3. This
    would not work with a significance of 1. However, a signficance of 0.1 would work fine.
-  @param {Number} [firstStartOn] This will be the endBefore of the first bucket. Think of it as the min value.
-  @param {Number} [lastEndBelow] This will be the startOn of the last bucket. Think of it as the max value.
+  @param {Number} [firstStartOn] This will be the startOn of the first bucket.
+  @param {Number} [lastEndBelow] This will be the endBelow of the last bucket. Think of it as the max value.
   @param {Number} [bucketCount] If provided, the histogram will have this many buckets.
   @return {Object[]}
 
   Returns an Array of Objects (buckets) in the form of {index, startOn, endBelow, label, count} where count is the
   number of values in each bucket.
+
+  Note: With default parameters, the buckets will cover -Infinity to Infinity, (i.e. all
+  possible values). However, if firstStartOn or lastEndBelow are provided, then any values that you pass in that
+  fall outside of this range will be ignored. You can effectively use this as a way to filter out outliers or unexpected
+  negative values. Also note that the firstStartOn (min) is inclusive, but the lastEndBelow (max) is exclusive. If
+  you set the lastEndBelow to 100, then no values of 100 will get counted. You can't score in the 100th percentile
+  because you can't beat your own score. This is simlar logic.
   ###
   buckets = histogram.buckets(rows, valueField, type, significance, firstStartOn, lastEndBelow, bucketCount)
   return histogram.histogramFromBuckets(rows, valueField, buckets)
@@ -356,7 +481,10 @@ histogram.clipping = (rows, valueField, noClipping = false) ->
       # 85 59.68421052631579
             
   ###
-  chartValues = (row[valueField] for row in rows)
+  if valueField?
+    chartValues = (row[valueField] for row in rows)
+  else
+    chartValues = rows
   max = functions.max(chartValues)
   max = Math.max(max, 1)
 
@@ -381,7 +509,6 @@ histogram.clipping = (rows, valueField, noClipping = false) ->
   
   upperBound = bucketSize * bucketCount
   
-  chartMin = 0
   chartMax = upperBound + bucketSize  # This will be at the very top of the top bucket
   
   valueMax = Math.floor(functions.max(chartValues)) + 1

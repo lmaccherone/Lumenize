@@ -84,6 +84,9 @@ Then in your code:
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
+* 0.7.0 - 2013-06-01 - **Backward breaking change.** Histogram significantly upgraded. The old 
+  clipping histogram has been moved to `histogram.clipping()`. The new functionality is more 
+  complete and general purpose.
 * 0.6.11 - 2013-05-19 - Added point to projection series for startIndex and now use angle 
   instead of slope for v-optimal projection algorithm
 * 0.6.10 - 2013-05-18 - Added projection functionality to TimeSeriesCalculator
