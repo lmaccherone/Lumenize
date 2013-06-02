@@ -37,8 +37,8 @@ justHereForDocsAndDoctest = () ->
 
       console.log(h)
       # [ { index: 0,
-      #     startOn: -Infinity,
-      #     endBelow: Infinity,
+      #     startOn: null,
+      #     endBelow: null,
       #     label: 'all',
       #     count: 2 } ]
 
@@ -96,12 +96,12 @@ setParameters = (rows, valueField, firstStartOn, lastEndBelow, bucketCount, sign
     lowerBase = firstStartOn
   else
     lowerBase = roundDownToSignificance(min, significance)
-    firstStartOn = -Infinity
+    firstStartOn = null
   if lastEndBelow?
     upperBase = lastEndBelow
   else
     upperBase = roundUpToSignificance(max, significance)
-    lastEndBelow = Infinity
+    lastEndBelow = null
 
   return {values, bucketCount, firstStartOn, lowerBase, lastEndBelow, upperBase}
 
@@ -124,7 +124,7 @@ histogram.bucketsConstantWidth = (rows, valueField, significance, firstStartOn, 
 
   # first bucket
   bucket = {index: 0, startOn: firstStartOn, endBelow: lastEdge}
-  if firstStartOn is -Infinity
+  if firstStartOn is null
     bucket.label = "< #{bucket.endBelow}"
   else
     bucket.label = "#{bucket.startOn}-#{bucket.endBelow}"
@@ -137,10 +137,10 @@ histogram.bucketsConstantWidth = (rows, valueField, significance, firstStartOn, 
     lastEdge = edge
 
   # last bucket
-  if lastEdge >= lastEndBelow
-    throw new Error("Somehow, the last bucket didn't work out. Try a smaller significance.")
+  if lastEdge? and lastEndBelow? and lastEdge >= lastEndBelow
+    throw new Error("Somehow, the last bucket didn't work out. Try a smaller significance. lastEdge: #{lastEdge}  lastEndBelow: #{lastEndBelow}")
   bucket = {index:bucketCount - 1, startOn: lastEdge, endBelow: lastEndBelow}
-  if lastEndBelow is Infinity
+  if lastEndBelow is null
     bucket.label = ">= #{bucket.startOn}"
   else
     bucket.label = "#{bucket.startOn}-#{bucket.endBelow}"
@@ -162,7 +162,7 @@ histogram.bucketsConstantDepth = (rows, valueField, significance, firstStartOn, 
   # first bucket
   currentBoundary = roundDownToSignificance(functions.percentileCreator(bucketSize)(values), significance)
   bucket = {index: 0, startOn: firstStartOn, endBelow: currentBoundary}
-  if firstStartOn is -Infinity
+  if firstStartOn is null
     bucket.label = "< #{bucket.endBelow}"
   else
     bucket.label = "#{bucket.startOn}-#{bucket.endBelow}"
@@ -175,10 +175,10 @@ histogram.bucketsConstantDepth = (rows, valueField, significance, firstStartOn, 
     buckets.push({index: i, startOn: lastBoundary, endBelow: currentBoundary, label: "#{lastBoundary}-#{currentBoundary}"})
 
   # last bucket
-  if lastBoundary >= lastEndBelow
+  if lastBoundary? and lastEndBelow? and lastBoundary >= lastEndBelow
     throw new Error("Somehow, the last bucket didn't work out. Try a different bucketCount.")
   bucket = {index:bucketCount - 1, startOn: currentBoundary, endBelow: lastEndBelow}
-  if lastEndBelow is Infinity
+  if lastEndBelow is null
     bucket.label = ">= #{bucket.startOn}"
   else
     bucket.label = "#{bucket.startOn}-#{bucket.endBelow}"
@@ -275,8 +275,8 @@ histogram.bucketsPercentile = (rows, valueField) ->
   * There will be exactly 100 buckets.
   * The index of the first one will be 0.
   * The index of the last one will be 99.
-  * The first startOn will be -Infinity
-  * The last endBelow will be Infinity.
+  * The first startOn will be null indicating -Infinity
+  * The last endBelow will be null indicating Infinity.
   ###
   return histogram.buckets(rows, valueField, histogram.bucketsConstantDepth, null, null, null, 100)
 
@@ -307,8 +307,8 @@ histogram.buckets = (rows, valueField, type = histogram.bucketsConstantWidth, si
   The buckets array that is returned will have these properties:
 
   * Each bucket (row) will have these fields {index, startOn, endBelow, label}.
-  * If firstStartOn is not provided, it will be -Infinity
-  * If lastEndBelow is not provided, it will be Infinity.
+  * If firstStartOn is not provided, it will be null indicating -Infinity
+  * If lastEndBelow is not provided, it will be null indicating Infinity.
   ###
   return type(rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount)
 
@@ -331,9 +331,39 @@ histogram.bucket = (value, buckets) ->
   you set the lastEndBelow to 100, then no values of 100 will get bucketed. You can't score in the 100th percentile
   because you can't beat your own score. This is simlar logic.
   ###
-  for b in buckets
+  unless value?
+    return null
+
+  # middle buckets
+  if buckets.length >= 3
+    for i in [1..buckets.length - 2]
+      b = buckets[i]
+      if b.startOn <= value < b.endBelow
+        return b
+
+  # convoluted logic so it works for buckets of length 1, 2, and 3+
+  b = buckets[0]
+  if b.startOn? and b.endBelow?
     if b.startOn <= value < b.endBelow
       return b
+  else if b.startOn?
+    if b.startOn <= value
+      return b
+  else if b.endBelow?
+    if value < b.endBelow
+      return b
+  else if !b.startOn? and !b.endBelow?
+    return b
+
+  # the only situation where you get to this point is when startOn is non-null and it might be the last bucket
+  b = buckets[buckets.length - 1]
+  if b.endBelow?
+    if b.startOn <= value < b.endBelow
+      return b
+  else
+    if b.startOn <= value
+      return b
+
   return null
 
 histogram.histogramFromBuckets = (rows, valueField, buckets) ->

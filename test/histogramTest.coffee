@@ -41,11 +41,11 @@ exports.histogramTest =
     buckets = histogram.buckets(rows, 'age', null, 1)
 
     expected = [
-      { index: 0, startOn: -Infinity, endBelow: 16, label: '< 16' },
+      { index: 0, startOn: null, endBelow: 16, label: '< 16' },
       { index: 1, startOn: 16, endBelow: 25, label: '16-25' },
       { index: 2, startOn: 25, endBelow: 34, label: '25-34' },
       { index: 3, startOn: 34, endBelow: 43, label: '34-43' },
-      { index: 4, startOn: 43, endBelow: Infinity, label: '>= 43' }
+      { index: 4, startOn: 43, endBelow: null, label: '>= 43' }
     ]
 
     test.deepEqual(expected, buckets)
@@ -73,11 +73,11 @@ exports.histogramTest =
     buckets = histogram.buckets(rows, 'age', null, 10)
 
     expected = [
-      { index: 0, startOn: -Infinity, endBelow: 10, label: '< 10' },
+      { index: 0, startOn: null, endBelow: 10, label: '< 10' },
       { index: 1, startOn: 10, endBelow: 20, label: '10-20' },
       { index: 2, startOn: 20, endBelow: 30, label: '20-30' },
       { index: 3, startOn: 30, endBelow: 40, label: '30-40' },
-      { index: 4, startOn: 40, endBelow: Infinity, label: '>= 40' }
+      { index: 4, startOn: 40, endBelow: null, label: '>= 40' }
     ]
 
     test.deepEqual(expected, buckets)

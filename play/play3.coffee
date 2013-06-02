@@ -1,16 +1,30 @@
-class A
-  @newFromStatic: () ->
-    o = new @constructor()
-    return o
+fs = require('fs')
+{utils, csvString_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, functions, histogram} = require('../')
 
-  f1: () ->
-    return 1
+filename = path.join(__dirname, 'bigDump-2013-03-07.csv')
+bigDumpCSVString = fs.readFileSync(filename, 'utf8')
 
-class B extends A
-  f2: () ->
-    return 2
+csvArray = csvString_To_CSVStyleArray(bigDumpCSVString)
+rawData = csvStyleArray_To_ArrayOfMaps(csvArray)
 
-b = B.newFromStatic()
+console.time('bucketsPercentile')
+buckets = histogram.bucketsPercentile(rawData, 'FullTimeEquivalent')
+console.timeEnd('bucketsPercentile')
 
-console.log(b.f1())
-console.log(b.f2())
+allPercentiles = []
+console.time('bucket')
+countOfThrees = 0
+for row in rawData
+  p = histogram.bucket(row.FullTimeEquivalent, buckets).index
+  if row.FullTimeEquivalent is 3
+    countOfThrees++
+  allPercentiles.push(p)
+
+console.timeEnd('bucket')
+
+console.log(buckets[15], countOfThrees)
+
+histHist = histogram.histogram(allPercentiles, null, null, 1, 0, 100, 100)
+counts = (row.index + ": " + row.count for row in histHist)
+
+console.log(JSON.stringify(counts))

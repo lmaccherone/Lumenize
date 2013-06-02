@@ -5,7 +5,8 @@
             {
                 "name": "Overview, Transform, and Histogram",
                 "classes": [
-                    "Lumenize"
+                    "Lumenize",
+                    "*.histogram"
                 ]
             },
             {
