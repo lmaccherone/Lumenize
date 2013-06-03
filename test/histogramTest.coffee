@@ -160,7 +160,7 @@ exports.histogramTest =
     buckets = histogram.bucketsPercentile(grades, 'average')
 
     getGrade = (average, buckets) ->
-      percentile = histogram.bucket(average, buckets).index
+      percentile = histogram.bucket(average, buckets).percentileHigherIsBetter
       if percentile >= 90
         return 'A'
       else if percentile >= 60
@@ -191,5 +191,43 @@ exports.histogramTest =
     # 7 Jill C
     # 8 Jon C
     # 9 Jorge F
+
+    test.done()
+
+  testMerge: (test) ->
+    values = [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2]
+
+    buckets = histogram.buckets(values, null, histogram.bucketsConstantDepth, null, 1, 3, 3)
+    expected = [{
+      index: 0,
+      startOn: 1,
+      endBelow: 3,
+      matchingRangeIndexStart: 0,
+      matchingRangeIndexEnd: 2,
+      label: '1-3'
+    }]
+    test.deepEqual(buckets, expected)
+
+    buckets = histogram.buckets(values, null, histogram.bucketsConstantDepth, null, 1, 3, 4)
+    expected = [{
+      index: 0,
+      startOn: 1,
+      endBelow: 3,
+      matchingRangeIndexStart: 0,
+      matchingRangeIndexEnd: 3,
+      label: '1-3'
+    }]
+    test.deepEqual(buckets, expected)
+
+    values = [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
+
+    buckets = histogram.buckets(values, null, histogram.bucketsConstantDepth, null, null, null, 3)
+
+    expected = [
+      { index: 0, startOn: null, endBelow: 2, label: '< 2' },
+      { index: 1, startOn: 2, endBelow: null, matchingRangeIndexStart: 1, matchingRangeIndexEnd: 2, label: '>= 2'}
+    ]
+
+    test.deepEqual(buckets, expected)
 
     test.done()

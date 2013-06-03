@@ -159,18 +159,20 @@ csvString_To_CSVStyleArray = (s, asterixForUndefined = true) ->
   headerLength = rows[0].split(',').length
 
   out = []
-  for row in rows
+  for row, index in rows
     newRow = []
     rawRowArray = row.split(',')
-    if rawRowArray.length isnt headerLength
-      throw new Error('Row length does not match header length.')
-    for c in rawRowArray
-      if asterixForUndefined and c is '*'
-        cValue = undefined
-      else
-        cValue = JSON.parse(c)
-      newRow.push(cValue)
-    out.push(newRow)
+    if rawRowArray.length is headerLength
+      for c in rawRowArray
+        if asterixForUndefined and c is '*'
+          cValue = undefined
+        else
+          cValue = JSON.parse(c)
+        newRow.push(cValue)
+      out.push(newRow)
+    else
+      #      throw new Error('Row length does not match header length.')
+      console.log("Warning: Skipping row because length does not match header length in row #{index}: #{row}")
 
   return out
 

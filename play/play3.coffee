@@ -1,11 +1,15 @@
 fs = require('fs')
 {utils, csvString_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, functions, histogram} = require('../')
 
-filename = path.join(__dirname, 'bigDump-2013-03-07.csv')
+filename = path.join(__dirname, 'dump-2013-05-28.csv')
 bigDumpCSVString = fs.readFileSync(filename, 'utf8')
+
+console.log('file read')
 
 csvArray = csvString_To_CSVStyleArray(bigDumpCSVString)
 rawData = csvStyleArray_To_ArrayOfMaps(csvArray)
+
+console.log('now in array')
 
 console.time('bucketsPercentile')
 buckets = histogram.bucketsPercentile(rawData, 'FullTimeEquivalent')

@@ -36,11 +36,7 @@ justHereForDocsAndDoctest = () ->
       h = histogram.histogram(grades, 'average')
 
       console.log(h)
-      # [ { index: 0,
-      #     startOn: null,
-      #     endBelow: null,
-      #     label: 'all',
-      #     count: 2 } ]
+      # [ { index: 0, startOn: null, endBelow: null, label: 'all', count: 2 } ]
 
   Or, we can just pass in a list of values
 
@@ -124,26 +120,18 @@ histogram.bucketsConstantWidth = (rows, valueField, significance, firstStartOn, 
 
   # first bucket
   bucket = {index: 0, startOn: firstStartOn, endBelow: lastEdge}
-  if firstStartOn is null
-    bucket.label = "< #{bucket.endBelow}"
-  else
-    bucket.label = "#{bucket.startOn}-#{bucket.endBelow}"
   buckets.push(bucket)
 
   # all the buckets in the middle
   for i in [1..bucketCount - 2]
     edge = lastEdge + bucketSize
-    buckets.push({index: i, startOn: lastEdge, endBelow: edge, label: "#{lastEdge}-#{edge}"})
+    buckets.push({index: i, startOn: lastEdge, endBelow: edge})
     lastEdge = edge
 
   # last bucket
   if lastEdge? and lastEndBelow? and lastEdge >= lastEndBelow
     throw new Error("Somehow, the last bucket didn't work out. Try a smaller significance. lastEdge: #{lastEdge}  lastEndBelow: #{lastEndBelow}")
   bucket = {index:bucketCount - 1, startOn: lastEdge, endBelow: lastEndBelow}
-  if lastEndBelow is null
-    bucket.label = ">= #{bucket.startOn}"
-  else
-    bucket.label = "#{bucket.startOn}-#{bucket.endBelow}"
   buckets.push(bucket)
 
   return buckets
@@ -152,36 +140,28 @@ histogram.bucketsConstantDepth = (rows, valueField, significance, firstStartOn, 
   {values, bucketCount, firstStartOn, lowerBase, lastEndBelow, upperBase} = setParameters(rows, valueField, firstStartOn, lastEndBelow, bucketCount, significance)
 
   if bucketCount < 3
-    bucket = {index: 0, startOn: firstStartOn, endBelow: lastEndBelow, label: 'all'}
+    bucket = {index: 0, startOn: firstStartOn, endBelow: lastEndBelow}
     buckets.push(bucket)
     return buckets
 
   bucketSize = 100 / bucketCount
-  buckets = []  # each row is {index, startOn, endBelow, label} meaning bucket  startOn <= x < endBelow
+  buckets = []  # each row is {index, startOn, endBelow} meaning bucket  startOn <= x < endBelow
 
   # first bucket
   currentBoundary = roundDownToSignificance(functions.percentileCreator(bucketSize)(values), significance)
   bucket = {index: 0, startOn: firstStartOn, endBelow: currentBoundary}
-  if firstStartOn is null
-    bucket.label = "< #{bucket.endBelow}"
-  else
-    bucket.label = "#{bucket.startOn}-#{bucket.endBelow}"
   buckets.push(bucket)
 
   # all the buckets in the middle
   for i in [1..bucketCount - 2]
     lastBoundary = currentBoundary
     currentBoundary = roundDownToSignificance(functions.percentileCreator(bucketSize * (i + 1))(values), significance)
-    buckets.push({index: i, startOn: lastBoundary, endBelow: currentBoundary, label: "#{lastBoundary}-#{currentBoundary}"})
+    buckets.push({index: i, startOn: lastBoundary, endBelow: currentBoundary})
 
   # last bucket
   if lastBoundary? and lastEndBelow? and lastBoundary >= lastEndBelow
     throw new Error("Somehow, the last bucket didn't work out. Try a different bucketCount.")
   bucket = {index:bucketCount - 1, startOn: currentBoundary, endBelow: lastEndBelow}
-  if lastEndBelow is null
-    bucket.label = ">= #{bucket.startOn}"
-  else
-    bucket.label = "#{bucket.startOn}-#{bucket.endBelow}"
   buckets.push(bucket)
 
   return buckets
@@ -190,8 +170,9 @@ histogram.bucketsPercentile = (rows, valueField) ->
   ###
   @method bucketsPercentile
 
-  This is a short cut to creating a set of exactly 100 buckets to be used for bucketing (or scoring) values in percentiles.
-  The index of the bucket is the percentile. Note: You can't score in the 100th percentile because you can't beat your own score.
+  This is a short cut to creating a set of buckets for "scoring" in percentiles (think standardized testing).
+
+  Note: You can't score in the 100th percentile because you can't beat your own score.
   If you have a higher score than anybody else, you didn't beat your own score. So, you aren't better than 100%. If there are
   less than 100 total scores then you technically can't even be in the 99th percentile. This function is hard-coded
   to only create 100 buckets. However, if you wanted to calculate fractional percentiles. Say you want to know who
@@ -232,7 +213,7 @@ histogram.bucketsPercentile = (rows, valueField) ->
   Let's create a little helper function to convert the percentiles to grades. It includes a call to `histogram.bucket`.
 
       getGrade = (average, buckets) ->
-        percentile = histogram.bucket(average, buckets).index
+        percentile = histogram.bucket(average, buckets).percentileHigherIsBetter
         if percentile >= 90
           return 'A'
         else if percentile >= 60
@@ -265,20 +246,26 @@ histogram.bucketsPercentile = (rows, valueField) ->
 
   @return {Object[]}
 
-  Returns an Array of Objects (buckets) in the form of {index, startOn, endBelow, label}
+  Returns an Array of Objects (buckets) in the form of {index, startOn, endBelow, label, percentileHigherIsBetter, percentileLowerIsBetter}
 
-  To convert a value into a percentile call `histogram.bucket(value, bucketsFromCallToBucketsPercentile)`
-
-  The buckets array that is returned will have these properties:
-
-  * Each bucket (row) will have these fields {index, startOn, endBelow, label}.
-  * There will be exactly 100 buckets.
-  * The index of the first one will be 0.
-  * The index of the last one will be 99.
-  * The first startOn will be null indicating -Infinity
-  * The last endBelow will be null indicating Infinity.
+  To convert a value into a percentile call `histogram.bucket(value, bucketsFromCallToBucketsPercentile)` and
+  then read the percentileHigherIsBetter or percentileLowerIsBetter of the bucket that is returned.
   ###
-  return histogram.buckets(rows, valueField, histogram.bucketsConstantDepth, null, null, null, 100)
+  buckets = histogram.buckets(rows, valueField, histogram.bucketsConstantDepth, null, null, null, 100)
+  percentile = 0
+  for b in buckets
+    if b.matchingRangeIndexEnd?
+      b.percentileHigherIsBetter = b.matchingRangeIndexStart
+      b.percentileLowerIsBetter = 99 - b.matchingRangeIndexEnd
+      percentile = b.matchingRangeIndexEnd
+      delete b.matchingRangeIndexEnd
+      delete b.matchingRangeIndexStart
+    else
+      b.percentileHigherIsBetter = percentile
+      b.percentileLowerIsBetter = 99 - percentile
+    percentile++
+
+  return buckets
 
 histogram.buckets = (rows, valueField, type = histogram.bucketsConstantWidth, significance, firstStartOn, lastEndBelow, bucketCount) ->
   ###
@@ -307,10 +294,60 @@ histogram.buckets = (rows, valueField, type = histogram.bucketsConstantWidth, si
   The buckets array that is returned will have these properties:
 
   * Each bucket (row) will have these fields {index, startOn, endBelow, label}.
+  * Duplicate buckets are merged. When they are merged two fields are added to the resulting merged bucket:
+    {matchingRangeIndexStart, matchingRangeIndexEnd} indicating the range that this bucket replaces.
   * If firstStartOn is not provided, it will be null indicating -Infinity
   * If lastEndBelow is not provided, it will be null indicating Infinity.
   ###
-  return type(rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount)
+  tempBuckets = type(rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount)
+
+#  return tempBuckets
+
+  if tempBuckets.length < 2
+    buckets = tempBuckets
+  else  # merge duplicate buckets
+    buckets = []
+    startOfMatching = tempBuckets[0]
+    gotToEnd = false
+    i = 1
+    while i < tempBuckets.length
+      currentBucket = tempBuckets[i]
+      if startOfMatching.startOn == currentBucket.startOn
+        i++
+        currentBucket = tempBuckets[i]
+        while currentBucket? and startOfMatching.startOn == currentBucket.startOn and startOfMatching.endBelow == currentBucket.endBelow
+          i++
+          currentBucket = tempBuckets[i]
+        if i >= tempBuckets.length - 1
+          currentBucket = tempBuckets[tempBuckets.length - 1]
+          gotToEnd = true
+        startOfMatching.matchingRangeIndexStart = startOfMatching.index
+        startOfMatching.matchingRangeIndexEnd = currentBucket.index
+        startOfMatching.endBelow = currentBucket.endBelow
+        buckets.push(startOfMatching)
+        i++
+        currentBucket = tempBuckets[i]
+      else
+        buckets.push(startOfMatching)
+      startOfMatching = currentBucket
+      i++
+    unless gotToEnd
+      buckets.push(currentBucket)
+
+  # reindex and add labels
+  for bucket, index in buckets
+    bucket.index = index
+#    delete bucket.index
+    if bucket.startOn? and bucket.endBelow?
+      bucket.label = "#{bucket.startOn}-#{bucket.endBelow}"
+    else if bucket.startOn?
+      bucket.label = ">= #{bucket.startOn}"
+    else if bucket.endBelow?
+      bucket.label = "< #{bucket.endBelow}"
+    else
+      bucket.label = "all"
+
+  return buckets
 
 histogram.bucket = (value, buckets) ->
   ###
