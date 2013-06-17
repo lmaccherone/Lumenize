@@ -187,6 +187,25 @@ functions.max = (values, oldResult, newValues) ->
   return temp
 
 ###
+@method range
+@static
+@param {Number[]} [values] Must either provide values or oldResult and newValues
+@param {Number} [oldResult] for incremental calculation
+@param {Number[]} [newValues] for incremental calculation
+@return {Number} The range value or null if no values
+###
+functions.range = (values, oldResult, newValues) ->
+  if oldResult?
+    return functions.range(newValues.concat([oldResult]))
+  if values.length == 0
+    return null
+  temp = values[0]
+  for v in values
+    if v < temp
+      temp = v
+return temp
+
+###
 @method values
 @static
 @param {Object[]} [values] Must either provide values or oldResult and newValues
