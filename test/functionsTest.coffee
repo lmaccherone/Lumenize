@@ -175,6 +175,22 @@ exports.functionsTest =
 
     test.done()
 
+  testSumCubes: (test) ->
+
+    test.equal(functions.sumCubes([3]), 27)
+    test.equal(functions.sumCubes([1, 2]), 9)
+    test.equal(functions.sumCubes([0, 5]), 125)
+
+    test.done()
+
+  testProduct: (test) ->
+
+    test.equal(functions.product([3, 7]), 21)
+    test.equal(functions.product([1, 2]), 2) #any number multiplied by 1 is itself
+    test.equal(functions.product([0, 5]), 0) #any number multiplied by 0 is 0
+
+    test.done()
+
   testLastValue: (test) ->
     test.equal(functions.lastValue([0]), 0)
     test.equal(functions.lastValue([]), null) #last value of an empty array is null
