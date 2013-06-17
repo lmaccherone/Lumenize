@@ -192,7 +192,7 @@ functions.max = (values, oldResult, newValues) ->
 @param {Number[]} [values] Must either provide values or oldResult and newValues
 @param {Number} [oldResult] for incremental calculation
 @param {Number[]} [newValues] for incremental calculation
-@return {Number} The range value or null if no values
+@return {Number} The range values or null if no values
 ###
 functions.range = (values, oldResult, newValues) ->
   if oldResult?
