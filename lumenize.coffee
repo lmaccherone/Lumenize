@@ -48,6 +48,10 @@ exports.functions = require('./src/functions').functions
 
 exports.histogram = require('./src/histogram').histogram
 
+exports.multiRegression = require('./src/multiRegression').multiRegression
+
+exports.table = require('./src/table').table
+
 exports.OLAPCube = require('./src/OLAPCube').OLAPCube
 
 exports.anova = require('./src/anova').anova
