@@ -1,4 +1,5 @@
 [![build status](https://secure.travis-ci.org/lmaccherone/Lumenize.png)](http://travis-ci.org/lmaccherone/Lumenize)
+[![Stories in Ready](http://githubkanban.herokuapp.com/lmaccherone/Lumenize.png)](http://waffle.io/lmaccherone/Lumenize)
 # Lumenize #
 
 Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.
