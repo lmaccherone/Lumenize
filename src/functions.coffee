@@ -192,18 +192,25 @@ functions.max = (values, oldResult, newValues) ->
 @param {Number[]} [values] Must either provide values or oldResult and newValues
 @param {Number} [oldResult] for incremental calculation
 @param {Number[]} [newValues] for incremental calculation
-@return {Number} The range values or null if no values
+@return {Array} The range of values as an array of min and max or null if no values
 ###
 functions.range = (values, oldResult, newValues) ->
   if oldResult?
-    return functions.range(newValues.concat([oldResult]))
-  if values.length == 0
-    return null
-  temp = values[0]
-  for v in values
-    if v < temp
-      temp = v
-return temp
+    min = oldResult[0]
+    max = oldResult[1]
+    tempValues = newValues
+  else
+    if values.length == 0
+      return null
+    min = values[0]
+    max = values[0]
+    tempValues = values
+  for v in tempValues
+    if v < min
+      min = v
+    if v > max
+      max = v
+  return [min, max]
 
 ###
 @method values
