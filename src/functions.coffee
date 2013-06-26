@@ -213,6 +213,31 @@ functions.range = (values, oldResult, newValues) ->
   return [min, max]
 
 ###
+@method median
+from https://gist.github.com/caseyjustus/1166258
+@static
+@param {Number[]} [values] Must either provide values or oldResult and newValues
+@param {Number} [oldResult] for incremental calculation
+@param {Number[]} [newValues] for incremental calculation
+@return {Number} The median of values or null if no values
+###
+functions.median = (values, oldResult, newValues, dependentValues, prefix) ->
+  unless values?
+    {values} = _populateDependentValues(values, ['values'], dependentValues, prefix)
+  if values.length == 0
+    return null
+  sortFunction = (a, b) ->
+    return a - b
+  values.sort(sortFunction)
+  middle = Math.floor(values.length/2)
+  if values.length % 2
+    return values[middle]
+  else
+    return (values[middle-1] + values[middle]) / 2.0
+
+functions.median.dependencies = ['values']
+
+###
 @method values
 @static
 @param {Object[]} [values] Must either provide values or oldResult and newValues
@@ -347,6 +372,8 @@ functions.percentileCreator = (p) ->
   f = (values, oldResult, newValues, dependentValues, prefix) ->
     unless values?
       {values} = _populateDependentValues(values, ['values'], dependentValues, prefix)
+    if values.length == 0
+      return null
     sortfunc = (a, b) ->
       return a - b
     vLength = values.length
@@ -381,9 +408,6 @@ functions.expandFandAs = (a) ->
   else if functions[a.f]?
     a.metric = a.f
     a.f = functions[a.f]
-  else if a.f == 'median'
-    a.metric = 'median'
-    a.f = functions.percentileCreator(50)
   else if a.f.substr(0, 1) == 'p'
     a.metric = a.f
     p = /\p(\d+(.\d+)?)/.exec(a.f)[1]
