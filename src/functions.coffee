@@ -187,6 +187,74 @@ functions.max = (values, oldResult, newValues) ->
   return temp
 
 ###
+@method random
+@static
+@param {Number[]} [a] Minimum value of random number to return
+@param {Number} [b] Maximum value of random number to return
+@return {Number} A random number between provided values of a and b (both inclusive).  If no values provided, will behave just like math.random()
+###
+functions.random = (a, b) ->
+  unless a? and b?
+    randnum = Math.random()
+    return randnum
+  else
+    min = a
+    max = b
+    randnum = Math.floor(Math.random() * (max - min + 1) + min)
+  return randnum
+
+###
+@method range
+@static
+@param {Number[]} [values] Must either provide values or oldResult and newValues
+@param {Number} [oldResult] for incremental calculation
+@param {Number[]} [newValues] for incremental calculation
+@return {Array} The range of values as an array of min and max or null if no values
+###
+functions.range = (values, oldResult, newValues) ->
+  if oldResult?
+    min = oldResult[0]
+    max = oldResult[1]
+    tempValues = newValues
+  else
+    if values.length == 0
+      return null
+    min = values[0]
+    max = values[0]
+    tempValues = values
+  for v in tempValues
+    if v < min
+      min = v
+    if v > max
+      max = v
+  return [min, max]
+
+###
+@method median
+from https://gist.github.com/caseyjustus/1166258
+@static
+@param {Number[]} [values] Must either provide values or oldResult and newValues
+@param {Number} [oldResult] for incremental calculation
+@param {Number[]} [newValues] for incremental calculation
+@return {Number} The median of values or null if no values
+###
+functions.median = (values, oldResult, newValues, dependentValues, prefix) ->
+  unless values?
+    {values} = _populateDependentValues(values, ['values'], dependentValues, prefix)
+  if values.length == 0
+    return null
+  sortFunction = (a, b) ->
+    return a - b
+  values.sort(sortFunction)
+  middle = Math.floor(values.length/2)
+  if values.length % 2
+    return values[middle]
+  else
+    return (values[middle-1] + values[middle]) / 2.0
+
+functions.median.dependencies = ['values']
+
+###
 @method values
 @static
 @param {Object[]} [values] Must either provide values or oldResult and newValues
@@ -321,6 +389,8 @@ functions.percentileCreator = (p) ->
   f = (values, oldResult, newValues, dependentValues, prefix) ->
     unless values?
       {values} = _populateDependentValues(values, ['values'], dependentValues, prefix)
+    if values.length == 0
+      return null
     sortfunc = (a, b) ->
       return a - b
     vLength = values.length
@@ -355,9 +425,6 @@ functions.expandFandAs = (a) ->
   else if functions[a.f]?
     a.metric = a.f
     a.f = functions[a.f]
-  else if a.f == 'median'
-    a.metric = 'median'
-    a.f = functions.percentileCreator(50)
   else if a.f.substr(0, 1) == 'p'
     a.metric = a.f
     p = /\p(\d+(.\d+)?)/.exec(a.f)[1]

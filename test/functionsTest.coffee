@@ -223,6 +223,15 @@ exports.functionsTest =
     test.equal(functions.max([-2,0,2]),2)
     test.done()
 
+  testRange: (test) ->
+    test.deepEqual(functions.range([1,2,3,4]), [1, 4])
+    test.deepEqual(functions.range([3,8,7]), [3, 8])
+    test.deepEqual(functions.range([-2,0,2]), [-2, 2])
+    test.deepEqual(functions.range(null, [-2, 10], [4, 3, 2, 8, 9]), [-2, 10])
+    test.deepEqual(functions.range(null, [-2, -1], [-4, 3, 2, 8, 100]), [-4, 100])
+    test.deepEqual(functions.range(null, [-5, 90], [4, 3, 2, 8, 100]), [-5, 100])
+    test.deepEqual(functions.range(null, [101, 200], [4, 3, 2, 8, 100]), [2, 200])
+    test.done()
 
   testValues: (test) ->
     test.equal(functions.values([1,2,3,4,5]).length, [1,2,3,4,5].length)
@@ -267,4 +276,13 @@ exports.functionsTest =
   testPercentileCreatorDecimalsOdd: (test) ->
     values = [1.5, 2.7, 3.4, 4.5, 5.0, 6.7, 7.8, 8.5, 9.1, 10.2, 11.7] #median of an array of decimals
     test.equal(functions.percentileCreator(50)(values), 6.7)
+    test.done()
+
+  testMedian: (test) ->
+    values =[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]  #median of array of integers
+    test.equal(functions.median(values), 5.5)
+    values = [1.5, 2.7, 3.4, 4.5, 5.0, 6.7, 7.8, 8.5, 9.1, 10.2, 11.7] #median of an array of decimals
+    test.equal(functions.median(values), 6.7)
+    values = [1.5, 2.7, 3.4, 4.5, 5.0, 6.7, 7.8, 8.5, 9.1, 10.2] #median of an array of decimals
+    test.equal(functions.median(values), 5.85)
     test.done()
