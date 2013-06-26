@@ -187,6 +187,23 @@ functions.max = (values, oldResult, newValues) ->
   return temp
 
 ###
+@method random
+@static
+@param {Number[]} [a] Minimum value of random number to return
+@param {Number} [b] Maximum value of random number to return
+@return {Number} A random number between provided values of a and b (both inclusive).  If no values provided, will behave just like math.random()
+###
+functions.random = (a, b) ->
+  unless a? and b?
+    randnum = Math.random()
+    return randnum
+  else
+    min = a
+    max = b
+    randnum = Math.floor(Math.random() * (max - min + 1) + min)
+  return randnum
+
+###
 @method range
 @static
 @param {Number[]} [values] Must either provide values or oldResult and newValues
