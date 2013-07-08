@@ -153,7 +153,7 @@ arrayOfMaps_To_HighChartsSeries = (arrayOfMaps, config) ->
   return output
 
 csvString_To_CSVStyleArray = (s, asterixForUndefined = true) ->
-  # This is not robust yet. Adding a comma inside a string will break it.
+  # This is not robust yet. Adding a comma inside a string will break it. It ignores stuff that fails JSON.parse. Etc.
   rows = s.split('\n')
 
   headerLength = rows[0].split(',').length
@@ -167,7 +167,10 @@ csvString_To_CSVStyleArray = (s, asterixForUndefined = true) ->
         if asterixForUndefined and c is '*'
           cValue = undefined
         else
-          cValue = JSON.parse(c)
+          try
+            cValue = JSON.parse(c)
+          catch error
+            # Not sure what to do if this fails
         newRow.push(cValue)
       out.push(newRow)
     else
@@ -176,7 +179,16 @@ csvString_To_CSVStyleArray = (s, asterixForUndefined = true) ->
 
   return out
 
+csvStyleArray_To_CSVString = (csvStyleArray) ->
+  s = ''
+  for row in csvStyleArray
+    for value in row
+      s += JSON.stringify(value) + ', '
+    s += "\n"
+  return s
+
 exports.arrayOfMaps_To_CSVStyleArray = arrayOfMaps_To_CSVStyleArray
 exports.csvStyleArray_To_ArrayOfMaps = csvStyleArray_To_ArrayOfMaps
 exports.arrayOfMaps_To_HighChartsSeries = arrayOfMaps_To_HighChartsSeries
 exports.csvString_To_CSVStyleArray = csvString_To_CSVStyleArray
+exports.csvStyleArray_To_CSVString = csvStyleArray_To_CSVString

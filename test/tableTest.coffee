@@ -21,6 +21,4 @@ exports.tableTest =
 
     test.deepEqual(actual, expected)
 
-    console.log(actual)
-
     test.done()

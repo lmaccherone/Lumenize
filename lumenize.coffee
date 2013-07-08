@@ -43,6 +43,7 @@ exports.arrayOfMaps_To_CSVStyleArray = datatransform.arrayOfMaps_To_CSVStyleArra
 exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps
 exports.arrayOfMaps_To_HighChartsSeries = datatransform.arrayOfMaps_To_HighChartsSeries
 exports.csvString_To_CSVStyleArray = datatransform.csvString_To_CSVStyleArray
+exports.csvStyleArray_To_CSVString = datatransform.csvStyleArray_To_CSVString
 
 exports.functions = require('./src/functions').functions
 

@@ -180,7 +180,7 @@ arrayOfMaps_To_HighChartsSeries = (arrayOfMaps, config) -&gt;
   return output
 
 csvString_To_CSVStyleArray = (s, asterixForUndefined = true) -&gt;
-  # This is not robust yet. Adding a comma inside a string will break it.
+  # This is not robust yet. Adding a comma inside a string will break it. It ignores stuff that fails JSON.parse. Etc.
   rows = s.split('\n')
 
   headerLength = rows[0].split(',').length
@@ -194,7 +194,10 @@ csvString_To_CSVStyleArray = (s, asterixForUndefined = true) -&gt;
         if asterixForUndefined and c is '*'
           cValue = undefined
         else
-          cValue = JSON.parse(c)
+          try
+            cValue = JSON.parse(c)
+          catch error
+            # Not sure what to do if this fails
         newRow.push(cValue)
       out.push(newRow)
     else
@@ -203,10 +206,19 @@ csvString_To_CSVStyleArray = (s, asterixForUndefined = true) -&gt;
 
   return out
 
+csvStyleArray_To_CSVString = (csvStyleArray) -&gt;
+  s = ''
+  for row in csvStyleArray
+    for value in row
+      s += JSON.stringify(value) + ', '
+    s += &quot;\n&quot;
+  return s
+
 exports.arrayOfMaps_To_CSVStyleArray = arrayOfMaps_To_CSVStyleArray
 exports.csvStyleArray_To_ArrayOfMaps = csvStyleArray_To_ArrayOfMaps
 exports.arrayOfMaps_To_HighChartsSeries = arrayOfMaps_To_HighChartsSeries
 exports.csvString_To_CSVStyleArray = csvString_To_CSVStyleArray
+exports.csvStyleArray_To_CSVString = csvStyleArray_To_CSVString
 
 &lt;/CoffeeScript&gt; */</pre>
 </body>

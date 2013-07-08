@@ -75,6 +75,28 @@ functions.sum = (values, oldResult, newValues) -&gt;
   return temp
 
 &lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-static-method-product'>/**
+</span> * @method product
+ * @member Lumenize.functions
+ * @static
+ * @param {Number[]} [values] Must either provide values or oldResult and newValues
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
+ * @return {Number} The product of the values
+ */
+/* &lt;CoffeeScript&gt;
+functions.product = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    temp = oldResult
+    tempValues = newValues
+  else
+    temp = 1
+    tempValues = values
+  for v in tempValues
+    temp = temp * v
+  return temp
+
+&lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-sumSquares'>/**
 </span> * @method sumSquares
  * @member Lumenize.functions
@@ -95,6 +117,29 @@ functions.sumSquares = (values, oldResult, newValues) -&gt;
   for v in tempValues
     temp += v * v
   return temp
+
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-static-method-sumCubes'>/**
+</span> * @method sumCubes
+ * @member Lumenize.functions
+ * @static
+ * @param {Number[]} [values] Must either provide values or oldResult and newValues
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
+ * @return {Number} The sum of the cubes of the values
+ */
+/* &lt;CoffeeScript&gt;
+functions.sumCubes = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    temp = oldResult
+    tempValues = newValues
+  else
+    temp = 0
+    tempValues = values
+  for v in tempValues
+    temp += v * v * v
+  return temp
+
 
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-lastValue'>/**

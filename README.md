@@ -1,4 +1,6 @@
+[![NPM version](https://badge.fury.io/js/Lumenize.png)](http://badge.fury.io/js/Lumenize)
 [![build status](https://secure.travis-ci.org/lmaccherone/Lumenize.png)](http://travis-ci.org/lmaccherone/Lumenize)
+[![build status](https://david-dm.org/lmaccherone/Lumenize.png)](https://david-dm.org/lmaccherone/Lumenize.png)
 # Lumenize #
 
 Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.
@@ -17,7 +19,7 @@ Lumenize is a collection of tools for making awesome visualizations out of your 
   * TransitionsCalculator - Throughput. Velocity. 
 * Bundled with the [tzTime](https://github.com/lmaccherone/tzTime) library (same author) for
   timezone precise x-axis. Knockout weekends, holidays, non-work hours, etc.
-* Tested - Over 400 tests (including tzTime)
+* Tested - Over 600 tests (plus over 400 tests in tzTime)
 * [Documented (Lumenize)](http://commondatastorage.googleapis.com/versions.lumenize.com/docs/Lumenize-docs/index.html) [(tzTime)](http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html) - Robust documentation and examples
 * [DocTested](https://github.com/lmaccherone/coffeedoctest) - The examples will always match 
   the code because it fails automated testing when they don't
@@ -84,6 +86,8 @@ Then in your code:
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
+* 0.7.1 - 2013-07-07 - Added simple table output formatting. Added significance to OLAPCube 
+  output. Evenutally, OLAPCube.toString will use table.toString(), but not yet. Bug fixes.
 * 0.7.0 - 2013-06-01 - **Backward breaking change.** Histogram significantly upgraded. The old 
   clipping histogram has been moved to `histogram.clipping()`. The new functionality is more 
   complete and general purpose.

@@ -42,7 +42,7 @@ predict = (data, inputs) ->
   @return {Object}
 
   returns {A, Beta, variance, prediction}
-###
+  ###
 
 #			int Rows=Data.GetLength(0);
 
