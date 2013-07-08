@@ -1,6 +1,8 @@
-[![NPM version](https://badge.fury.io/js/Lumenize.png)](http://badge.fury.io/js/Lumenize)
 [![build status](https://secure.travis-ci.org/lmaccherone/Lumenize.png)](http://travis-ci.org/lmaccherone/Lumenize)
+[![NPM version](https://badge.fury.io/js/Lumenize.png)](http://badge.fury.io/js/Lumenize)
 [![build status](https://david-dm.org/lmaccherone/Lumenize.png)](https://david-dm.org/lmaccherone/Lumenize.png)
+
+[![Stories in Ready](http://badge.waffle.io/lmaccherone/Lumenize.png)](http://waffle.io/lmaccherone/Lumenize)
 # Lumenize #
 
 Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.
