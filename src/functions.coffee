@@ -204,6 +204,36 @@ functions.random = (a, b) ->
   return randnum
 
 ###
+@method sample
+@static
+@param {Array} [dataSource] Source of data
+@param {Number} [size] Size of sample to be returned
+@param {Boolean} [replace] If true, duplicates allowed to be returned.
+@return {Array} A random sample of the data
+###
+functions.sample = (dataSource, size, replace) ->
+  if size > dataSource.length
+    return "Error.  Random sample size specified is greater than size of data source."
+  else if replace is true
+    randomSample = []
+    i = dataSource.length
+    while size-- != 0
+      index = random(0, i - 1)
+      singleSample = dataSource[index]
+      randomSample.push(singleSample)
+    return randomSample
+  else
+    shuffled = dataSource.slice(0)
+    i = dataSource.length
+    min = i - size
+    while i-- > min
+      index = Math.floor(i * Math.random())
+      temp = shuffled[index]
+      shuffled[index] = shuffled[i]
+      shuffled[i] = temp
+    return shuffled.slice(min)
+
+###
 @method range
 @static
 @param {Number[]} [values] Must either provide values or oldResult and newValues
