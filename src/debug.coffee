@@ -11,9 +11,9 @@ books = [
   {title: "The Dark Tower", author: "Stephen King", century: 21, pages: 900}
 ]
 
-{OLAPCube} = require("Lumenize")
+{OLAPCube} = require("../lumenize")
 
-dimensions = [{field: "century"}]
+dimensions = [{field:  "century"}]
 metrics = [{f: "count"}]
 config = {dimensions}
 

@@ -71,12 +71,15 @@ task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
 
 task('pub-docs', 'Push master to gh-pages on github', () ->
   invoke('docs')
-  pubDocsRaw()
+  invoke('pubDocsRaw')
 )
 
-pubDocsRaw = () ->
+task('pubDocsRaw', 'Publish docs to Google Cloud Storage', () ->
   process.chdir(__dirname)
-  runAsync('git push -f origin master:gh-pages')
+#  runAsync('git push -f origin master:gh-pages')
+  console.log('pushing docs to Google Cloud Storage')
+  runSync('gsutil cp -R docs gs://versions.lumenize.com')
+)
 
 task('publish', 'Publish to npm', () ->
   process.chdir(__dirname)
@@ -96,11 +99,13 @@ task('publish', 'Publish to npm', () ->
         if fs.existsSync('npm-debug.log')
           console.error('`npm publish` failed. See npm-debug.log for details.')
         else
-          console.log('running pubDocsRaw()')
-          pubDocsRaw()
           console.log('running git tag')
           runSync("git tag v#{require('./package.json').version}")
-          runAsync("git push --tags")
+          runSync("git push --tags")
+          console.log('pushing to Google Cloud Storage')
+          runSync("gsutil cp ./deploy/* gs://versions.lumenize.com/v#{require('./package.json').version}/")
+          runSync('gsutil setmeta -h "Content-Type: application/javascript" -h "Cache-Control: public, max-age=31556926, no-transform" gs://versions.lumenize.com/v' + require('./package.json').version + '/*')
+          invoke('pubDocsRaw')
       else
         console.error('Origin and master out of sync. Not publishing.')
     else
@@ -122,6 +127,8 @@ task('build', 'Build with browserify and place in ./deploy', () ->
     #{b.bundle()}
   """
   deployFileName = "deploy/#{name}.js"
+  unless fs.existsSync('deploy')
+    fs.mkdirSync('deploy')
   fs.writeFileSync(deployFileName, fileString)
 
   minFileString = uglify.minify(deployFileName).code

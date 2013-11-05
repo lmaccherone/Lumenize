@@ -79,6 +79,11 @@
 <body>
 <div class="readme">
 <p><a href="http://travis-ci.org/lmaccherone/Lumenize"><img src="https://secure.travis-ci.org/lmaccherone/Lumenize.png" alt="build status"></a>
+<a href="http://badge.fury.io/js/Lumenize"><img src="https://badge.fury.io/js/Lumenize.png" alt="NPM version"></a>
+<a href="https://david-dm.org/lmaccherone/Lumenize.png"><img src="https://david-dm.org/lmaccherone/Lumenize.png" alt="build status"></a>
+
+</p>
+<p><a href="http://waffle.io/lmaccherone/Lumenize"><img src="http://badge.waffle.io/lmaccherone/Lumenize.png" alt="Stories in Ready"></a>
 </p>
 <h1>Lumenize</h1>
 <p>Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.
@@ -102,8 +107,8 @@ of lead time to set service level agreements.</li>
 </li>
 <li>Bundled with the <a href="https://github.com/lmaccherone/tzTime">tzTime</a> library (same author) for
 timezone precise x-axis. Knockout weekends, holidays, non-work hours, etc.</li>
-<li>Tested - Over 400 tests (including tzTime)</li>
-<li><a href="http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html">Documented (Lumenize)</a> <a href="http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html">(tzTime)</a> - Robust documentation and examples</li>
+<li>Tested - Over 600 tests (plus over 400 tests in tzTime)</li>
+<li><a href="http://commondatastorage.googleapis.com/versions.lumenize.com/docs/Lumenize-docs/index.html">Documented (Lumenize)</a> <a href="http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html">(tzTime)</a> - Robust documentation and examples</li>
 <li><a href="https://github.com/lmaccherone/coffeedoctest">DocTested</a> - The examples will always match 
 the code because it fails automated testing when they don&#39;t</li>
 </ul>
@@ -139,23 +144,28 @@ parsing from <a href="https://github.com/mde/timezone-js">timezoneJS</a>)</li>
 <p>To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
 
 </p>
-<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://raw.github.com/lmaccherone/Lumenize/v{{version}}/deploy/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code>
+<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://storage.googleapis.com/versions.lumenize.com/v{{version}}/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code>
 
 </p>
 <p>Replace <code>{{version}}</code> with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:
 
 </p>
-<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://raw.github.com/lmaccherone/Lumenize/v0.6.1/deploy/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code>
+<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://storage.googleapis.com/versions.lumenize.com/v0.6.8/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code>
 
 </p>
-<p>The package is fairly large ~204KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip the package so it&#39;s only ~45KB over the wire.
+<p>The package is fairly large ~260KB but most of that is the embedded timezone files which compress really well.
 
 </p>
 <p>Then at the top of the javascript where you want to call it, put the following:
 
 </p>
 <p><code>var lumenize = require(&#39;./lumenize&#39;);</code>
-<code>var stdDev = lumenize.functions.standardDeviation([20, 30, 50]);</code>
+
+</p>
+<p>And call it like this.
+
+</p>
+<p><code>var stdDev = lumenize.functions.standardDeviation([20, 30, 50]);</code>
 
 </p>
 <h2>Usage in node.js</h2>
@@ -168,12 +178,12 @@ parsing from <a href="https://github.com/mde/timezone-js">timezoneJS</a>)</li>
 <p>Then in your code:
 
 </p>
-<p><code>var lumenize = require(&#39;lumenize&#39;)</code>
+<p><code>var lumenize = require(&#39;Lumenize&#39;)</code>
 
 </p>
 <h2>Documentation and source code</h2>
 <ul>
-<li><a href="http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html">API Documentation</a></li>
+<li><a href="http://commondatastorage.googleapis.com/versions.lumenize.com/docs/Lumenize-docs/index.html">API Documentation</a></li>
 <li><a href="https://github.com/lmaccherone/Lumenize">Source Repository</a></li>
 </ul>
 <h2>Changelog</h2>
@@ -181,7 +191,18 @@ parsing from <a href="https://github.com/mde/timezone-js">timezoneJS</a>)</li>
 
 </p>
 <ul>
-<li>0.6.7 - 2013-02-14 - Updated to latest version of jsduckify</li>
+<li>0.7.2 - 2013-08-30 - Upgraded to the latest tzTime 0.6.11</li>
+<li>0.7.1 - 2013-07-07 - Added simple table output formatting. Added significance to OLAPCube 
+output. Evenutally, OLAPCube.toString will use table.toString(), but not yet. Bug fixes.</li>
+<li>0.7.0 - 2013-06-01 - <strong>Backward breaking change.</strong> Histogram significantly upgraded. The old 
+clipping histogram has been moved to <code>histogram.clipping()</code>. The new functionality is more 
+complete and general purpose.</li>
+<li>0.6.11 - 2013-05-19 - Added point to projection series for startIndex and now use angle 
+instead of slope for v-optimal projection algorithm</li>
+<li>0.6.10 - 2013-05-18 - Added projection functionality to TimeSeriesCalculator</li>
+<li>0.6.9 - 2013-04-24 - Upgraded to bug fixed latest tzTime</li>
+<li>0.6.8 - 2013-04-24 - Uses JSON2 for IE7 compatibility</li>
+<li>0.6.7 - 2013-04-24 - Updated to latest version of jsduckify. Added Bayesian Classifier</li>
 <li>0.6.6 - 2013-02-11 - More precise toDateCell when incrementally calculated.</li>
 <li>0.6.5 - 2013-02-09 - Fixed bug on TimeSeriesCalculator where toDateCell was including more
 than it should and was possible located wrong. Changed histogram to use Q3 + 1.5 * IQR as

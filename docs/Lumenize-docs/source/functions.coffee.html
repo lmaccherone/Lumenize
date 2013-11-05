@@ -17,6 +17,7 @@
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
 {utils} = require('tztime')
+JSON = require('JSON2')
 
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions'>/**
@@ -56,7 +57,7 @@ _populateDependentValues = (values, dependencies, dependentValues = {}, prefix =
 </span> * @method sum
  * @member Lumenize.functions
  * @static
- * @param {Number[]} values
+ * @param {Number[]} [values] Must either provide values or oldResult and newValues
  * @param {Number} [oldResult] for incremental calculation
  * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The sum of the values
@@ -74,11 +75,33 @@ functions.sum = (values, oldResult, newValues) -&gt;
   return temp
 
 &lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-static-method-product'>/**
+</span> * @method product
+ * @member Lumenize.functions
+ * @static
+ * @param {Number[]} [values] Must either provide values or oldResult and newValues
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
+ * @return {Number} The product of the values
+ */
+/* &lt;CoffeeScript&gt;
+functions.product = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    temp = oldResult
+    tempValues = newValues
+  else
+    temp = 1
+    tempValues = values
+  for v in tempValues
+    temp = temp * v
+  return temp
+
+&lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-sumSquares'>/**
 </span> * @method sumSquares
  * @member Lumenize.functions
  * @static
- * @param {Number[]} values
+ * @param {Number[]} [values] Must either provide values or oldResult and newValues
  * @param {Number} [oldResult] for incremental calculation
  * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The sum of the squares of the values
@@ -96,11 +119,34 @@ functions.sumSquares = (values, oldResult, newValues) -&gt;
   return temp
 
 &lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-static-method-sumCubes'>/**
+</span> * @method sumCubes
+ * @member Lumenize.functions
+ * @static
+ * @param {Number[]} [values] Must either provide values or oldResult and newValues
+ * @param {Number} [oldResult] for incremental calculation
+ * @param {Number[]} [newValues] for incremental calculation
+ * @return {Number} The sum of the cubes of the values
+ */
+/* &lt;CoffeeScript&gt;
+functions.sumCubes = (values, oldResult, newValues) -&gt;
+  if oldResult?
+    temp = oldResult
+    tempValues = newValues
+  else
+    temp = 0
+    tempValues = values
+  for v in tempValues
+    temp += v * v * v
+  return temp
+
+
+&lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-lastValue'>/**
 </span> * @method lastValue
  * @member Lumenize.functions
  * @static
- * @param {Number[]} values
+ * @param {Number[]} [values] Must either provide values or newValues
  * @param {Number} [oldResult] Not used. It is included to make the interface consistent.
  * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The last value
@@ -116,7 +162,7 @@ functions.lastValue = (values, oldResult, newValues) -&gt;
 </span> * @method firstValue
  * @member Lumenize.functions
  * @static
- * @param {Number[]} values
+ * @param {Number[]} [values] Must either provide values or oldResult
  * @param {Number} [oldResult] for incremental calculation
  * @param {Number[]} [newValues] Not used. It is included to make the interface consistent.
  * @return {Number} The first value
@@ -132,7 +178,7 @@ functions.firstValue = (values, oldResult, newValues) -&gt;
 </span> * @method count
  * @member Lumenize.functions
  * @static
- * @param {Number[]} values
+ * @param {Number[]} [values] Must either provide values or oldResult and newValues
  * @param {Number} [oldResult] for incremental calculation
  * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The length of the values Array
@@ -148,7 +194,7 @@ functions.count = (values, oldResult, newValues) -&gt;
 </span> * @method min
  * @member Lumenize.functions
  * @static
- * @param {Number[]} values
+ * @param {Number[]} [values] Must either provide values or oldResult and newValues
  * @param {Number} [oldResult] for incremental calculation
  * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The minimum value or null if no values
@@ -170,7 +216,7 @@ functions.min = (values, oldResult, newValues) -&gt;
 </span> * @method max
  * @member Lumenize.functions
  * @static
- * @param {Number[]} values
+ * @param {Number[]} [values] Must either provide values or oldResult and newValues
  * @param {Number} [oldResult] for incremental calculation
  * @param {Number[]} [newValues] for incremental calculation
  * @return {Number} The maximum value or null if no values
@@ -192,7 +238,7 @@ functions.max = (values, oldResult, newValues) -&gt;
 </span> * @method values
  * @member Lumenize.functions
  * @static
- * @param {Object[]} values
+ * @param {Object[]} [values] Must either provide values or oldResult and newValues
  * @param {Number} [oldResult] for incremental calculation
  * @param {Number[]} [newValues] for incremental calculation
  * @return {Array} All values (allows duplicates). Can be used for drill down.
@@ -212,7 +258,7 @@ functions.values = (values, oldResult, newValues) -&gt;
 </span> * @method uniqueValues
  * @member Lumenize.functions
  * @static
- * @param {Object[]} values
+ * @param {Object[]} [values] Must either provide values or oldResult and newValues
  * @param {Number} [oldResult] for incremental calculation
  * @param {Number[]} [newValues] for incremental calculation
  * @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
@@ -238,7 +284,11 @@ functions.uniqueValues = (values, oldResult, newValues) -&gt;
 </span> * @method average
  * @member Lumenize.functions
  * @static
- * @param {Number[]} values
+ * @param {Number[]} [values] Must either provide values or oldResult and newValues
+ * @param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+ * @param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+ * @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+ *   you to provide those pre-calculated values.
  * @return {Number} The arithmetic mean
  */
 /* &lt;CoffeeScript&gt;
@@ -249,11 +299,39 @@ functions.average = (values, oldResult, newValues, dependentValues, prefix) -&gt
 functions.average.dependencies = ['count', 'sum']
 
 &lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-static-method-errorSquared'>/**
+</span> * @method errorSquared
+ * @member Lumenize.functions
+ * @static
+ * @param {Number[]} [values] Must either provide values or oldResult and newValues
+ * @param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+ * @param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+ * @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+ *   you to provide those pre-calculated values.
+ * @return {Number} The error squared
+ */
+/* &lt;CoffeeScript&gt;
+functions.errorSquared = (values, oldResult, newValues, dependentValues, prefix) -&gt;
+  {count, sum} = _populateDependentValues(values, functions.errorSquared.dependencies, dependentValues, prefix)
+  mean = sum / count
+  errorSquared = 0
+  for v in values
+    difference = v - mean
+    errorSquared += difference * difference
+  return errorSquared
+
+functions.errorSquared.dependencies = ['count', 'sum']
+
+&lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-variance'>/**
 </span> * @method variance
  * @member Lumenize.functions
  * @static
- * @param {Number[]} values
+ * @param {Number[]} [values] Must either provide values or oldResult and newValues
+ * @param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+ * @param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+ * @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+ *   you to provide those pre-calculated values.
  * @return {Number} The variance
  */
 /* &lt;CoffeeScript&gt;
@@ -268,7 +346,11 @@ functions.variance.dependencies = ['count', 'sum', 'sumSquares']
 </span> * @method standardDeviation
  * @member Lumenize.functions
  * @static
- * @param {Number[]} values
+ * @param {Number[]} [values] Must either provide values or oldResult and newValues
+ * @param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+ * @param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+ * @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+ *   you to provide those pre-calculated values.
  * @return {Number} The standard deviation
  */
 /* &lt;CoffeeScript&gt;
@@ -283,17 +365,24 @@ functions.standardDeviation.dependencies = functions.variance.dependencies
  * @member Lumenize.functions
  * @static
  * @param {Number} p The percentile for the resulting function (50 = median, 75, 99, etc.)
- * @return {Function} A funtion to calculate the percentile
+ * @return {Function} A function to calculate the percentile
  * 
  * When the user passes in `p&lt;n&gt;` as an aggregation function, this `percentileCreator` is called to return the appropriate
  * percentile function. The returned function will find the `&lt;n&gt;`th percentile where `&lt;n&gt;` is some number in the form of
  * `##[.##]`. (e.g. `p40`, `p99`, `p99.9`).
  * 
- * Note: `median` is an alias for `p50`.
- * 
  * There is no official definition of percentile. The most popular choices differ in the interpolation algorithm that they
- * use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which is close to the NIST
- * recommendation and makes the most sense to me.
+ * use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which differs from the NIST
+ * primary method. However, NIST lists something very similar to the Excel approach as an acceptible alternative. The only
+ * difference seems to be for the edge case for when you have only two data points in your data set. Agreement with Excel,
+ * NIST's acceptance of it as an alternative (almost), and the fact that it makes the most sense to me is why this approach
+ * was chosen.
+ * 
+ * http://en.wikipedia.org/wiki/Percentile#Alternative_methods
+ * 
+ * Note: `median` is an alias for `p50`. The approach chosen for calculating p50 gives you the
+ * exact same result as the definition for median even for edge cases like sets with only one or two data points.
+ * 
  */
 /* &lt;CoffeeScript&gt;
 functions.percentileCreator = (p) -&gt;

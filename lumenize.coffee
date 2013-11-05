@@ -25,6 +25,8 @@ And last, additional functionality is provided by:
   * Lumenize.utils - utility methods used by the rest of Lumenize (type, clone, array/object functions, etc.)
 
 ###
+JSON = require('JSON2')
+
 tzTime = require('tztime')
 exports.Time = tzTime.Time
 exports.TimelineIterator = tzTime.TimelineIterator
@@ -41,10 +43,15 @@ exports.arrayOfMaps_To_CSVStyleArray = datatransform.arrayOfMaps_To_CSVStyleArra
 exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps
 exports.arrayOfMaps_To_HighChartsSeries = datatransform.arrayOfMaps_To_HighChartsSeries
 exports.csvString_To_CSVStyleArray = datatransform.csvString_To_CSVStyleArray
+exports.csvStyleArray_To_CSVString = datatransform.csvStyleArray_To_CSVString
 
 exports.functions = require('./src/functions').functions
 
 exports.histogram = require('./src/histogram').histogram
+
+exports.multiRegression = require('./src/multiRegression').multiRegression
+
+exports.table = require('./src/table').table
 
 exports.OLAPCube = require('./src/OLAPCube').OLAPCube
 

@@ -4,6 +4,7 @@
 {utils} = require('tztime')
 functions = require('./functions').functions
 {arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps} = require('./dataTransform')
+JSON = require('JSON2')
 
 class OLAPCube
   ###
@@ -206,12 +207,13 @@ class OLAPCube
 
       cube = new OLAPCube(config, data)
       console.log(cube.toString(undefined, undefined, 'value_sum'))
-      #    dateSegments                  value_sum
-      #            2011                         10
-      #         2011,12                         10
-      #            2012                        140
-      #          2012,1                         90
-      #          2012,2                         50
+      # | dateSegments | value_sum |
+      # |==========================|
+      # | [2011]       |        10 |
+      # | [2011,12]    |        10 |
+      # | [2012]       |       140 |
+      # | [2012,1]     |        90 |
+      # | [2012,2]     |        50 |
 
   Notice how '2012-02-01T00:00:01.000Z' got bucketed in January because the calculation was done in timezone
   'America/New_York'.
@@ -571,23 +573,33 @@ class OLAPCube
       else
         throw new Error("Do not know how to sort objects of type #{utils.type(a)}.")
 
-  toString: (rows, columns, metric) ->
+
+  @roundToSignificance: (value, significance) ->
+    unless significance?
+      return value
+    multiple = 1 / significance
+    return Math.round(value * multiple) / multiple
+
+  toString: (rows, columns, metric, significance) ->
     ###
     @method toString
       Produces a printable table with the first dimension as the rows, the second dimension as the columns, and the count
       as the values in the table.
+    @return {String} A string which will render as a table when written to the console.
     @param {String} [rows=<first dimension>]
     @param {String} [columns=<second dimension>]
     @param {String} [metric='count']
+    @param {Number} [significance] The multiple to which you want to round the bucket edges. 1 means whole numbers.
+     0.1 means to round to tenths. 0.01 to hundreds. Etc.
     ###
     unless metric?
       metric = '_count'
     if @config.dimensions.length == 1
-      return @toStringOneDimension(@config.dimensions[0].field, metric)
+      return @toStringOneDimension(@config.dimensions[0].field, metric, significance)
     else
-      return @toStringTwoDimensions(rows, columns, metric)
+      return @toStringTwoDimensions(rows, columns, metric, significance)
 
-  toStringOneDimension: (field, metric) ->
+  toStringOneDimension: (field, metric, significance) ->
     rowValues = @getDimensionValues(field)
     rowValueStrings = (JSON.stringify(r) for r in rowValues)
     rowLabelWidth = Math.max.apply({}, (s.length for s in rowValueStrings))
@@ -599,7 +611,7 @@ class OLAPCube
       filter[field] = r
       cell = @getCell(filter)
       if cell?
-        cellString = JSON.stringify(cell[metric])
+        cellString = JSON.stringify(OLAPCube.roundToSignificance(cell[metric], significance))
       else
         cellString = ''
       maxColumnWidth = Math.max(maxColumnWidth, cellString.length)
@@ -623,7 +635,7 @@ class OLAPCube
         s += '\n|' + OLAPCube._padToWidth('', fullWidth, '-') + '|'
     return s
 
-  toStringTwoDimensions: (rows, columns, metric) ->
+  toStringTwoDimensions: (rows, columns, metric, significance) ->
     unless rows?
       rows = @config.dimensions[0].field
     unless columns?
@@ -645,7 +657,7 @@ class OLAPCube
         filter[columns] = c
         cell = @getCell(filter)
         if cell?
-          cellString = JSON.stringify(cell[metric])
+          cellString = JSON.stringify(OLAPCube.roundToSignificance(cell[metric], significance))
         else
           cellString = ''
         maxColumnWidth = Math.max(maxColumnWidth, cellString.length)

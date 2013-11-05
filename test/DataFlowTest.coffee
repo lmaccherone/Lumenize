@@ -74,7 +74,40 @@ config = [
   {result3b: functionThatReturnsResult3b, parameters: ['@result1'], wrap: true}
   {result4: 'go', scopeClass: CalculatorWithCallback4, constructorParameters: [{}, '@result3b', '@result3a']}
   # also but not shown {result99: someFunctionThatUsesThis, scope: someBigObjectToHoldThisScope} it will call the function with setting someBigObjectToHoldThisScope as the "this" for the function. This can hold scope from prior calls as well as store new data for later stages.
+  # Also not show is the ability to add parameters to the trigger function (like 'go'). We'd just use `parameters`
 ]
+
+###
+Rather than make the user create the config and write their code, I'm looking to make Lumenize be a new reactive programming language.
+
+So, the user would type something like this:
+
+_@result0 = functionWithoutParameters0()
+_@result1 = functionPlain1(_@result0)
+_@result2 = functionWithCallback2(_@result1, _@)  # If you do this, the assumed callback pattern is cb(error, result)
+_@calculator3a = new NormalCalculator3a({}, _@result1, _@result2)
+_@result3a = _@calculator3a.getResults()
+_@result3b = functionThatReturnsResult3b(_@result1)
+_@calculator4 = new CalculatorWithCallback4({}, _@result3b, _@result3a, _@)
+_@result4 = _@calculator4.go()
+
+console.log(_@result4)
+
+-------
+
+We'd build the DAG from above.
+
+We'd rewrite a few things.
+
+First, any time it sees the _@ all by itself, that means that it's a callback. Everything below this point in the program is wrapped
+into a function and the function name is place in the position of the _@. Note the function gets moved above the call.
+
+Any line with a _@ to the left of an equals sign gets wrapped into it's own function along with every line of code that follows
+up to the next one. Question: how do we deal with scope? Will we have to declare those variables modified in the function outside
+the function so they are available to the next function? I think so. The functions all get called by the dispatcher based
+upon if the dependencies change.
+
+###
 
 # !TODO: Support parameters: ['@result2b.fieldName']
 

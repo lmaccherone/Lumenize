@@ -1,4 +1,5 @@
 {utils} = require('tztime')
+JSON = require('JSON2')
 
 ###
 @class functions
@@ -51,6 +52,25 @@ functions.sum = (values, oldResult, newValues) ->
   return temp
 
 ###
+@method product
+@static
+@param {Number[]} [values] Must either provide values or oldResult and newValues
+@param {Number} [oldResult] for incremental calculation
+@param {Number[]} [newValues] for incremental calculation
+@return {Number} The product of the values
+###
+functions.product = (values, oldResult, newValues) ->
+  if oldResult?
+    temp = oldResult
+    tempValues = newValues
+  else
+    temp = 1
+    tempValues = values
+  for v in tempValues
+    temp = temp * v
+  return temp
+
+###
 @method sumSquares
 @static
 @param {Number[]} [values] Must either provide values or oldResult and newValues
@@ -68,6 +88,26 @@ functions.sumSquares = (values, oldResult, newValues) ->
   for v in tempValues
     temp += v * v
   return temp
+
+###
+@method sumCubes
+@static
+@param {Number[]} [values] Must either provide values or oldResult and newValues
+@param {Number} [oldResult] for incremental calculation
+@param {Number[]} [newValues] for incremental calculation
+@return {Number} The sum of the cubes of the values
+###
+functions.sumCubes = (values, oldResult, newValues) ->
+  if oldResult?
+    temp = oldResult
+    tempValues = newValues
+  else
+    temp = 0
+    tempValues = values
+  for v in tempValues
+    temp += v * v * v
+  return temp
+
 
 ###
 @method lastValue

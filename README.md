@@ -1,4 +1,8 @@
 [![build status](https://secure.travis-ci.org/lmaccherone/Lumenize.png)](http://travis-ci.org/lmaccherone/Lumenize)
+[![NPM version](https://badge.fury.io/js/Lumenize.png)](http://badge.fury.io/js/Lumenize)
+[![build status](https://david-dm.org/lmaccherone/Lumenize.png)](https://david-dm.org/lmaccherone/Lumenize.png)
+
+[![Stories in Ready](http://badge.waffle.io/lmaccherone/Lumenize.png)](http://waffle.io/lmaccherone/Lumenize)
 # Lumenize #
 
 Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.
@@ -17,8 +21,8 @@ Lumenize is a collection of tools for making awesome visualizations out of your 
   * TransitionsCalculator - Throughput. Velocity. 
 * Bundled with the [tzTime](https://github.com/lmaccherone/tzTime) library (same author) for
   timezone precise x-axis. Knockout weekends, holidays, non-work hours, etc.
-* Tested - Over 400 tests (including tzTime)
-* [Documented (Lumenize)](http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html) [(tzTime)](http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html) - Robust documentation and examples
+* Tested - Over 600 tests (plus over 400 tests in tzTime)
+* [Documented (Lumenize)](http://commondatastorage.googleapis.com/versions.lumenize.com/docs/Lumenize-docs/index.html) [(tzTime)](http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html) - Robust documentation and examples
 * [DocTested](https://github.com/lmaccherone/coffeedoctest) - The examples will always match 
   the code because it fails automated testing when they don't
 
@@ -49,17 +53,20 @@ Used when developing:
 
 To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
 
-`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/v{{version}}/deploy/Lumenize-min.js"></script>`
+`<script type="text/javascript" src="https://storage.googleapis.com/versions.lumenize.com/v{{version}}/Lumenize-min.js"></script>`
 
 Replace `{{version}}` with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:
 
-`<script type="text/javascript" src="https://raw.github.com/lmaccherone/Lumenize/v0.6.1/deploy/Lumenize-min.js"></script>`
+`<script type="text/javascript" src="https://storage.googleapis.com/versions.lumenize.com/v0.6.8/Lumenize-min.js"></script>`
 
-The package is fairly large ~204KB but most of that is the embedded timezone files which compress really well. The Github pages server will gzip the package so it's only ~45KB over the wire.
+The package is fairly large ~260KB but most of that is the embedded timezone files which compress really well.
 
 Then at the top of the javascript where you want to call it, put the following:
 
 `var lumenize = require('./lumenize');`
+
+And call it like this.
+
 `var stdDev = lumenize.functions.standardDeviation([20, 30, 50]);`
     
 ## Usage in node.js ##
@@ -74,14 +81,25 @@ Then in your code:
 
 ## Documentation and source code ##
 
-* [API Documentation](http://lmaccherone.github.com/Lumenize/docs/Lumenize-docs/index.html)
+* [API Documentation](http://commondatastorage.googleapis.com/versions.lumenize.com/docs/Lumenize-docs/index.html)
 * [Source Repository](https://github.com/lmaccherone/Lumenize)
 
 ## Changelog ##
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
-* 0.6.7 - 2013-02-14 - Updated to latest version of jsduckify
+* 0.7.2 - 2013-08-30 - Upgraded to the latest tzTime 0.6.11
+* 0.7.1 - 2013-07-07 - Added simple table output formatting. Added significance to OLAPCube 
+  output. Evenutally, OLAPCube.toString will use table.toString(), but not yet. Bug fixes.
+* 0.7.0 - 2013-06-01 - **Backward breaking change.** Histogram significantly upgraded. The old 
+  clipping histogram has been moved to `histogram.clipping()`. The new functionality is more 
+  complete and general purpose.
+* 0.6.11 - 2013-05-19 - Added point to projection series for startIndex and now use angle 
+  instead of slope for v-optimal projection algorithm
+* 0.6.10 - 2013-05-18 - Added projection functionality to TimeSeriesCalculator
+* 0.6.9 - 2013-04-24 - Upgraded to bug fixed latest tzTime
+* 0.6.8 - 2013-04-24 - Uses JSON2 for IE7 compatibility
+* 0.6.7 - 2013-04-24 - Updated to latest version of jsduckify. Added Bayesian Classifier
 * 0.6.6 - 2013-02-11 - More precise toDateCell when incrementally calculated.
 * 0.6.5 - 2013-02-09 - Fixed bug on TimeSeriesCalculator where toDateCell was including more
   than it should and was possible located wrong. Changed histogram to use Q3 + 1.5 * IQR as

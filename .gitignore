@@ -10,5 +10,10 @@ test/*.map
 test/*.js
 play/*.map
 play/*.js
+play/*.csv
 lumenize.js
 lumenize.map
+deploy
+.js
+.map
+play

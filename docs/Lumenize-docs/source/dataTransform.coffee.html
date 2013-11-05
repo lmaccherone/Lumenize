@@ -17,6 +17,7 @@
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
 {utils, Time} = require('tztime')
+JSON = require('JSON2')
 
 csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) -&gt;
 &lt;/CoffeeScript&gt; */
@@ -119,33 +120,37 @@ arrayOfMaps_To_HighChartsSeries = (arrayOfMaps, config) -&gt;
 </span>   * @method arrayOfMaps_To_HighChartsSeries
    * @member Lumenize
    * @param {Array[]} arrayOfMaps
-   * @param {Object} config You can use the same config you used to call aggregateAt() as long as it includes
-   *   your yAxis specifications
+   * @param {Object} config You can use the same config you used to call TimeSeriesCalculator including your yAxis specifications
    * @return {Object[]} in HighCharts form
    * 
-   * Takes an array of arrays that came from a call to aggregateAt() and looks like this:
+   * Takes an array of arrays that came from a call to TimeSeriesCalculator and looks like this:
    * 
    *     {arrayOfMaps_To_HighChartsSeries} = require('../')
    * 
    *     arrayOfMaps = [
    *       {&quot;Series 1&quot;: 8, &quot;Series 2&quot;: 5, &quot;Series3&quot;: 10},
-   *       {&quot;Series 1&quot;: 2, &quot;Series 2&quot;: 3, &quot;Series3&quot;: 20}
+   *       {&quot;Series 1&quot;: 2, &quot;Series 2&quot;: 3},
+   *       {&quot;Series 1&quot;: 1, &quot;Series 2&quot;: 2, &quot;Series3&quot;: 40},
    *     ]
    * 
    * and a list of series configurations
    * 
    *     config = [
    *       {name: &quot;Series 1&quot;, yAxis: 1},
-   *       {name: &quot;Series 2&quot;}
+   *       {name: &quot;Series 2&quot;},
+   *       {name: &quot;Series3&quot;}
    *     ]
    *     
    * and extracts the data into seperate series
    * 
    *     console.log(arrayOfMaps_To_HighChartsSeries(arrayOfMaps, config))
-   *     # [ { name: 'Series 1', data: [ 8, 2 ], yAxis: 1 },
-   *     #   { name: 'Series 2', data: [ 5, 3 ] } ]
+   *     # [ { name: 'Series 1', data: [ 8, 2, 1 ], yAxis: 1 },
+   *     #   { name: 'Series 2', data: [ 5, 3, 2 ] },
+   *     #   { name: 'Series3', data: [ 10, null, 40 ] } ]
    *     
-   * Notice how the extra fields from the series array are included in the output.
+   * Notice how the extra fields from the series array are included in the output. Also, notice how the missing second
+   * value for Series3 was replaced with a null. HighCharts will skip right over this for category charts as you would
+   * expect.
    */
 /* &lt;CoffeeScript&gt;
   
@@ -158,7 +163,10 @@ arrayOfMaps_To_HighChartsSeries = (arrayOfMaps, config) -&gt;
   for s in seriesNames
     preOutput[s] = []
     for aggregationRow in arrayOfMaps
-      preOutput[s].push(aggregationRow[s])
+      value = aggregationRow[s]
+      unless value?
+        value = null
+      preOutput[s].push(value)
 
   # Squash the nameField into each sub row
   output = []
@@ -171,9 +179,46 @@ arrayOfMaps_To_HighChartsSeries = (arrayOfMaps, config) -&gt;
     output.push(outputRow)
   return output
 
+csvString_To_CSVStyleArray = (s, asterixForUndefined = true) -&gt;
+  # This is not robust yet. Adding a comma inside a string will break it. It ignores stuff that fails JSON.parse. Etc.
+  rows = s.split('\n')
+
+  headerLength = rows[0].split(',').length
+
+  out = []
+  for row, index in rows
+    newRow = []
+    rawRowArray = row.split(',')
+    if rawRowArray.length is headerLength
+      for c in rawRowArray
+        if asterixForUndefined and c is '*'
+          cValue = undefined
+        else
+          try
+            cValue = JSON.parse(c)
+          catch error
+            # Not sure what to do if this fails
+        newRow.push(cValue)
+      out.push(newRow)
+    else
+      #      throw new Error('Row length does not match header length.')
+      console.log(&quot;Warning: Skipping row because length does not match header length in row #{index}: #{row}&quot;)
+
+  return out
+
+csvStyleArray_To_CSVString = (csvStyleArray) -&gt;
+  s = ''
+  for row in csvStyleArray
+    for value in row
+      s += JSON.stringify(value) + ', '
+    s += &quot;\n&quot;
+  return s
+
 exports.arrayOfMaps_To_CSVStyleArray = arrayOfMaps_To_CSVStyleArray
 exports.csvStyleArray_To_ArrayOfMaps = csvStyleArray_To_ArrayOfMaps
 exports.arrayOfMaps_To_HighChartsSeries = arrayOfMaps_To_HighChartsSeries
+exports.csvString_To_CSVStyleArray = csvString_To_CSVStyleArray
+exports.csvStyleArray_To_CSVString = csvStyleArray_To_CSVString
 
 &lt;/CoffeeScript&gt; */</pre>
 </body>

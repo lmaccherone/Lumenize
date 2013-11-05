@@ -72,6 +72,20 @@ exports.Test =
 
     test.done()
 
+  testVOptimalBucketerWithMoreThan5SameValues: (test) ->
+    values = [ 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 3, 4, 5, 6 ]
+
+    buckets = Classifier.generateVOptimalBucketer(values)
+    expected = [
+      { value: 'B0', startOn: null, endBelow: 0.5 },
+      { value: 'B1', startOn: 0.5, endBelow: 2 },
+      { value: 'B2', startOn: 2, endBelow: null }
+    ]
+
+    test.deepEqual(buckets, expected)
+
+    test.done()
+
   testDescreteizeRow: (test) ->
     classifier = new Classifier(config)
     classifier.features = [
@@ -79,7 +93,7 @@ exports.Test =
       field: "TeamSize",
       type: "continuous",
       bins: [
-        {value: 'B0', startOn: null, endBelow: 5.5, probabilities: {"0": 0.77, "1": 0.23}},  # use the index as the value
+        {value: 'B0', startOn: null, endBelow: 5.5, probabilities: {"0": 0.77, "1": 0.23}},
         {value: 'B1', startOn: 5.5, endBelow: 20.5, probabilities: {"0": 0.5, "1": 0.5}},
         {value: 'B2', startOn: 20.5, endBelow: null, probabilities: {"0": 0.8, "1": 0.2}}
       ]
@@ -185,5 +199,48 @@ exports.Test =
 
     test.deepEqual(classifier.predict({TeamSize: 29, HasChildProject: 0}, true), {'0': 0.6956521739130435, '1': 0.30434782608695654})
 
+    savedState = classifier.getStateForSaving('some meta data')
+    newClassifier = BayesianClassifier.newFromSavedState(savedState)
+    test.equal(newClassifier.meta, 'some meta data')
+    test.deepEqual(newClassifier.predict({TeamSize: 29, HasChildProject: 0}, true), {'0': 0.6956521739130435, '1': 0.30434782608695654})
+
+    test.done()
+
+  testMultipleContinuousFields: (test) ->
+    trainingSet = [
+      {Depth: 0, TeamSize: 5, RealTeam: 1},
+      {Depth: 1, TeamSize: 3, RealTeam: 0},
+      {Depth: 1, TeamSize: 3, RealTeam: 1},
+      {Depth: 0, TeamSize: 1, RealTeam: 0},
+      {Depth: 4, TeamSize: 2, RealTeam: 0},
+      {Depth: 0, TeamSize: 2, RealTeam: 0},
+      {Depth: 5, TeamSize: 15, RealTeam: 0},
+      {Depth: 6, TeamSize: 27, RealTeam: 0},
+      {Depth: 5, TeamSize: 13, RealTeam: 1},
+      {Depth: 0, TeamSize: 7, RealTeam: 1},
+      {Depth: 0, TeamSize: 7, RealTeam: 0},
+      {Depth: 1, TeamSize: 9, RealTeam: 1},
+      {Depth: 0, TeamSize: 6, RealTeam: 1},
+      {Depth: 0, TeamSize: 5, RealTeam: 1},
+      {Depth: 0, TeamSize: 5, RealTeam: 0},
+    ]
+
+    classifier = new BayesianClassifier(
+      outputField: "RealTeam"
+      features: [
+        {field: 'TeamSize', type: 'continuous'},
+        {field: 'Depth', type: 'continuous'}
+      ]
+    )
+
+    percentWins = classifier.train(trainingSet)
+
+    test.ok(approximatelyEqual(percentWins, 0.733333))
+
+    test.equal(classifier.predict({Depth:1, TeamSize: 1}), 0)
+    test.equal(classifier.predict({Depth:0, TeamSize: 7}), 1)
+    test.equal(classifier.predict({Depth:1, TeamSize: 7}), 1)
+    test.equal(classifier.predict({Depth:7, TeamSize: 29}), 0)
+    test.equal(classifier.predict({Depth:0, TeamSize: 29}), 0)
 
     test.done()

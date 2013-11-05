@@ -9,7 +9,8 @@ anova = (rawData, overallPredicate, field, groups, ci = 0.95) ->
 
   https://onlinecourses.science.psu.edu/stat414/node/218
 
-  group is modified
+  http://www.calvin.edu/~rpruim/courses/m243/F03/overheads/ANOVAf03.ppt
+
   ###
 
   utils.assert(0 < ci < 1.0, "ci must be between 0.0 and 1.0")
@@ -73,6 +74,7 @@ anova = (rawData, overallPredicate, field, groups, ci = 0.95) ->
   xStdDev = functions.standardDeviation(xValues)
   yStdDev = functions.standardDeviation(yValues)
 
+  # This normalizes everything for the residual plot and histogram
   for r in residualPlot
     r.x = r.x / xStdDev
     r.y = r.y / yStdDev

@@ -1,6 +1,6 @@
 {
   "name": "Lumenize",
-  "version": "0.6.6",
+  "version": "0.7.2",
   "main": "./lumenize",
   "description": "Illuminating the forest AND the trees in your data.",
   "keywords": [
@@ -13,7 +13,11 @@
     "OLAP",
     "business intelligence",
     "BI",
-    "statistics"
+    "statistics",
+    "bayes",
+    "bayesian",
+    "bayesian classifier",
+    "histogram"
   ],
   "author": {
     "name": "Larry Maccherone",
@@ -29,11 +33,12 @@
   },
   "preferGlobal": false,
   "dependencies": {
-    "coffee-script": "1.4.x",
-    "tztime": "~0.6.1",
-    "jsduckify": "~0.2.2"
+    "tztime": "~0.6.10",
+    "jsduckify": "~0.2.2",
+    "JSON2": "0.1.0"
   },
   "devDependencies": {
+    "coffee-script": "1.4.x",
     "coffeedoctest": "0.4.x",
     "uglify-js": "2.2.x",
     "nodeunit": "~0.7.4",
@@ -42,7 +47,9 @@
     "wrench": "1.4.x",
     "marked": "0.2.x",
     "exec-sync": "~0.1.5",
-    "fileify-lm": "~0.3.1"
+    "fileify-lm": "~0.3.1",
+    "async": "~0.2.9",
+    "mongodb": "~1.3.8"
   },
   "scripts": {
     "test": "cake testall"
