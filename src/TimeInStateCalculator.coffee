@@ -108,6 +108,28 @@ class TimeInStateCalculator # implements iCalculator
       console.log(JSON.stringify(tisc.getResults()) == JSON.stringify(tisc2.getResults()))
       # true
 
+  Note, it's common to calculate time in state at granularity of hour and convert it to fractional days. Since it knocks
+  out non-work hours, this conversion is not as simple as dividing by 24. This code calculates the conversion factor
+  (workHours) for whatever workDayStartOn and workDayEndBefore you have specified even if your "workday" spans midnight.
+
+      startOnInMinutes = config.workDayStartOn.hour * 60
+      if config.workDayStartOn?.minute
+        startOnInMinutes += config.workDayStartOn.minute
+      endBeforeInMinutes = config.workDayEndBefore.hour * 60
+      if config.workDayEndBefore?.minute
+        endBeforeInMinutes += config.workDayEndBefore.minute
+      if startOnInMinutes < endBeforeInMinutes
+        workMinutes = endBeforeInMinutes - startOnInMinutes
+      else
+        workMinutes = 24 * 60 - startOnInMinutes
+        workMinutes += endBeforeInMinutes
+      workHours = workMinutes / 60
+
+      console.log(workHours)  # Should say 2 because our work day was from 9am to 11am
+      # 2
+
+  You would simply divide the ticks by this `workHours` value to convert from ticks (in hours) to fractional days.
+
   ###
 
   constructor: (config) ->

@@ -335,7 +335,7 @@ class BayesianClassifier extends Classifier
     for feature in @features
       if feature.type is 'continuous'
         # create v-optimal buckets
-        values = (row[feature.field] for row in trainingSet)
+        values = (row[feature.field] for row in trainingSet)  # !TODO: skip this section if the current feature is missing from the row
         bucketer = Classifier.generateVOptimalBucketer(values)
         feature.bins = bucketer
       else if feature.type is 'discrete'
@@ -378,7 +378,7 @@ class BayesianClassifier extends Classifier
           bin.probabilities[outputValue] = numerator / denominator
 
     # calculate accuracy for training set
-    trainingSet = utils.clone(userSuppliedTrainingSet)
+    trainingSet = utils.clone(userSuppliedTrainingSet)  # !TODO: Upgrade to calculate off of a validation set if provided
     wins = 0
     loses = 0
     for row in trainingSet
@@ -407,7 +407,7 @@ class BayesianClassifier extends Classifier
     probabilities = {}
     for outputValue, probability of @baseProbabilities
       probabilities[outputValue] = probability
-    for feature in @features
+    for feature in @features  # !TODO: Skip if row[feature.field] is null
       matchingBin = null
       for bin in feature.bins
         if row[feature.field] == bin.value
