@@ -38,7 +38,7 @@
     "JSON2": "0.1.0"
   },
   "devDependencies": {
-    "coffee-script": "1.4.x",
+    "coffee-script": "~1.6.3",
     "coffeedoctest": "0.4.x",
     "uglify-js": "2.2.x",
     "nodeunit": "~0.7.4",

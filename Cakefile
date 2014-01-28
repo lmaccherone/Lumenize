@@ -103,6 +103,10 @@ task('publish', 'Publish to npm', () ->
           runSync("git tag v#{require('./package.json').version}")
           runSync("git push --tags")
           console.log('pushing to Google Cloud Storage')
+          # !TODO: Fix this Cakefile so the next line doesn't crash. In the mean time, you can edit the version number and run the following three lines manually from the command line.
+          # gsutil cp ./deploy/* gs://versions.lumenize.com/v0.7.2/
+          # gsutil setmeta -h "Content-Type: application/javascript" -h "Cache-Control: public, max-age=31556926, no-transform" gs://versions.lumenize.com/v0.7.2/*
+          # cake pubDocsRaw
           runSync("gsutil cp ./deploy/* gs://versions.lumenize.com/v#{require('./package.json').version}/")
           runSync('gsutil setmeta -h "Content-Type: application/javascript" -h "Cache-Control: public, max-age=31556926, no-transform" gs://versions.lumenize.com/v' + require('./package.json').version + '/*')
           invoke('pubDocsRaw')
