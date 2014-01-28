@@ -9,7 +9,7 @@
   "license": "MIT",
   "private": true,
   "ignore": [
-    "/*"
+    "/*",
     "!deploy/*"
   ]
 }
