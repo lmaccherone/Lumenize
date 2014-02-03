@@ -268,3 +268,8 @@ exports.functionsTest =
     values = [1.5, 2.7, 3.4, 4.5, 5.0, 6.7, 7.8, 8.5, 9.1, 10.2, 11.7] #median of an array of decimals
     test.equal(functions.percentileCreator(50)(values), 6.7)
     test.done()
+
+  testStandardDeviation: (test) ->
+    values = [9, 11, 10]
+    test.equal(functions.standardDeviation(values), 1)
+    test.done()
