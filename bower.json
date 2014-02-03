@@ -1,0 +1,15 @@
+{
+  "name": "Lumenize",
+  "version": "0.7.2",
+  "homepage": "https://github.com/lmaccherone/Lumenize",
+  "authors": [
+    "Larry Maccherone"
+  ],
+  "main": "deploy/Lumenize-min.js",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "/*",
+    "!deploy/*"
+  ]
+}
