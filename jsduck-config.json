@@ -1,4 +1,5 @@
 {
     "--title": "Lumenize",
-    "--welcome": "docs/README.html"
+    "--welcome": "docs/README.html",
+    "--footer": "(c) Larry Maccherone, 2008-2014"
 }
