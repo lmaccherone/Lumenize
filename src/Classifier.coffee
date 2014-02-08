@@ -24,10 +24,10 @@ class Classifier
     {targetBucketCount, min, max} = Classifier.getBucketCountMinMax(values)
     bucketSize = (max - min) / targetBucketCount
     bucketer = []  # each row is {startOn, endBelow} meaning bucket  startOn <= x < endBelow
-    bucketer.push({startOn: null, endBelow: min + bucketSize})
+    bucketer.push({value: 'B' + 0, startOn: null, endBelow: min + bucketSize})
     for i in [1..targetBucketCount - 2]
-      bucketer.push({startOn: min + bucketSize * i, endBelow: min + bucketSize * (i + 1)})
-    bucketer.push({startOn: min + bucketSize * (targetBucketCount - 1), endBelow: null})
+      bucketer.push({value: 'B' + i, startOn: min + bucketSize * i, endBelow: min + bucketSize * (i + 1)})
+    bucketer.push({value: 'B' + (targetBucketCount - 1), startOn: min + bucketSize * (targetBucketCount - 1), endBelow: null})
     return bucketer
 
   @generateConstantQuantityBucketer: (values) ->
@@ -35,12 +35,12 @@ class Classifier
     bucketSize = 100 / targetBucketCount
     bucketer = []  # each row is {startOn, endBelow} meaning bucket  startOn <= x < endBelow
     currentBoundary = functions.percentileCreator(bucketSize)(values)
-    bucketer.push({startOn: null, endBelow: currentBoundary})
+    bucketer.push({value: 'B' + 0, startOn: null, endBelow: currentBoundary})
     for i in [1..targetBucketCount - 2]
       lastBoundary = currentBoundary
       currentBoundary = functions.percentileCreator(bucketSize * (i + 1))(values)
-      bucketer.push({startOn: lastBoundary, endBelow: currentBoundary})
-    bucketer.push({startOn: currentBoundary, endBelow: null})
+      bucketer.push({value: 'B' + i, startOn: lastBoundary, endBelow: currentBoundary})
+    bucketer.push({value: 'B' + (targetBucketCount - 1), startOn: currentBoundary, endBelow: null})
     return bucketer
 
   @splitAt: (values, index) ->
@@ -331,12 +331,17 @@ class BayesianClassifier extends Classifier
       countForThisValue = outputValuesCube.getCell(filter)._count
       @baseProbabilities[outputValue] = countForThisValue / n
 
+    if n >= 144
+      bucketGenerator = Classifier.generateConstantQuantityBucketer
+    else
+      bucketGenerator = Classifier.generateVOptimalBucketer
+
     # calculate probabilities for each of the feature fields
     for feature in @features
       if feature.type is 'continuous'
         # create v-optimal buckets
         values = (row[feature.field] for row in trainingSet)  # !TODO: skip this section if the current feature is missing from the row
-        bucketer = Classifier.generateVOptimalBucketer(values)
+        bucketer = bucketGenerator(values)
         feature.bins = bucketer
       else if feature.type is 'discrete'
         # Right now, I don't think we need to do anything here. The continuous data has bins and the discrete data does not, but we
@@ -371,7 +376,7 @@ class BayesianClassifier extends Classifier
             denominator = denominatorCell._count
           else
             denominator = 0
-            throw new Error("No values for #{feature.field}=#{bin.value} and #{@outputField}=#{outputValue}.")
+#            throw new Error("No values for #{feature.field}=#{bin.value} and #{@outputField}=#{outputValue}.")
           filter[@outputField] = outputValue
           numeratorCell = featureCube.getCell(filter)
           numerator = numeratorCell?._count | 0

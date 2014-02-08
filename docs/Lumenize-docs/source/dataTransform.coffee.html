@@ -16,8 +16,8 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
-{utils, Time} = require('tztime')
-JSON = require('JSON2')
+{utils, Time} = require(&#39;tztime&#39;)
+JSON = require(&#39;JSON2&#39;)
 
 csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) -&gt;
 &lt;/CoffeeScript&gt; */
@@ -26,16 +26,16 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) -&gt;
    * @member Lumenize
    * @param {Array[]} csvStyleArray The first row is usually the list of column headers but if not, you can
    *   provide your own such list in the second parameter
-   * @param {String[]} [rowKeys] specify the column headers like `['column1', 'column2']`. If not provided, it will use
+   * @param {String[]} [rowKeys] specify the column headers like `[&#39;column1&#39;, &#39;column2&#39;]`. If not provided, it will use
    *   the first row of the csvStyleArray
    * @return {Object[]}
    * 
    * `csvStyleArry_To_ArryOfMaps` is a convenience function that will convert a csvStyleArray like:
    * 
-   *     {csvStyleArray_To_ArrayOfMaps} = require('../')
+   *     {csvStyleArray_To_ArrayOfMaps} = require(&#39;../&#39;)
    * 
    *     csvStyleArray = [
-   *       ['column1', 'column2'],
+   *       [&#39;column1&#39;, &#39;column2&#39;],
    *       [1         , 2       ],
    *       [3         , 4       ],
    *       [5         , 6       ]
@@ -78,7 +78,7 @@ arrayOfMaps_To_CSVStyleArray = (arrayOfMaps, keys) -&gt;
    * 
    * `arrayOfMaps_To_CSVStyleArray` is a convenience function that will convert an array of maps like:
    * 
-   *     {arrayOfMaps_To_CSVStyleArray} = require('../')
+   *     {arrayOfMaps_To_CSVStyleArray} = require(&#39;../&#39;)
    * 
    *     arrayOfMaps = [
    *       {column1: 10000, column2: 20000},
@@ -90,7 +90,7 @@ arrayOfMaps_To_CSVStyleArray = (arrayOfMaps, keys) -&gt;
    * 
    *     console.log(arrayOfMaps_To_CSVStyleArray(arrayOfMaps))
    * 
-   *     # [ [ 'column1', 'column2' ],
+   *     # [ [ &#39;column1&#39;, &#39;column2&#39; ],
    *     #   [ 10000, 20000 ],
    *     #   [ 30000, 40000 ],
    *     #   [ 50000, 60000 ] ]
@@ -125,7 +125,7 @@ arrayOfMaps_To_HighChartsSeries = (arrayOfMaps, config) -&gt;
    * 
    * Takes an array of arrays that came from a call to TimeSeriesCalculator and looks like this:
    * 
-   *     {arrayOfMaps_To_HighChartsSeries} = require('../')
+   *     {arrayOfMaps_To_HighChartsSeries} = require(&#39;../&#39;)
    * 
    *     arrayOfMaps = [
    *       {&quot;Series 1&quot;: 8, &quot;Series 2&quot;: 5, &quot;Series3&quot;: 10},
@@ -144,9 +144,9 @@ arrayOfMaps_To_HighChartsSeries = (arrayOfMaps, config) -&gt;
    * and extracts the data into seperate series
    * 
    *     console.log(arrayOfMaps_To_HighChartsSeries(arrayOfMaps, config))
-   *     # [ { name: 'Series 1', data: [ 8, 2, 1 ], yAxis: 1 },
-   *     #   { name: 'Series 2', data: [ 5, 3, 2 ] },
-   *     #   { name: 'Series3', data: [ 10, null, 40 ] } ]
+   *     # [ { name: &#39;Series 1&#39;, data: [ 8, 2, 1 ], yAxis: 1 },
+   *     #   { name: &#39;Series 2&#39;, data: [ 5, 3, 2 ] },
+   *     #   { name: &#39;Series3&#39;, data: [ 10, null, 40 ] } ]
    *     
    * Notice how the extra fields from the series array are included in the output. Also, notice how the missing second
    * value for Series3 was replaced with a null. HighCharts will skip right over this for category charts as you would
@@ -174,24 +174,24 @@ arrayOfMaps_To_HighChartsSeries = (arrayOfMaps, config) -&gt;
     outputRow = {name: s, data: preOutput[s]}
     seriesRow = config[idx]
     for key, value of seriesRow
-      unless key in ['name', 'data']
+      unless key in [&#39;name&#39;, &#39;data&#39;]
         outputRow[key] = value
     output.push(outputRow)
   return output
 
 csvString_To_CSVStyleArray = (s, asterixForUndefined = true) -&gt;
   # This is not robust yet. Adding a comma inside a string will break it. It ignores stuff that fails JSON.parse. Etc.
-  rows = s.split('\n')
+  rows = s.split(&#39;\n&#39;)
 
-  headerLength = rows[0].split(',').length
+  headerLength = rows[0].split(&#39;,&#39;).length
 
   out = []
   for row, index in rows
     newRow = []
-    rawRowArray = row.split(',')
+    rawRowArray = row.split(&#39;,&#39;)
     if rawRowArray.length is headerLength
       for c in rawRowArray
-        if asterixForUndefined and c is '*'
+        if asterixForUndefined and c is &#39;*&#39;
           cValue = undefined
         else
           try
@@ -201,16 +201,16 @@ csvString_To_CSVStyleArray = (s, asterixForUndefined = true) -&gt;
         newRow.push(cValue)
       out.push(newRow)
     else
-      #      throw new Error('Row length does not match header length.')
+      #      throw new Error(&#39;Row length does not match header length.&#39;)
       console.log(&quot;Warning: Skipping row because length does not match header length in row #{index}: #{row}&quot;)
 
   return out
 
 csvStyleArray_To_CSVString = (csvStyleArray) -&gt;
-  s = ''
+  s = &#39;&#39;
   for row in csvStyleArray
     for value in row
-      s += JSON.stringify(value) + ', '
+      s += JSON.stringify(value) + &#39;, &#39;
     s += &quot;\n&quot;
   return s
 

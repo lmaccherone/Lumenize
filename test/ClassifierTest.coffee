@@ -19,19 +19,19 @@ exports.Test =
 
     buckets = Classifier.generateConstantQuantityBucketer(values)
     expected = [
-      { startOn: null, endBelow: 3.25 },
-      { startOn: 3.25, endBelow: 6.5 },
-      { startOn: 6.5, endBelow: 9.75 },
-      { startOn: 9.75, endBelow: null }
+      { value: 'B0', startOn: null, endBelow: 3.25 },
+      { value: 'B1', startOn: 3.25, endBelow: 6.5 },
+      { value: 'B2', startOn: 6.5, endBelow: 9.75 },
+      { value: 'B3', startOn: 9.75, endBelow: null }
     ]
     test.deepEqual(buckets, expected)
 
     buckets = Classifier.generateConstantWidthBucketer(values)
     expected = [
-      { startOn: null, endBelow: 25 },
-      { startOn: 25, endBelow: 50 },
-      { startOn: 50, endBelow: 75 },
-      { startOn: 75, endBelow: null }
+      { value: 'B0', startOn: null, endBelow: 25 },
+      { value: 'B1', startOn: 25, endBelow: 50 },
+      { value: 'B2', startOn: 50, endBelow: 75 },
+      { value: 'B3', startOn: 75, endBelow: null }
     ]
     test.deepEqual(buckets, expected)
 

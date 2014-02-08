@@ -9,27 +9,20 @@
   
 
   <link rel="shortcut icon" type="image/ico" href="favicon.ico" />
-  <link rel="stylesheet" href="resources/css/app.css" type="text/css" />
-  <link rel="stylesheet" href="resources/prettify/prettify.css" type="text/css" />
-  <script type="text/javascript">
-  (function(){
-    var protocol = (document.location.protocol === "https:") ? "https:" : "http:";
-    document.write("<link href='"+protocol+"//fonts.googleapis.com/css?family=Exo' rel='stylesheet' type='text/css' />");
-  })();
-  </script>
+  <link rel="stylesheet" href="resources/css/app-4689d2a5522dcd3c9e9923ca59c33f27.css" type="text/css" />
+  <link rel="stylesheet" href="styles-3eba09980fa05ead185cb17d9c0deb0f.css" type="text/css" />
 
   <script type="text/javascript" src="extjs/ext-all.js"></script>
-  <script type="text/javascript" src="data.js"></script>
+  <script type="text/javascript" src="data-91978f2f1b6e6f2108af0dc886e553fe.js"></script>
 
-  <script type="text/javascript" src="app.js"></script>
-  <script type="text/javascript" src="resources/prettify/prettify.js"></script>
+  <script type="text/javascript" src="app-0c945a27f43452df695771ddb60b3d14.js"></script>
 
   
 
 </head>
 <body id="ext-body">
 
-  <div id="loading"><span class="title"></span><span class="logo"></span></div>
+  <div id="loading"><span class="title">Lumenize</span><span class="logo"></span></div>
 
   <div id="header-content">Lumenize</div>
   <div id='welcome-content' style='display:none'><style>
@@ -114,22 +107,13 @@
 <div class="readme">
 <p><a href="http://travis-ci.org/lmaccherone/Lumenize"><img src="https://secure.travis-ci.org/lmaccherone/Lumenize.png" alt="build status"></a>
 <a href="http://badge.fury.io/js/Lumenize"><img src="https://badge.fury.io/js/Lumenize.png" alt="NPM version"></a>
-<a href="https://david-dm.org/lmaccherone/Lumenize.png"><img src="https://david-dm.org/lmaccherone/Lumenize.png" alt="build status"></a>
-
-</p>
-<p><a href="http://waffle.io/lmaccherone/Lumenize"><img src="http://badge.waffle.io/lmaccherone/Lumenize.png" alt="Stories in Ready"></a>
-</p>
-<h1>Lumenize</h1>
-<p>Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.
-
-</p>
-<p><em>Illuminating the forest AND the trees in your data.</em>
-
-</p>
-<p>Lumenize is a collection of tools for making awesome visualizations out of your data.
-
-</p>
-<h2>Features</h2>
+<a href="https://david-dm.org/lmaccherone/Lumenize.png"><img src="https://david-dm.org/lmaccherone/Lumenize.png" alt="build status"></a></p>
+<p><a href="http://waffle.io/lmaccherone/Lumenize"><img src="https://badge.waffle.io/lmaccherone/Lumenize.png" alt="Stories in Ready"></a></p>
+<h1 id="lumenize">Lumenize</h1>
+<p>Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.</p>
+<p><em>Illuminating the forest AND the trees in your data.</em></p>
+<p>Lumenize is a collection of tools for making awesome visualizations out of your data.</p>
+<h2 id="features">Features</h2>
 <ul>
 <li>Fast, light, flexible client-side OLAP Cube with hierarchical rollup support</li>
 <li>Create aggregations from temporal data models like Rally&#39;s Lookback API<ul>
@@ -146,24 +130,18 @@ timezone precise x-axis. Knockout weekends, holidays, non-work hours, etc.</li>
 <li><a href="https://github.com/lmaccherone/coffeedoctest">DocTested</a> - The examples will always match 
 the code because it fails automated testing when they don&#39;t</li>
 </ul>
-<h2>Credits</h2>
-<p>Authors:
-
-</p>
+<h2 id="credits">Credits</h2>
+<p>Authors:</p>
 <ul>
 <li><a href="http://maccherone.com">Larry Maccherone</a></li>
 <li>Jennifer Maccherone</li>
 </ul>
-<p>Used when running:
-
-</p>
+<p>Used when running:</p>
 <ul>
 <li><a href="https://github.com/lmaccherone/tzTime">tzTime</a> (by Larry Maccherone with Olson file
 parsing from <a href="https://github.com/mde/timezone-js">timezoneJS</a>)</li>
 </ul>
-<p>Used when developing:
-
-</p>
+<p>Used when developing:</p>
 <ul>
 <li><a href="http://nodejs.org/">Node.js</a></li>
 <li><a href="http://coffeescript.org/">CoffeeScript</a></li>
@@ -174,57 +152,30 @@ parsing from <a href="https://github.com/mde/timezone-js">timezoneJS</a>)</li>
 <li><a href="https://github.com/ryanmcgrath/wrench-js">wrench</a></li>
 <li><a href="https://github.com/chjj/marked">marked</a></li>
 </ul>
-<h2>Usage in a browser</h2>
-<p>To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
-
-</p>
-<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://storage.googleapis.com/versions.lumenize.com/v{{version}}/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code>
-
-</p>
-<p>Replace <code>{{version}}</code> with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:
-
-</p>
-<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://storage.googleapis.com/versions.lumenize.com/v0.6.8/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code>
-
-</p>
-<p>The package is fairly large ~260KB but most of that is the embedded timezone files which compress really well.
-
-</p>
-<p>Then at the top of the javascript where you want to call it, put the following:
-
-</p>
-<p><code>var lumenize = require(&#39;./lumenize&#39;);</code>
-
-</p>
-<p>And call it like this.
-
-</p>
-<p><code>var stdDev = lumenize.functions.standardDeviation([20, 30, 50]);</code>
-
-</p>
-<h2>Usage in node.js</h2>
-<p>To install, run the following from the root folder of your project:
-
-</p>
-<p><code>npm install Lumenize --save</code>
-
-</p>
-<p>Then in your code:
-
-</p>
-<p><code>var lumenize = require(&#39;Lumenize&#39;)</code>
-
-</p>
-<h2>Documentation and source code</h2>
+<h2 id="usage-in-a-browser">Usage in a browser</h2>
+<p>To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:</p>
+<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://storage.googleapis.com/versions.lumenize.com/v{{version}}/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code></p>
+<p>Replace <code>{{version}}</code> with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:</p>
+<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://storage.googleapis.com/versions.lumenize.com/v0.6.8/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code></p>
+<p>The package is fairly large ~260KB but most of that is the embedded timezone files which compress really well.</p>
+<p>Then at the top of the javascript where you want to call it, put the following:</p>
+<p><code>var lumenize = require(&#39;./lumenize&#39;);</code></p>
+<p>And call it like this.</p>
+<p><code>var stdDev = lumenize.functions.standardDeviation([20, 30, 50]);</code></p>
+<h2 id="usage-in-node-js">Usage in node.js</h2>
+<p>To install, run the following from the root folder of your project:</p>
+<p><code>npm install Lumenize --save</code></p>
+<p>Then in your code:</p>
+<p><code>var lumenize = require(&#39;Lumenize&#39;)</code></p>
+<h2 id="documentation-and-source-code">Documentation and source code</h2>
 <ul>
 <li><a href="http://commondatastorage.googleapis.com/versions.lumenize.com/docs/Lumenize-docs/index.html">API Documentation</a></li>
 <li><a href="https://github.com/lmaccherone/Lumenize">Source Repository</a></li>
 </ul>
-<h2>Changelog</h2>
-<p>In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
-
-</p>
+<h2 id="changelog">Changelog</h2>
+<p>In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.</p>
 <ul>
+<li>0.7.3 - 2014-02-08 - Switched BayesianClassifier to use constant quantity bucketer for larger training sets</li>
 <li>0.7.2 - 2013-08-30 - Upgraded to the latest tzTime 0.6.11</li>
 <li>0.7.1 - 2013-07-07 - Added simple table output formatting. Added significance to OLAPCube 
 output. Evenutally, OLAPCube.toString will use table.toString(), but not yet. Bug fixes.</li>
@@ -346,34 +297,22 @@ Pacific/Fiji&#39;)</li>
 </ul>
 </li>
 </ul>
-<h2>MIT License</h2>
-<p>Copyright (c) 2011, 2012, 2013 Lawrence S. Maccherone, Jr.
-
-</p>
+<h2 id="mit-license">MIT License</h2>
+<p>Copyright (c) 2011, 2012, 2013 Lawrence S. Maccherone, Jr.</p>
 <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
 documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation 
 the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and 
-to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-</p>
-<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-</p>
+to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
 <p>THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED 
 TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
 THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
-IN THE SOFTWARE.
-
-
-
-
-
-</p>
+IN THE SOFTWARE.</p>
 
 </div>
 </body></div>
-          <div id='categories-content' style='display:none'>
+            <div id='categories-content' style='display:none'>
             <div class='section'>
 <h1>Lumenize</h1>
 <div class='left-column'>
@@ -402,12 +341,20 @@ IN THE SOFTWARE.
 </div>
 <div style='clear:both'></div>
 </div>
-        </div>
+          </div>
 
   
-  <div id='footer-content' style='display: none'>Generated with <a href='https://github.com/senchalabs/jsduck'>JSDuck</a> 4.3.2.</div>
+  
+  <div id='footer-content' style='display: none'>Generated on Sat 08 Feb 2014 17:09:39 by <a href='https://github.com/senchalabs/jsduck'>JSDuck</a> 5.3.4.</div>
 
   
+
+  <script type="text/javascript">
+  (function(){
+    var protocol = (document.location.protocol === "https:") ? "https:" : "http:";
+    document.write("<link href='"+protocol+"//fonts.googleapis.com/css?family=Exo' rel='stylesheet' type='text/css' />");
+  })();
+  </script>
 
 </body>
 </html>

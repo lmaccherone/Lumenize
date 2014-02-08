@@ -19,10 +19,10 @@
 # !TODO: Add summary metrics
 # !TODO: Be smart enough to move dependent metrics to the deriveFieldsOnOutput
 
-{utils} = require('tztime')
-functions = require('./functions').functions
-{arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps} = require('./dataTransform')
-JSON = require('JSON2')
+{utils} = require(&#39;tztime&#39;)
+functions = require(&#39;./functions&#39;).functions
+{arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps} = require(&#39;./dataTransform&#39;)
+JSON = require(&#39;JSON2&#39;)
 
 class OLAPCube
 &lt;/CoffeeScript&gt; */
@@ -35,7 +35,7 @@ class OLAPCube
    * from simple group-by operations to more complex multi-dimensional and hierarchical analysis. This implementation has
    * the same conceptual ancestry as implementations found in business intelligence and OLAP database solutions. However,
    * it is meant as a light weight alternative primarily targeting the goal of making it easier for developers to implement
-   * desired analysis. It also supports serialization and incremental updating so it's ideally
+   * desired analysis. It also supports serialization and incremental updating so it&#39;s ideally
    * suited for visualizations and analysis that are updated on a periodic or even continuous basis.
    * 
    * ## Features ##
@@ -50,7 +50,7 @@ class OLAPCube
    * 
    * ## 2D Example ##
    * 
-   * Let's walk through a simple 2D example from facts to output. Let's say you have this set of facts:
+   * Let&#39;s walk through a simple 2D example from facts to output. Let&#39;s say you have this set of facts:
    * 
    *     facts = [
    *       {ProjectHierarchy: [1, 2, 3], Priority: 1, Points: 10},
@@ -66,10 +66,10 @@ class OLAPCube
    * So the first fact will roll-up the tree and be aggregated against [1], and [1, 2] as well as [1, 2, 3]. Root Project 1
    * will get the data from all but the third fact which will get aggregated against root Project 5.
    * 
-   * We specify the ProjectHierarchy field as a dimension of type 'hierarchy' and the Priorty field as a simple value dimension.
+   * We specify the ProjectHierarchy field as a dimension of type &#39;hierarchy&#39; and the Priorty field as a simple value dimension.
    * 
    *     dimensions = [
-   *       {field: &quot;ProjectHierarchy&quot;, type: 'hierarchy'},
+   *       {field: &quot;ProjectHierarchy&quot;, type: &#39;hierarchy&#39;},
    *       {field: &quot;Priority&quot;}
    *     ]
    * 
@@ -97,13 +97,13 @@ class OLAPCube
    * Hierarchy dimensions automatically roll up but you can also tell it to keep all totals by setting config.keepTotals to
    * true. The totals are then kept in the cells where one or more of the dimension values are set to `null`. Note, you
    * can also set keepTotals for individual dimension and should probably use that if you have more than a few dimensions
-   * but we're going to set it globally here:
+   * but we&#39;re going to set it globally here:
    * 
    *     config.keepTotals = true
    * 
-   * Now, let's create the cube.
+   * Now, let&#39;s create the cube.
    * 
-   *     {OLAPCube} = require('../')
+   *     {OLAPCube} = require(&#39;../&#39;)
    *     cube = new OLAPCube(config, facts)
    * 
    * `getCell()` allows you to extract a single cell. The &quot;total&quot; cell for all facts where Priority = 1 can be found as follows:
@@ -119,25 +119,25 @@ class OLAPCube
    *     console.log(cube.getCell({ProjectHierarchy: [1]}))
    *     # { ProjectHierarchy: [ 1 ], Priority: null, _count: 3, Scope: 18 }
    * 
-   * `getCell()` uses the cellIndex so it's very efficient. Using `getCell()` and `getDimensionValues()`, you can iterate
+   * `getCell()` uses the cellIndex so it&#39;s very efficient. Using `getCell()` and `getDimensionValues()`, you can iterate
    * over a slice of the OLAPCube. It is usually preferable to access the cells in place like this rather than the
    * traditional OLAP approach of extracting a slice for processing.
    * 
-   *     rowValues = cube.getDimensionValues('ProjectHierarchy')
-   *     columnValues = cube.getDimensionValues('Priority')
-   *     s = OLAPCube._padToWidth('', 7) + ' | '
-   *     s += ((OLAPCube._padToWidth(JSON.stringify(c), 7) for c in columnValues).join(' | '))
-   *     s += ' | '
+   *     rowValues = cube.getDimensionValues(&#39;ProjectHierarchy&#39;)
+   *     columnValues = cube.getDimensionValues(&#39;Priority&#39;)
+   *     s = OLAPCube._padToWidth(&#39;&#39;, 7) + &#39; | &#39;
+   *     s += ((OLAPCube._padToWidth(JSON.stringify(c), 7) for c in columnValues).join(&#39; | &#39;))
+   *     s += &#39; | &#39;
    *     console.log(s)
    *     for r in rowValues
-   *       s = OLAPCube._padToWidth(JSON.stringify(r), 7) + ' | '
+   *       s = OLAPCube._padToWidth(JSON.stringify(r), 7) + &#39; | &#39;
    *       for c in columnValues
    *         cell = cube.getCell({ProjectHierarchy: r, Priority: c})
    *         if cell?
    *           cellString = JSON.stringify(cell._count)
    *         else
-   *           cellString = ''
-   *         s += OLAPCube._padToWidth(cellString, 7) + ' | '
+   *           cellString = &#39;&#39;
+   *         s += OLAPCube._padToWidth(cellString, 7) + &#39; | &#39;
    *       console.log(s)
    *     #         |    null |       1 |       2 |
    *     #    null |       4 |       3 |       1 |
@@ -148,10 +148,10 @@ class OLAPCube
    *     #     [5] |       1 |       1 |         |
    * 
    * Or you can just call `toString()` method which extracts a 2D slice for tabular display. Both approachs will work on
-   * cubes of any number of dimensions two or greater. The manual example above extracted the `count` metric. We'll tell
+   * cubes of any number of dimensions two or greater. The manual example above extracted the `count` metric. We&#39;ll tell
    * the example below to extract the `Scope` metric.
    * 
-   *     console.log(cube.toString('ProjectHierarchy', 'Priority', 'Scope'))
+   *     console.log(cube.toString(&#39;ProjectHierarchy&#39;, &#39;Priority&#39;, &#39;Scope&#39;))
    *     # |        || Total |     1     2|
    *     # |==============================|
    *     # |Total   ||    35 |    30     5|
@@ -176,11 +176,11 @@ class OLAPCube
    * 2. Arrays as materialized path for hierarchical (tree) data
    * 3. Non-hierarchical Arrays (&quot;tags&quot;)
    * 
-   * There is no need to tell the OLAPCube what type to use with the exception of #2. In that case, add `type: 'hierarchy'`
+   * There is no need to tell the OLAPCube what type to use with the exception of #2. In that case, add `type: &#39;hierarchy&#39;`
    * to the dimensions row like this:
    * 
    *     dimensions = [
-   *       {field: 'hierarchicalDimensionField', type: 'hierarchy'} #, ...
+   *       {field: &#39;hierarchicalDimensionField&#39;, type: &#39;hierarchy&#39;} #, ...
    *     ]
    * 
    * ## Hierarchical (tree) data ##
@@ -198,7 +198,7 @@ class OLAPCube
    * 
    * However, the approach used by this OLAPCube implementaion is the more general case, because it can easily simulate
    * fixed/named level hierachies whereas the reverse is not true. In the clothing example above, you would simply key
-   * your dimension off of a derived field that was a combination of the SEX and TYPE columns (e.g. ['mens', 'pants'])
+   * your dimension off of a derived field that was a combination of the SEX and TYPE columns (e.g. [&#39;mens&#39;, &#39;pants&#39;])
    * 
    * ## Date/Time hierarchies ##
    * 
@@ -206,26 +206,26 @@ class OLAPCube
    * and doing timezone precise hierarchical roll up based upon the date segments (year, month).
    * 
    *     data = [
-   *       {date: '2011-12-31T12:34:56.789Z', value: 10},
-   *       {date: '2012-01-05T12:34:56.789Z', value: 20},
-   *       {date: '2012-01-15T12:34:56.789Z', value: 30},
-   *       {date: '2012-02-01T00:00:01.000Z', value: 40},
-   *       {date: '2012-02-15T12:34:56.789Z', value: 50},
+   *       {date: &#39;2011-12-31T12:34:56.789Z&#39;, value: 10},
+   *       {date: &#39;2012-01-05T12:34:56.789Z&#39;, value: 20},
+   *       {date: &#39;2012-01-15T12:34:56.789Z&#39;, value: 30},
+   *       {date: &#39;2012-02-01T00:00:01.000Z&#39;, value: 40},
+   *       {date: &#39;2012-02-15T12:34:56.789Z&#39;, value: 50},
    *     ]
    * 
-   *     {Time} = require('../')
+   *     {Time} = require(&#39;../&#39;)
    * 
    *     config =
    *       deriveFieldsOnInput: [{
-   *         field: 'dateSegments',
+   *         field: &#39;dateSegments&#39;,
    *         f: (row) -&gt;
-   *           return new Time(row.date, Time.MONTH, 'America/New_York').getSegmentsAsArray()
+   *           return new Time(row.date, Time.MONTH, &#39;America/New_York&#39;).getSegmentsAsArray()
    *       }]
-   *       metrics: [{field: 'value', f: 'sum'}]
-   *       dimensions: [{field: 'dateSegments', type: 'hierarchy'}]
+   *       metrics: [{field: &#39;value&#39;, f: &#39;sum&#39;}]
+   *       dimensions: [{field: &#39;dateSegments&#39;, type: &#39;hierarchy&#39;}]
    * 
    *     cube = new OLAPCube(config, data)
-   *     console.log(cube.toString(undefined, undefined, 'value_sum'))
+   *     console.log(cube.toString(undefined, undefined, &#39;value_sum&#39;))
    *     # | dateSegments | value_sum |
    *     # |==========================|
    *     # | [2011]       |        10 |
@@ -234,21 +234,21 @@ class OLAPCube
    *     # | [2012,1]     |        90 |
    *     # | [2012,2]     |        50 |
    * 
-   * Notice how '2012-02-01T00:00:01.000Z' got bucketed in January because the calculation was done in timezone
-   * 'America/New_York'.
+   * Notice how &#39;2012-02-01T00:00:01.000Z&#39; got bucketed in January because the calculation was done in timezone
+   * &#39;America/New_York&#39;.
    * 
    * ## Non-hierarchical Array fields ##
    * 
-   * If you don't specify type: 'hierarchy' and the OLAPCube sees a field whose value is an Array in a dimension field, the
+   * If you don&#39;t specify type: &#39;hierarchy&#39; and the OLAPCube sees a field whose value is an Array in a dimension field, the
    * data in that fact would get aggregated against each element in the Array. So a non-hierarchical Array field like
-   * ['x', 'y', 'z'] would get aggregated against 'x', 'y', and 'z' rather than ['x'], ['x', 'y'], and ['x','y','z]. This
+   * [&#39;x&#39;, &#39;y&#39;, &#39;z&#39;] would get aggregated against &#39;x&#39;, &#39;y&#39;, and &#39;z&#39; rather than [&#39;x&#39;], [&#39;x&#39;, &#39;y&#39;], and [&#39;x&#39;,&#39;y&#39;,&#39;z]. This
    * functionality is useful for  accomplishing analytics on tags, but it can be used in other powerful ways. For instance
-   * let's say you have a list of events:
+   * let&#39;s say you have a list of events:
    * 
    *     events = [
-   *       {name: 'Renaissance Festival', activeMonths: ['September', 'October']},
-   *       {name: 'Concert Series', activeMonths: ['July', 'August', 'September']},
-   *       {name: 'Fall Festival', activeMonths: ['September']}
+   *       {name: &#39;Renaissance Festival&#39;, activeMonths: [&#39;September&#39;, &#39;October&#39;]},
+   *       {name: &#39;Concert Series&#39;, activeMonths: [&#39;July&#39;, &#39;August&#39;, &#39;September&#39;]},
+   *       {name: &#39;Fall Festival&#39;, activeMonths: [&#39;September&#39;]}
    *     ]
    * 
    * You could figure out the number of events active in each month by specifying &quot;activeMonths&quot; as a dimension.
@@ -259,29 +259,29 @@ class OLAPCube
    * @param {Object[]} [facts] Optional parameter allowing the population of the OLAPCube with an intitial set of facts
    *   upon instantiation. Use addFacts() to add facts after instantiation.
    * @cfg {Object[]} dimensions Array which specifies the fields to use as dimension fields. If the field contains a
-   *   hierarchy array, say so in the row, (e.g. `{field: 'SomeFieldName', type: 'hierarchy'}`). Any array values that it
-   *   finds in the supplied facts will be assumed to be tags rather than a hierarchy specification unless `type: 'hierarchy'`
+   *   hierarchy array, say so in the row, (e.g. `{field: &#39;SomeFieldName&#39;, type: &#39;hierarchy&#39;}`). Any array values that it
+   *   finds in the supplied facts will be assumed to be tags rather than a hierarchy specification unless `type: &#39;hierarchy&#39;`
    *   is specified.
    * 
-   *   For example, let's say you have a set of facts that look like this:
+   *   For example, let&#39;s say you have a set of facts that look like this:
    * 
    *     fact = {
-   *       dimensionField: 'a',
-   *       hierarchicalDimensionField: ['1','2','3'],
-   *       tagDimensionField: ['x', 'y', 'z'],
+   *       dimensionField: &#39;a&#39;,
+   *       hierarchicalDimensionField: [&#39;1&#39;,&#39;2&#39;,&#39;3&#39;],
+   *       tagDimensionField: [&#39;x&#39;, &#39;y&#39;, &#39;z&#39;],
    *       valueField: 10
    *     }
    * 
    *   Then a set of dimensions like this makes sense.
    * 
    *     config.dimensions = [
-   *       {field: 'dimensionField'},
-   *       {field: 'hierarchicalDimensionField', type: 'hierarchy'},
-   *       {field: 'tagDimensionField', keepTotals: true}
+   *       {field: &#39;dimensionField&#39;},
+   *       {field: &#39;hierarchicalDimensionField&#39;, type: &#39;hierarchy&#39;},
+   *       {field: &#39;tagDimensionField&#39;, keepTotals: true}
    *     ]
    * 
    *   Notice how a keepTotals can be set for an individual dimension. This is preferable to setting it for the entire
-   *   cube in cases where you don't want totals in all dimensions.
+   *   cube in cases where you don&#39;t want totals in all dimensions.
    * 
    * @cfg {Object[]} [metrics=[]] Array which specifies the metrics to calculate for each cell in the cube.
    * 
@@ -289,44 +289,44 @@ class OLAPCube
    * 
    *     config = {}
    *     config.metrics = [
-   *       {field: 'field3'},                                      # defaults to metrics: ['sum']
-   *       {field: 'field4', metrics: [
-   *         {f: 'sum'},                                           # will add a metric named field4_sum
-   *         {as: 'median4', f: 'p50'},                            # renamed p50 to median4 from default of field4_p50
-   *         {as: 'myCount', f: (values) -&gt; return values.length}  # user-supplied function
+   *       {field: &#39;field3&#39;},                                      # defaults to metrics: [&#39;sum&#39;]
+   *       {field: &#39;field4&#39;, metrics: [
+   *         {f: &#39;sum&#39;},                                           # will add a metric named field4_sum
+   *         {as: &#39;median4&#39;, f: &#39;p50&#39;},                            # renamed p50 to median4 from default of field4_p50
+   *         {as: &#39;myCount&#39;, f: (values) -&gt; return values.length}  # user-supplied function
    *       ]}
    *     ]
    * 
    *   If you specify a field without any metrics, it will assume you want the sum but it will not automatically
    *   add the sum metric to fields with a metrics specification. User-supplied aggregation functions are also supported as
-   *   shown in the 'myCount' metric above.
+   *   shown in the &#39;myCount&#39; metric above.
    * 
    *   Note, if the metric has dependencies (e.g. average depends upon count and sum) it will automatically add those to
-   *   your metric definition. If you've already added a dependency but put it under a different &quot;as&quot;, it's not smart
+   *   your metric definition. If you&#39;ve already added a dependency but put it under a different &quot;as&quot;, it&#39;s not smart
    *   enough to sense that and it will add it again. Either live with the slight inefficiency and duplication or leave
    *   dependency metrics named their default by not providing an &quot;as&quot; field.
    * 
    * @cfg {Boolean} [keepTotals=false] Setting this will add an additional total row (indicated with field: null) along
    *   all dimensions. This setting can have an impact on the memory usage and performance of the OLAPCube so
-   *   if things are tight, only use it if you really need it. If you don't need it for all dimension, you can specify
+   *   if things are tight, only use it if you really need it. If you don&#39;t need it for all dimension, you can specify
    *   keepTotals for individual dimensions.
    * @cfg {Boolean} [keepFacts=false] Setting this will cause the OLAPCube to keep track of the facts that contributed to
-   *   the metrics for each cell by adding an automatic 'facts' metric. Note, facts are restored after deserialization
+   *   the metrics for each cell by adding an automatic &#39;facts&#39; metric. Note, facts are restored after deserialization
    *   as you would expect, but they are no longer tied to the original facts. This feature, especially after a restore
    *   can eat up memory.
-   * @cfg {Object[]} [deriveFieldsOnInput] An Array of Maps in the form `{field:'myField', f:(fact)-&gt;...}`
+   * @cfg {Object[]} [deriveFieldsOnInput] An Array of Maps in the form `{field:&#39;myField&#39;, f:(fact)-&gt;...}`
    * @cfg {Object[]} [deriveFieldsOnOutput] same format as deriveFieldsOnInput, except the callback is in the form `f(row)`
-   *   This is only called for dirty rows that were effected by the latest round of addFacts. It's more efficient to calculate things
+   *   This is only called for dirty rows that were effected by the latest round of addFacts. It&#39;s more efficient to calculate things
    *   like standard deviation and percentile coverage here than in config.metrics. You just have to remember to include the dependencies
    *   in config.metrics. Standard deviation depends upon `sum` and `sumSquares`. Percentile coverage depends upon `values`.
    *   In fact, if you are going to capture values anyway, all of the functions are most efficiently calculated here.
-   *   Maybe some day, I'll write the code to analyze your metrics and move them out to here if it improves efficiency.
+   *   Maybe some day, I&#39;ll write the code to analyze your metrics and move them out to here if it improves efficiency.
    */
 /* &lt;CoffeeScript&gt;
 
-      Maybe some day, I'll write the code to analyze your metrics and move them out to here if it improves efficiency.
+      Maybe some day, I&#39;ll write the code to analyze your metrics and move them out to here if it improves efficiency.
     @config = utils.clone(@userConfig)
-    utils.assert(@config.dimensions?, 'Must provide config.dimensions.')
+    utils.assert(@config.dimensions?, &#39;Must provide config.dimensions.&#39;)
     unless @config.metrics?
       @config.metrics = []
     @cells = []
@@ -355,23 +355,23 @@ class OLAPCube
   
   @_possibilities: (key, type, keepTotals) -&gt;
     switch utils.type(key)
-      when 'array'
+      when &#39;array&#39;
         if keepTotals
           a = [null]
         else
           a = []
-        if type == 'hierarchy'
+        if type == &#39;hierarchy&#39;
           len = key.length
           while len &gt; 0
             a.push(key.slice(0, len))
             len--
-        else  # assume it's a tag array
+        else  # assume it&#39;s a tag array
           if keepTotals
             a = [null].concat(key)
           else
             a = key
         return a
-      when 'string', 'number'
+      when &#39;string&#39;, &#39;number&#39;
         if keepTotals
           return [null, key]
         else
@@ -412,7 +412,7 @@ class OLAPCube
       if @config.keepFacts
         outRow._facts = [fact]
       for m in @config.metrics
-        outRow[m.as] = m.f([fact[m.field]], undefined, undefined, outRow, m.field + '_')
+        outRow[m.as] = m.f([fact[m.field]], undefined, undefined, outRow, m.field + &#39;_&#39;)
       out.push(outRow)
       more = OLAPCube._decrement(countdownArray, rolloverArray)
   
@@ -436,7 +436,7 @@ class OLAPCube
       olapRow = @cellIndex[filterString]
       if olapRow?
         for m in @config.metrics
-          olapRow[m.as] = m.f(olapRow[m.field + '_values'], olapRow[m.as], @currentValues[m.field], olapRow, m.field + '_')
+          olapRow[m.as] = m.f(olapRow[m.field + &#39;_values&#39;], olapRow[m.as], @currentValues[m.field], olapRow, m.field + &#39;_&#39;)
       else
         olapRow = er
         @cellIndex[filterString] = olapRow
@@ -452,12 +452,12 @@ class OLAPCube
      * 
      * @chainable
      * @param {Object[]} facts An Array of facts to be aggregated into OLAPCube. Each fact is a Map where the keys are the field names
-     *   and the values are the field values (e.g. `{field1: 'a', field2: 5}`).
+     *   and the values are the field values (e.g. `{field1: &#39;a&#39;, field2: 5}`).
      */
 /* &lt;CoffeeScript&gt;
     @dirtyRows = {}
 
-    if utils.type(facts) == 'array'
+    if utils.type(facts) == &#39;array&#39;
       if facts.length &lt;= 0
         return
     else
@@ -499,7 +499,7 @@ class OLAPCube
 </span>     * @method getCells
      * @member Lumenize.OLAPCube
      *   Returns a subset of the cells that match the supplied filter. You can perform slice and dice operations using
-     *   this. If you have criteria for all of the dimensions, you are better off using `getCell()`. Most times, it's
+     *   this. If you have criteria for all of the dimensions, you are better off using `getCell()`. Most times, it&#39;s
      *   better to iterate over the unique values for the dimensions of interest using `getCell()` in place of slice or
      *   dice operations.
      * @param {Object} [filterObject] Specifies the constraints that the returned cells must match in the form of
@@ -549,7 +549,7 @@ class OLAPCube
         if d.keepTotals
           normalizedFilter[d.field] = null
         else
-          throw new Error('Must set keepTotals to use getCell with a partial filter.')
+          throw new Error(&#39;Must set keepTotals to use getCell with a partial filter.&#39;)
     cell = @cellIndex[JSON.stringify(normalizedFilter)]
     if cell?
       return cell
@@ -578,9 +578,9 @@ class OLAPCube
     if b is null
       return -1
     switch utils.type(a)
-      when 'number', 'boolean', 'date'
+      when &#39;number&#39;, &#39;boolean&#39;, &#39;date&#39;
         return b - a
-      when 'array'
+      when &#39;array&#39;
         for value, index in a
           if b.length - 1 &gt;= index and value &lt; b[index]
             return 1
@@ -592,7 +592,7 @@ class OLAPCube
           return -1
         else
           return 0
-      when 'object', 'string'
+      when &#39;object&#39;, &#39;string&#39;
         aString = JSON.stringify(a)
         bString = JSON.stringify(b)
         if aString &lt; bString
@@ -621,13 +621,13 @@ class OLAPCube
      * @return {String} A string which will render as a table when written to the console.
      * @param {String} [rows=&lt;first dimension&gt;]
      * @param {String} [columns=&lt;second dimension&gt;]
-     * @param {String} [metric='count']
+     * @param {String} [metric=&#39;count&#39;]
      * @param {Number} [significance] The multiple to which you want to round the bucket edges. 1 means whole numbers.
      *  0.1 means to round to tenths. 0.01 to hundreds. Etc.
      */
 /* &lt;CoffeeScript&gt;
     unless metric?
-      metric = '_count'
+      metric = &#39;_count&#39;
     if @config.dimensions.length == 1
       return @toStringOneDimension(@config.dimensions[0].field, metric, significance)
     else
@@ -637,7 +637,7 @@ class OLAPCube
     rowValues = @getDimensionValues(field)
     rowValueStrings = (JSON.stringify(r) for r in rowValues)
     rowLabelWidth = Math.max.apply({}, (s.length for s in rowValueStrings))
-    rowLabelWidth = Math.max(rowLabelWidth, 'Total'.length, field.length)
+    rowLabelWidth = Math.max(rowLabelWidth, &#39;Total&#39;.length, field.length)
     maxColumnWidth = metric.length
     valueStrings = []
     for r, indexRow in rowValues
@@ -647,26 +647,26 @@ class OLAPCube
       if cell?
         cellString = JSON.stringify(OLAPCube.roundToSignificance(cell[metric], significance))
       else
-        cellString = ''
+        cellString = &#39;&#39;
       maxColumnWidth = Math.max(maxColumnWidth, cellString.length)
       valueStrings.push(cellString)
 
     maxColumnWidth += 1
     fullWidth = rowLabelWidth + maxColumnWidth + 4
 
-    s = '| ' + (OLAPCube._padToWidth(field, rowLabelWidth, ' ', true)) + ' |'
-    s += OLAPCube._padToWidth(metric, maxColumnWidth) + ' |'
-    s += '\n|' + OLAPCube._padToWidth('', fullWidth, '=') + '|'
+    s = &#39;| &#39; + (OLAPCube._padToWidth(field, rowLabelWidth, &#39; &#39;, true)) + &#39; |&#39;
+    s += OLAPCube._padToWidth(metric, maxColumnWidth) + &#39; |&#39;
+    s += &#39;\n|&#39; + OLAPCube._padToWidth(&#39;&#39;, fullWidth, &#39;=&#39;) + &#39;|&#39;
     for r, indexRow in rowValueStrings
-      s += '\n| '
-      if r == 'null'
-        s += OLAPCube._padToWidth('Total', rowLabelWidth, ' ', true)
+      s += &#39;\n| &#39;
+      if r == &#39;null&#39;
+        s += OLAPCube._padToWidth(&#39;Total&#39;, rowLabelWidth, &#39; &#39;, true)
       else
-        s += OLAPCube._padToWidth(r, rowLabelWidth, ' ', true)
-      s += ' |' + OLAPCube._padToWidth(valueStrings[indexRow], maxColumnWidth) + ' |'
+        s += OLAPCube._padToWidth(r, rowLabelWidth, &#39; &#39;, true)
+      s += &#39; |&#39; + OLAPCube._padToWidth(valueStrings[indexRow], maxColumnWidth) + &#39; |&#39;
 
-      if r == 'null'
-        s += '\n|' + OLAPCube._padToWidth('', fullWidth, '-') + '|'
+      if r == &#39;null&#39;
+        s += &#39;\n|&#39; + OLAPCube._padToWidth(&#39;&#39;, fullWidth, &#39;-&#39;) + &#39;|&#39;
     return s
 
   toStringTwoDimensions: (rows, columns, metric, significance) -&gt;
@@ -679,10 +679,10 @@ class OLAPCube
     rowValueStrings = (JSON.stringify(r) for r in rowValues)
     columnValueStrings = (JSON.stringify(c) for c in columnValues)
     rowLabelWidth = Math.max.apply({}, (s.length for s in rowValueStrings))
-    rowLabelWidth = Math.max(rowLabelWidth, 'Total'.length)
+    rowLabelWidth = Math.max(rowLabelWidth, &#39;Total&#39;.length)
     valueStrings = []
     maxColumnWidth = Math.max.apply({}, (s.length for s in columnValueStrings))
-    maxColumnWidth = Math.max(maxColumnWidth, 'Total'.length)
+    maxColumnWidth = Math.max(maxColumnWidth, &#39;Total&#39;.length)
     for r, indexRow in rowValues
       valueStringsRow = []
       for c, indexColumn in columnValues
@@ -693,39 +693,39 @@ class OLAPCube
         if cell?
           cellString = JSON.stringify(OLAPCube.roundToSignificance(cell[metric], significance))
         else
-          cellString = ''
+          cellString = &#39;&#39;
         maxColumnWidth = Math.max(maxColumnWidth, cellString.length)
         valueStringsRow.push(cellString)
       valueStrings.push(valueStringsRow)
     maxColumnWidth += 1
-    s = '|' + (OLAPCube._padToWidth('', rowLabelWidth)) + ' ||'
+    s = &#39;|&#39; + (OLAPCube._padToWidth(&#39;&#39;, rowLabelWidth)) + &#39; ||&#39;
 
     for c, indexColumn in columnValueStrings
-      if c == 'null'
-        s += OLAPCube._padToWidth('Total', maxColumnWidth) + ' |'
+      if c == &#39;null&#39;
+        s += OLAPCube._padToWidth(&#39;Total&#39;, maxColumnWidth) + &#39; |&#39;
       else
         s += OLAPCube._padToWidth(c, maxColumnWidth)
     fullWidth = rowLabelWidth + maxColumnWidth * columnValueStrings.length + 3
-    if columnValueStrings[0] == 'null'
+    if columnValueStrings[0] == &#39;null&#39;
       fullWidth += 2
-    s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '=')
+    s += &#39;|\n|&#39; + OLAPCube._padToWidth(&#39;&#39;, fullWidth, &#39;=&#39;)
     for r, indexRow in rowValueStrings
-      s += '|\n|'
-      if r == 'null'
-        s += OLAPCube._padToWidth('Total', rowLabelWidth, ' ', true)
+      s += &#39;|\n|&#39;
+      if r == &#39;null&#39;
+        s += OLAPCube._padToWidth(&#39;Total&#39;, rowLabelWidth, &#39; &#39;, true)
       else
-        s += OLAPCube._padToWidth(r, rowLabelWidth, ' ', true)
-      s += ' ||'
+        s += OLAPCube._padToWidth(r, rowLabelWidth, &#39; &#39;, true)
+      s += &#39; ||&#39;
       for c, indexColumn in columnValueStrings
         s += OLAPCube._padToWidth(valueStrings[indexRow][indexColumn], maxColumnWidth)
-        if c == 'null'
-          s += ' |'
-      if r == 'null'
-        s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '-')
-    s += '|'
+        if c == &#39;null&#39;
+          s += &#39; |&#39;
+      if r == &#39;null&#39;
+        s += &#39;|\n|&#39; + OLAPCube._padToWidth(&#39;&#39;, fullWidth, &#39;-&#39;)
+    s += &#39;|&#39;
     return s
 
-  @_padToWidth: (s, width, padCharacter = ' ', rightPad = false) -&gt;
+  @_padToWidth: (s, width, padCharacter = &#39; &#39;, rightPad = false) -&gt;
     if s.length &gt; width
       return s.substr(0, width)
     padding = new Array(width - s.length + 1).join(padCharacter)
@@ -753,7 +753,7 @@ class OLAPCube
      *     ]
      * 
      *     dimensions = [
-     *       {field: &quot;ProjectHierarchy&quot;, type: 'hierarchy'},
+     *       {field: &quot;ProjectHierarchy&quot;, type: &#39;hierarchy&#39;},
      *       {field: &quot;Priority&quot;}
      *     ]
      * 
@@ -762,7 +762,7 @@ class OLAPCube
      * 
      *     originalCube = new OLAPCube(config, facts)
      * 
-     *     dateString = '2012-12-27T12:34:56.789Z'
+     *     dateString = &#39;2012-12-27T12:34:56.789Z&#39;
      *     savedState = originalCube.getStateForSaving({upToDate: dateString})
      *     restoredCube = OLAPCube.newFromSavedState(savedState)
      * 
@@ -799,14 +799,14 @@ class OLAPCube
      *   See `getStateForSaving()` documentation for a detailed example.
      * 
      *   Note, if you have specified config.keepFacts = true, the values for the facts will be restored, however, they
-     *   will no longer be references to the original facts. For this reason, it's usually better to include a `values` or
+     *   will no longer be references to the original facts. For this reason, it&#39;s usually better to include a `values` or
      *   `uniqueValues` metric on some ID field if you want fact drill-down support to survive a save and restore.
      * @static
      * @param {String/Object} p A String or Object from a previously saved OLAPCube state
      * @return {OLAPCube}
      */
 /* &lt;CoffeeScript&gt;
-    if utils.type(p) is 'string'
+    if utils.type(p) is &#39;string&#39;
       p = JSON.parse(p)
     cube = new OLAPCube(p.config)
     cube.summaryMetrics = p.summaryMetrics

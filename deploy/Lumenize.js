@@ -1,5 +1,5 @@
 /*
-Lumenize version: 0.7.2
+Lumenize version: 0.7.3
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -2449,8 +2449,6 @@ require.define("/node_modules/files",function(require,module,exports,__dirname,_
 "\t\t\t2:00\tGreece\tEE%sT\t1941 Apr 30\n"+
 "\t\t\t1:00\tGreece\tCE%sT\t1944 Apr  4\n"+
 "\t\t\t2:00\tGreece\tEE%sT\t1981\n"+
-"\t\t\t# Shanks & Pottenger say it switched to C-Eur in 1981;\n"+
-"\t\t\t# go with EU instead, since Greece joined it on Jan 1.\n"+
 "\t\t\t2:00\tEU\tEE%sT\n"+
 "Rule\tHungary\t1918\tonly\t-\tApr\t 1\t 3:00\t1:00\tS\n"+
 "Rule\tHungary\t1918\tonly\t-\tSep\t29\t 3:00\t0\t-\n"+
@@ -9458,6 +9456,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       @method ticksThatIntersect
       @param {Time/ISOString} startOn The start of the time period of interest
       @param {Time/ISOString} endBefore The moment just past the end of the time period of interest
+      @param {String} tz The timezone you want to use for the comparison
       @return {Array}
       
       Returns the list of ticks from this Timeline that intersect with the time period specified by the parameters
@@ -14864,16 +14863,19 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
       bucketSize = (max - min) / targetBucketCount;
       bucketer = [];
       bucketer.push({
+        value: 'B' + 0,
         startOn: null,
         endBelow: min + bucketSize
       });
       for (i = _i = 1, _ref1 = targetBucketCount - 2; 1 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 1 <= _ref1 ? ++_i : --_i) {
         bucketer.push({
+          value: 'B' + i,
           startOn: min + bucketSize * i,
           endBelow: min + bucketSize * (i + 1)
         });
       }
       bucketer.push({
+        value: 'B' + (targetBucketCount - 1),
         startOn: min + bucketSize * (targetBucketCount - 1),
         endBelow: null
       });
@@ -14887,6 +14889,7 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
       bucketer = [];
       currentBoundary = functions.percentileCreator(bucketSize)(values);
       bucketer.push({
+        value: 'B' + 0,
         startOn: null,
         endBelow: currentBoundary
       });
@@ -14894,11 +14897,13 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
         lastBoundary = currentBoundary;
         currentBoundary = functions.percentileCreator(bucketSize * (i + 1))(values);
         bucketer.push({
+          value: 'B' + i,
           startOn: lastBoundary,
           endBelow: currentBoundary
         });
       }
       bucketer.push({
+        value: 'B' + (targetBucketCount - 1),
         startOn: currentBoundary,
         endBelow: null
       });
@@ -15230,7 +15235,7 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
        for each of the features specified in the config.
       */
 
-      var bin, bucketer, countForThisValue, denominator, denominatorCell, dimensions, feature, featureCube, featureValues, filter, loses, n, numerator, numeratorCell, outputDimension, outputValue, outputValuesCube, percentWins, prediction, row, trainingSet, value, values, wins, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _len7, _m, _n, _o, _p, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
+      var bin, bucketGenerator, bucketer, countForThisValue, denominator, denominatorCell, dimensions, feature, featureCube, featureValues, filter, loses, n, numerator, numeratorCell, outputDimension, outputValue, outputValuesCube, percentWins, prediction, row, trainingSet, value, values, wins, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _len7, _m, _n, _o, _p, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
       trainingSet = utils.clone(userSuppliedTrainingSet);
       outputDimension = [
         {
@@ -15259,6 +15264,11 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
         countForThisValue = outputValuesCube.getCell(filter)._count;
         this.baseProbabilities[outputValue] = countForThisValue / n;
       }
+      if (n >= 144) {
+        bucketGenerator = Classifier.generateConstantQuantityBucketer;
+      } else {
+        bucketGenerator = Classifier.generateVOptimalBucketer;
+      }
       _ref2 = this.features;
       for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
         feature = _ref2[_k];
@@ -15272,7 +15282,7 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
             }
             return _results;
           })();
-          bucketer = Classifier.generateVOptimalBucketer(values);
+          bucketer = bucketGenerator(values);
           feature.bins = bucketer;
         } else if (feature.type === 'discrete') {
 
@@ -15327,7 +15337,6 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
               denominator = denominatorCell._count;
             } else {
               denominator = 0;
-              throw new Error("No values for " + feature.field + "=" + bin.value + " and " + this.outputField + "=" + outputValue + ".");
             }
             filter[this.outputField] = outputValue;
             numeratorCell = featureCube.getCell(filter);

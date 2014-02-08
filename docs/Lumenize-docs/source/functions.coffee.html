@@ -16,8 +16,8 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
-{utils} = require('tztime')
-JSON = require('JSON2')
+{utils} = require(&#39;tztime&#39;)
+JSON = require(&#39;JSON2&#39;)
 
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions'>/**
@@ -27,24 +27,24 @@ JSON = require('JSON2')
  * 
  *   * If a function can be calculated incrementally from an oldResult and newValues, then you do not need to specify dependencies
  *   * If a funciton can be calculated from other incrementally calculable results, then you need only specify those dependencies
- *   * If a function needs the full list of values to be calculated (like percentile coverage), then you must specify 'values'
+ *   * If a function needs the full list of values to be calculated (like percentile coverage), then you must specify &#39;values&#39;
  *   * To support the direct passing in of OLAP cube cells, you can provide a prefix (field name) so the key in dependentValues
  *     can be generated
- *   * 'count' is special and does not use a prefix because it is not dependent up a particular field
+ *   * &#39;count&#39; is special and does not use a prefix because it is not dependent up a particular field
  *   * You should calculate the dependencies before you calculate the thing that is depedent. The OLAP cube does some
- *     checking to confirm you've done this.
+ *     checking to confirm you&#39;ve done this.
  */
 /* &lt;CoffeeScript&gt;
 functions = {}
 
-_populateDependentValues = (values, dependencies, dependentValues = {}, prefix = '') -&gt;
+_populateDependentValues = (values, dependencies, dependentValues = {}, prefix = &#39;&#39;) -&gt;
   out = {}
   for d in dependencies
-    if d == 'count'
-      if prefix == ''
-        key = 'count'
+    if d == &#39;count&#39;
+      if prefix == &#39;&#39;
+        key = &#39;count&#39;
       else
-        key = '_count'
+        key = &#39;_count&#39;
     else
       key = prefix + d
     unless dependentValues[key]?
@@ -296,7 +296,7 @@ functions.average = (values, oldResult, newValues, dependentValues, prefix) -&gt
   {count, sum} = _populateDependentValues(values, functions.average.dependencies, dependentValues, prefix)
   return sum / count
 
-functions.average.dependencies = ['count', 'sum']
+functions.average.dependencies = [&#39;count&#39;, &#39;sum&#39;]
 
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-errorSquared'>/**
@@ -320,7 +320,7 @@ functions.errorSquared = (values, oldResult, newValues, dependentValues, prefix)
     errorSquared += difference * difference
   return errorSquared
 
-functions.errorSquared.dependencies = ['count', 'sum']
+functions.errorSquared.dependencies = [&#39;count&#39;, &#39;sum&#39;]
 
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-variance'>/**
@@ -339,7 +339,7 @@ functions.variance = (values, oldResult, newValues, dependentValues, prefix) -&g
   {count, sum, sumSquares} = _populateDependentValues(values, functions.variance.dependencies, dependentValues, prefix)
   return (count * sumSquares - sum * sum) / (count * (count - 1))
 
-functions.variance.dependencies = ['count', 'sum', 'sumSquares']
+functions.variance.dependencies = [&#39;count&#39;, &#39;sum&#39;, &#39;sumSquares&#39;]
 
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-standardDeviation'>/**
@@ -375,7 +375,7 @@ functions.standardDeviation.dependencies = functions.variance.dependencies
  * use. The function returned by this `percentileCreator` uses the Excel interpolation algorithm which differs from the NIST
  * primary method. However, NIST lists something very similar to the Excel approach as an acceptible alternative. The only
  * difference seems to be for the edge case for when you have only two data points in your data set. Agreement with Excel,
- * NIST's acceptance of it as an alternative (almost), and the fact that it makes the most sense to me is why this approach
+ * NIST&#39;s acceptance of it as an alternative (almost), and the fact that it makes the most sense to me is why this approach
  * was chosen.
  * 
  * http://en.wikipedia.org/wiki/Percentile#Alternative_methods
@@ -388,7 +388,7 @@ functions.standardDeviation.dependencies = functions.variance.dependencies
 functions.percentileCreator = (p) -&gt;
   f = (values, oldResult, newValues, dependentValues, prefix) -&gt;
     unless values?
-      {values} = _populateDependentValues(values, ['values'], dependentValues, prefix)
+      {values} = _populateDependentValues(values, [&#39;values&#39;], dependentValues, prefix)
     sortfunc = (a, b) -&gt;
       return a - b
     vLength = values.length
@@ -401,7 +401,7 @@ functions.percentileCreator = (p) -&gt;
     if n == vLength
       return values[vLength - 1]
     return values[k - 1] + d * (values[k] - values[k - 1])
-  f.dependencies = ['values']
+  f.dependencies = [&#39;values&#39;]
   return f
 
 functions.expandFandAs = (a) -&gt;
@@ -410,26 +410,26 @@ functions.expandFandAs = (a) -&gt;
 </span>   * @method expandFandAs
    * @member Lumenize.functions
    * @static
-   * @param {Object} a Will look like this `{as: 'mySum', f: 'sum', field: 'Points'}`
+   * @param {Object} a Will look like this `{as: &#39;mySum&#39;, f: &#39;sum&#39;, field: &#39;Points&#39;}`
    * @return {Object} returns the expanded specification
    * 
-   * Takes specifications for functions and expands them to include the actual function and 'as'. If you do not provide
-   * an 'as' property, it will build it from the field name and function with an underscore between. Also, if the
-   * 'f' provided is a string, it is copied over to the 'metric' property before the 'f' property is replaced with the
-   * actual function. `{field: 'a', f: 'sum'}` would expand to `{as: 'a_sum', field: 'a', metric: 'sum', f: [Function]}`.
+   * Takes specifications for functions and expands them to include the actual function and &#39;as&#39;. If you do not provide
+   * an &#39;as&#39; property, it will build it from the field name and function with an underscore between. Also, if the
+   * &#39;f&#39; provided is a string, it is copied over to the &#39;metric&#39; property before the &#39;f&#39; property is replaced with the
+   * actual function. `{field: &#39;a&#39;, f: &#39;sum&#39;}` would expand to `{as: &#39;a_sum&#39;, field: &#39;a&#39;, metric: &#39;sum&#39;, f: [Function]}`.
    */
 /* &lt;CoffeeScript&gt;
-  utils.assert(a.f?, &quot;'f' missing from specification: \n#{JSON.stringify(a, undefined, 4)}&quot;)
-  if utils.type(a.f) == 'function'
-    utils.assert(a.as?, 'Must provide &quot;as&quot; field with your aggregation when providing a user defined function')
+  utils.assert(a.f?, &quot;&#39;f&#39; missing from specification: \n#{JSON.stringify(a, undefined, 4)}&quot;)
+  if utils.type(a.f) == &#39;function&#39;
+    utils.assert(a.as?, &#39;Must provide &quot;as&quot; field with your aggregation when providing a user defined function&#39;)
     a.metric = a.f.toString()
   else if functions[a.f]?
     a.metric = a.f
     a.f = functions[a.f]
-  else if a.f == 'median'
-    a.metric = 'median'
+  else if a.f == &#39;median&#39;
+    a.metric = &#39;median&#39;
     a.f = functions.percentileCreator(50)
-  else if a.f.substr(0, 1) == 'p'
+  else if a.f.substr(0, 1) == &#39;p&#39;
     a.metric = a.f
     p = /\p(\d+(.\d+)?)/.exec(a.f)[1]
     a.f = functions.percentileCreator(Number(p))
@@ -437,11 +437,11 @@ functions.expandFandAs = (a) -&gt;
     throw new Error(&quot;#{a.f} is not a recognized built-in function&quot;)
 
   unless a.as?
-    if a.metric == 'count'
-      a.field = ''
-      a.metric = 'count'
+    if a.metric == &#39;count&#39;
+      a.field = &#39;&#39;
+      a.metric = &#39;count&#39;
     a.as = &quot;#{a.field}_#{a.metric}&quot;
-    utils.assert(a.field? or a.f == 'count', &quot;'field' missing from specification: \n#{JSON.stringify(a, undefined, 4)}&quot;)
+    utils.assert(a.field? or a.f == &#39;count&#39;, &quot;&#39;field&#39; missing from specification: \n#{JSON.stringify(a, undefined, 4)}&quot;)
   return a
 
 functions.expandMetrics = (metrics = [], addCountIfMissing = false, addValuesForCustomFunctions = false) -&gt;
@@ -456,17 +456,17 @@ functions.expandMetrics = (metrics = [], addCountIfMissing = false, addValuesFor
    */
 /* &lt;CoffeeScript&gt;
   confirmMetricAbove = (m, fieldName, aboveThisIndex) -&gt;
-    if m is 'count'
-      lookingFor = '_' + m
+    if m is &#39;count&#39;
+      lookingFor = &#39;_&#39; + m
     else
-      lookingFor = fieldName + '_' + m
+      lookingFor = fieldName + &#39;_&#39; + m
     i = 0
     while i &lt; aboveThisIndex
       currentRow = metrics[i]
       if currentRow.as == lookingFor
         return true
       i++
-    # OK, it's not above, let's now see if it's below. Then throw error.
+    # OK, it&#39;s not above, let&#39;s now see if it&#39;s below. Then throw error.
     i = aboveThisIndex + 1
     metricsLength = metrics.length
     while i &lt; metricsLength
@@ -479,8 +479,8 @@ functions.expandMetrics = (metrics = [], addCountIfMissing = false, addValuesFor
   assureDependenciesAbove = (dependencies, fieldName, aboveThisIndex) -&gt;
     for d in dependencies
       unless confirmMetricAbove(d, fieldName, aboveThisIndex)
-        if d == 'count'
-          newRow = {f: 'count'}
+        if d == &#39;count&#39;
+          newRow = {f: &#39;count&#39;}
         else
           newRow = {f: d, field: fieldName}
         functions.expandFandAs(newRow)
@@ -491,32 +491,32 @@ functions.expandMetrics = (metrics = [], addCountIfMissing = false, addValuesFor
   # add values for custom functions
   if addValuesForCustomFunctions
     for m, index in metrics
-      if utils.type(m.f) is 'function'
+      if utils.type(m.f) is &#39;function&#39;
         unless m.f.dependencies?
           m.f.dependencies = []
-        unless m.f.dependencies[0] is 'values'
-          m.f.dependencies.push('values')
-        unless confirmMetricAbove('values', m.field, index)
-          valuesRow = {f: 'values', field: m.field}
+        unless m.f.dependencies[0] is &#39;values&#39;
+          m.f.dependencies.push(&#39;values&#39;)
+        unless confirmMetricAbove(&#39;values&#39;, m.field, index)
+          valuesRow = {f: &#39;values&#39;, field: m.field}
           functions.expandFandAs(valuesRow)
           metrics.unshift(valuesRow)
 
   hasCount = false
   for m in metrics
     functions.expandFandAs(m)
-    if m.metric is 'count'
+    if m.metric is &#39;count&#39;
       hasCount = true
 
   if addCountIfMissing and not hasCount
-    countRow = {f: 'count'}
+    countRow = {f: &#39;count&#39;}
     functions.expandFandAs(countRow)
     metrics.unshift(countRow)
 
   index = 0
   while index &lt; metrics.length  # intentionally not caching length because the loop can add rows
     metricsRow = metrics[index]
-    if utils.type(metricsRow.f) is 'function'
-      dependencies = ['values']
+    if utils.type(metricsRow.f) is &#39;function&#39;
+      dependencies = [&#39;values&#39;]
     if metricsRow.f.dependencies?
       unless assureDependenciesAbove(metricsRow.f.dependencies, metricsRow.field, index)
         index = -1

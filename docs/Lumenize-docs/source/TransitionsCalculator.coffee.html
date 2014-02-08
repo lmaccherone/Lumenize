@@ -21,9 +21,9 @@
 # !TODO: Add drill-down support with uniqueIDField or maybe keepFacts = true
 # !TODO: Add series by type support
 
-OLAPCube = require('./OLAPCube').OLAPCube
-{utils, Time, Timeline} = require('tztime')
-JSON = require('JSON2')
+OLAPCube = require(&#39;./OLAPCube&#39;).OLAPCube
+{utils, Time, Timeline} = require(&#39;tztime&#39;)
+JSON = require(&#39;JSON2&#39;)
 
 class TransitionsCalculator # implements iCalculator
 &lt;/CoffeeScript&gt; */
@@ -32,26 +32,26 @@ class TransitionsCalculator # implements iCalculator
    * 
    * Used to accumlate counts and sums about transitions.
    * 
-   * Let's say that you want to create a throughput or velocity chart where each column on the chart represents the
+   * Let&#39;s say that you want to create a throughput or velocity chart where each column on the chart represents the
    * number of work items that cross over from one state into another state in a given month/week/quarter/etc. You would
-   * send a transitions to a temporal data store like Rally's Lookback API specifying both the current values and the
+   * send a transitions to a temporal data store like Rally&#39;s Lookback API specifying both the current values and the
    * previous values. For instance, the work items crossing from &quot;In Progress&quot; to &quot;Completed&quot; could be found
    * with this query clause `&quot;_PreviousValues.ScheduleState&quot;: {&quot;$lte&quot;: &quot;In Progress&quot;}, &quot;ScheduleState&quot;: {&quot;$gt&quot;: &quot;In Progress&quot;}`
    * 
-   *     {TransitionsCalculator, Time} = require('../')
+   *     {TransitionsCalculator, Time} = require(&#39;../&#39;)
    * 
    *     snapshots = [
-   *       { id: 1, from: '2011-01-03T00:00:00.000Z', PlanEstimate: 10 },
-   *       { id: 1, from: '2011-01-05T00:00:00.000Z', PlanEstimate: 10 },
-   *       { id: 2, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 20 },
-   *       { id: 3, from: '2011-01-10T00:00:00.000Z', PlanEstimate: 30 },
-   *       { id: 4, from: '2011-01-11T00:00:00.000Z', PlanEstimate: 40 },
-   *       { id: 5, from: '2011-01-17T00:00:00.000Z', PlanEstimate: 50 },
-   *       { id: 6, from: '2011-02-07T00:00:00.000Z', PlanEstimate: 60 },
-   *       { id: 7, from: '2011-02-08T00:00:00.000Z', PlanEstimate: 70 },
+   *       { id: 1, from: &#39;2011-01-03T00:00:00.000Z&#39;, PlanEstimate: 10 },
+   *       { id: 1, from: &#39;2011-01-05T00:00:00.000Z&#39;, PlanEstimate: 10 },
+   *       { id: 2, from: &#39;2011-01-04T00:00:00.000Z&#39;, PlanEstimate: 20 },
+   *       { id: 3, from: &#39;2011-01-10T00:00:00.000Z&#39;, PlanEstimate: 30 },
+   *       { id: 4, from: &#39;2011-01-11T00:00:00.000Z&#39;, PlanEstimate: 40 },
+   *       { id: 5, from: &#39;2011-01-17T00:00:00.000Z&#39;, PlanEstimate: 50 },
+   *       { id: 6, from: &#39;2011-02-07T00:00:00.000Z&#39;, PlanEstimate: 60 },
+   *       { id: 7, from: &#39;2011-02-08T00:00:00.000Z&#39;, PlanEstimate: 70 },
    *     ]
    * 
-   * But that's not the entire story. What if something crosses over into &quot;Completed&quot; and beyond but crosses back. It could
+   * But that&#39;s not the entire story. What if something crosses over into &quot;Completed&quot; and beyond but crosses back. It could
    * do this several times and get counted multiple times. That would be bad. The way we deal with this is to also
    * look for the list of snapshots that pass backwards across the boundary and subract thier impact on the final calculations.
    * 
@@ -63,71 +63,71 @@ class TransitionsCalculator # implements iCalculator
    * preserve the idempotency and cachable incremental calculation properties.
    * 
    *     snapshotsToSubtract = [
-   *       { id: 1, from: '2011-01-04T00:00:00.000Z', PlanEstimate: 10 },
-   *       { id: 7, from: '2011-02-09T00:00:00.000Z', PlanEstimate: 70 },
+   *       { id: 1, from: &#39;2011-01-04T00:00:00.000Z&#39;, PlanEstimate: 10 },
+   *       { id: 7, from: &#39;2011-02-09T00:00:00.000Z&#39;, PlanEstimate: 70 },
    *     ]
    * 
    * The calculator will keep track of the count of items automatically (think throughput), but if you want to sum up a
-   * particular field (think velocity), you can specify that with the 'fieldsToSum' config property.
+   * particular field (think velocity), you can specify that with the &#39;fieldsToSum&#39; config property.
    * 
-   *     fieldsToSum = ['PlanEstimate']
+   *     fieldsToSum = [&#39;PlanEstimate&#39;]
    * 
-   * Now let's build our config object.
+   * Now let&#39;s build our config object.
    * 
    *     config =
-   *       asOf: '2011-02-10'  # Leave this off if you want it to continuously update to today
+   *       asOf: &#39;2011-02-10&#39;  # Leave this off if you want it to continuously update to today
    *       granularity: Time.MONTH
-   *       tz: 'America/Chicago'
-   *       validFromField: 'from'
-   *       validToField: 'to'
-   *       uniqueIDField: 'id'
+   *       tz: &#39;America/Chicago&#39;
+   *       validFromField: &#39;from&#39;
+   *       validToField: &#39;to&#39;
+   *       uniqueIDField: &#39;id&#39;
    *       fieldsToSum: fieldsToSum
    *       asterixToDateTimePeriod: true  # Set to false or leave off if you are going to reformat the timePeriod
    * 
-   * In most cases, you'll want to leave off the `asOf` configuration property so the data can be continuously updated
-   * with new snapshots as they come in. We include it in this example so the output stays stable. If we hadn't, then
+   * In most cases, you&#39;ll want to leave off the `asOf` configuration property so the data can be continuously updated
+   * with new snapshots as they come in. We include it in this example so the output stays stable. If we hadn&#39;t, then
    * the rows would continue to grow to encompass today.
    * 
-   *     startOn = '2011-01-02T00:00:00.000Z'
-   *     endBefore = '2011-02-27T00:00:00.000Z'
+   *     startOn = &#39;2011-01-02T00:00:00.000Z&#39;
+   *     endBefore = &#39;2011-02-27T00:00:00.000Z&#39;
    * 
    *     calculator = new TransitionsCalculator(config)
    *     calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
    * 
    *     console.log(calculator.getResults())
-   *     # [ { timePeriod: '2011-01', count: 5, PlanEstimate: 150 },
-   *     #   { timePeriod: '2011-02*', count: 1, PlanEstimate: 60 } ]
+   *     # [ { timePeriod: &#39;2011-01&#39;, count: 5, PlanEstimate: 150 },
+   *     #   { timePeriod: &#39;2011-02*&#39;, count: 1, PlanEstimate: 60 } ]
    * 
    * The asterix on the last row in the results is to indicate that it is a to-date value. As more snapshots come in, this
    * last row will change. The caching and incremental calcuation capability of this Calculator are designed to take
    * this into account.
    * 
-   * Now, let's use the same data but aggregate in granularity of weeks.
+   * Now, let&#39;s use the same data but aggregate in granularity of weeks.
    * 
    *     config.granularity = Time.WEEK
    *     calculator = new TransitionsCalculator(config)
    *     calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
    * 
    *     console.log(calculator.getResults())
-   *     # [ { timePeriod: '2010W52', count: 1, PlanEstimate: 10 },
-   *     #   { timePeriod: '2011W01', count: 2, PlanEstimate: 50 },
-   *     #   { timePeriod: '2011W02', count: 2, PlanEstimate: 90 },
-   *     #   { timePeriod: '2011W03', count: 0, PlanEstimate: 0 },
-   *     #   { timePeriod: '2011W04', count: 0, PlanEstimate: 0 },
-   *     #   { timePeriod: '2011W05', count: 1, PlanEstimate: 60 },
-   *     #   { timePeriod: '2011W06*', count: 0, PlanEstimate: 0 } ]
+   *     # [ { timePeriod: &#39;2010W52&#39;, count: 1, PlanEstimate: 10 },
+   *     #   { timePeriod: &#39;2011W01&#39;, count: 2, PlanEstimate: 50 },
+   *     #   { timePeriod: &#39;2011W02&#39;, count: 2, PlanEstimate: 90 },
+   *     #   { timePeriod: &#39;2011W03&#39;, count: 0, PlanEstimate: 0 },
+   *     #   { timePeriod: &#39;2011W04&#39;, count: 0, PlanEstimate: 0 },
+   *     #   { timePeriod: &#39;2011W05&#39;, count: 1, PlanEstimate: 60 },
+   *     #   { timePeriod: &#39;2011W06*&#39;, count: 0, PlanEstimate: 0 } ]
    * 
    * Remember, you can easily convert weeks to other granularities for display.
    * 
-   *     weekStartingLabel = 'week starting ' + new Time('2010W52').inGranularity(Time.DAY).toString()
+   *     weekStartingLabel = &#39;week starting &#39; + new Time(&#39;2010W52&#39;).inGranularity(Time.DAY).toString()
    *     console.log(weekStartingLabel)
    *     # week starting 2010-12-27
    * 
-   * If you want to display spinners while the chart is rendering, you can read this calculator's upToDateISOString property and
-   * compare it directly to the getResults() row's timePeriod property using code like this. Yes, this works eventhough
+   * If you want to display spinners while the chart is rendering, you can read this calculator&#39;s upToDateISOString property and
+   * compare it directly to the getResults() row&#39;s timePeriod property using code like this. Yes, this works eventhough
    * upToDateISOString is an ISOString.
    * 
-   *     row = {timePeriod: '2011W07'}
+   *     row = {timePeriod: &#39;2011W07&#39;}
    *     if calculator.upToDateISOString &lt; row.timePeriod
    *       console.log(&quot;#{row.timePeriod} not yet calculated.&quot;)
    *     # 2011W07 not yet calculated.
@@ -138,7 +138,7 @@ class TransitionsCalculator # implements iCalculator
    * @cfg {String} [validFromField = &quot;_ValidFrom&quot;]
    * @cfg {String} [validToField = &quot;_ValidTo&quot;]
    * @cfg {String} [uniqueIDField = &quot;ObjectID&quot;] Not used right now but when drill-down is added it will be
-   * @cfg {String} granularity 'month', 'week', 'quarter', etc. Use Time.MONTH, Time.WEEK, etc.
+   * @cfg {String} granularity &#39;month&#39;, &#39;week&#39;, &#39;quarter&#39;, etc. Use Time.MONTH, Time.WEEK, etc.
    * @cfg {String[]} [fieldsToSum=[]] It will track the count automatically but it can keep a running sum of other fields also
    * @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
    */
@@ -160,17 +160,17 @@ class TransitionsCalculator # implements iCalculator
     utils.assert(@config.tz?, &quot;Must provide a timezone to this calculator.&quot;)
     utils.assert(@config.granularity?, &quot;Must provide a granularity to this calculator.&quot;)
     if @config.granularity in [Time.HOUR, Time.MINUTE, Time.SECOND, Time.MILLISECOND]
-      throw new Error(&quot;Transitions calculator is not designed to work on granularities finer than 'day'&quot;)
+      throw new Error(&quot;Transitions calculator is not designed to work on granularities finer than &#39;day&#39;&quot;)
 
     dimensions = [
-      {field: 'timePeriod'}
+      {field: &#39;timePeriod&#39;}
     ]
 
     metrics = [
-      {field: 'count', f: 'sum'}  # We add a count field to each snapshot and use sum so we can also subtract
+      {field: &#39;count&#39;, f: &#39;sum&#39;}  # We add a count field to each snapshot and use sum so we can also subtract
     ]
     for f in @config.fieldsToSum
-      metrics.push({field: f, f: 'sum'})
+      metrics.push({field: f, f: &#39;sum&#39;})
 
     cubeConfig = {dimensions, metrics}
     @cube = new OLAPCube(cubeConfig)
@@ -193,9 +193,9 @@ class TransitionsCalculator # implements iCalculator
      *   Allows you to incrementally add snapshots to this calculator.
      * @chainable
      * @param {Object[]} snapshots An array of temporal data model snapshots.
-     * @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+     * @param {String} startOn A ISOString (e.g. &#39;2012-01-01T12:34:56.789Z&#39;) indicating the time start of the period of
      *   interest. On the second through nth call, this should equal the previous endBefore.
-     * @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+     * @param {String} endBefore A ISOString (e.g. &#39;2012-01-01T12:34:56.789Z&#39;) indicating the moment just past the time
      *   period of interest.
      * @return {TransitionsCalculator}
      */
@@ -226,9 +226,9 @@ class TransitionsCalculator # implements iCalculator
     for s in snapshots
       if s[@config.validFromField] &lt;= @maxTimeString
         if s.count?
-          throw new Error('Snapshots passed into a TransitionsCalculator cannot have a `count` field.')
+          throw new Error(&#39;Snapshots passed into a TransitionsCalculator cannot have a `count` field.&#39;)
         if s.timePeriod?
-          throw new Error('Snapshots passed into a TransitionsCalculator cannot have a `timePeriod` field.')
+          throw new Error(&#39;Snapshots passed into a TransitionsCalculator cannot have a `timePeriod` field.&#39;)
         fs = utils.clone(s)
         fs.count = sign * 1
         fs.timePeriod = new Time(s[@config.validFromField], @config.granularity, @config.tz).toString()
@@ -243,7 +243,7 @@ class TransitionsCalculator # implements iCalculator
 </span>     * @method getResults
      * @member Lumenize.TransitionsCalculator
      *   Returns the current state of the calculator
-     * @return {Object[]} Returns an Array of Maps like `{timePeriod: '2012-12', count: 10, otherField: 34}`
+     * @return {Object[]} Returns an Array of Maps like `{timePeriod: &#39;2012-12&#39;, count: 10, otherField: 34}`
      */
 /* &lt;CoffeeScript&gt;
     if @virgin
@@ -262,14 +262,14 @@ class TransitionsCalculator # implements iCalculator
 
     for tp in timePeriods
       filter = {}
-      filter['timePeriod'] = tp
+      filter[&#39;timePeriod&#39;] = tp
       cell = @cube.getCell(filter)
       outRow = {}
       outRow.timePeriod = tp
       if cell?
         outRow.count = cell.count_sum
         for f in @config.fieldsToSum
-          outRow[f] = cell[f + '_sum']
+          outRow[f] = cell[f + &#39;_sum&#39;]
       else
         outRow.count = 0
         for f in @config.fieldsToSum
@@ -278,7 +278,7 @@ class TransitionsCalculator # implements iCalculator
       out.push(outRow)
 
     if @config.asterixToDateTimePeriod
-      out[out.length - 1].timePeriod += '*'
+      out[out.length - 1].timePeriod += &#39;*&#39;
 
     return out
 
@@ -317,7 +317,7 @@ class TransitionsCalculator # implements iCalculator
      * @return {TransitionsCalculator}
      */
 /* &lt;CoffeeScript&gt;
-    if utils.type(p) is 'string'
+    if utils.type(p) is &#39;string&#39;
       p = JSON.parse(p)
     calculator = new TransitionsCalculator(p.config)
     calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState)

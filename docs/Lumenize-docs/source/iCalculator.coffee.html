@@ -16,14 +16,14 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
-JSON = require('JSON2')
+JSON = require(&#39;JSON2&#39;)
 
 class iCalculator
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-iCalculator-method-constructor'><span id='Lumenize-iCalculator'>  /**
 </span></span>   * @class Lumenize.iCalculator
    * 
-   * This serves as documentation for the interface expected of all Lumenize Calculators. You can extend from it but it's
+   * This serves as documentation for the interface expected of all Lumenize Calculators. You can extend from it but it&#39;s
    * not technically necessary. You are more likely to copy this as the starting point for a new calculator.
    * 
    * @constructor
@@ -33,7 +33,7 @@ class iCalculator
 /* &lt;CoffeeScript&gt;
 
       The config properties are up to you.
-    throw new Error('iCalculator is an interface not a base class. You must override this constructor.')
+    throw new Error(&#39;iCalculator is an interface not a base class. You must override this constructor.&#39;)
 
   addSnapshots: (snapshots, startOn, endBefore) -&gt;
 &lt;/CoffeeScript&gt; */
@@ -43,14 +43,14 @@ class iCalculator
      *   Allows you to incrementally add snapshots to this calculator.
      * @chainable
      * @param {Object[]} snapshots An array of temporal data model snapshots.
-     * @param {String} startOn A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the time start of the period of
+     * @param {String} startOn A ISOString (e.g. &#39;2012-01-01T12:34:56.789Z&#39;) indicating the time start of the period of
      *   interest. On the second through nth call, this should equal the previous endBefore.
-     * @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
+     * @param {String} endBefore A ISOString (e.g. &#39;2012-01-01T12:34:56.789Z&#39;) indicating the moment just past the time
      *   period of interest.
      * @return {iCalculator}
      */
 /* &lt;CoffeeScript&gt;
-    throw new Error('iCalculator is an interface not a base class. You must override this addSnapshots method.')
+    throw new Error(&#39;iCalculator is an interface not a base class. You must override this addSnapshots method.&#39;)
 
     # example code follows
     if @upToDateISOString?
@@ -68,7 +68,7 @@ class iCalculator
      * @return {Object} The type and format of what it returns is up to you.
      */
 /* &lt;CoffeeScript&gt;
-    throw new Error('iCalculator is an interface not a base class. You must override this getResults method.')
+    throw new Error(&#39;iCalculator is an interface not a base class. You must override this getResults method.&#39;)
 
   getStateForSaving: (meta) -&gt;
 &lt;/CoffeeScript&gt; */
@@ -83,7 +83,7 @@ class iCalculator
      *   the calculator.
      */
 /* &lt;CoffeeScript&gt;
-    throw new Error('iCalculator is an interface not a base class. You must override this getStateForSaving method.')
+    throw new Error(&#39;iCalculator is an interface not a base class. You must override this getStateForSaving method.&#39;)
 
     # example code follows
     out = {}
@@ -104,10 +104,10 @@ class iCalculator
      * @return {iCalculator}
      */
 /* &lt;CoffeeScript&gt;
-    throw new Error('iCalculator is an interface not a base class. You must override this @newFromSavedState method.')
+    throw new Error(&#39;iCalculator is an interface not a base class. You must override this @newFromSavedState method.&#39;)
 
     # example code follows
-    if utils.type(p) is 'string'
+    if utils.type(p) is &#39;string&#39;
       p = JSON.parse(p)
     # calculator = new &lt;your_class_here&gt;(p.config)
     if p.meta?

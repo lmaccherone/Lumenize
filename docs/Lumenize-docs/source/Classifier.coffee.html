@@ -16,10 +16,10 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
-functions = require('./functions').functions
-utils = require('tztime').utils
-OLAPCube = require('./OLAPCube').OLAPCube
-JSON = require('JSON2')
+functions = require(&#39;./functions&#39;).functions
+utils = require(&#39;tztime&#39;).utils
+OLAPCube = require(&#39;./OLAPCube&#39;).OLAPCube
+JSON = require(&#39;JSON2&#39;)
 
 class Classifier
 &lt;/CoffeeScript&gt; */
@@ -44,10 +44,10 @@ class Classifier
     {targetBucketCount, min, max} = Classifier.getBucketCountMinMax(values)
     bucketSize = (max - min) / targetBucketCount
     bucketer = []  # each row is {startOn, endBelow} meaning bucket  startOn &lt;= x &lt; endBelow
-    bucketer.push({startOn: null, endBelow: min + bucketSize})
+    bucketer.push({value: &#39;B&#39; + 0, startOn: null, endBelow: min + bucketSize})
     for i in [1..targetBucketCount - 2]
-      bucketer.push({startOn: min + bucketSize * i, endBelow: min + bucketSize * (i + 1)})
-    bucketer.push({startOn: min + bucketSize * (targetBucketCount - 1), endBelow: null})
+      bucketer.push({value: &#39;B&#39; + i, startOn: min + bucketSize * i, endBelow: min + bucketSize * (i + 1)})
+    bucketer.push({value: &#39;B&#39; + (targetBucketCount - 1), startOn: min + bucketSize * (targetBucketCount - 1), endBelow: null})
     return bucketer
 
   @generateConstantQuantityBucketer: (values) -&gt;
@@ -55,12 +55,12 @@ class Classifier
     bucketSize = 100 / targetBucketCount
     bucketer = []  # each row is {startOn, endBelow} meaning bucket  startOn &lt;= x &lt; endBelow
     currentBoundary = functions.percentileCreator(bucketSize)(values)
-    bucketer.push({startOn: null, endBelow: currentBoundary})
+    bucketer.push({value: &#39;B&#39; + 0, startOn: null, endBelow: currentBoundary})
     for i in [1..targetBucketCount - 2]
       lastBoundary = currentBoundary
       currentBoundary = functions.percentileCreator(bucketSize * (i + 1))(values)
-      bucketer.push({startOn: lastBoundary, endBelow: currentBoundary})
-    bucketer.push({startOn: currentBoundary, endBelow: null})
+      bucketer.push({value: &#39;B&#39; + i, startOn: lastBoundary, endBelow: currentBoundary})
+    bucketer.push({value: &#39;B&#39; + (targetBucketCount - 1), startOn: currentBoundary, endBelow: null})
     return bucketer
 
   @splitAt: (values, index) -&gt;
@@ -96,7 +96,7 @@ class Classifier
     currentSplits.push(splitAt)
     if currentSplits.length &lt; targetBucketCount
       Classifier.findBucketSplits(currentSplits, left, targetBucketCount)
-      Classifier.findBucketSplits(currentSplits, right, targetBucketCount)  # Note, it's possible to have more than targetBucketCount this way
+      Classifier.findBucketSplits(currentSplits, right, targetBucketCount)  # Note, it&#39;s possible to have more than targetBucketCount this way
     return currentSplits
 
   @generateVOptimalBucketer: (values) -&gt;  # !TODO: Split out bucketers and use with histogram when upgrading histogram
@@ -108,18 +108,18 @@ class Classifier
 
     bucketer = []  # each row is {startOn, endBelow} meaning bucket  startOn &lt;= x &lt; endBelow
     currentBoundary = splits[0]
-    bucketer.push({value: 'B' + 0, startOn: null, endBelow: currentBoundary})
+    bucketer.push({value: &#39;B&#39; + 0, startOn: null, endBelow: currentBoundary})
     for i in [1..splits.length - 1]
       lastBoundary = currentBoundary
       currentBoundary = splits[i]
-      bucketer.push({value: 'B' + i, startOn: lastBoundary, endBelow: currentBoundary})
-    bucketer.push({value: 'B' + splits.length, startOn: currentBoundary, endBelow: null})
+      bucketer.push({value: &#39;B&#39; + i, startOn: lastBoundary, endBelow: currentBoundary})
+    bucketer.push({value: &#39;B&#39; + splits.length, startOn: currentBoundary, endBelow: null})
 
     return bucketer
 
   discreteizeRow: (row) -&gt;  # This will replace the value with the index of the bin that matches that value
     for feature in @features
-      if feature.type is 'continuous'
+      if feature.type is &#39;continuous&#39;
         value = row[feature.field]
         unless value?
           throw new Error(&quot;Could not find field #{feature.field} in #{JSON.stringify(row)}.&quot;)
@@ -166,11 +166,11 @@ class BayesianClassifier extends Classifier
    * distributions. This works because these characteristics are generally normally distributed **and the distribution for
    * men is generally to the right of the distribution for women**.
    * 
-   * However, let's ask a group of folks who work together if they consider themselves a team and let's try to use the size
+   * However, let&#39;s ask a group of folks who work together if they consider themselves a team and let&#39;s try to use the size
    * of the group as a feature to predict what a new group would say. If the group is very small (1-2 people), they are
    * less likely to consider themselves a team (partnership maybe), but if they are too large (say &gt; 10), they are also
    * unlikely to refer to themselves as a team. The non-team distribution is bimodal, looking at its mean and variance
-   * completely mis-characterizes it. Also, the distribution is zero bound so it's likely to be asymmetric, which also
+   * completely mis-characterizes it. Also, the distribution is zero bound so it&#39;s likely to be asymmetric, which also
    * poses problems for a normal distribution assumption.
    * 
    * ## So what do we do instead? ##
@@ -204,7 +204,7 @@ class BayesianClassifier extends Classifier
    * 
    * The algorithm used here for v-optimal bucketing is slightly inspired by
    * [this non-recursive code](http://www.mathcs.emory.edu/~cheung/Courses/584-StreamDB/Syllabus/06-Histograms/v-opt3.html).
-   * However, the implementation here is recursive and I've made some different choices about when to terminate the splitting. To
+   * However, the implementation here is recursive and I&#39;ve made some different choices about when to terminate the splitting. To
    * understand the essence of the algorithm used, you need only look at the 9 lines of code in the `findBucketSplits()` function.
    * The `optimalSplitFor2Buckets()` function will split the values into two buckets. It tries each possible split
    * starting with only one in the bucket on the left all the way down to a split with only one in the bucket on the right.
@@ -213,9 +213,9 @@ class BayesianClassifier extends Classifier
    * 
    * First we need to require the classifier.
    * 
-   *     {BayesianClassifier} = require('../')
+   *     {BayesianClassifier} = require(&#39;../&#39;)
    * 
-   * Before we start, let's take a look at our training set. The assumption is that we think TeamSize and HasChildProject
+   * Before we start, let&#39;s take a look at our training set. The assumption is that we think TeamSize and HasChildProject
    * will be predictors for RealTeam.
    * 
    *     trainingSet = [
@@ -236,15 +236,15 @@ class BayesianClassifier extends Classifier
    *       {TeamSize: 5, HasChildProject: 0, RealTeam: 0},
    *     ]
    * 
-   * Now, let's set up a simple config indicating our assumptions. Note how the type for TeamSize is 'continuous'
-   * whereas the type for HasChildProject is 'discrete' eventhough a number is stored. Continuous types must be numbers
+   * Now, let&#39;s set up a simple config indicating our assumptions. Note how the type for TeamSize is &#39;continuous&#39;
+   * whereas the type for HasChildProject is &#39;discrete&#39; eventhough a number is stored. Continuous types must be numbers
    * but discrete types can either be numbers or strings.
    * 
    *     config =
    *       outputField: &quot;RealTeam&quot;
    *       features: [
-   *         {field: 'TeamSize', type: 'continuous'},
-   *         {field: 'HasChildProject', type: 'discrete'}
+   *         {field: &#39;TeamSize&#39;, type: &#39;continuous&#39;},
+   *         {field: &#39;HasChildProject&#39;, type: &#39;discrete&#39;}
    *       ]
    * 
    * We can now instantiate the classifier with that config,
@@ -256,13 +256,13 @@ class BayesianClassifier extends Classifier
    *     percentWins = classifier.train(trainingSet)
    * 
    * The call to `train()` returns the percentage of times that the trained classifier gets the right answer for the training
-   * set. This should usually be pretty high. Anything below say, 70% and you probably don't have the right &quot;features&quot;
-   * in your training set or you don't have enough training set data. Our made up exmple is a borderline case.
+   * set. This should usually be pretty high. Anything below say, 70% and you probably don&#39;t have the right &quot;features&quot;
+   * in your training set or you don&#39;t have enough training set data. Our made up exmple is a borderline case.
    * 
    *     console.log(percentWins)
    *     # 0.7333333333333333
    * 
-   * Now, let's see how the trained classifier is used to predict &quot;RealTeam&quot;-ness. We simply pass in an object with
+   * Now, let&#39;s see how the trained classifier is used to predict &quot;RealTeam&quot;-ness. We simply pass in an object with
    * fields for each of our features. A very small team with child projects are definitely not a RealTeam.
    * 
    *     console.log(classifier.predict({TeamSize: 1, HasChildProject: 1}))
@@ -281,15 +281,15 @@ class BayesianClassifier extends Classifier
    * If you want to know the strength of the prediction, you can pass in `true` as the second parameter to the `predict()` method.
    * 
    *     console.log(classifier.predict({TeamSize: 29, HasChildProject: 0}, true))
-   *     # { '0': 0.6956521739130435, '1': 0.30434782608695654 }
+   *     # { &#39;0&#39;: 0.6956521739130435, &#39;1&#39;: 0.30434782608695654 }
    * 
-   * We're only 69.6% sure this is not a RealTeam. Notice how the keys for the output are strings eventhough we passed in values
+   * We&#39;re only 69.6% sure this is not a RealTeam. Notice how the keys for the output are strings eventhough we passed in values
    * of type Number for the RealTeam field in our training set. We had no choice in this case because keys of JavaScript
    * Objects must be strings. However, the classifier is smart enough to know that you wanted
    * 
    * Like the Lumenize calculators, you can save and restore the state of a trained classifier.
    * 
-   *     savedState = classifier.getStateForSaving('some meta data')
+   *     savedState = classifier.getStateForSaving(&#39;some meta data&#39;)
    *     newClassifier = BayesianClassifier.newFromSavedState(savedState)
    *     console.log(newClassifier.meta)
    *     # some meta data
@@ -297,18 +297,18 @@ class BayesianClassifier extends Classifier
    * It will make the same predictions.
    * 
    *     console.log(newClassifier.predict({TeamSize: 29, HasChildProject: 0}, true))
-   *     # { '0': 0.6956521739130435, '1': 0.30434782608695654 }
+   *     # { &#39;0&#39;: 0.6956521739130435, &#39;1&#39;: 0.30434782608695654 }
    * 
    * 
    * @constructor
    * @param {Object} userConfig See Config options for details.
    * @cfg {String} outputField String indicating which field in the training set is what we are trying to predict
    * @cfg {Object[]} features Array of Maps which specifies the fields to use as features. Each row in the array should
-   *  be in the form of `{field: &lt;fieldName&gt;, type: &lt;'continuous' | 'discrete'&gt;}`. Note, that you can even declare Number type
-   *  fields as 'discrete'. It is preferable to do this if you know that it can only be one of a hand full of values
+   *  be in the form of `{field: &lt;fieldName&gt;, type: &lt;&#39;continuous&#39; | &#39;discrete&#39;&gt;}`. Note, that you can even declare Number type
+   *  fields as &#39;discrete&#39;. It is preferable to do this if you know that it can only be one of a hand full of values
    *  (0 vs 1 for example).
    * 
-   *  **WARNING: If you choose 'discrete' for the feature type, then ALL possible values for that feature must appear
+   *  **WARNING: If you choose &#39;discrete&#39; for the feature type, then ALL possible values for that feature must appear
    *  in the training set. If the classifier is asked to make a prediction with a value that it has never seen
    *  before, it will fail catostrophically.**
    */
@@ -343,7 +343,7 @@ class BayesianClassifier extends Classifier
     @outputValues = outputValuesCube.getDimensionValues(@outputField)
     @outputFieldTypeIsNumber = true
     for value in @outputValues
-      unless utils.type(value) is 'number'
+      unless utils.type(value) is &#39;number&#39;
         @outputFieldTypeIsNumber = false
 
     # calculate base probabilities for each of the @outputValues
@@ -355,15 +355,20 @@ class BayesianClassifier extends Classifier
       countForThisValue = outputValuesCube.getCell(filter)._count
       @baseProbabilities[outputValue] = countForThisValue / n
 
+    if n &gt;= 144
+      bucketGenerator = Classifier.generateConstantQuantityBucketer
+    else
+      bucketGenerator = Classifier.generateVOptimalBucketer
+
     # calculate probabilities for each of the feature fields
     for feature in @features
-      if feature.type is 'continuous'
+      if feature.type is &#39;continuous&#39;
         # create v-optimal buckets
-        values = (row[feature.field] for row in trainingSet)
-        bucketer = Classifier.generateVOptimalBucketer(values)
+        values = (row[feature.field] for row in trainingSet)  # !TODO: skip this section if the current feature is missing from the row
+        bucketer = bucketGenerator(values)
         feature.bins = bucketer
-      else if feature.type is 'discrete'
-        # Right now, I don't think we need to do anything here. The continuous data has bins and the discrete data does not, but we
+      else if feature.type is &#39;discrete&#39;
+        # Right now, I don&#39;t think we need to do anything here. The continuous data has bins and the discrete data does not, but we
         # efficiently add them after we create the OLAP cube for the feature
       else
         throw new Error(&quot;Unrecognized feature type: #{feature.type}.&quot;)
@@ -372,9 +377,9 @@ class BayesianClassifier extends Classifier
     @discreteizeRow(row) for row in trainingSet
     # Now the data looks like this:
     #  bins: [
-    #    {value: 'B0', startOn: null, endBelow: 5.5},
-    #    {value: 'B1', startOn: 5.5, endBelow: 20.25},
-    #    {value: 'B2', startOn: 20.25, endBelow: null}
+    #    {value: &#39;B0&#39;, startOn: null, endBelow: 5.5},
+    #    {value: &#39;B1&#39;, startOn: 5.5, endBelow: 20.25},
+    #    {value: &#39;B2&#39;, startOn: 20.25, endBelow: null}
     #  ]
 
     # create probabilities for every bin/outputFieldValue combination
@@ -383,7 +388,7 @@ class BayesianClassifier extends Classifier
       dimensions.push({field: feature.field})
       featureCube = new OLAPCube({dimensions}, trainingSet)
       featureValues = featureCube.getDimensionValues(feature.field)
-      if feature.type is 'discrete'
+      if feature.type is &#39;discrete&#39;
         feature.bins = ({value} for value in featureValues)  # This is where we create the bins for discrete features
       for bin in feature.bins
         bin.probabilities = {}
@@ -395,14 +400,14 @@ class BayesianClassifier extends Classifier
             denominator = denominatorCell._count
           else
             denominator = 0
-            throw new Error(&quot;No values for #{feature.field}=#{bin.value} and #{@outputField}=#{outputValue}.&quot;)
+#            throw new Error(&quot;No values for #{feature.field}=#{bin.value} and #{@outputField}=#{outputValue}.&quot;)
           filter[@outputField] = outputValue
           numeratorCell = featureCube.getCell(filter)
           numerator = numeratorCell?._count | 0
           bin.probabilities[outputValue] = numerator / denominator
 
     # calculate accuracy for training set
-    trainingSet = utils.clone(userSuppliedTrainingSet)
+    trainingSet = utils.clone(userSuppliedTrainingSet)  # !TODO: Upgrade to calculate off of a validation set if provided
     wins = 0
     loses = 0
     for row in trainingSet
@@ -434,7 +439,7 @@ class BayesianClassifier extends Classifier
     probabilities = {}
     for outputValue, probability of @baseProbabilities
       probabilities[outputValue] = probability
-    for feature in @features
+    for feature in @features  # !TODO: Skip if row[feature.field] is null
       matchingBin = null
       for bin in feature.bins
         if row[feature.field] == bin.value
@@ -506,7 +511,7 @@ class BayesianClassifier extends Classifier
      * @return {Classifier}
      */
 /* &lt;CoffeeScript&gt;
-    if utils.type(p) is 'string'
+    if utils.type(p) is &#39;string&#39;
       p = JSON.parse(p)
 
     classifier = new BayesianClassifier(p.userConfig)

@@ -16,7 +16,7 @@
 </head>
 <body onload="prettyPrint(); highlight();">
   <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
-{utils} = require('tztime')
+{utils} = require(&#39;tztime&#39;)
 
 table = {}
 &lt;/CoffeeScript&gt; */
@@ -25,7 +25,7 @@ table = {}
  */
 /* &lt;CoffeeScript&gt;
 
-table.padToWidth = (s, width, padCharacter = ' ', rightPad = false) -&gt;
+table.padToWidth = (s, width, padCharacter = &#39; &#39;, rightPad = false) -&gt;
   if s.length &gt; width
     return s.substr(0, width)
   padding = new Array(width - s.length + 1).join(padCharacter)
@@ -46,12 +46,12 @@ table.toString = (rows, fields, sortBy, descending = false) -&gt;
    * @return {String} Returns a string for the table in Markdown format
    * 
    *     t = [
-   *       {col1: 'hello', col2: 12, col3: true},
-   *       {col1: 'goodbye', col2: 120, col3: false},
-   *       {col1: 'yep', col2: -23, col3: true},
+   *       {col1: &#39;hello&#39;, col2: 12, col3: true},
+   *       {col1: &#39;goodbye&#39;, col2: 120, col3: false},
+   *       {col1: &#39;yep&#39;, col2: -23, col3: true},
    *     ]
    * 
-   *     console.log(require('../').table.toString(t, null, 'col2', true))
+   *     console.log(require(&#39;../&#39;).table.toString(t, null, &#39;col2&#39;, true))
    *     # | col1    | col2 | col3  |
    *     # | ------- | ---- | ----- |
    *     # | goodbye | 120  | false |
@@ -77,21 +77,21 @@ table.toString = (rows, fields, sortBy, descending = false) -&gt;
   else
     sortedRows = rows
 
-  s = '|'
+  s = &#39;|&#39;
   for field, index in fields
-    s += ' '
-    s += table.padToWidth(field, maxWidths[index], undefined, true) + ' |'  # !TODO: Change undefined for justification
+    s += &#39; &#39;
+    s += table.padToWidth(field, maxWidths[index], undefined, true) + &#39; |&#39;  # !TODO: Change undefined for justification
 
-  s += '\n|'
+  s += &#39;\n|&#39;
   for field, index in fields
-    s += ' '
-    s += table.padToWidth('', maxWidths[index], '-', true) + ' |'  # !TODO: Add colons for justification
+    s += &#39; &#39;
+    s += table.padToWidth(&#39;&#39;, maxWidths[index], &#39;-&#39;, true) + &#39; |&#39;  # !TODO: Add colons for justification
 
   for row in sortedRows
-    s += '\n|'
+    s += &#39;\n|&#39;
     for field, index in fields
-      s += ' '
-      s += table.padToWidth(row[field].toString(), maxWidths[index], undefined, true) + ' |'  # !TODO: Change undefined for justification
+      s += &#39; &#39;
+      s += table.padToWidth(row[field].toString(), maxWidths[index], undefined, true) + &#39; |&#39;  # !TODO: Change undefined for justification
 
   return s
 
