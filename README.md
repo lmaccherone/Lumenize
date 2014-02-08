@@ -73,11 +73,11 @@ And call it like this.
 
 To install, run the following from the root folder of your project:
 
-`npm install Lumenize --save`
+`npm install lumenize --save`
 
 Then in your code:
 
-`var lumenize = require('Lumenize')`
+`var lumenize = require('lumenize')`
 
 ## Documentation and source code ##
 
