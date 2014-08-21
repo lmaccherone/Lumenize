@@ -147,6 +147,7 @@ task('build-and-docs', 'Build and docs combined for LiveReload.', () ->
 )
 
 task('test', 'Run the CoffeeScript test suite with nodeunit', () ->
+  require('coffee-script/register')
   {reporters} = require('nodeunit')
   process.chdir(__dirname)
   reporters.default.run(['test'], undefined, (failure) ->
