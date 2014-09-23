@@ -33,10 +33,11 @@
   },
   "preferGlobal": false,
   "dependencies": {
-    "tztime": "~0.6.10",
-    "JSON2": "0.1.0"
+    "JSON2": "0.1.0",
+    "tztime": "~0.6.10"
   },
   "devDependencies": {
+    "csv": "^0.4.0",
     "jsduckify": "~0.2.2",
     "coffee-script": "~1.7.1",
     "coffeedoctest": "0.4.x",

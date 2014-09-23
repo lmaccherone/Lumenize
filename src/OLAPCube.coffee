@@ -542,6 +542,7 @@ class OLAPCube
     return values
 
   @_compare: (a, b) ->
+    # !TODO: Use utils.compare. I copied the below into utils but haven't changed below to use it yet. Waiting on a new release of tzTime.
     if a is null
       return 1
     if b is null
