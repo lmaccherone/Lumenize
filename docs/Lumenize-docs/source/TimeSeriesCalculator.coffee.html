@@ -260,6 +260,24 @@ class TimeSeriesCalculator # implements iCalculator
    * We didn&#39;t output the MedianTaskRemainingTotal metric but it&#39;s in there. I included it to demonstrate that you can
    * calculate non-group-by series along side group-by series.
    * 
+   * The order of execution of all of the configurations that modify or augment the results is as follows:
+   * 
+   * 1. **deriveFieldsOnInput** operate on the snapshots by adding virtual fields to them. This is done when addSnapshots() is
+   *    called before any time series calculations are run your metrics config can refer to them as if they were real fields
+   *    on the snapshots.
+   * 1. **metrics** which defines the seriesData.
+   * 1. **deriveFieldsOnOutput** operates on the output seriesData table that has one row per tick. It is also done when you call
+   *    addSnapshots() but after the seriesData calculations are completed.
+   * 1. **summaryMetricsConfig** also operates on the seriesData table but rather than augmenting the rows in that table, it creates
+   *    a new table (summaryMetrics) that just contains summary information. An example usage would be to find the max scope to be
+   *    used by deriveFieldsAfterSummary to create an ideal line that burned down from that max. Note, this is run
+   *    every time you call getResults(), so it can potentially be expensive if you fetch the results often with getResults().
+   * 1. **deriveFieldsAfterSummary** is used next. It&#39;s essentially the same as deriveFieldsOnOutput and also creates new columns
+   *    in the seriesData table whose rows are made up of ticks. However, it allows you to use the summary table. Only use this
+   *    if the field calculation needs something from the summary (like an ideal line) because it is potentially more
+   *    expensive since it&#39;s done every time you call getResults().
+   * 1. **projectionsConfig** is the last augmentation config used.
+   * 
    * 
    * @constructor
    * @param {Object} config

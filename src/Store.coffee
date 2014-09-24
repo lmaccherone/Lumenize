@@ -134,15 +134,61 @@ class Store
 
     return this
 
-  @staticMethod: (p) ->
+  filtered: (filter) ->
     ###
-    @method staticMethod
-      Description
+    @method filtered
+      Returns the subset of the snapshots that match the filter
+    @param {Function} filter
+    @return {Object[]} An array or snapshots. Note, they will not be flattened so they have references to their prototypes
+    ###
+    result = []
+    for s in @snapshots
+      if filter(s)
+        result.push(s)
 
-    @static
-    @param {String/Object} p A String or Object from blah blah blah
-    @return {SomeType}
+    return result
+
+  stateBoundaryCrossedFiltered: (field, values, valueToTheRightOfBoundary, forward = true, assumeNullIsLowest = true) ->
     ###
-    console.log('do something')
+    @method stateBoundaryCrossedFiltered
+      Returns the subset of the snapshots where the field transitions from the left of valueToTheRightOfBoundary to
+      the right (inclusive)
+    @param {String} field
+    @param {String[]} values
+    @param {String} valueToTheRightOfBoundary
+    @param {Boolean} [forward = true] When true (the default), this will return the transitions from left to right
+      However, if you set this to false, it will return the transitions right to left.
+    @param {Boolean} [assumeNullIsLowest = true] Set to false if you don't want to consider transitions out of null
+    @return {Object[]} An array or snapshots. Note, they will not be flattened so they have references to their prototypes
+    ###
+    index = values.indexOf(valueToTheRightOfBoundary)
+    utils.assert(index >= 0, "stateToTheRightOfBoundary must be in stateList")
+    left = values.slice(0, index)
+    if assumeNullIsLowest
+      left.unshift(null)
+    right = values.slice(index)
+    if forward
+      filter = (s) -> s._previousValues.hasOwnProperty(field) and s._previousValues[field] in left and s[field] in right
+    else
+      filter = (s) -> s._previousValues.hasOwnProperty(field) and s._previousValues[field] in right and s[field] in left
+
+    return @filtered(filter)
+
+  stateBoundaryCrossedFilteredBothWays: (field, values, valueToTheRightOfBoundary, assumeNullIsLowest = true) ->
+    ###
+    @method stateBoundaryCrossedFilteredBothWays
+      Shortcut to stateBoundaryCrossedFiltered for when you need both directions
+    @param {String} field
+    @param {String[]} values
+    @param {String} valueToTheRightOfBoundary
+    @param {Boolean} [assumeNullIsLowest = true] Set to false if you don't want to consider transitions out of null
+    @return {Object} An object with two root keys: 1) forward, 2) backward. The values are the arrays that are returned
+      from stateBoundaryCrossedFiltered
+    ###
+    forward = @stateBoundaryCrossedFiltered(field, values, valueToTheRightOfBoundary, true, assumeNullIsLowest)
+    backward = @stateBoundaryCrossedFiltered(field, values, valueToTheRightOfBoundary, false, assumeNullIsLowest)
+    return {forward, backward}
+
+
 
 exports.Store = Store

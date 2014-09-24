@@ -1,6 +1,6 @@
 {
   "name": "lumenize",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "main": "./lumenize",
   "description": "Illuminating the forest AND the trees in your data.",
   "keywords": [
@@ -37,7 +37,6 @@
     "tztime": "~0.6.10"
   },
   "devDependencies": {
-    "csv": "^0.4.0",
     "jsduckify": "~0.2.2",
     "coffee-script": "~1.7.1",
     "coffeedoctest": "0.4.x",

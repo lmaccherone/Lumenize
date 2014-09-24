@@ -64,4 +64,15 @@ exports.StoreTest =
     test.equal(store.snapshots[2].Severity, 5, 'Tests defaults and inheritance')
     test.equal(store.snapshots[1].Created_Date, '2014-06-16', 'Tests inheritance')
 
+    values = ['New', 'In Progress', 'Done']
+    filtered = store.stateBoundaryCrossedFiltered('Status', values, 'In Progress')
+    expected = [
+      { _previousValues: { Status: 'New' },
+      RecordID: 100,
+      Status: 'In Progress',
+      DefectID: 1,
+      Modified_Date: '2014-07-17',
+      _ValidTo: '2014-08-18' }
+    ]
+    test.deepEqual(filtered, expected)
     test.done()
