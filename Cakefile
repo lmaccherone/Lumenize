@@ -6,7 +6,7 @@ marked = require('marked')
 uglify = require("uglify-js")
 browserify = require('browserify')
 fileify = require('fileify-lm')
-execSync = require('exec-sync')
+# execSync = require('exec-sync')
 runsync = require('runsync')
 
 runSync = (command, options, next) ->

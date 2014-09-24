@@ -45,7 +45,7 @@
     "browserify": "1.16.x",
     "wrench": "1.4.x",
     "marked": "0.2.x",
-    "exec-sync": "~0.1.5",
+    "runsync": "~0.1.6",
     "fileify-lm": "~0.3.1",
     "async": "~0.2.9",
     "bower": "~1.2.8"
