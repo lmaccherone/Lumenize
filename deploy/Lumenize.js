@@ -1,5 +1,5 @@
 /*
-lumenize version: 0.7.3
+lumenize version: 0.8.0
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -4581,9 +4581,10 @@ require.define("/node_modules/files",function(require,module,exports,__dirname,_
 require.define("/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./lumenize"}
 });
 
-require.define("/lumenize.coffee",function(require,module,exports,__dirname,__filename,process,global){/*
+require.define("/lumenize.coffee",function(require,module,exports,__dirname,__filename,process,global){
+/*
 
-# Lumenize #
+ * Lumenize #
 
 Lumenize provides tools for aggregating data and creating time series and other temporal visualizations.
 
@@ -4606,8 +4607,7 @@ Three transformation functions are provided:
 And last, additional functionality is provided by:
   * Lumenize.histogram - create a histogram of scatter data
   * Lumenize.utils - utility methods used by the rest of Lumenize (type, clone, array/object functions, etc.)
-*/
-
+ */
 
 (function() {
   var JSON, datatransform, tzTime;
@@ -4663,6 +4663,8 @@ And last, additional functionality is provided by:
   exports.BayesianClassifier = require('./src/Classifier').BayesianClassifier;
 
   exports.Classifier = require('./src/Classifier').Classifier;
+
+  exports.Store = require('./src/Store').Store;
 
 }).call(this);
 
@@ -5364,12 +5366,13 @@ if (typeof exports.retrocycle !== 'function') {
 require.define("/node_modules/tztime/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./tzTime"}
 });
 
-require.define("/node_modules/tztime/tzTime.coffee",function(require,module,exports,__dirname,__filename,process,global){/*
-# tzTime #
+require.define("/node_modules/tztime/tzTime.coffee",function(require,module,exports,__dirname,__filename,process,global){
+/*
+ * tzTime #
 
 _Timezone transformations in the browser and node.js plus timezone precise timeline creation for charting._
 
-## Features ##
+ *# Features ##
 
 * Transform into and out of any timezone using Olson timezone rules
 * Timezone rule files embedded in the minified browser package. No need to host them
@@ -5395,7 +5398,7 @@ _Timezone transformations in the browser and node.js plus timezone precise timel
    * Added: Quarter form (e.g. 2012Q3 equates to 2012-07-01)
    * Not supported: Ordinal form (e.g. 2012-001 for 2012-01-01, 2011-365 for 2012-12-31) not supported
 
-## Granularity ##
+ *# Granularity ##
 
 Each Time object has a granularity. This means that you never have to
 worry about any bits lower than your specified granularity. A day has only
@@ -5421,7 +5424,7 @@ Also, you can define your own custom hierarchical granularities, for example...
    * `iteration`
       * `iteration_day`
 
-## Timezone precision ##
+ *# Timezone precision ##
 
 It's very hard to do filtering and grouping of time-series data with timezone precision.
 
@@ -5443,13 +5446,13 @@ timezone manipulation... the moment you need to compare/query timestamped data. 
 holiday/weekend knockout manipulation without regard to timezone and only consider the timezone
 upon query submission or comparison.
 
-## Month is 1-indexed as you would expect ##
+ *# Month is 1-indexed as you would expect ##
 
 Javascript's date object uses 0 for January and 11 for December. Time uses 1 for January and 12 for December...
 which is what ISO-8601 uses and what humans expect. Everyone who works with the javascript Date Object at one
 point or another gets burned by this.
 
-## Week support ##
+ *# Week support ##
 
 Time has ISO-8601 week support. Implications of using this ISO format (paraphrased info from wikipedia):
 
@@ -5471,8 +5474,7 @@ each week on Monday. Following ISO-8601, Time uses 1 for Monday and 7 for Sunday
 the US standard for every day except Sunday. The US standard is to use 0 for Sunday. This library says, "tough luck"
 to folks who are unhappy that the week starts on Monday. Live with the fact that weeks in this library start on Monday
 as they do in the ISO-8601 standard, or roll your own library. :-)
-*/
-
+ */
 
 (function() {
   var Timeline;
@@ -5500,10 +5502,11 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
   timezoneJS = require('../lib/timezone-js.js').timezoneJS;
 
   Time = (function() {
+
     /*
     @class Time
     
-    ## Basic usage ##
+     *# Basic usage ##
     
         {TimelineIterator, Timeline, Time} = require('../')
     
@@ -5511,82 +5514,82 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     
         d1 = new Time('2011-02-28')
         console.log(d1.toString())
-        # 2011-02-28
+         * 2011-02-28
     
     Spell it all out with a JavaScript object
     
         d2 = new Time({granularity: Time.DAY, year: 2011, month: 3, day: 1})
         console.log(d2.toString())
-        # 2011-03-01
+         * 2011-03-01
         
     Increment/decrement and compare Times without regard to timezone
     
         console.log(d1.greaterThanOrEqual(d2))
-        # false
+         * false
     
         d1.increment()
         console.log(d1.equal(d2))
-        # true
+         * true
     
     Do math on them.
         
         d3 = d1.add(5)
         console.log(d3.toString())
-        # 2011-03-06
+         * 2011-03-06
     
     Get the day of the week.
     
         console.log(d3.dowString())
-        # Sunday
+         * Sunday
         
     Subtraction is just addition with negative numbers.
     
         d3.addInPlace(-6)
         console.log(d3.toString())
-        # 2011-02-28
+         * 2011-02-28
     
     If you start on the last day of a month, adding a month takes you to the last day of the next month, 
     even if the number of days are different.
         
         d3.addInPlace(1, 'month')  
         console.log(d3.toString())
-        # 2011-03-31
+         * 2011-03-31
         
     Deals well with year-granularity math and leap year complexity.
     
         d4 = new Time('2004-02-29')  # leap day
         d4.addInPlace(1, 'year')  # adding a year takes us to a non-leap year
         console.log(d4.toString())
-        # 2005-02-28
+         * 2005-02-28
         
     Week granularity correctly wraps and deals with 53-week years.
     
         w1 = new Time('2004W53-6')
         console.log(w1.inGranularity(Time.DAY).toString())
-        # 2005-01-01
+         * 2005-01-01
         
     Convert between any of the standard granularities. Also converts custom granularities (not shown) to
     standard granularities if you provide a `rataDieNumber()` function with your custom granularities.
     
         d5 = new Time('2005-01-01')  # goes the other direction also
         console.log(d5.inGranularity('week_day').toString())
-        # 2004W53-6
+         * 2004W53-6
         
         q1 = new Time('2011Q3')
         console.log(q1.inGranularity(Time.MILLISECOND).toString())
-        # 2011-07-01T00:00:00.000
+         * 2011-07-01T00:00:00.000
         
-    ## Timezones ##
+     *# Timezones ##
     
     Time does timezone sensitive conversions.
     
         console.log(new Time('2011-01-01').getJSDate('America/Denver').toISOString())
-        # 2011-01-01T07:00:00.000Z
-    */
-
+         * 2011-01-01T07:00:00.000Z
+     */
     var g, spec, _ref;
 
     function Time(value, granularity, tz) {
+
       /*
       @constructor
       @param {Object/Number/Date/String} value
@@ -5595,14 +5598,14 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       
       The constructor for Time supports the passing in of a String, a rata die number (RDN), or a config Object
       
-      ## String ##
+       *# String ##
       
       There are two kinds of strings that can be passed into the constructor:
       
       1. Human strings relative to now (e.g. "this day", "previous month", "next quarter", "this millisecond in Pacific/Fiji", etc.)
       2. ISO-8601 or custom masked (e.g. "I03D10" - 10th day of 3rd iteration)
       
-      ## Human strings relative to now ##
+       *# Human strings relative to now ##
       
       The string must be in the form `(this, previous, next) |granularity| [in |timezone|]`
       
@@ -5615,7 +5618,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       * `next quarter` next quarter
       * `previous week` last week
       
-      ## ISO-8601 or custom masked ##
+       *# ISO-8601 or custom masked ##
       
       When you pass in an ISO-8601 or custom mask string, Time uses the masks that are defined for each granularity to figure out the granularity...
       unless you explicitly provide a granularity. This parser works on all valid ISO-8601 forms except orginal dates (e.g. `"2012-288"`)
@@ -5636,32 +5639,32 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       may mistakenly request charts for iterations and releases that have not yet been defined. They are particularly useful when 
       you want to iterate to the last defined iteration/release.
       
-      ## Rata Die Number ##
+       *# Rata Die Number ##
       
       The **rata die number (RDN)** for a date is the number of days since 0001-01-01. You will probably never work
       directly with this number but it's what Time uses to convert between granularities. When you are instantiating
       a Time from an RDN, you must provide a granularity. Using RDN will work even for the granularities finer than day.
       Time will populate the finer grained segments (hour, minute, etc.) with the approriate `lowest` value.
       
-      ## Date ##
+       *# Date ##
       
       You can also pass in a JavaScript Date() Object. The passing in of a tz with this option doesn't make sense. You'll end
       up with the same Time value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
       option is even really useful. In most cases, you are probably better off using Time.getISOStringFromJSDate()
       
-      ## Object ##
+       *# Object ##
       
       You can also explicitly spell out the segments in a specification Object in the form of
       `{granularity: Time.DAY, year: 2009, month: 1, day: 1}`. If the granularity is specified but not all of the segments are
       provided, Time will fill in the missing value with the appropriate `lowest` value from _granularitySpecs.
       
-      ## granularity ##
+       *# granularity ##
       
       If you provide a granularity it will take precedence over whatever fields you've provided in your config or whatever segments
       you have provided in your string. Time will leave off extra values and fill in missing ones with the appropriate `lowest`
       value.
       
-      ## tz ##
+       *# tz ##
       
       Most of the time, Time assumes that any dates you pass in are timezone less. You'll specify Christmas as 12-25, then you'll
       shift the boundaries of Christmas for a specific timezone for boundary comparison.
@@ -5671,7 +5674,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       
           d = new Time('2011-01-01T02:00:00:00.000Z', Time.DAY, 'America/New_York')
           console.log(d.toString())
-          # 2010-12-31
+           * 2010-12-31
           
       Rule of thumb on when you want to use timezones:
       
@@ -5679,8 +5682,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       2. If you have abstract days like Christmas or June 10th and you want to delay the timezone consideration, don't provide a timezone to this constructor.
       3. In either case, if the dates you want to compare to are in GMT, but you've got Times or Timelines, you'll have to provide a timezone on
          the way back out of Time/Timeline
-      */
-
+       */
       var config, jsDate, newCT, newConfig, rdn, s, segment, _i, _len, _ref, _ref1, _ref2, _ref3;
       this.beforePastFlag = '';
       switch (utils.type(value)) {
@@ -5767,13 +5769,13 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       this._overUnderFlow();
     }
 
+
     /*
     `_granularitySpecs` is a static object that is used to tell Time what to do with particular granularties. You can think of
     each entry in it as a sort of sub-class of Time. In that sense Time is really a factory generating Time objects
     of type granularity. When custom timebox granularities are added to Time by `Time.addGranularity()`, it adds to this
     `_granularitySpecs` object.
-    */
-
+     */
 
     Time._granularitySpecs = {};
 
@@ -6129,12 +6131,12 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype._isGranularityCoarserThanDay = function() {
+
       /*
       @method granularityAboveDay
       @private
       @return {Boolean} true if the Time Object's granularity is above (coarser than) "day" level
-      */
-
+       */
       var segment, _i, _len, _ref1;
       _ref1 = Time._granularitySpecs[this.granularity].segments;
       for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
@@ -6147,6 +6149,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.getJSDate = function(tz) {
+
       /*
       @method getJSDate
       @param {String} tz
@@ -6160,18 +6163,17 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       (actually something that can be compared to GMT). It does **NOT** convert **FROM** GMT. Use getJSDateFromGMTInTZ()
       if you want to go in the other direction.
         
-      ## Usage ##
+       *# Usage ##
       
           ct = new Time('2011-01-01')
           d = new Date(Date.UTC(2011, 0, 1))
           
           console.log(ct.getJSDate('GMT').getTime() == d.getTime())
-          # true
+           * true
           
           console.log(ct.inGranularity(Time.HOUR).add(-5).getJSDate('America/New_York').getTime() == d.getTime())
-          # true
-      */
-
+           * true
+       */
       var ct, newDate, offset, utcMilliseconds;
       if (this.beforePastFlag === 'PAST_LAST') {
         return new Date(9999, 0, 1);
@@ -6189,15 +6191,15 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.getISOStringInTZ = function(tz) {
+
       /*
       @method getISOStringInTZ
       @param {String} tz
       @return {String} The canonical ISO-8601 date in zulu representation but shifted to the specified tz
       
           console.log(new Time('2012-01-01').getISOStringInTZ('Europe/Berlin'))
-          # 2011-12-31T23:00:00.000Z
-      */
-
+           * 2011-12-31T23:00:00.000Z
+       */
       var jsDate;
       utils.assert(tz != null, 'Must provide a timezone when calling getShiftedISOString');
       jsDate = this.getJSDate(tz);
@@ -6205,6 +6207,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.getISOStringFromJSDate = function(jsDate) {
+
       /*
       @method getISOStringFromJSDate
       @static
@@ -6216,9 +6219,8 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       If you don't provide any parameters, it will return now, like `new Date()` except this is a zulu string.
       
           console.log(Time.getISOStringFromJSDate(new Date(0)))
-          # 1970-01-01T00:00:00.000Z
-      */
-
+           * 1970-01-01T00:00:00.000Z
+       */
       var day, hour, millisecond, minute, month, s, second, year;
       if (jsDate == null) {
         jsDate = new Date();
@@ -6235,6 +6237,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.getJSDateFromGMTInTZ = function(tz) {
+
       /*
       @method getJSDateInTZfromGMT
       @param {String} tz
@@ -6248,9 +6251,8 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       moment in rules-space for that hour. The cost of fixing this issue was deemed to high for chart applications.
       
           console.log(new Time('2012-01-01').getJSDateFromGMTInTZ('Europe/Berlin').toISOString())
-          # 2012-01-01T01:00:00.000Z
-      */
-
+           * 2012-01-01T01:00:00.000Z
+       */
       var ct, newDate, offset, utcMilliseconds;
       if (this.beforePastFlag === 'PAST_LAST') {
         return new Date(9999, 0, 1);
@@ -6268,6 +6270,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.getSegmentsAsObject = function() {
+
       /*
       @method getSegmentsAsObject
       @return {Object} Returns a simple JavaScript Object containing the segments. This is useful when using utils.match
@@ -6275,9 +6278,8 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       
           t = new Time('2011-01-10')
           console.log(t.getSegmentsAsObject())
-          # { year: 2011, month: 1, day: 10 }
-      */
-
+           * { year: 2011, month: 1, day: 10 }
+       */
       var rawObject, segment, segments, _i, _len;
       segments = Time._granularitySpecs[this.granularity].segments;
       rawObject = {};
@@ -6289,6 +6291,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.getSegmentsAsArray = function() {
+
       /*
       @method getSegmentsAsArray
       @return {Array} Returns a simple JavaScript Array containing the segments. This is useful for doing hierarchical
@@ -6296,9 +6299,8 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       
           t = new Time('2011-01-10')
           console.log(t.getSegmentsAsArray())
-          # [ 2011, 1, 10 ]
-      */
-
+           * [ 2011, 1, 10 ]
+       */
       var a, segment, segments, _i, _len;
       segments = Time._granularitySpecs[this.granularity].segments;
       a = [];
@@ -6310,6 +6312,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.toString = function() {
+
       /*
       @method toString
       @return {String} Uses granularity `mask` in _granularitySpecs to generate the string representation.
@@ -6317,10 +6320,9 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
           t = new Time({year: 2012, month: 1, day: 1, granularity: Time.MINUTE}).toString()
           console.log(t.toString())
           console.log(t)
-          # 2012-01-01T00:00
-          # 2012-01-01T00:00
-      */
-
+           * 2012-01-01T00:00
+           * 2012-01-01T00:00
+       */
       var after, before, granularitySpec, l, s, segment, segments, start, _i, _len, _ref1;
       if ((_ref1 = this.beforePastFlag) === 'BEFORE_FIRST' || _ref1 === 'PAST_LAST') {
         s = "" + this.beforePastFlag;
@@ -6363,15 +6365,15 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     Time.DOW_MONTH_TABLE = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
 
     Time.prototype.dowNumber = function() {
+
       /*
       @method dowNumber
       @return {Number}
       Returns the day of the week as a number. Monday = 1, Sunday = 7
       
           console.log(new Time('2012-01-01').dowNumber())
-          # 7
-      */
-
+           * 7
+       */
       var dayNumber, y, _ref1;
       if (this.granularity === 'week_day') {
         return this.week_day;
@@ -6393,18 +6395,19 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.dowString = function() {
+
       /*
       @method dowString
       @return {String} Returns the day of the week as a String (e.g. "Monday")
       
           console.log(new Time('2012-01-01').dowString())
-          # Sunday
-      */
-
+           * Sunday
+       */
       return Time.DOW_N_TO_S_MAP[this.dowNumber()];
     };
 
     Time.prototype.rataDieNumber = function() {
+
       /*
       @method rataDieNumber
       @return {Number} Returns the counting number for days starting with 0001-01-01 (i.e. 0 AD). Note, this differs
@@ -6413,16 +6416,15 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       day. Also called common era days.
       
           console.log(new Time('0001-01-01').rataDieNumber())
-          # 1
+           * 1
       
           rdn2012 = new Time('2012-01-01').rataDieNumber()
           rdn1970 = new Time('1970-01-01').rataDieNumber()
           ms1970To2012 = (rdn2012 - rdn1970) * 24 * 60 * 60 * 1000
           msJSDate2012 = Number(new Date('2012-01-01'))
           console.log(ms1970To2012 == msJSDate2012)
-          # true
-      */
-
+           * true
+       */
       var ew, monthDays, y, yearDays;
       if (this.beforePastFlag === 'BEFORE_FIRST') {
         return -1;
@@ -6468,6 +6470,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.inGranularity = function(granularity) {
+
       /*
       @method inGranularity
       @param {String} granularity
@@ -6476,12 +6479,11 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       granularity.
       
           console.log(new Time('2012W01-1').inGranularity(Time.DAY).toString())
-          # 2012-01-02
+           * 2012-01-02
       
           console.log(new Time('2012Q3').inGranularity(Time.MONTH).toString())
-          # 2012-07
-      */
-
+           * 2012-07
+       */
       var newTime, tempGranularity, _ref1;
       if ((_ref1 = this.granularity) === 'year' || _ref1 === 'month' || _ref1 === 'day' || _ref1 === 'hour' || _ref1 === 'minute' || _ref1 === 'second' || _ref1 === 'millisecond') {
         if (granularity === 'year' || granularity === 'month' || granularity === 'day' || granularity === 'hour' || granularity === 'minute' || granularity === 'second' || granularity === 'millisecond') {
@@ -6496,14 +6498,14 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.daysInMonth = function() {
+
       /*
       @method daysInMonth
       @return {Number} Returns the number of days in the current month for this Time
       
           console.log(new Time('2012-02').daysInMonth())
-          # 29
-      */
-
+           * 29
+       */
       switch (this.month) {
         case 4:
         case 6:
@@ -6529,14 +6531,14 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.isLeapYear = function() {
+
       /*
       @method isLeapYear
       @return {Boolean} true if this is a leap year
       
           console.log(new Time('2012').isLeapYear())
-          # true
-      */
-
+           * true
+       */
       if (this.year % 4 === 0) {
         if (this.year % 100 === 0) {
           if (this.year % 400 === 0) {
@@ -6555,20 +6557,21 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     Time.YEARS_WITH_53_WEEKS = [4, 9, 15, 20, 26, 32, 37, 43, 48, 54, 60, 65, 71, 76, 82, 88, 93, 99, 105, 111, 116, 122, 128, 133, 139, 144, 150, 156, 161, 167, 172, 178, 184, 189, 195, 201, 207, 212, 218, 224, 229, 235, 240, 246, 252, 257, 263, 268, 274, 280, 285, 291, 296, 303, 308, 314, 320, 325, 331, 336, 342, 348, 353, 359, 364, 370, 376, 381, 387, 392, 398];
 
     Time.prototype.is53WeekYear = function() {
+
       /*
       @method is53WeekYear
       @return {Boolean} true if this is a 53-week year
       
           console.log(new Time('2015').is53WeekYear())
-          # true
-      */
-
+           * true
+       */
       var lookup;
       lookup = this.year % 400;
       return __indexOf.call(Time.YEARS_WITH_53_WEEKS, lookup) >= 0;
     };
 
     Time.prototype.equal = function(other) {
+
       /*
       @method equal
       @param {Time} other
@@ -6577,9 +6580,8 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
           d3 = new Time({granularity: Time.DAY, year: 2011, month: 12, day: 31})
           d4 = new Time('2012-01-01').add(-1)
           console.log(d3.equal(d4))
-          # true
-      */
-
+           * true
+       */
       var segment, segments, _i, _len;
       utils.assert(this.granularity === other.granularity, "Granulary of " + this + " does not match granularity of " + other + " on equality/inequality test");
       if (this.beforePastFlag === 'PAST_LAST' && other.beforePastFlag === 'PAST_LAST') {
@@ -6611,6 +6613,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.greaterThan = function(other) {
+
       /*
       @method greaterThan
       @param {Time} other
@@ -6619,11 +6622,10 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
           d1 = new Time({granularity: Time.DAY, year: 2011, month: 2, day: 28})
           d2 = new Time({granularity: Time.DAY, year: 2011, month: 3, day: 1})
           console.log(d1.greaterThan(d2))
-          # false
+           * false
           console.log(d2.greaterThan(d1))
-          # true
-      */
-
+           * true
+       */
       var segment, segments, _i, _len;
       utils.assert(this.granularity === other.granularity, "Granulary of " + this + " does not match granularity of " + other + " on equality/inequality test");
       if (this.beforePastFlag === 'PAST_LAST' && other.beforePastFlag === 'PAST_LAST') {
@@ -6658,15 +6660,15 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.greaterThanOrEqual = function(other) {
+
       /*
       @method greaterThanOrEqual
       @param {Time} other
       @return {Boolean} Returns true if this is greater than or equal to other
       
           console.log(new Time('2012').greaterThanOrEqual(new Time('2012')))
-          # true
-      */
-
+           * true
+       */
       var gt;
       gt = this.greaterThan(other);
       if (gt) {
@@ -6676,28 +6678,28 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.lessThan = function(other) {
+
       /*
       @method lessThan
       @param {Time} other
       @return {Boolean} Returns true if this is less than other
       
           console.log(new Time(1000, Time.DAY).lessThan(new Time(999, Time.DAY)))  # Using RDN constructor
-          # false
-      */
-
+           * false
+       */
       return other.greaterThan(this);
     };
 
     Time.prototype.lessThanOrEqual = function(other) {
+
       /*
       @method lessThanOrEqual
       @param {Time} other
       @return {Boolean} Returns true if this is less than or equal to other
       
           console.log(new Time('this day').lessThanOrEqual(new Time('next day')))  # Using relative constructor
-          # true
-      */
-
+           * true
+       */
       return other.greaterThanOrEqual(this);
     };
 
@@ -6725,6 +6727,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.decrement = function(granularity) {
+
       /*
       @method decrement
       @param {String} [granularity]
@@ -6733,9 +6736,8 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       Decrements this by 1 in the granularity of the Time or the granularity specified if it was specified
       
           console.log(new Time('2016W01').decrement().toString())
-          # 2015W53
-      */
-
+           * 2015W53
+       */
       var granularitySpec, gs, i, lastDayInMonthFlag, segment, segments, _i, _len, _results;
       if (this.beforePastFlag === 'PAST_LAST') {
         this.beforePastFlag = '';
@@ -6783,6 +6785,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.increment = function(granularity) {
+
       /*
       @method increment
       @param {String} [granularity]
@@ -6791,9 +6794,8 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       Increments this by 1 in the granularity of the Time or the granularity specified if it was specified
       
           console.log(new Time('2012Q4').increment().toString())
-          # 2013Q1
-      */
-
+           * 2013Q1
+       */
       var granularitySpec, gs, i, lastDayInMonthFlag, segment, segments, _i, _len, _results;
       if (this.beforePastFlag === 'BEFORE_FIRST') {
         this.beforePastFlag = '';
@@ -6841,6 +6843,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.addInPlace = function(qty, granularity) {
+
       /*
       @method addInPlace
       @chainable
@@ -6850,9 +6853,8 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       of qty, but it should be fine for charts where we'll increment/decrement small values of qty.
       
           console.log(new Time('2011-11-01').addInPlace(3, Time.MONTH).toString())
-          # 2012-02-01
-      */
-
+           * 2012-02-01
+       */
       if (granularity == null) {
         granularity = this.granularity;
       }
@@ -6874,6 +6876,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.prototype.add = function(qty, granularity) {
+
       /*
       @method add
       @param {Number} qty
@@ -6882,9 +6885,8 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       Adds (or subtracts) quantity (negative quantity) and returns a new Time. Not efficient for large qty.
       
          console.log(new Time('2012-01-01').add(-10, Time.MONTH))
-         # 2011-03-01
-      */
-
+          * 2011-03-01
+       */
       var newTime;
       newTime = new Time(this);
       newTime.addInPlace(qty, granularity);
@@ -6892,6 +6894,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
     };
 
     Time.addGranularity = function(granularitySpec) {
+
       /*
       @method addGranularity
       @static
@@ -6991,8 +6994,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
       The convention of naming the lowest order granularity with `_day` at the end IS signficant. Time knows to treat that as a day-level
       granularity. If there is a use-case for it, Time could be upgraded to allow you to drill down into hours, minutes, etc. from any
       `_day` granularity but right now those lower order time granularities are only supported for the canonical ISO-6801 form.
-      */
-
+       */
       var _results;
       _results = [];
       for (g in granularitySpec) {
@@ -7015,7 +7017,7 @@ require.define("/node_modules/tztime/src/Time.coffee",function(require,module,ex
 });
 
 require.define("/node_modules/tztime/src/utils.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
-  var AssertException, ErrorBase, assert, clone, exactMatch, filterMatch, isArray, keys, log, match, startsWith, trim, type, values, _ref,
+  var AssertException, ErrorBase, assert, clone, exactMatch, filterMatch, isArray, keys, log, match, startsWith, trim, type, values,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -7046,8 +7048,7 @@ require.define("/node_modules/tztime/src/utils.coffee",function(require,module,e
     __extends(AssertException, _super);
 
     function AssertException() {
-      _ref = AssertException.__super__.constructor.apply(this, arguments);
-      return _ref;
+      return AssertException.__super__.constructor.apply(this, arguments);
     }
 
     return AssertException;
@@ -7130,11 +7131,11 @@ require.define("/node_modules/tztime/src/utils.coffee",function(require,module,e
   };
 
   type = (function() {
-    var classToType, name, _i, _len, _ref1;
+    var classToType, name, _i, _len, _ref;
     classToType = {};
-    _ref1 = "Boolean Number String Function Array Date RegExp Undefined Null".split(" ");
-    for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-      name = _ref1[_i];
+    _ref = "Boolean Number String Function Array Date RegExp Undefined Null".split(" ");
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      name = _ref[_i];
       classToType["[object " + name + "]"] = name.toLowerCase();
     }
     return function(obj) {
@@ -9097,12 +9098,13 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
   JSON = require('JSON2');
 
   Timeline = (function() {
+
     /*
     @class Timeline
     
     Allows you to specify a timeline with weekend, holiday and non-work hours knocked out and timezone precision.
     
-    ## Basic usage ##
+     *# Basic usage ##
     
         {TimelineIterator, Timeline, Time} = require('../')
     
@@ -9112,7 +9114,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
         })
     
         console.log(t.toString() for t in tl.getAll())
-        # [ '2011-01-03', '2011-01-04' ]
+         * [ '2011-01-03', '2011-01-04' ]
     
     Notice how the endBefore, '2011-01-05', is excluded. Timelines are inclusive of the startOn and exclusive of the
     endBefore. This allows the endBefore to be the startOn of the next with no overlap or gap. This focus on precision
@@ -9124,9 +9126,9 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
     of ISOStrings.
     
         console.log(tl.getAll('ISOString', 'America/New_York'))
-        # [ '2011-01-03T05:00:00.000Z', '2011-01-04T05:00:00.000Z' ]
+         * [ '2011-01-03T05:00:00.000Z', '2011-01-04T05:00:00.000Z' ]
     
-    ## More advanced usage ##
+     *# More advanced usage ##
      
     Now let's poke at Timeline behavior a little more. Let's start by creating a more advanced Timeline:
     
@@ -9142,7 +9144,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
     `workDays` is already defaulted but you could have overridden it.
     
         console.log(tl.workDays)
-        # [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday' ]
+         * [ 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday' ]
         
     Another common use case is to get a Timeline to return child Timelines. You see, Timelines can be thought of as
     time boxes with a startOn and an endBefore. You might have a big time box for the entire x-axis for a chart
@@ -9151,9 +9153,9 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
     
         subTimelines = tl.getAll('Timeline')
         console.log((t.startOn.toString() + ' to ' + t.endBefore.toString() for t in subTimelines))
-        # [ '2011-01-03 to 2011-01-05',
-        #   '2011-01-05 to 2011-01-06',
-        #   '2011-01-06 to 2011-01-07' ]
+         * [ '2011-01-03 to 2011-01-05',
+         *   '2011-01-05 to 2011-01-06',
+         *   '2011-01-06 to 2011-01-07' ]
     
     Notice how the first subTimeline went all the way from 03 to 05. That's because we specified 04 as a holiday.
     Timelines are contiguous without gaps or overlap. You can see that the endBefore of one subTimeline is always the startOn
@@ -9170,21 +9172,21 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
     `startOn` is inclusive.
     
         console.log(tl2.contains('2011-01-02T00'))
-        # true
+         * true
         
     But `endBefore` is exclusive
     
         console.log(tl2.contains('2011-01-07T00'))
-        # false
+         * false
     
     But just before `endBefore` is OK
     
         console.log(tl2.contains('2011-01-06T23'))
-        # true
+         * true
     
     All of the above comparisons assume that the `startOn`/`endBefore` boundaries are in the same timezone as the contains date.
     
-    ## Timezone sensitive comparisions ##
+     *# Timezone sensitive comparisions ##
     
     Now, let's look at how you do timezone sensitive comparisions.
     
@@ -9201,15 +9203,15 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
     So, when it's 3am in GMT on 2011-01-02, it's still 2011-01-01 in New York. Using the above `tl2` timeline, we say:
     
         console.log(tl2.contains('2011-01-02T03:00:00.000Z', 'America/New_York'))
-        # false
+         * false
         
     But it's still 2011-01-06 in New York, when it's 3am in GMT on 2011-01-07
         
         console.log(tl2.contains('2011-01-07T03:00:00.000Z', 'America/New_York'))
-        # true
-    */
-
+         * true
+     */
     function Timeline(config) {
+
       /*
       @constructor
       @param {Object} config
@@ -9251,8 +9253,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
         the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
       @cfg {Object} [workDayEndBefore = {hour: 24, minute: 60}] An optional object in the form {hour: 17, minute: 0}.
         If minute is zero it can be omitted.
-      */
-
+       */
       var h, holiday, idx, m, s, _i, _len, _ref, _ref1;
       this.memoizedTicks = {};
       if (config.endBefore != null) {
@@ -9363,6 +9364,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       if (tickType == null) {
         tickType = 'Time';
       }
+
       /*
       @method getIterator
       @param {String} [tickType] An optional String that specifies what type should be returned on each call to next().
@@ -9374,8 +9376,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       @return {TimelineIterator}
       
       Returns a new TimelineIterator using this Timeline as the boundaries.
-      */
-
+       */
       return new TimelineIterator(this, tickType, tz, childGranularity);
     };
 
@@ -9384,6 +9385,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       if (tickType == null) {
         tickType = 'Time';
       }
+
       /*
       @method getAllRaw
       @param {String} [tickType] An optional String that specifies the type should be returned. Possible values are 'Time' (default),
@@ -9396,8 +9398,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       
       Returns all of the points in the timeline. Note, this will come back in the order specified
       by step so they could be out of chronological order. Use getAll() if they must be in chronological order.
-      */
-
+       */
       tli = this.getIterator(tickType, tz, childGranularity);
       temp = [];
       while (tli.hasNext()) {
@@ -9411,6 +9412,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       if (tickType == null) {
         tickType = 'Time';
       }
+
       /*
       @method getAll
       @param {String} [tickType] An optional String that specifies what should be returned. Possible values are 'Time' (default),
@@ -9426,8 +9428,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       same Timeline instance with the same parameters will return the previously calculated values. This makes it safe
       to call it repeatedly within loops and means you don't need to worry about holding onto the result on the client
       side.
-      */
-
+       */
       parameterKeyObject = {
         tickType: tickType
       };
@@ -9452,6 +9453,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
     };
 
     Timeline.prototype.ticksThatIntersect = function(startOn, endBefore, tz) {
+
       /*
       @method ticksThatIntersect
       @param {Time/ISOString} startOn The start of the time period of interest
@@ -9463,8 +9465,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
       startOn and endBefore. This is a convenient way to "tag" a timebox as overlaping with particular moments on
       your Timeline. A common pattern for Lumenize calculators is to use ticksThatIntersect to "tag" each snapshot
       and then do groupBy operations with an OLAPCube.
-      */
-
+       */
       var en, i, isoDateRegExp, out, st, ticks, ticksLength;
       utils.assert(this.limit === utils.MAX_INT, 'Cannot call `ticksThatIntersect()` on Timelines specified with `limit`.');
       out = [];
@@ -9520,13 +9521,14 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
     };
 
     Timeline.prototype.contains = function(date, tz) {
+
       /*
       @method contains
       @param {Time/Date/String} date can be either a JavaScript date object or an ISO-8601 formatted string
       @param {String} [tz]
       @return {Boolean} true if the date provided is within this Timeline.
       
-      ## Usage: ##
+       *# Usage: ##
       
       We can create a Timeline from May to just before July.
       
@@ -9536,9 +9538,8 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
           })
       
           console.log(tl.contains('2011-06-15T12:00:00.000Z', 'America/New_York'))
-          # true
-      */
-
+           * true
+       */
       var endBefore, startOn, target;
       utils.assert(this.limit === utils.MAX_INT, 'Cannot call `contains()` on Timelines specified with `limit`.');
       if (date instanceof Time) {
@@ -9570,6 +9571,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
   })();
 
   TimelineIterator = (function() {
+
     /*
     @class TimelineIterator
     
@@ -9582,7 +9584,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
     specify. It will also iterate over hours, minutes, seconds, etc. and skip times that are not
     between the specified work hours.
     
-    ## Usage ##
+     *# Usage ##
     
         {TimelineIterator, Timeline, Time} = require('../')
     
@@ -9601,9 +9603,9 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
         while (tli.hasNext())
           console.log(tli.next().toString())
     
-        # 2009-01-05
-        # 2009-01-06
-        # 2009-01-07
+         * 2009-01-05
+         * 2009-01-06
+         * 2009-01-07
     
     Now, let's explore how Timelines and TimelineIterators are used together.
     
@@ -9632,15 +9634,15 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
           while subIterator.hasNext()
             console.log('    Hour: ' + subIterator.next().hour)
     
-        # Sub Timeline goes from 2011-01-06T00 to 2011-01-07T00
-        #     Hour: 9
-        #     Hour: 10
-        # Sub Timeline goes from 2011-01-07T00 to 2011-01-10T00
-        #     Hour: 9
-        #     Hour: 10
-        # Sub Timeline goes from 2011-01-10T00 to 2011-01-11T00
-        #     Hour: 9
-        #     Hour: 10
+         * Sub Timeline goes from 2011-01-06T00 to 2011-01-07T00
+         *     Hour: 9
+         *     Hour: 10
+         * Sub Timeline goes from 2011-01-07T00 to 2011-01-10T00
+         *     Hour: 9
+         *     Hour: 10
+         * Sub Timeline goes from 2011-01-10T00 to 2011-01-11T00
+         *     Hour: 9
+         *     Hour: 10
     
     There is a lot going on here, so let's poke at it a bit. First, notice how the second sub-Timeline goes from the 7th to the
     10th. That's because there was a weekend in there. We didn't get hours for the Saturday and Sunday.
@@ -9662,22 +9664,22 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
         while tli4.hasNext()
           console.log(tli4.next())
     
-        # 2011-01-06T09:00:00.000Z
-        # 2011-01-06T10:00:00.000Z
-        # 2011-01-07T09:00:00.000Z
-        # 2011-01-07T10:00:00.000Z
-        # 2011-01-10T09:00:00.000Z
-        # 2011-01-10T10:00:00.000Z
+         * 2011-01-06T09:00:00.000Z
+         * 2011-01-06T10:00:00.000Z
+         * 2011-01-07T09:00:00.000Z
+         * 2011-01-07T10:00:00.000Z
+         * 2011-01-10T09:00:00.000Z
+         * 2011-01-10T10:00:00.000Z
     
     `tl4`/`tli4` covers the same ground as `tl3`/`tli3` but without the explicit nesting.
-    */
-
+     */
     var StopIteration, _contains;
 
     function TimelineIterator(timeline, tickType, tz, childGranularity) {
       var _ref;
       this.tickType = tickType != null ? tickType : 'Time';
       this.childGranularity = childGranularity;
+
       /*
       @constructor
       @param {Timeline} timeline A Timeline object
@@ -9687,8 +9689,7 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
          Timeline that is returned.
       @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
          required if `tickType` is 'Date' or 'ISOString'.
-      */
-
+       */
       utils.assert((_ref = this.tickType) === 'Time' || _ref === 'Timeline' || _ref === 'Date' || _ref === 'ISOString', "tickType must be 'Time', 'Timeline', 'Date', or 'ISOString'. You provided " + this.tickType + ".");
       utils.assert(this.tickType !== 'Date' || (tz != null), 'Must provide a tz (timezone) parameter when tickType is Date.');
       utils.assert(this.tickType !== 'ISOString' || (tz != null), 'Must provide a tz (timezone) parameter when returning ISOStrings.');
@@ -9709,12 +9710,12 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
     StopIteration = typeof StopIteration === 'undefined' ? utils.StopIteration : StopIteration;
 
     TimelineIterator.prototype.reset = function() {
+
       /*
       @method reset
       
       Will go back to the where the iterator started.
-      */
-
+       */
       if (this.timeline.step > 0) {
         this.current = new Time(this.timeline.startOn);
       } else {
@@ -9730,12 +9731,12 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
     };
 
     TimelineIterator.prototype.hasNext = function() {
+
       /*
       @method hasNext
       @return {Boolean} Returns true if there are still things left to iterator over. Note that if there are holidays,
          weekends or non-workhours to skip, then hasNext() will take that into account.
-      */
-
+       */
       return _contains(this.current, this.timeline.startOn, this.timeline.endBefore) && (this.count < this.timeline.limit);
     };
 
@@ -9787,12 +9788,12 @@ require.define("/node_modules/tztime/src/Timeline.coffee",function(require,modul
     };
 
     TimelineIterator.prototype.next = function() {
+
       /*
       @method next
       @return {Time/Timeline/Date/String} Returns the next value of the iterator. The start will be the first value returned unless it should
          be skipped due to holiday, weekend, or workhour knockouts.
-      */
-
+       */
       var childtimeline, config, currentCopy, i, _i, _ref;
       if (!this.hasNext()) {
         throw new StopIteration('Cannot call next() past end.');
@@ -9848,25 +9849,26 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
   JSON = require('JSON2');
 
   iCalculator = (function() {
+
     /*
     @class iCalculator
     
     This serves as documentation for the interface expected of all Lumenize Calculators. You can extend from it but it's
     not technically necessary. You are more likely to copy this as the starting point for a new calculator.
-    */
-
+     */
     function iCalculator(config) {
       this.config = config;
+
       /*
       @constructor
       @param {Object} config
         The config properties are up to you.
-      */
-
+       */
       throw new Error('iCalculator is an interface not a base class. You must override this constructor.');
     }
 
     iCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore) {
+
       /*
       @method addSnapshots
         Allows you to incrementally add snapshots to this calculator.
@@ -9877,8 +9879,7 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
       @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
         period of interest.
       @return {iCalculator}
-      */
-
+       */
       throw new Error('iCalculator is an interface not a base class. You must override this addSnapshots method.');
       if (this.upToDateISOString != null) {
         utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
@@ -9888,16 +9889,17 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
     };
 
     iCalculator.prototype.getResults = function() {
+
       /*
       @method getResults
         Returns the current state of the calculator
       @return {Object} The type and format of what it returns is up to you.
-      */
-
+       */
       throw new Error('iCalculator is an interface not a base class. You must override this getResults method.');
     };
 
     iCalculator.prototype.getStateForSaving = function(meta) {
+
       /*
       @method getStateForSaving
         Enables saving the state of this calculator. See TimeInStateCalculator for a detailed example.
@@ -9906,8 +9908,7 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
       @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
         to an object store or LocalCache. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
         the calculator.
-      */
-
+       */
       var out;
       throw new Error('iCalculator is an interface not a base class. You must override this getStateForSaving method.');
       out = {};
@@ -9919,14 +9920,14 @@ require.define("/src/iCalculator.coffee",function(require,module,exports,__dirna
     };
 
     iCalculator.newFromSavedState = function(p) {
+
       /*
       @method newFromSavedState
         Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
       @static
       @param {String/Object} p A String or Object from a previously saved calculator state
       @return {iCalculator}
-      */
-
+       */
       throw new Error('iCalculator is an interface not a base class. You must override this @newFromSavedState method.');
       if (utils.type(p) === 'string') {
         p = JSON.parse(p);
@@ -9958,6 +9959,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
   JSON = require('JSON2');
 
   TimeInStateCalculator = (function() {
+
     /*
     @class TimeInStateCalculator
     
@@ -10002,34 +10004,34 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
         tisc.addSnapshots(snapshots, startOn, endBefore)
     
         console.log(tisc.getResults())
-        # [ { id: 1,
-        #     ticks: 20,
-        #     to_lastValue: '2011-01-06T15:30:00.000Z',
-        #     Name_lastValue: 'Item A' },
-        #   { id: 2,
-        #     ticks: 20,
-        #     to_lastValue: '2011-01-06T16:10:00.000Z',
-        #     Name_lastValue: 'Item B' },
-        #   { id: 3,
-        #     ticks: 20,
-        #     to_lastValue: '2011-01-07T15:20:00.000Z',
-        #     Name_lastValue: 'Item C' },
-        #   { id: 4,
-        #     ticks: 20,
-        #     to_lastValue: '2011-01-06T19:00:00.000Z',
-        #     Name_lastValue: 'Item D' },
-        #   { id: 5,
-        #     ticks: 20,
-        #     to_lastValue: '2011-01-07T15:10:00.000Z',
-        #     Name_lastValue: 'Item E' },
-        #   { id: 6,
-        #     ticks: 20,
-        #     to_lastValue: '2011-01-10T15:05:00.000Z',
-        #     Name_lastValue: 'Item F modified' },
-        #   { id: 7,
-        #     ticks: 260,
-        #     to_lastValue: '9999-01-01T00:00:00.000Z',
-        #     Name_lastValue: 'Item G' } ]
+         * [ { id: 1,
+         *     ticks: 20,
+         *     to_lastValue: '2011-01-06T15:30:00.000Z',
+         *     Name_lastValue: 'Item A' },
+         *   { id: 2,
+         *     ticks: 20,
+         *     to_lastValue: '2011-01-06T16:10:00.000Z',
+         *     Name_lastValue: 'Item B' },
+         *   { id: 3,
+         *     ticks: 20,
+         *     to_lastValue: '2011-01-07T15:20:00.000Z',
+         *     Name_lastValue: 'Item C' },
+         *   { id: 4,
+         *     ticks: 20,
+         *     to_lastValue: '2011-01-06T19:00:00.000Z',
+         *     Name_lastValue: 'Item D' },
+         *   { id: 5,
+         *     ticks: 20,
+         *     to_lastValue: '2011-01-07T15:10:00.000Z',
+         *     Name_lastValue: 'Item E' },
+         *   { id: 6,
+         *     ticks: 20,
+         *     to_lastValue: '2011-01-10T15:05:00.000Z',
+         *     Name_lastValue: 'Item F modified' },
+         *   { id: 7,
+         *     ticks: 260,
+         *     to_lastValue: '9999-01-01T00:00:00.000Z',
+         *     Name_lastValue: 'Item G' } ]
     
     But we are not done yet. We can serialize the state of this calculator and later restore it.
     
@@ -10054,10 +10056,10 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
         tisc2.addSnapshots(snapshots, startOn, endBefore)
     
         console.log(tisc2.meta.somekey)
-        # some value
+         * some value
     
         console.log(JSON.stringify(tisc.getResults()) == JSON.stringify(tisc2.getResults()))
-        # true
+         * true
     
     Note, it's common to calculate time in state at granularity of hour and convert it to fractional days. Since it knocks
     out non-work hours, this conversion is not as simple as dividing by 24. This code calculates the conversion factor
@@ -10077,12 +10079,12 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
         workHours = workMinutes / 60
     
         console.log(workHours)  # Should say 2 because our work day was from 9am to 11am
-        # 2
+         * 2
     
     You would simply divide the ticks by this `workHours` value to convert from ticks (in hours) to fractional days.
-    */
-
+     */
     function TimeInStateCalculator(config) {
+
       /*
       @constructor
       @param {Object} config
@@ -10109,8 +10111,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
       @cfg {String[]} [trackLastValueForTheseFields] If provided, the last value of these fields will appear in the results.
          This is useful if you want to filter the result by where the ended or if you want information to fill in the tooltip
          for a chart.
-      */
-
+       */
       var cubeConfig, dimensions, fieldName, metricObject, metrics, _i, _len, _ref1;
       this.config = utils.clone(config);
       if (this.config.validFromField == null) {
@@ -10156,6 +10157,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
     }
 
     TimeInStateCalculator.prototype.addSnapshots = function(snapshots, startOn, endBefore) {
+
       /*
       @method addSnapshots
         Allows you to incrementally add snapshots to this calculator.
@@ -10166,8 +10168,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
       @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
         period of interest.
       @return {TimeInStateCalculator}
-      */
-
+       */
       var s, ticks, timeline, timelineConfig, _i, _len;
       if (this.upToDateISOString != null) {
         utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
@@ -10187,12 +10188,12 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
     };
 
     TimeInStateCalculator.prototype.getResults = function() {
+
       /*
       @method getResults
         Returns the current state of the calculator
       @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
-      */
-
+       */
       var cell, fieldName, filter, id, out, outRow, uniqueIDs, _i, _j, _len, _len1, _ref1;
       out = [];
       uniqueIDs = this.cube.getDimensionValues(this.config.uniqueIDField);
@@ -10217,6 +10218,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
     };
 
     TimeInStateCalculator.prototype.getStateForSaving = function(meta) {
+
       /*
       @method getStateForSaving
         Enables saving the state of this calculator. See class documentation for a detailed example.
@@ -10225,8 +10227,7 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
       @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
         to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
         the calculator.
-      */
-
+       */
       var out;
       out = {
         config: this.config,
@@ -10240,14 +10241,14 @@ require.define("/src/TimeInStateCalculator.coffee",function(require,module,expor
     };
 
     TimeInStateCalculator.newFromSavedState = function(p) {
+
       /*
       @method newFromSavedState
         Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
       @static
       @param {String/Object} p A String or Object from a previously saved state
       @return {TimeInStateCalculator}
-      */
-
+       */
       var calculator;
       if (utils.type(p) === 'string') {
         p = JSON.parse(p);
@@ -10283,6 +10284,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
   JSON = require('JSON2');
 
   OLAPCube = (function() {
+
     /*
     @class OLAPCube
     
@@ -10295,7 +10297,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     desired analysis. It also supports serialization and incremental updating so it's ideally
     suited for visualizations and analysis that are updated on a periodic or even continuous basis.
     
-    ## Features ##
+     *# Features ##
     
     * In-memory
     * Incrementally-updateable
@@ -10305,7 +10307,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     * Hierarchy (trees) derived from fact data assuming [materialized path](http://en.wikipedia.org/wiki/Materialized_path)
       array model commonly used with NoSQL databases
     
-    ## 2D Example ##
+     *# 2D Example ##
     
     Let's walk through a simple 2D example from facts to output. Let's say you have this set of facts:
     
@@ -10366,7 +10368,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     `getCell()` allows you to extract a single cell. The "total" cell for all facts where Priority = 1 can be found as follows:
     
         console.log(cube.getCell({Priority: 1}))
-        # { ProjectHierarchy: null, Priority: 1, _count: 3, Scope: 30 }
+         * { ProjectHierarchy: null, Priority: 1, _count: 3, Scope: 30 }
     
     Notice how the ProjectHierarchy field value is `null`. This is because it is a total cell for Priority dimension
     for all ProjectHierarchy values. Think of `null` values in this context as wildcards.
@@ -10374,7 +10376,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     Similarly, we can get the total for all descendants of ProjectHierarchy = [1] regarless of Priority as follows:
     
         console.log(cube.getCell({ProjectHierarchy: [1]}))
-        # { ProjectHierarchy: [ 1 ], Priority: null, _count: 3, Scope: 18 }
+         * { ProjectHierarchy: [ 1 ], Priority: null, _count: 3, Scope: 18 }
     
     `getCell()` uses the cellIndex so it's very efficient. Using `getCell()` and `getDimensionValues()`, you can iterate
     over a slice of the OLAPCube. It is usually preferable to access the cells in place like this rather than the
@@ -10396,30 +10398,30 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
               cellString = ''
             s += OLAPCube._padToWidth(cellString, 7) + ' | '
           console.log(s)
-        #         |    null |       1 |       2 |
-        #    null |       4 |       3 |       1 |
-        #     [1] |       3 |       2 |       1 |
-        #   [1,2] |       3 |       2 |       1 |
-        # [1,2,3] |       1 |       1 |         |
-        # [1,2,4] |       1 |         |       1 |
-        #     [5] |       1 |       1 |         |
+         *         |    null |       1 |       2 |
+         *    null |       4 |       3 |       1 |
+         *     [1] |       3 |       2 |       1 |
+         *   [1,2] |       3 |       2 |       1 |
+         * [1,2,3] |       1 |       1 |         |
+         * [1,2,4] |       1 |         |       1 |
+         *     [5] |       1 |       1 |         |
     
     Or you can just call `toString()` method which extracts a 2D slice for tabular display. Both approachs will work on
     cubes of any number of dimensions two or greater. The manual example above extracted the `count` metric. We'll tell
     the example below to extract the `Scope` metric.
     
         console.log(cube.toString('ProjectHierarchy', 'Priority', 'Scope'))
-        # |        || Total |     1     2|
-        # |==============================|
-        # |Total   ||    35 |    30     5|
-        # |------------------------------|
-        # |[1]     ||    18 |    13     5|
-        # |[1,2]   ||    18 |    13     5|
-        # |[1,2,3] ||    10 |    10      |
-        # |[1,2,4] ||     5 |           5|
-        # |[5]     ||    17 |    17      |
+         * |        || Total |     1     2|
+         * |==============================|
+         * |Total   ||    35 |    30     5|
+         * |------------------------------|
+         * |[1]     ||    18 |    13     5|
+         * |[1,2]   ||    18 |    13     5|
+         * |[1,2,3] ||    10 |    10      |
+         * |[1,2,4] ||     5 |           5|
+         * |[5]     ||    17 |    17      |
     
-    ## Dimension types ##
+     *# Dimension types ##
     
     The following dimension types are supported:
     
@@ -10440,7 +10442,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           {field: 'hierarchicalDimensionField', type: 'hierarchy'} #, ...
         ]
     
-    ## Hierarchical (tree) data ##
+     *# Hierarchical (tree) data ##
     
     This OLAP Cube implementation assumes your hierarchies (trees) are modeled as a
     [materialized path](http://en.wikipedia.org/wiki/Materialized_path) array. This approach is commonly used with NoSQL databases like
@@ -10457,7 +10459,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     fixed/named level hierachies whereas the reverse is not true. In the clothing example above, you would simply key
     your dimension off of a derived field that was a combination of the SEX and TYPE columns (e.g. ['mens', 'pants'])
     
-    ## Date/Time hierarchies ##
+     *# Date/Time hierarchies ##
     
     Lumenize is designed to work well with the tzTime library. Here is an example of taking a bunch of ISOString data
     and doing timezone precise hierarchical roll up based upon the date segments (year, month).
@@ -10483,18 +10485,18 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     
         cube = new OLAPCube(config, data)
         console.log(cube.toString(undefined, undefined, 'value_sum'))
-        # | dateSegments | value_sum |
-        # |==========================|
-        # | [2011]       |        10 |
-        # | [2011,12]    |        10 |
-        # | [2012]       |       140 |
-        # | [2012,1]     |        90 |
-        # | [2012,2]     |        50 |
+         * | dateSegments | value_sum |
+         * |==========================|
+         * | [2011]       |        10 |
+         * | [2011,12]    |        10 |
+         * | [2012]       |       140 |
+         * | [2012,1]     |        90 |
+         * | [2012,2]     |        50 |
     
     Notice how '2012-02-01T00:00:01.000Z' got bucketed in January because the calculation was done in timezone
     'America/New_York'.
     
-    ## Non-hierarchical Array fields ##
+     *# Non-hierarchical Array fields ##
     
     If you don't specify type: 'hierarchy' and the OLAPCube sees a field whose value is an Array in a dimension field, the
     data in that fact would get aggregated against each element in the Array. So a non-hierarchical Array field like
@@ -10510,11 +10512,11 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     
     You could figure out the number of events active in each month by specifying "activeMonths" as a dimension.
     Lumenize.TimeInStateCalculator (and other calculators in Lumenize) use this technique.
-    */
-
+     */
     function OLAPCube(userConfig, facts) {
       var d, _i, _j, _len, _len1, _ref1, _ref2;
       this.userConfig = userConfig;
+
       /*
       @constructor
       @param {Object} config See Config options for details. DO NOT change the config settings after the OLAP class is instantiated.
@@ -10583,8 +10585,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
         in config.metrics. Standard deviation depends upon `sum` and `sumSquares`. Percentile coverage depends upon `values`.
         In fact, if you are going to capture values anyway, all of the functions are most efficiently calculated here.
         Maybe some day, I'll write the code to analyze your metrics and move them out to here if it improves efficiency.
-      */
-
+       */
       this.config = utils.clone(this.userConfig);
       utils.assert(this.config.dimensions != null, 'Must provide config.dimensions.');
       if (this.config.metrics == null) {
@@ -10750,6 +10751,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     };
 
     OLAPCube.prototype.addFacts = function(facts) {
+
       /*
       @method addFacts
         Adds facts to the OLAPCube.
@@ -10757,8 +10759,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       @chainable
       @param {Object[]} facts An Array of facts to be aggregated into OLAPCube. Each fact is a Map where the keys are the field names
         and the values are the field values (e.g. `{field1: 'a', field2: 5}`).
-      */
-
+       */
       var d, dirtyRow, expandedFactArray, fact, fieldName, filterString, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref1, _ref2, _ref3;
       this.dirtyRows = {};
       if (utils.type(facts) === 'array') {
@@ -10814,6 +10815,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     };
 
     OLAPCube.prototype.getCells = function(filterObject) {
+
       /*
       @method getCells
         Returns a subset of the cells that match the supplied filter. You can perform slice and dice operations using
@@ -10823,8 +10825,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       @param {Object} [filterObject] Specifies the constraints that the returned cells must match in the form of
         `{field1: value1, field2: value2}`. If this parameter is missing, the internal cells array is returned.
       @return {Object[]} Returns the cells that match the supplied filter
-      */
-
+       */
       var c, output, _i, _len, _ref1;
       if (filterObject == null) {
         return this.cells;
@@ -10841,6 +10842,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     };
 
     OLAPCube.prototype.getCell = function(filter, defaultValue) {
+
       /*
       @method getCell
         Returns the single cell matching the supplied filter. Iterating over the unique values for the dimensions of
@@ -10850,8 +10852,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
         Any fields that are specified in config.dimensions that are missing from the filter are automatically filled in
         with null. Calling `getCell()` with no parameter or `{}` will return the total of all dimensions (if @config.keepTotals=true).
       @return {Object[]} Returns the cell that match the supplied filter
-      */
-
+       */
       var cell, d, foundIt, key, normalizedFilter, value, _i, _j, _len, _len1, _ref1, _ref2;
       if (filter == null) {
         filter = {};
@@ -10897,13 +10898,13 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       if (descending == null) {
         descending = false;
       }
+
       /*
       @method getDimensionValues
         Returns the unique values for the specified dimension in sort order.
       @param {String} field The field whose values you want
       @param {Boolean} [descending=false] Set to true if you want them in reverse order
-      */
-
+       */
       values = utils.values(this._dimensionValues[field]);
       values.sort(OLAPCube._compare);
       if (!descending) {
@@ -10970,6 +10971,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     };
 
     OLAPCube.prototype.toString = function(rows, columns, metric, significance) {
+
       /*
       @method toString
         Produces a printable table with the first dimension as the rows, the second dimension as the columns, and the count
@@ -10980,8 +10982,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       @param {String} [metric='count']
       @param {Number} [significance] The multiple to which you want to round the bucket edges. 1 means whole numbers.
        0.1 means to round to tenths. 0.01 to hundreds. Etc.
-      */
-
+       */
       if (metric == null) {
         metric = '_count';
       }
@@ -11177,6 +11178,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     };
 
     OLAPCube.prototype.getStateForSaving = function(meta) {
+
       /*
       @method getStateForSaving
         Enables saving the state of an OLAPCube.
@@ -11214,12 +11216,11 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
           restoredCube.addFacts(newFacts)
       
           console.log(restoredCube.toString() == originalCube.toString())
-          # true
+           * true
       
           console.log(restoredCube.meta.upToDate)
-          # 2012-12-27T12:34:56.789Z
-      */
-
+           * 2012-12-27T12:34:56.789Z
+       */
       var out;
       out = {
         config: this.userConfig,
@@ -11233,6 +11234,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
     };
 
     OLAPCube.newFromSavedState = function(p) {
+
       /*
       @method newFromSavedState
         Deserializes a previously stringified OLAPCube and returns a new OLAPCube.
@@ -11245,8 +11247,7 @@ require.define("/src/OLAPCube.coffee",function(require,module,exports,__dirname,
       @static
       @param {String/Object} p A String or Object from a previously saved OLAPCube state
       @return {OLAPCube}
-      */
-
+       */
       var c, cube, d, fieldValue, filterString, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _ref3;
       if (utils.type(p) === 'string') {
         p = JSON.parse(p);
@@ -11296,6 +11297,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
 
   JSON = require('JSON2');
 
+
   /*
   @class functions
   
@@ -11309,8 +11311,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     * 'count' is special and does not use a prefix because it is not dependent up a particular field
     * You should calculate the dependencies before you calculate the thing that is depedent. The OLAP cube does some
       checking to confirm you've done this.
-  */
-
+   */
 
   functions = {};
 
@@ -11342,6 +11343,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     return out;
   };
 
+
   /*
   @method sum
   @static
@@ -11349,8 +11351,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Number} The sum of the values
-  */
-
+   */
 
   functions.sum = function(values, oldResult, newValues) {
     var temp, tempValues, v, _i, _len;
@@ -11368,6 +11369,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     return temp;
   };
 
+
   /*
   @method product
   @static
@@ -11375,8 +11377,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Number} The product of the values
-  */
-
+   */
 
   functions.product = function(values, oldResult, newValues) {
     var temp, tempValues, v, _i, _len;
@@ -11394,6 +11395,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     return temp;
   };
 
+
   /*
   @method sumSquares
   @static
@@ -11401,8 +11403,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Number} The sum of the squares of the values
-  */
-
+   */
 
   functions.sumSquares = function(values, oldResult, newValues) {
     var temp, tempValues, v, _i, _len;
@@ -11420,6 +11421,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     return temp;
   };
 
+
   /*
   @method sumCubes
   @static
@@ -11427,8 +11429,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Number} The sum of the cubes of the values
-  */
-
+   */
 
   functions.sumCubes = function(values, oldResult, newValues) {
     var temp, tempValues, v, _i, _len;
@@ -11446,6 +11447,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     return temp;
   };
 
+
   /*
   @method lastValue
   @static
@@ -11453,8 +11455,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Number} [oldResult] Not used. It is included to make the interface consistent.
   @param {Number[]} [newValues] for incremental calculation
   @return {Number} The last value
-  */
-
+   */
 
   functions.lastValue = function(values, oldResult, newValues) {
     if (newValues != null) {
@@ -11463,6 +11464,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     return values[values.length - 1];
   };
 
+
   /*
   @method firstValue
   @static
@@ -11470,8 +11472,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] Not used. It is included to make the interface consistent.
   @return {Number} The first value
-  */
-
+   */
 
   functions.firstValue = function(values, oldResult, newValues) {
     if (oldResult != null) {
@@ -11480,6 +11481,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     return values[0];
   };
 
+
   /*
   @method count
   @static
@@ -11487,8 +11489,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Number} The length of the values Array
-  */
-
+   */
 
   functions.count = function(values, oldResult, newValues) {
     if (oldResult != null) {
@@ -11497,6 +11498,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     return values.length;
   };
 
+
   /*
   @method min
   @static
@@ -11504,8 +11506,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Number} The minimum value or null if no values
-  */
-
+   */
 
   functions.min = function(values, oldResult, newValues) {
     var temp, v, _i, _len;
@@ -11525,6 +11526,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     return temp;
   };
 
+
   /*
   @method max
   @static
@@ -11532,8 +11534,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Number} The maximum value or null if no values
-  */
-
+   */
 
   functions.max = function(values, oldResult, newValues) {
     var temp, v, _i, _len;
@@ -11553,6 +11554,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     return temp;
   };
 
+
   /*
   @method values
   @static
@@ -11560,8 +11562,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Array} All values (allows duplicates). Can be used for drill down.
-  */
-
+   */
 
   functions.values = function(values, oldResult, newValues) {
     if (oldResult != null) {
@@ -11570,6 +11571,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     return values;
   };
 
+
   /*
   @method uniqueValues
   @static
@@ -11577,8 +11579,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Number} [oldResult] for incremental calculation
   @param {Number[]} [newValues] for incremental calculation
   @return {Array} Unique values. This is good for generating an OLAP dimension or drill down.
-  */
-
+   */
 
   functions.uniqueValues = function(values, oldResult, newValues) {
     var key, r, temp, temp2, tempValues, v, value, _i, _j, _len, _len1;
@@ -11604,6 +11605,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     return temp2;
   };
 
+
   /*
   @method average
   @static
@@ -11613,8 +11615,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
     you to provide those pre-calculated values.
   @return {Number} The arithmetic mean
-  */
-
+   */
 
   functions.average = function(values, oldResult, newValues, dependentValues, prefix) {
     var count, sum, _ref;
@@ -11623,6 +11624,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   };
 
   functions.average.dependencies = ['count', 'sum'];
+
 
   /*
   @method errorSquared
@@ -11633,8 +11635,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
     you to provide those pre-calculated values.
   @return {Number} The error squared
-  */
-
+   */
 
   functions.errorSquared = function(values, oldResult, newValues, dependentValues, prefix) {
     var count, difference, errorSquared, mean, sum, v, _i, _len, _ref;
@@ -11651,6 +11652,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
 
   functions.errorSquared.dependencies = ['count', 'sum'];
 
+
   /*
   @method variance
   @static
@@ -11660,8 +11662,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
     you to provide those pre-calculated values.
   @return {Number} The variance
-  */
-
+   */
 
   functions.variance = function(values, oldResult, newValues, dependentValues, prefix) {
     var count, sum, sumSquares, _ref;
@@ -11670,6 +11671,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   };
 
   functions.variance.dependencies = ['count', 'sum', 'sumSquares'];
+
 
   /*
   @method standardDeviation
@@ -11680,14 +11682,14 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
     you to provide those pre-calculated values.
   @return {Number} The standard deviation
-  */
-
+   */
 
   functions.standardDeviation = function(values, oldResult, newValues, dependentValues, prefix) {
     return Math.sqrt(functions.variance(values, oldResult, newValues, dependentValues, prefix));
   };
 
   functions.standardDeviation.dependencies = functions.variance.dependencies;
+
 
   /*
   @method percentileCreator
@@ -11710,8 +11712,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   
   Note: `median` is an alias for `p50`. The approach chosen for calculating p50 gives you the
   exact same result as the definition for median even for edge cases like sets with only one or two data points.
-  */
-
+   */
 
   functions.percentileCreator = function(p) {
     var f;
@@ -11741,6 +11742,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
   };
 
   functions.expandFandAs = function(a) {
+
     /*
     @method expandFandAs
     @static
@@ -11751,8 +11753,7 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     an 'as' property, it will build it from the field name and function with an underscore between. Also, if the
     'f' provided is a string, it is copied over to the 'metric' property before the 'f' property is replaced with the
     actual function. `{field: 'a', f: 'sum'}` would expand to `{as: 'a_sum', field: 'a', metric: 'sum', f: [Function]}`.
-    */
-
+     */
     var p;
     utils.assert(a.f != null, "'f' missing from specification: \n" + (JSON.stringify(a, void 0, 4)));
     if (utils.type(a.f) === 'function') {
@@ -11793,14 +11794,14 @@ require.define("/src/functions.coffee",function(require,module,exports,__dirname
     if (addValuesForCustomFunctions == null) {
       addValuesForCustomFunctions = false;
     }
+
     /*
     @method expandMetrics
     @static
     @private
     
     This is called internally by several Lumenize Calculators. You should probably not call it.
-    */
-
+     */
     confirmMetricAbove = function(m, fieldName, aboveThisIndex) {
       var currentRow, i, lookingFor, metricsLength;
       if (m === 'count') {
@@ -11915,6 +11916,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
   JSON = require('JSON2');
 
   csvStyleArray_To_ArrayOfMaps = function(csvStyleArray, rowKeys) {
+
     /*
     @method csvStyleArray_To_ArrayOfMaps
     @param {Array[]} csvStyleArray The first row is usually the list of column headers but if not, you can
@@ -11938,12 +11940,11 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     
         console.log(csvStyleArray_To_ArrayOfMaps(csvStyleArray))
     
-        # [ { column1: 1, column2: 2 },
-        #   { column1: 3, column2: 4 },
-        #   { column1: 5, column2: 6 } ]
+         * [ { column1: 1, column2: 2 },
+         *   { column1: 3, column2: 4 },
+         *   { column1: 5, column2: 6 } ]
     `
-    */
-
+     */
     var arrayOfMaps, i, index, inputRow, key, outputRow, tableLength, _i, _len;
     arrayOfMaps = [];
     if (rowKeys != null) {
@@ -11967,6 +11968,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
   };
 
   arrayOfMaps_To_CSVStyleArray = function(arrayOfMaps, keys) {
+
     /*
     @method arrayOfMaps_To_CSVStyleArray
     @param {Object[]} arrayOfMaps
@@ -11987,13 +11989,12 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     
         console.log(arrayOfMaps_To_CSVStyleArray(arrayOfMaps))
     
-        # [ [ 'column1', 'column2' ],
-        #   [ 10000, 20000 ],
-        #   [ 30000, 40000 ],
-        #   [ 50000, 60000 ] ]
+         * [ [ 'column1', 'column2' ],
+         *   [ 10000, 20000 ],
+         *   [ 30000, 40000 ],
+         *   [ 50000, 60000 ] ]
     `
-    */
-
+     */
     var csvStyleArray, inRow, key, outRow, value, _i, _j, _len, _len1, _ref1;
     if (arrayOfMaps.length === 0) {
       return [];
@@ -12022,6 +12023,7 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
   };
 
   arrayOfMaps_To_HighChartsSeries = function(arrayOfMaps, config) {
+
     /*
     @method arrayOfMaps_To_HighChartsSeries
     @param {Array[]} arrayOfMaps
@@ -12049,15 +12051,14 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
     and extracts the data into seperate series
     
         console.log(arrayOfMaps_To_HighChartsSeries(arrayOfMaps, config))
-        # [ { name: 'Series 1', data: [ 8, 2, 1 ], yAxis: 1 },
-        #   { name: 'Series 2', data: [ 5, 3, 2 ] },
-        #   { name: 'Series3', data: [ 10, null, 40 ] } ]
+         * [ { name: 'Series 1', data: [ 8, 2, 1 ], yAxis: 1 },
+         *   { name: 'Series 2', data: [ 5, 3, 2 ] },
+         *   { name: 'Series3', data: [ 10, null, 40 ] } ]
         
     Notice how the extra fields from the series array are included in the output. Also, notice how the missing second
     value for Series3 was replaced with a null. HighCharts will skip right over this for category charts as you would
     expect.
-    */
-
+     */
     var a, aggregationRow, idx, key, output, outputRow, preOutput, s, seriesNames, seriesRow, value, _i, _j, _k, _l, _len, _len1, _len2, _len3;
     preOutput = {};
     seriesNames = [];
@@ -12158,7 +12159,8 @@ require.define("/src/dataTransform.coffee",function(require,module,exports,__dir
 
 });
 
-require.define("/src/TransitionsCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
+require.define("/src/TransitionsCalculator.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.8.0
+(function() {
   var JSON, OLAPCube, Time, Timeline, TransitionsCalculator, utils, _ref;
 
   OLAPCube = require('./OLAPCube').OLAPCube;
@@ -12168,6 +12170,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
   JSON = require('JSON2');
 
   TransitionsCalculator = (function() {
+
     /*
     @class TransitionsCalculator
     
@@ -12236,8 +12239,8 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
         calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
     
         console.log(calculator.getResults())
-        # [ { timePeriod: '2011-01', count: 5, PlanEstimate: 150 },
-        #   { timePeriod: '2011-02*', count: 1, PlanEstimate: 60 } ]
+         * [ { timePeriod: '2011-01', count: 5, PlanEstimate: 150 },
+         *   { timePeriod: '2011-02*', count: 1, PlanEstimate: 60 } ]
     
     The asterix on the last row in the results is to indicate that it is a to-date value. As more snapshots come in, this
     last row will change. The caching and incremental calcuation capability of this Calculator are designed to take
@@ -12250,19 +12253,19 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
         calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
     
         console.log(calculator.getResults())
-        # [ { timePeriod: '2010W52', count: 1, PlanEstimate: 10 },
-        #   { timePeriod: '2011W01', count: 2, PlanEstimate: 50 },
-        #   { timePeriod: '2011W02', count: 2, PlanEstimate: 90 },
-        #   { timePeriod: '2011W03', count: 0, PlanEstimate: 0 },
-        #   { timePeriod: '2011W04', count: 0, PlanEstimate: 0 },
-        #   { timePeriod: '2011W05', count: 1, PlanEstimate: 60 },
-        #   { timePeriod: '2011W06*', count: 0, PlanEstimate: 0 } ]
+         * [ { timePeriod: '2010W52', count: 1, PlanEstimate: 10 },
+         *   { timePeriod: '2011W01', count: 2, PlanEstimate: 50 },
+         *   { timePeriod: '2011W02', count: 2, PlanEstimate: 90 },
+         *   { timePeriod: '2011W03', count: 0, PlanEstimate: 0 },
+         *   { timePeriod: '2011W04', count: 0, PlanEstimate: 0 },
+         *   { timePeriod: '2011W05', count: 1, PlanEstimate: 60 },
+         *   { timePeriod: '2011W06*', count: 0, PlanEstimate: 0 } ]
     
     Remember, you can easily convert weeks to other granularities for display.
     
         weekStartingLabel = 'week starting ' + new Time('2010W52').inGranularity(Time.DAY).toString()
         console.log(weekStartingLabel)
-        # week starting 2010-12-27
+         * week starting 2010-12-27
     
     If you want to display spinners while the chart is rendering, you can read this calculator's upToDateISOString property and
     compare it directly to the getResults() row's timePeriod property using code like this. Yes, this works eventhough
@@ -12271,10 +12274,10 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
         row = {timePeriod: '2011W07'}
         if calculator.upToDateISOString < row.timePeriod
           console.log("#{row.timePeriod} not yet calculated.")
-        # 2011W07 not yet calculated.
-    */
-
+         * 2011W07 not yet calculated.
+     */
     function TransitionsCalculator(config) {
+
       /*
       @constructor
       @param {Object} config
@@ -12285,8 +12288,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
       @cfg {String} granularity 'month', 'week', 'quarter', etc. Use Time.MONTH, Time.WEEK, etc.
       @cfg {String[]} [fieldsToSum=[]] It will track the count automatically but it can keep a running sum of other fields also
       @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
-      */
-
+       */
       var cubeConfig, dimensions, f, metrics, _i, _len, _ref1, _ref2;
       this.config = utils.clone(config);
       if (this.config.validFromField == null) {
@@ -12348,6 +12350,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
       if (snapshotsToSubtract == null) {
         snapshotsToSubtract = [];
       }
+
       /*
       @method addSnapshots
         Allows you to incrementally add snapshots to this calculator.
@@ -12358,8 +12361,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
       @param {String} endBefore A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
         period of interest.
       @return {TransitionsCalculator}
-      */
-
+       */
       if (this.upToDateISOString != null) {
         utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
       }
@@ -12410,12 +12412,12 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
     };
 
     TransitionsCalculator.prototype.getResults = function() {
+
       /*
       @method getResults
         Returns the current state of the calculator
       @return {Object[]} Returns an Array of Maps like `{timePeriod: '2012-12', count: 10, otherField: 34}`
-      */
-
+       */
       var cell, config, f, filter, out, outRow, t, timeLine, timePeriods, tp, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2;
       if (this.virgin) {
         return [];
@@ -12470,6 +12472,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
     };
 
     TransitionsCalculator.prototype.getStateForSaving = function(meta) {
+
       /*
       @method getStateForSaving
         Enables saving the state of this calculator. See TimeInStateCalculator documentation for a detailed example.
@@ -12478,8 +12481,7 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
       @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
         to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
         the calculator.
-      */
-
+       */
       var out;
       out = {
         config: this.config,
@@ -12496,14 +12498,14 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
     };
 
     TransitionsCalculator.newFromSavedState = function(p) {
+
       /*
       @method newFromSavedState
         Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
       @static
       @param {String/Object} p A String or Object from a previously saved state
       @return {TransitionsCalculator}
-      */
-
+       */
       var calculator;
       if (utils.type(p) === 'string') {
         p = JSON.parse(p);
@@ -12528,6 +12530,8 @@ require.define("/src/TransitionsCalculator.coffee",function(require,module,expor
 
 }).call(this);
 
+//# sourceMappingURL=TransitionsCalculator.js.map
+
 });
 
 require.define("/src/TimeSeriesCalculator.coffee",function(require,module,exports,__dirname,__filename,process,global){(function() {
@@ -12543,6 +12547,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
   JSON = require('JSON2');
 
   TimeSeriesCalculator = (function() {
+
     /*
     @class TimeSeriesCalculator
     This calculator is used to convert snapshot data into time series aggregations.
@@ -12552,7 +12557,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     (like you would use to create a stacked column or stacked area chart). You can mix and match these on the same chart, but
     one type (a set of single-metric series versus a single group-by meta-series) typically dominates.
     
-    ## Time-series example - a burn chart ##
+     *# Time-series example - a burn chart ##
     
     Let's start with a fairly large set of snapshots and create a set of series for a burn (up/down) chart.
     
@@ -12712,15 +12717,15 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
     
         console.log(csv.slice(1))
-        #  [ [ '2011-01-02', 13, 3, 0, 0, 37, 32, 51, null, 100 ],
-        #    [ '2011-01-03', 18, 4, 0, 0, 44, 47, 42.5, 44, 100 ],
-        #    [ '2011-01-04', 20, 5, 1, 5, 25, 51, 34, 35.2, 41.666666666666664 ],
-        #    [ '2011-01-06', 20, 5, 2, 8, 16, 51, 25.5, 26.4, 41.666666666666664 ],
-        #    [ '2011-01-07', 18, 4, 3, 13, 3, 47, 17, 17.59, 0 ],
-        #    [ '2011-01-09', 18, 4, 3, 13, 3, 47, 8.5, 8.79, 0 ],
-        #    [ '2011-01-10', 18, 4, 3, 13, 3, 47, 0, 0, 0 ] ]
+         *  [ [ '2011-01-02', 13, 3, 0, 0, 37, 32, 51, null, 100 ],
+         *    [ '2011-01-03', 18, 4, 0, 0, 44, 47, 42.5, 44, 100 ],
+         *    [ '2011-01-04', 20, 5, 1, 5, 25, 51, 34, 35.2, 41.666666666666664 ],
+         *    [ '2011-01-06', 20, 5, 2, 8, 16, 51, 25.5, 26.4, 41.666666666666664 ],
+         *    [ '2011-01-07', 18, 4, 3, 13, 3, 47, 17, 17.59, 0 ],
+         *    [ '2011-01-09', 18, 4, 3, 13, 3, 47, 8.5, 8.79, 0 ],
+         *    [ '2011-01-10', 18, 4, 3, 13, 3, 47, 0, 0, 0 ] ]
     
-    ## Time-series group-by example ##
+     *# Time-series group-by example ##
     
         allowedValues = ['Ready to pull', 'In progress', 'In test', 'Accepted', 'Released']
     
@@ -12754,32 +12759,50 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         keys = ['label'].concat(allowedValues)
         csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
         console.log(csv.slice(1))
-        # [ [ '2010-12-31', 5, 0, 0, 0, 0 ],
-        #   [ '2011-01-02', 8, 5, 0, 0, 0 ],
-        #   [ '2011-01-03', 10, 8, 0, 0, 0 ],
-        #   [ '2011-01-04', 7, 0, 8, 5, 0 ],
-        #   [ '2011-01-06', 2, 5, 5, 3, 5 ],
-        #   [ '2011-01-07', 0, 0, 5, 5, 8 ],
-        #   [ '2011-01-09', 0, 0, 5, 5, 8 ] ]
+         * [ [ '2010-12-31', 5, 0, 0, 0, 0 ],
+         *   [ '2011-01-02', 8, 5, 0, 0, 0 ],
+         *   [ '2011-01-03', 10, 8, 0, 0, 0 ],
+         *   [ '2011-01-04', 7, 0, 8, 5, 0 ],
+         *   [ '2011-01-06', 2, 5, 5, 3, 5 ],
+         *   [ '2011-01-07', 0, 0, 5, 5, 8 ],
+         *   [ '2011-01-09', 0, 0, 5, 5, 8 ] ]
     
     Here is the output of the count metrics
     
         keys = ['label'].concat('Count ' + a for a in allowedValues)
         csv = lumenize.arrayOfMaps_To_CSVStyleArray(calculator.getResults().seriesData, keys)
         console.log(csv.slice(1))
-        # [ [ '2010-12-31', 1, 0, 0, 0, 0 ],
-        #   [ '2011-01-02', 2, 1, 0, 0, 0 ],
-        #   [ '2011-01-03', 2, 2, 0, 0, 0 ],
-        #   [ '2011-01-04', 2, 0, 2, 1, 0 ],
-        #   [ '2011-01-06', 1, 1, 1, 1, 1 ],
-        #   [ '2011-01-07', 0, 0, 1, 1, 2 ],
-        #   [ '2011-01-09', 0, 0, 1, 1, 2 ] ]
+         * [ [ '2010-12-31', 1, 0, 0, 0, 0 ],
+         *   [ '2011-01-02', 2, 1, 0, 0, 0 ],
+         *   [ '2011-01-03', 2, 2, 0, 0, 0 ],
+         *   [ '2011-01-04', 2, 0, 2, 1, 0 ],
+         *   [ '2011-01-06', 1, 1, 1, 1, 1 ],
+         *   [ '2011-01-07', 0, 0, 1, 1, 2 ],
+         *   [ '2011-01-09', 0, 0, 1, 1, 2 ] ]
     
     We didn't output the MedianTaskRemainingTotal metric but it's in there. I included it to demonstrate that you can
     calculate non-group-by series along side group-by series.
-    */
-
+    
+    The order of execution of all of the configurations that modify or augment the results is as follows:
+    
+    1. **deriveFieldsOnInput** operate on the snapshots by adding virtual fields to them. This is done when addSnapshots() is
+       called before any time series calculations are run your metrics config can refer to them as if they were real fields
+       on the snapshots.
+    1. **metrics** which defines the seriesData.
+    1. **deriveFieldsOnOutput** operates on the output seriesData table that has one row per tick. It is also done when you call
+       addSnapshots() but after the seriesData calculations are completed.
+    1. **summaryMetricsConfig** also operates on the seriesData table but rather than augmenting the rows in that table, it creates
+       a new table (summaryMetrics) that just contains summary information. An example usage would be to find the max scope to be
+       used by deriveFieldsAfterSummary to create an ideal line that burned down from that max. Note, this is run
+       every time you call getResults(), so it can potentially be expensive if you fetch the results often with getResults().
+    1. **deriveFieldsAfterSummary** is used next. It's essentially the same as deriveFieldsOnOutput and also creates new columns
+       in the seriesData table whose rows are made up of ticks. However, it allows you to use the summary table. Only use this
+       if the field calculation needs something from the summary (like an ideal line) because it is potentially more
+       expensive since it's done every time you call getResults().
+    1. **projectionsConfig** is the last augmentation config used.
+     */
     function TimeSeriesCalculator(config) {
+
       /*
       @constructor
       @param {Object} config
@@ -12940,8 +12963,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
         the calculator to only emit ticks equal to this or later.
       @cfg {String/ISOString/Date/Lumenize.Time} [endBefore=infinity] This becomes the master endBefore for the entire calculator
         limiting the calculator to only emit ticks before this.
-      */
-
+       */
       var a, dimensions, f, field, fieldsMap, filterValue, filteredCountCreator, filteredSumCreator, inputCubeDimensions, inputCubeMetrics, m, newMetrics, row, ticks, timeline, timelineConfig, tl, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
       this.config = utils.clone(config);
       this.tickToLabelLookup = {};
@@ -13105,6 +13127,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     }
 
     TimeSeriesCalculator.prototype.addSnapshots = function(snapshots, startOnISOString, upToDateISOString) {
+
       /*
       @method addSnapshots
         Allows you to incrementally add snapshots to this calculator.
@@ -13115,8 +13138,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       @param {String} upToDateISOString A ISOString (e.g. '2012-01-01T12:34:56.789Z') indicating the moment just past the time
         period of interest.
       @return {TimeInStateCalculator}
-      */
-
+       */
       var advanceOneTimeline, advanceOneTimelineConfig, advanceOneTimelineIterator, endBeforeTime, inputCube, s, startOnTime, ticks, timeline, timelineConfig, tl, validSnapshots, _i, _j, _k, _len, _len1, _len2, _ref1;
       if (this.upToDateISOString != null) {
         utils.assert(this.upToDateISOString === startOnISOString, "startOnISOString (" + startOnISOString + ") parameter should equal upToDateISOString of previous call (" + this.upToDateISOString + ") to addSnapshots.");
@@ -13175,12 +13197,12 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     };
 
     TimeSeriesCalculator.prototype.getResults = function() {
+
       /*
       @method getResults
         Returns the current state of the calculator
       @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
-      */
-
+       */
       var as, cell, d, foundFirstNullCell, highestIndexAllowed, highestIndexAllowed1, highestIndexAllowed2, index, labels, lastIndex, lastPoint, lastTick, m, pointsAddedCount, projectedPoint, projectionSeries, projectionTimeline, projectionTimelineConfig, projectionTimelineIterator, projections, row, s, seriesData, startIndex, startOn, startPoint, summaryMetric, summaryMetrics, t, tick, tickIndex, ticks, toDateCell, toDateCube, values, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _len7, _len8, _len9, _m, _n, _o, _p, _q, _r, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
       ticks = utils._.keys(this.tickToLabelLookup).sort();
       labels = (function() {
@@ -13327,27 +13349,30 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     };
 
     TimeSeriesCalculator._findVOptimalProjectionStartIndex = function(seriesData, field, highestIndexAllowed) {
-      var calculateTotalErrorSquared, errorSquared, i, indexForMinNormalizedErrorSquared, lastIndex, lastPoint, minNormalizedErrorSquared, normalizedErrorSquared, slopeToEnd, _i,
-        _this = this;
+      var calculateTotalErrorSquared, errorSquared, i, indexForMinNormalizedErrorSquared, lastIndex, lastPoint, minNormalizedErrorSquared, normalizedErrorSquared, slopeToEnd, _i;
       utils.assert(highestIndexAllowed < seriesData.length - 2, "Cannot use the last two points for calculating v-optimal slope.");
       lastIndex = seriesData.length - 1;
       lastPoint = seriesData[lastIndex];
-      slopeToEnd = function(index) {
-        return (lastPoint[field] - seriesData[index][field]) / (lastIndex - index);
-      };
-      calculateTotalErrorSquared = function(index) {
-        var currentAngle, currentSlope, error, i, totalErrorSquared, trialAngle, trialSlope, _i, _ref1, _ref2;
-        trialSlope = slopeToEnd(index);
-        trialAngle = Math.atan(trialSlope);
-        totalErrorSquared = 0;
-        for (i = _i = _ref1 = index + 1, _ref2 = lastIndex - 1; _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
-          currentSlope = slopeToEnd(i);
-          currentAngle = Math.atan(currentSlope);
-          error = trialAngle - currentAngle;
-          totalErrorSquared += error * error;
-        }
-        return totalErrorSquared;
-      };
+      slopeToEnd = (function(_this) {
+        return function(index) {
+          return (lastPoint[field] - seriesData[index][field]) / (lastIndex - index);
+        };
+      })(this);
+      calculateTotalErrorSquared = (function(_this) {
+        return function(index) {
+          var currentAngle, currentSlope, error, i, totalErrorSquared, trialAngle, trialSlope, _i, _ref1, _ref2;
+          trialSlope = slopeToEnd(index);
+          trialAngle = Math.atan(trialSlope);
+          totalErrorSquared = 0;
+          for (i = _i = _ref1 = index + 1, _ref2 = lastIndex - 1; _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
+            currentSlope = slopeToEnd(i);
+            currentAngle = Math.atan(currentSlope);
+            error = trialAngle - currentAngle;
+            totalErrorSquared += error * error;
+          }
+          return totalErrorSquared;
+        };
+      })(this);
       minNormalizedErrorSquared = Number.MAX_VALUE;
       indexForMinNormalizedErrorSquared = highestIndexAllowed;
       for (i = _i = highestIndexAllowed; highestIndexAllowed <= 0 ? _i <= 0 : _i >= 0; i = highestIndexAllowed <= 0 ? ++_i : --_i) {
@@ -13362,6 +13387,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     };
 
     TimeSeriesCalculator.prototype.getStateForSaving = function(meta) {
+
       /*
       @method getStateForSaving
         Enables saving the state of this calculator. See class documentation for a detailed example.
@@ -13370,8 +13396,7 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
       @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
         to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
         the calculator.
-      */
-
+       */
       var out;
       out = {
         config: this.config,
@@ -13385,14 +13410,14 @@ require.define("/src/TimeSeriesCalculator.coffee",function(require,module,export
     };
 
     TimeSeriesCalculator.newFromSavedState = function(p) {
+
       /*
       @method newFromSavedState
         Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
       @static
       @param {String/Object} p A String or Object from a previously saved state
       @return {TimeInStateCalculator}
-      */
-
+       */
       var calculator;
       if (utils.type(p) === 'string') {
         p = JSON.parse(p);
@@ -13426,6 +13451,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
   histogram = {};
 
   justHereForDocsAndDoctest = function() {
+
     /*
     @class histogram
     
@@ -13444,7 +13470,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     
     Let's walk through some examples of both modes. But first a general discussion about how these functions accept raw data.
     
-    ## Getting data into the histogram functions ##
+     *# Getting data into the histogram functions ##
     
     We have two ways to define data. We can pass in an Array of Objects and specify the field to use.
     
@@ -13458,30 +13484,29 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
         h = histogram.histogram(grades, 'average')
     
         console.log(h)
-        # [ { index: 0, startOn: null, endBelow: null, label: 'all', count: 2 } ]
+         * [ { index: 0, startOn: null, endBelow: null, label: 'all', count: 2 } ]
     
     Or, we can just pass in a list of values
     
         grades = [105, 104.9, 99, 98.7, 85, 78, 54, 98, 78, 20]
         h = histogram.histogram(grades)
         console.log((row.label + ': ' + row.count for row in h))
-        # [ '< 41.25: 1', '41.25-62.5: 1', '62.5-83.75: 2', '>= 83.75: 6' ]
+         * [ '< 41.25: 1', '41.25-62.5: 1', '62.5-83.75: 2', '>= 83.75: 6' ]
     
-    ## Automatic histogram creation ##
+     *# Automatic histogram creation ##
     
     The above examples for the two ways of getting data into the histogram functions also demonstrates the use of
     automatic histogram creation. There are additional parameters to this function that allow you to control the
     type of bucketing (constantWidth, constantDepth, etc.), min and max values, significance of the bucket boundaries, etc.
     See the individual functions for details on these parameters.
     
-    ## Piecemeal usage ##
+     *# Piecemeal usage ##
     
     Sometimes you don't actually want a histogram. You want a way to create constantWidth or constantDepth or v-optimal buckets
     and you want a tool to know which bucket a particular value falls into. The cannonical example of this is for calculating
     percentiles for standardized testing... or for grading on a curve. The documentation for the `percentileBuckets()`
     function walks you through an example like this.
-    */
-
+     */
   };
 
   getBucketCountMinMax = function(values) {
@@ -13647,6 +13672,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
   };
 
   histogram.bucketsPercentile = function(rows, valueField) {
+
     /*
     @method bucketsPercentile
     
@@ -13708,16 +13734,16 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
         for student in grades
           console.log(student.name, getGrade(student.average, buckets))
     
-        # Joe A
-        # Jeff B
-        # John B
-        # Jess B
-        # Joseph C
-        # Julie C
-        # Juan C
-        # Jill C
-        # Jon C
-        # Jorge F
+         * Joe A
+         * Jeff B
+         * John B
+         * Jess B
+         * Joseph C
+         * Julie C
+         * Juan C
+         * Jill C
+         * Jon C
+         * Jorge F
     
     @static
     @param {Object[]/Number[]} rows If no valueField is provided or the valueField parameter is null, then the first parameter is
@@ -13730,8 +13756,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     
     To convert a value into a percentile call `histogram.bucket(value, bucketsFromCallToBucketsPercentile)` and
     then read the percentileHigherIsBetter or percentileLowerIsBetter of the bucket that is returned.
-    */
-
+     */
     var b, buckets, percentile, _i, _len;
     buckets = histogram.buckets(rows, valueField, histogram.bucketsConstantDepth, null, null, null, 100);
     percentile = 0;
@@ -13757,6 +13782,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     if (type == null) {
       type = histogram.bucketsConstantWidth;
     }
+
     /*
     @method buckets
     @static
@@ -13787,8 +13813,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
       {matchingRangeIndexStart, matchingRangeIndexEnd} indicating the range that this bucket replaces.
     * If firstStartOn is not provided, it will be null indicating -Infinity
     * If lastEndBelow is not provided, it will be null indicating Infinity.
-    */
-
+     */
     tempBuckets = type(rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount);
     if (tempBuckets.length < 2) {
       buckets = tempBuckets;
@@ -13843,6 +13868,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
   };
 
   histogram.bucket = function(value, buckets) {
+
     /*
     @method bucket
     @static
@@ -13860,8 +13886,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     negative values. Also note that the firstStartOn (min) is inclusive, but the lastEndBelow (max) is exclusive. If
     you set the lastEndBelow to 100, then no values of 100 will get bucketed. You can't score in the 100th percentile
     because you can't beat your own score. This is simlar logic.
-    */
-
+     */
     var b, i, _i, _ref;
     if (value == null) {
       return null;
@@ -13904,6 +13929,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
   };
 
   histogram.histogramFromBuckets = function(rows, valueField, buckets) {
+
     /*
     @method histogramFromBuckets
     @static
@@ -13915,8 +13941,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     @return {Object[]}
     
     Returns a histogram from rows using the provided buckets. See histogram.histogram() for details on the returned Array.
-    */
-
+     */
     var bucket, h, histogramRow, row, v, values, _i, _j, _len, _len1;
     if (valueField != null) {
       values = (function() {
@@ -13951,6 +13976,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     if (type == null) {
       type = histogram.constantWidth;
     }
+
     /*
     @method histogram
     @static
@@ -13980,8 +14006,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     negative values. Also note that the firstStartOn (min) is inclusive, but the lastEndBelow (max) is exclusive. If
     you set the lastEndBelow to 100, then no values of 100 will get counted. You can't score in the 100th percentile
     because you can't beat your own score. This is simlar logic.
-    */
-
+     */
     buckets = histogram.buckets(rows, valueField, type, significance, firstStartOn, lastEndBelow, bucketCount);
     return histogram.histogramFromBuckets(rows, valueField, buckets);
   };
@@ -13991,6 +14016,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     if (noClipping == null) {
       noClipping = false;
     }
+
     /*
     @method clipping
     @static
@@ -14044,14 +14070,14 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
         {buckets, chartMax} = histogram.clipping(rows, 'age')
         for b in buckets
           console.log(b.label, b.count)
-        # 0-12 2
-        # 12-24 5
-        # 24-36 8
-        # 36-48 1
-        # 48-60 1
+         * 0-12 2
+         * 12-24 5
+         * 24-36 8
+         * 36-48 1
+         * 48-60 1
     
         console.log(chartMax)
-        # 60
+         * 60
     
     This histogram calculator will also attempt to lump outliers into a single bucket at the top.
     
@@ -14061,7 +14087,7 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     
         lastBucket = buckets[buckets.length - 1]
         console.log(lastBucket.label, lastBucket.count)
-        # 48-86* 2
+         * 48-86* 2
     
     The asterix `*` is there to indicate that this bucket is not the same size as the others and non-linear.
     The histogram calculator will also "clip" the values for these outliers so that you can
@@ -14071,9 +14097,8 @@ require.define("/src/histogram.coffee",function(require,module,exports,__dirname
     
         lastBucket = buckets[buckets.length - 1]
         console.log(lastBucket.rows[1].age, lastBucket.rows[1].clippedChartValue)
-        # 85 59.68421052631579
-    */
-
+         * 85 59.68421052631579
+     */
     if (valueField != null) {
       chartValues = (function() {
         var _i, _len, _results;
@@ -14188,11 +14213,11 @@ require.define("/src/multiRegression.coffee",function(require,module,exports,__d
   multiRegression = {};
 
   multiRegression.calculateA = function(data) {
+
     /*
     @method calculateA
       Calculates the coefficient matrix for gaussian elimination solution
-    */
-
+     */
     var a, i, j, k, n, numOfVariables, _i, _j, _k, _ref, _ref1;
     numOfVariables = data[0].length;
     n = data.length;
@@ -14221,6 +14246,7 @@ require.define("/src/multiRegression.coffee",function(require,module,exports,__d
   };
 
   predict = function(data, inputs) {
+
     /*
     @method predict
     @param {[][]} data A two-dimensional array
@@ -14234,8 +14260,7 @@ require.define("/src/multiRegression.coffee",function(require,module,exports,__d
     @return {Object}
     
     returns {A, Beta, variance, prediction}
-    */
-
+     */
   };
 
   exports.multiRegression = multiRegression;
@@ -14251,10 +14276,10 @@ require.define("/src/table.coffee",function(require,module,exports,__dirname,__f
 
   table = {};
 
+
   /*
   @class table
-  */
-
+   */
 
   table.padToWidth = function(s, width, padCharacter, rightPad) {
     var padding;
@@ -14280,6 +14305,7 @@ require.define("/src/table.coffee",function(require,module,exports,__dirname,__f
     if (descending == null) {
       descending = false;
     }
+
     /*
     @method toString
     @param {Object[]} rows
@@ -14295,13 +14321,12 @@ require.define("/src/table.coffee",function(require,module,exports,__dirname,__f
         ]
     
         console.log(require('../').table.toString(t, null, 'col2', true))
-        # | col1    | col2 | col3  |
-        # | ------- | ---- | ----- |
-        # | goodbye | 120  | false |
-        # | hello   | 12   | true  |
-        # | yep     | -23  | true  |
-    */
-
+         * | col1    | col2 | col3  |
+         * | ------- | ---- | ----- |
+         * | goodbye | 120  | false |
+         * | hello   | 12   | true  |
+         * | yep     | -23  | true  |
+     */
     if (fields == null) {
       fields = [];
       _ref = rows[0];
@@ -14373,14 +14398,14 @@ require.define("/src/anova.coffee",function(require,module,exports,__dirname,__f
     if (ci == null) {
       ci = 0.95;
     }
+
     /*
     @param {Object} groups {label, predicate} This is modified as a side-effect of this function. Many properties are added.
     
     https://onlinecourses.science.psu.edu/stat414/node/218
     
     http://www.calvin.edu/~rpruim/courses/m243/F03/overheads/ANOVAf03.ppt
-    */
-
+     */
     utils.assert((0 < ci && ci < 1.0), "ci must be between 0.0 and 1.0");
     if (overallPredicate != null) {
       data = (function() {
@@ -14494,7 +14519,7 @@ require.define("/src/anova.coffee",function(require,module,exports,__dirname,__f
       r.y = r.y / yStdDev;
     }
     buckets = {};
-    for (bucket = _o = -2.5; -2.5 <= 2.5 ? _o <= 2.5 : _o >= 2.5; bucket = -2.5 <= 2.5 ? ++_o : --_o) {
+    for (bucket = _o = -2.5; _o <= 2.5; bucket = ++_o) {
       buckets[bucket] = 0;
     }
     for (_p = 0, _len6 = residualPlot.length; _p < _len6; _p++) {
@@ -14503,7 +14528,7 @@ require.define("/src/anova.coffee",function(require,module,exports,__dirname,__f
       buckets[bucket] += 1;
     }
     histogram = [];
-    for (bucket = _q = -2.5; -2.5 <= 2.5 ? _q <= 2.5 : _q >= 2.5; bucket = -2.5 <= 2.5 ? ++_q : --_q) {
+    for (bucket = _q = -2.5; _q <= 2.5; bucket = ++_q) {
       row = {
         label: "" + (-0.5 + bucket) + " to " + (0.5 + bucket),
         center: bucket,
@@ -14554,7 +14579,8 @@ require.define("/src/anova.coffee",function(require,module,exports,__dirname,__f
 
 });
 
-require.define("/src/distributions.coffee",function(require,module,exports,__dirname,__filename,process,global){/*
+require.define("/src/distributions.coffee",function(require,module,exports,__dirname,__filename,process,global){
+/*
 JavaScript version from which this CoffeeScript version was derived by Ben Tilly <btilly@gmail.com>
 which was derived from the Perl version by Michael Kospach <mike.perl@gmx.at>
 both of which are licensed under the Perl Artistic License which allows linking from MIT licensed code.
@@ -14562,8 +14588,7 @@ both of which are licensed under the Perl Artistic License which allows linking 
 Note: these are approximations good to 5 digits (which is good enough for almost every thing)
 
 https://code.google.com/p/statistics-distributions-js/source/browse/trunk/statistics-distributions.js
-*/
-
+ */
 
 (function() {
   var distributions;
@@ -14571,10 +14596,10 @@ https://code.google.com/p/statistics-distributions-js/source/browse/trunk/statis
   distributions = {};
 
   distributions.fDist = function(n, m, x) {
+
     /*
     Upper probability of the F distribution
-    */
-
+     */
     var a, b, i, p, p1, y, z;
     p = void 0;
     if (x <= 0) {
@@ -14833,14 +14858,14 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
   Classifier = (function() {
     function Classifier() {}
 
+
     /*
     @class Classifier
     
     __Base class for all Classifiers__
     
     See individual subclasses for usage details
-    */
-
+     */
 
     Classifier.getBucketCountMinMax = function(values) {
       var max, min, targetBucketCount;
@@ -15043,6 +15068,7 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
   BayesianClassifier = (function(_super) {
     __extends(BayesianClassifier, _super);
 
+
     /*
     @class BayesianClassifier
     
@@ -15051,7 +15077,7 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
     If you look for libraries for Bayesian classification, the primary use case is spam filtering and they assume that
     the presence or absence of a word is the only feature you are interested in. This is a more general purpose tool.
     
-    ## Features ##
+     *# Features ##
     
     * Works even for bi-modal and other non-normal distributions
     * No requirement that you identify the distribution
@@ -15059,7 +15085,7 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
     * Uses v-optimal bucketing so it deals well with outliers and sharp cliffs
     * Serialize (`getStateForSaving()`) and deserialize (`newFromSavedState()`) to preserve training between sessions
     
-    ## Why the assumption of a normal distribution is bad in some cases ##
+     *# Why the assumption of a normal distribution is bad in some cases ##
     
     The [wikipedia example of using Bayes](https://en.wikipedia.org/wiki/Naive_Bayes_classifier#Sex_classification) tries
     to determine if someone was male or female based upon the height, weight
@@ -15075,10 +15101,10 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
     completely mis-characterizes it. Also, the distribution is zero bound so it's likely to be asymmetric, which also
     poses problems for a normal distribution assumption.
     
-    ## So what do we do instead? ##
+     *# So what do we do instead? ##
     
     This classifier uses the actual sampled percentage for buckets of the data. This approach is often referred to
-    as "building a non-parametric model", although "distribution-free" strikes me a better label.
+    as "building a non-parametric model", although "un-named distribution" strikes me a better label.
     
     **Pros/Cons**. The use of a non-parametric approach will allow us to deal with non-normal distributions (asymmetric,
     bimodal, etc.) without ever having to identify which nominal distribution is the best fit or having to ask the user
@@ -15091,18 +15117,20 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
     value to a probability indicating how often the feature value is coincident with a particular outputField value. This mapping
     function is different for each bin.
     
-    ## V-optimal bucketing ##
+     *# V-optimal bucketing ##
     
     There are two common approaches to bucketing:
     
     1. Make each bucket be equal in width along the x-axis (like we would for a histogram) (equi-width)
     2. Make each bucket have roughly the same number of data points (equi-depth)
     
-    It turns out neither of the above works out well for this use case. Rather, there is an approach called [v-optimal
-    bucketing](http://en.wikipedia.org/wiki/V-optimal_histograms) which attempts to find the optimal boundaries in the
-    data. The basic idea is to look for the splits that
-    provide the minimum total error-squared where the "error" for each point is the distance of that point from the
-    arithmetic mean.
+    It turns out neither of the above works out well unless the training set is relatively large. Rather, there is an
+    approach called [v-optimal bucketing](http://en.wikipedia.org/wiki/V-optimal_histograms) which attempts to find the
+    optimal boundaries in the data. The basic idea is to look for the splits that provide the minimum total error-squared
+    where the "error" for each point is the distance of that point from the arithmetic mean. This classifier uses v-optimal
+    bucketing when the training set hass 144 or fewer rows. Above that it switches to equi-depth bucketing. Note, I only
+    evaluated a single scenario (Rally RealTeam), but 144 was the point where equi-depth started to provide as-good results as
+    v-optimal bucketing. Note, in my test, much larger sets had moderately _better_ results with equi-depth bucketing.
     
     The algorithm used here for v-optimal bucketing is slightly inspired by
     [this non-recursive code](http://www.mathcs.emory.edu/~cheung/Courses/584-StreamDB/Syllabus/06-Histograms/v-opt3.html).
@@ -15110,8 +15138,17 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
     understand the essence of the algorithm used, you need only look at the 9 lines of code in the `findBucketSplits()` function.
     The `optimalSplitFor2Buckets()` function will split the values into two buckets. It tries each possible split
     starting with only one in the bucket on the left all the way down to a split with only one in the bucket on the right.
+    One of the design choices I made for this algorithm means that you can't precicely control the number of buckets. It
+    also seems to have a tendency to create very lopsided bucketing breakdowns. The latter may be the reason that
+    equi-depth bucketing has better results when there are hundreds of rows in the training
+    set. We may wish to revisit this algorithm at a later time because my instinct is that there is probably some
+    definition of "optimal" that is at least as good as equi-depth for large training sets. I suspect the current algorith
+    favors splitting the left. A better algorithm wouldn't have a left and a right. It would find the optimal split for
+    each of the current splits and take the one that gave the entire new splitting regime the lowest overall error.
+    This new algorithm would be much more computationally intensive but for small training sets, I don't think it will
+    be a deal breaker and we can always use equi-depth once for larger sets.
     
-    ## Simple example ##
+     *# Simple example ##
     
     First we need to require the classifier.
     
@@ -15162,28 +15199,28 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
     in your training set or you don't have enough training set data. Our made up exmple is a borderline case.
     
         console.log(percentWins)
-        # 0.7333333333333333
+         * 0.7333333333333333
     
     Now, let's see how the trained classifier is used to predict "RealTeam"-ness. We simply pass in an object with
     fields for each of our features. A very small team with child projects are definitely not a RealTeam.
     
         console.log(classifier.predict({TeamSize: 1, HasChildProject: 1}))
-        # 0
+         * 0
     
     However, a mid-sized project with no child projects most certainly is a RealTeam.
     
         console.log(classifier.predict({TeamSize: 7, HasChildProject: 0}))
-        # 1
+         * 1
     
     Here is a less obvious case, with one indicator going one way (too big) and another going the other way (no child projects).
     
         console.log(classifier.predict({TeamSize: 29, HasChildProject: 0}))
-        # 0
+         * 0
     
     If you want to know the strength of the prediction, you can pass in `true` as the second parameter to the `predict()` method.
     
         console.log(classifier.predict({TeamSize: 29, HasChildProject: 0}, true))
-        # { '0': 0.6956521739130435, '1': 0.30434782608695654 }
+         * { '0': 0.6956521739130435, '1': 0.30434782608695654 }
     
     We're only 69.6% sure this is not a RealTeam. Notice how the keys for the output are strings eventhough we passed in values
     of type Number for the RealTeam field in our training set. We had no choice in this case because keys of JavaScript
@@ -15194,17 +15231,17 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
         savedState = classifier.getStateForSaving('some meta data')
         newClassifier = BayesianClassifier.newFromSavedState(savedState)
         console.log(newClassifier.meta)
-        # some meta data
+         * some meta data
     
     It will make the same predictions.
     
         console.log(newClassifier.predict({TeamSize: 29, HasChildProject: 0}, true))
-        # { '0': 0.6956521739130435, '1': 0.30434782608695654 }
-    */
-
+         * { '0': 0.6956521739130435, '1': 0.30434782608695654 }
+     */
 
     function BayesianClassifier(userConfig) {
       this.userConfig = userConfig;
+
       /*
       @constructor
       @param {Object} userConfig See Config options for details.
@@ -15217,14 +15254,14 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
        **WARNING: If you choose 'discrete' for the feature type, then ALL possible values for that feature must appear
        in the training set. If the classifier is asked to make a prediction with a value that it has never seen
        before, it will fail catostrophically.**
-      */
-
+       */
       this.config = utils.clone(this.userConfig);
       this.outputField = this.config.outputField;
       this.features = this.config.features;
     }
 
     BayesianClassifier.prototype.train = function(userSuppliedTrainingSet) {
+
       /*
       @method train
        Train the classifier with a training set.
@@ -15233,8 +15270,7 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
        training set.
       @param {Object[]} userSuppliedTrainingSet an Array of Maps containing a field for the outputField as well as a field
        for each of the features specified in the config.
-      */
-
+       */
       var bin, bucketGenerator, bucketer, countForThisValue, denominator, denominatorCell, dimensions, feature, featureCube, featureValues, filter, loses, n, numerator, numeratorCell, outputDimension, outputValue, outputValuesCube, percentWins, prediction, row, trainingSet, value, values, wins, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _len7, _m, _n, _o, _p, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
       trainingSet = utils.clone(userSuppliedTrainingSet);
       outputDimension = [
@@ -15366,6 +15402,7 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
       if (returnProbabilities == null) {
         returnProbabilities = false;
       }
+
       /*
       @method predict
        Use the trained classifier to make a prediction.
@@ -15376,8 +15413,7 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
       @param {Boolean} [returnProbabilities = false] If true, then the output will indicate the probabilities of each
        possible outputField value. Otherwise, the output of a call to `predict()` will return the predicted value with
        the highest probability.
-      */
-
+       */
       row = this.discreteizeRow(row);
       probabilities = {};
       _ref = this.baseProbabilities;
@@ -15426,6 +15462,7 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
     };
 
     BayesianClassifier.prototype.getStateForSaving = function(meta) {
+
       /*
       @method getStateForSaving
         Enables saving the state of a Classifier.
@@ -15437,8 +15474,7 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
         within the deserialized Classifier
       @return {Object} Returns an Ojbect representing the state of the Classifier. This Object is suitable for saving to
         an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute the Classifier.
-      */
-
+       */
       var out;
       out = {
         userConfig: this.userConfig,
@@ -15455,6 +15491,7 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
     };
 
     BayesianClassifier.newFromSavedState = function(p) {
+
       /*
       @method newFromSavedState
         Deserializes a previously stringified Classifier and returns a new Classifier.
@@ -15465,8 +15502,7 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
       @static
       @param {String/Object} p A String or Object from a previously saved Classifier state
       @return {Classifier}
-      */
-
+       */
       var classifier;
       if (utils.type(p) === 'string') {
         p = JSON.parse(p);
@@ -15492,5 +15528,232 @@ require.define("/src/Classifier.coffee",function(require,module,exports,__dirnam
   exports.BayesianClassifier = BayesianClassifier;
 
 }).call(this);
+
+});
+
+require.define("/src/Store.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.8.0
+(function() {
+  var JSON, Store, Time, arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, functions, utils, _ref, _ref1,
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+  _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time;
+
+  functions = require('./functions').functions;
+
+  _ref1 = require('./dataTransform'), arrayOfMaps_To_CSVStyleArray = _ref1.arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps = _ref1.csvStyleArray_To_ArrayOfMaps;
+
+  JSON = require('JSON2');
+
+  Store = (function() {
+
+    /*
+    @class Store
+    
+    __An efficient, in-memory, datastore for snapshot data.__
+    
+    Note, this store takes advantage of JavaScript's prototype inheritance to store snapshots in memory. Since the next snapshot might
+    only have one field different from the prior one, this saves a ton of space. There is some concern that this will
+    slow down certain operations because the interpreter has to search all fields in the current level before bumping up
+    to the next. However, there is some evidence that modern javascript implementations handle this very efficiently.
+    
+    However, this choice means that each row in the snapshots array doesn't have all of the fields.
+    
+    Store keeps track of all of the fields it has seen so you can flatten a row(s) if necessary.
+     */
+    function Store(userConfig, snapshots) {
+      this.userConfig = userConfig;
+
+      /*
+      @constructor
+      @param {Object} config See Config options for details.
+      @param {Object[]} [snapshots] Optional parameter allowing the population of the Store at instantiation.
+      @cfg {String} [uniqueIDField = "ObjectID"] Specifies the field that identifies unique entities (Default: "ObjectID").
+      @cfg {String} [validFromField = "_ValidFrom"]
+      @cfg {String} [validToField = "_ValidTo"]
+      @cfg {String} [idField = "_id"]
+      @cfg {Object} [defaultValues = {}] In some datastores, null numeric fields may be assumed to be zero and null
+        boolean fields may be assumed to be false. Lumenize makes no such assumption and will crash if a field value
+        is missing. the defaultValues becomes the root of prototype inheritance hierarchy.
+       */
+      this.config = utils.clone(this.userConfig);
+      if (this.config.uniqueIDField == null) {
+        this.config.uniqueIDField = 'ObjectID';
+      }
+      if (this.config.validFromField == null) {
+        this.config.validFromField = '_ValidFrom';
+      }
+      if (this.config.validToField == null) {
+        this.config.validToField = '_ValidTo';
+      }
+      if (this.config.defaultValues == null) {
+        this.config.defaultValues = {};
+      }
+      this.config.defaultValues[this.config.validFromField] = new Time(1, Time.MILLISECOND).toString();
+      if (this.config.idField == null) {
+        this.config.idField = '_id';
+      }
+      this.snapshots = [];
+      this.lastValidFrom = new Time(1, Time.MILLISECOND).toString();
+      this.byUniqueID = {};
+      this.addSnapshots(snapshots);
+    }
+
+    Store.prototype.addSnapshots = function(snapshots) {
+
+      /*
+      @method addSnapshots
+        Adds the snapshots to the Store
+      @param {Object} snapshots
+      @chainable
+      @return {Store} Returns this
+       */
+      var dataForUniqueID, key, newSnapshot, priorSnapshot, s, uniqueID, validFrom, validTo, value, _i, _len;
+      snapshots = utils._.sortBy(snapshots, this.config.validFromField);
+      for (_i = 0, _len = snapshots.length; _i < _len; _i++) {
+        s = snapshots[_i];
+        uniqueID = s[this.config.uniqueIDField];
+        utils.assert(uniqueID != null, ("Missing " + this.config.uniqueIDField + " field in submitted snapshot: \n") + JSON.stringify(s, null, 2));
+        dataForUniqueID = this.byUniqueID[uniqueID];
+        if (dataForUniqueID == null) {
+          dataForUniqueID = {
+            snapshots: [],
+            lastSnapshot: this.config.defaultValues
+          };
+          this.byUniqueID[uniqueID] = dataForUniqueID;
+        }
+        validFrom = s[this.config.validFromField];
+        utils.assert(new Time(validFrom).toString() === validFrom, 'Invalid format for validFromField');
+        utils.assert(validFrom >= dataForUniqueID.lastSnapshot[this.config.validFromField], 'validFromField must be >= lastValidFrom for this entity');
+        utils.assert(validFrom >= this.lastValidFrom, 'validFromField must be >= lastValidFrom for the Store');
+        validTo = s[this.config.validTo];
+        if (validTo == null) {
+          validTo = '9999-01-01T00:00:00.000Z';
+        }
+        priorSnapshot = dataForUniqueID.lastSnapshot;
+        newSnapshot = {};
+        newSnapshot._previousValues = {};
+        for (key in s) {
+          value = s[key];
+          if (key !== this.config.validFromField && key !== this.config.validToField && key !== '_previousValues' && key !== this.config.uniqueIDField) {
+            if (value !== priorSnapshot[key]) {
+              newSnapshot[key] = value;
+              if (key !== this.config.idField) {
+                if (priorSnapshot[key] != null) {
+                  newSnapshot._previousValues[key] = priorSnapshot[key];
+                } else {
+                  newSnapshot._previousValues[key] = null;
+                }
+              }
+            }
+          }
+        }
+        newSnapshot[this.config.uniqueIDField] = uniqueID;
+        newSnapshot[this.config.validFromField] = validFrom;
+        newSnapshot[this.config.validToField] = validTo;
+        newSnapshot.__proto__ = priorSnapshot;
+        priorSnapshot[this.config.validToField] = validFrom;
+        dataForUniqueID.lastSnapshot = newSnapshot;
+        this.lastValidFrom = validFrom;
+        this.byUniqueID[uniqueID].snapshots.push(newSnapshot);
+        this.snapshots.push(newSnapshot);
+      }
+      return this;
+    };
+
+    Store.prototype.filtered = function(filter) {
+
+      /*
+      @method filtered
+        Returns the subset of the snapshots that match the filter
+      @param {Function} filter
+      @return {Object[]} An array or snapshots. Note, they will not be flattened so they have references to their prototypes
+       */
+      var result, s, _i, _len, _ref2;
+      result = [];
+      _ref2 = this.snapshots;
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        s = _ref2[_i];
+        if (filter(s)) {
+          result.push(s);
+        }
+      }
+      return result;
+    };
+
+    Store.prototype.stateBoundaryCrossedFiltered = function(field, values, valueToTheRightOfBoundary, forward, assumeNullIsLowest) {
+      var filter, index, left, right;
+      if (forward == null) {
+        forward = true;
+      }
+      if (assumeNullIsLowest == null) {
+        assumeNullIsLowest = true;
+      }
+
+      /*
+      @method stateBoundaryCrossedFiltered
+        Returns the subset of the snapshots where the field transitions from the left of valueToTheRightOfBoundary to
+        the right (inclusive)
+      @param {String} field
+      @param {String[]} values
+      @param {String} valueToTheRightOfBoundary
+      @param {Boolean} [forward = true] When true (the default), this will return the transitions from left to right
+        However, if you set this to false, it will return the transitions right to left.
+      @param {Boolean} [assumeNullIsLowest = true] Set to false if you don't want to consider transitions out of null
+      @return {Object[]} An array or snapshots. Note, they will not be flattened so they have references to their prototypes
+       */
+      index = values.indexOf(valueToTheRightOfBoundary);
+      utils.assert(index >= 0, "stateToTheRightOfBoundary must be in stateList");
+      left = values.slice(0, index);
+      if (assumeNullIsLowest) {
+        left.unshift(null);
+      }
+      right = values.slice(index);
+      if (forward) {
+        filter = function(s) {
+          var _ref2, _ref3;
+          return s._previousValues.hasOwnProperty(field) && (_ref2 = s._previousValues[field], __indexOf.call(left, _ref2) >= 0) && (_ref3 = s[field], __indexOf.call(right, _ref3) >= 0);
+        };
+      } else {
+        filter = function(s) {
+          var _ref2, _ref3;
+          return s._previousValues.hasOwnProperty(field) && (_ref2 = s._previousValues[field], __indexOf.call(right, _ref2) >= 0) && (_ref3 = s[field], __indexOf.call(left, _ref3) >= 0);
+        };
+      }
+      return this.filtered(filter);
+    };
+
+    Store.prototype.stateBoundaryCrossedFilteredBothWays = function(field, values, valueToTheRightOfBoundary, assumeNullIsLowest) {
+      var backward, forward;
+      if (assumeNullIsLowest == null) {
+        assumeNullIsLowest = true;
+      }
+
+      /*
+      @method stateBoundaryCrossedFilteredBothWays
+        Shortcut to stateBoundaryCrossedFiltered for when you need both directions
+      @param {String} field
+      @param {String[]} values
+      @param {String} valueToTheRightOfBoundary
+      @param {Boolean} [assumeNullIsLowest = true] Set to false if you don't want to consider transitions out of null
+      @return {Object} An object with two root keys: 1) forward, 2) backward. The values are the arrays that are returned
+        from stateBoundaryCrossedFiltered
+       */
+      forward = this.stateBoundaryCrossedFiltered(field, values, valueToTheRightOfBoundary, true, assumeNullIsLowest);
+      backward = this.stateBoundaryCrossedFiltered(field, values, valueToTheRightOfBoundary, false, assumeNullIsLowest);
+      return {
+        forward: forward,
+        backward: backward
+      };
+    };
+
+    return Store;
+
+  })();
+
+  exports.Store = Store;
+
+}).call(this);
+
+//# sourceMappingURL=Store.js.map
 
 });
