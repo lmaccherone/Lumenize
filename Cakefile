@@ -6,14 +6,12 @@ marked = require('marked')
 uglify = require("uglify-js")
 browserify = require('browserify')
 fileify = require('fileify-lm')
-# execSync = require('exec-sync')
-runsync = require('runsync')
+runsync = require('runsync')  # polyfil for node.js 0.12 synchronous running functionality. Remove when upgrading to 0.12
 
 runSync = (command, options, next) ->
   if options? and options.length > 0
     command += ' ' + options.join(' ')
 
-#  {stdout, stderr} = execSync(command, true)
   output = runsync.popen(command)
   stdout = output.stdout.toString()
   stderr = output.stderr.toString()
@@ -93,13 +91,19 @@ task('publish', 'Publish to npm', () ->
   invoke('build')
   runSync('git status --porcelain', [], (stdout) ->
     if stdout.length == 0
-      {stdout, stderr} = execSync('git rev-parse origin/master', true)
+      output = runsync.popen('git rev-parse origin/master', true)
+      stdout = output.stdout.toString()
+      stderr = output.stderr.toString()
       stdoutOrigin = stdout
-      {stdout, stderr} = execSync('git rev-parse master', true)
+      output = runsync.popen('git rev-parse master', true)
+      stdout = output.stdout.toString()
+      stderr = output.stderr.toString()
       stdoutMaster = stdout
       if stdoutOrigin == stdoutMaster
         console.log('running npm publish')
-        {stdout, stderr} = execSync('npm publish .', true)
+        output = runsync.popen('npm publish .', true)
+        stdout = output.stdout.toString()
+        stderr = output.stderr.toString()
         if fs.existsSync('npm-debug.log')
           console.error('`npm publish` failed. See npm-debug.log for details.')
         else
