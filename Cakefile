@@ -93,18 +93,18 @@ task('publish', 'Publish to npm', () ->
   runSync('git status --porcelain', [], (stdout) ->
     if stdout.length == 0
       console.log('checking origin/master')
-      output = runsync.popen('git rev-parse origin/master', true)
+      output = runsync.popen('git rev-parse origin/master')
       stdout = output.stdout.toString()
       stderr = output.stderr.toString()
       stdoutOrigin = stdout
       console.log('checking master')
-      output = runsync.popen('git rev-parse master', true)
+      output = runsync.popen('git rev-parse master')
       stdout = output.stdout.toString()
       stderr = output.stderr.toString()
       stdoutMaster = stdout
       if stdoutOrigin == stdoutMaster
         console.log('running npm publish')
-        output = runsync.popen('npm publish .', true)
+        output = runsync.popen('npm publish .')
         stdout = output.stdout.toString()
         stderr = output.stderr.toString()
         if fs.existsSync('npm-debug.log')
