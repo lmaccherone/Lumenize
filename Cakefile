@@ -89,8 +89,10 @@ task('publish', 'Publish to npm', () ->
   invoke('docs')
   process.chdir(__dirname)
   invoke('build')
+  console.log('checking git status --porcelain')
   runSync('git status --porcelain', [], (stdout) ->
     if stdout.length == 0
+      console.log('checking master and current match')
       output = runsync.popen('git rev-parse origin/master', true)
       stdout = output.stdout.toString()
       stderr = output.stderr.toString()
