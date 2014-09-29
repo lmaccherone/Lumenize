@@ -37,18 +37,18 @@
     "tztime": "~0.6.10"
   },
   "devDependencies": {
-    "jsduckify": "~0.2.2",
+    "async": "~0.2.9",
+    "bower": "~1.2.8",
+    "browserify": "1.16.x",
     "coffee-script": "~1.7.1",
     "coffeedoctest": "0.4.x",
-    "uglify-js": "2.2.x",
-    "nodeunit": "~0.9.0",
-    "browserify": "1.16.x",
-    "wrench": "1.4.x",
-    "marked": "0.2.x",
-    "runsync": "~0.1.6",
     "fileify-lm": "~0.3.1",
-    "async": "~0.2.9",
-    "bower": "~1.2.8"
+    "jsduckify": "^0.3.0",
+    "marked": "0.2.x",
+    "nodeunit": "~0.9.0",
+    "runsync": "~0.1.6",
+    "uglify-js": "2.2.x",
+    "wrench": "1.4.x"
   },
   "scripts": {
     "test": "cake testall"

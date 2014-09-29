@@ -18,7 +18,7 @@ exports.StoreTest =
       validFromField: 'Modified_Date'
       idField: 'RecordID'
       defaultValues:
-        Severity: 5
+        Severity: 4
 
     store = new Store(config, defects)
 
@@ -26,10 +26,12 @@ exports.StoreTest =
       {
         "_previousValues": {
           "Created_Date": null,
+          "Severity": 4,
           "Status": null
         },
         "RecordID": 1,
         "Created_Date": "2014-06-16",
+        "Severity": 5,
         "Status": "New",
         "DefectID": 1,
         "Modified_Date": "2014-06-16",
@@ -75,4 +77,26 @@ exports.StoreTest =
       _ValidTo: '2014-08-18' }
     ]
     test.deepEqual(filtered, expected)
+    test.done()
+
+  accumulatingFields: (test) ->
+    config =
+      uniqueIDField: 'ID'
+      validFromField: 'vf'
+
+    store = new Store(config)
+    expected = [ 'vf', '_ValidTo', '_previousValues', 'ID' ]
+    test.deepEqual(store.fields, expected)
+
+    store.addSnapshots([{ID: 0, field1: 1, field2: 2, vf: '2014'}])
+    expected = [ 'vf', '_ValidTo', '_previousValues', 'ID', 'field1', 'field2' ]
+    test.deepEqual(store.fields, expected)
+
+    store.addSnapshots([{ID: 0, field1: 10, field20: 20, vf: '2014'}])
+    expected = [ 'vf', '_ValidTo', '_previousValues', 'ID', 'field1', 'field2', 'field20' ]
+    test.deepEqual(store.fields, expected)
+
+    store.addSnapshots([{ID: 2, field1: 10, field20: 20, vf: '2014'}])
+    test.deepEqual(store.fields, expected)
+
     test.done()

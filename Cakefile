@@ -44,7 +44,7 @@ task('doctest', 'Test examples in documenation.', () ->
   runSync('coffeedoctest', ['--readme', 'src', 'lumenize.coffee'])
 )
 
-task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
+task('docs', 'Generate docs with JSDuckify/JSDuck and place in ./docs', () ->
   runSync('cake doctest')
   process.chdir(__dirname)
   # create README.html
@@ -71,7 +71,7 @@ task('docs', 'Generate docs with CoffeeDoc and place in ./docs', () ->
   runSync('jsduckify', ['-d', "'" + outputDirectory + "'", "'" + __dirname + "'"])
 )
 
-task('pub-docs', 'Push master to gh-pages on github', () ->
+task('pub-docs', 'Build docs and push out to web', () ->
   invoke('docs')
   invoke('pubDocsRaw')
 )
@@ -83,7 +83,7 @@ task('pubDocsRaw', 'Publish docs to Google Cloud Storage', () ->
   runSync('gsutil cp -R docs gs://versions.lumenize.com')
 )
 
-task('publish', 'Publish to npm', () ->
+task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->
   process.chdir(__dirname)
   runSync('cake test')  # Doing this exernally to make it synchrous
   invoke('docs')
@@ -152,12 +152,7 @@ task('build', 'Build with browserify and place in ./deploy', () ->
   # !TODO: Need to run tests on the built version
 )
 
-task('build-and-docs', 'Build and docs combined for LiveReload.', () ->
-  invoke('build')
-  invoke('docs')
-)
-
-task('test', 'Run the CoffeeScript test suite with nodeunit', () ->
+task('test', 'Run the test suite with nodeunit', () ->
   require('coffee-script/register')
   {reporters} = require('nodeunit')
   process.chdir(__dirname)

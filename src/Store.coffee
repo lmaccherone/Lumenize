@@ -12,21 +12,102 @@ class Store
 
   Note, this store takes advantage of JavaScript's prototype inheritance to store snapshots in memory. Since the next snapshot might
   only have one field different from the prior one, this saves a ton of space. There is some concern that this will
-  slow down certain operations because the interpreter has to search all fields in the current level before bumping up
-  to the next. However, there is some evidence that modern javascript implementations handle this very efficiently.
+  slow down certain operations because the JavaScript engine has to search all fields in the current level before bumping up
+  to the next. However, there is some evidence that modern JavaScript implementations handle this very efficiently.
 
   However, this choice means that each row in the snapshots array doesn't have all of the fields.
 
   Store keeps track of all of the fields it has seen so you can flatten a row(s) if necessary.
 
+  Example:
+
+      {Store} = require('../')
+
+      snapshotCSVStyleArray = [
+        ['RecordID', 'DefectID', 'Created_Date', 'Severity', 'Modified_Date', 'Status'],
+        [         1,          1,   '2014-06-16',          5,    '2014-06-16',    'New'],
+        [       100,          1,   '2014-06-16',          5,    '2014-07-17',    'In Progress'],
+        [      1000,          1,   '2014-06-16',          5,    '2014-08-18',    'Done'],
+      ]
+
+      defects = require('../').csvStyleArray_To_ArrayOfMaps(snapshotCSVStyleArray)
+
+      config =
+        uniqueIDField: 'DefectID'
+        validFromField: 'Modified_Date'
+        idField: 'RecordID'
+        defaultValues:
+          Severity: 4
+
+      store = new Store(config, defects)
+
+      console.log(require('../').table.toString(store.snapshots, store.fields))
+      # | Modified_Date | _ValidTo                 | _previousValues | DefectID | RecordID | Created_Date | Severity | Status      |
+      # | ------------- | ------------------------ | --------------- | -------- | -------- | ------------ | -------- | ----------- |
+      # | 2014-06-16    | 2014-07-17               | [object Object] | 1        | 1        | 2014-06-16   | 5        | New         |
+      # | 2014-07-17    | 2014-08-18               | [object Object] | 1        | 100      | 2014-06-16   | 5        | In Progress |
+      # | 2014-08-18    | 9999-01-01T00:00:00.000Z | [object Object] | 1        | 1000     | 2014-06-16   | 5        | Done        |
+
+  That's pretty boring. We pretty much got out what we put in. There are a few things to notice though. First,
+  Notice how the _ValidTo field is automatically set. Also, notice that it added the _previousValues field. This is
+  a record of the immediately proceeding values for the fields that changed. In this way, the records not only
+  represent the current snapshot; they also represent the state transition that occured to get into this snapshot
+  state. That's what stateBoundaryCrossedFilter and other methods key off of.
+
+  Also, under the covers, the prototype of each snapshot is the prior snapshot and only the fields that changed
+  are actually stored in the next snapshot. So:
+
+      console.log(store.snapshots[1] is store.snapshots[2].__proto__)
+      # true
+
+  The Store also keeps the equivalent of a database index on uniqueIDField and keeps a pointer to the last snapshot
+  for each particular uniqueIDField. This provides a convenient way to do per entity analysis.
+
+      console.log(store.byUniqueID['1'].snapshots[0].RecordID)
+      # 1
+
+      console.log(store.byUniqueID['1'].lastSnapshot.RecordID)
+      # 1000
+  ###
+
+  ###
+  @property snapshots
+  An Array of Objects
+
+  The snapshots in compressed (via JavaScript inheritance) format
+  ###
+  ###
+  @property fields
+  An Array of Strings
+
+  The list of all fields that this Store has ever seen. Use to expand each row.
+  ###
+  ###
+  @property byUniqueID
+  This is the database equivalent of an index by uniqueIDField.
+
+  An Object in the form:
+
+      {
+        '1234': {
+          snapshots: [...],
+          lastSnapshot: <points to last snapshot for this uniqueID>
+        },
+        '7890': {
+          ...
+        },
+        ...
+      }
   ###
 
   constructor: (@userConfig, snapshots) ->
     ###
     @constructor
+
     @param {Object} config See Config options for details.
     @param {Object[]} [snapshots] Optional parameter allowing the population of the Store at instantiation.
-    @cfg {String} [uniqueIDField = "ObjectID"] Specifies the field that identifies unique entities (Default: "ObjectID").
+
+    @cfg {String} [uniqueIDField = "ObjectID"] Specifies the field that identifies unique entities.
     @cfg {String} [validFromField = "_ValidFrom"]
     @cfg {String} [validToField = "_ValidTo"]
     @cfg {String} [idField = "_id"]
@@ -48,22 +129,11 @@ class Store
     unless @config.idField?
       @config.idField = '_id'
 
-
     @snapshots = []
-    @lastValidFrom = new Time(1, Time.MILLISECOND).toString()
 
+    @fields = [@config.validFromField, @config.validToField, '_previousValues', @config.uniqueIDField]
+    @lastValidFrom = new Time(1, Time.MILLISECOND).toString()
     @byUniqueID = {}
-      # In the form:
-      # {
-      #   '1234': {
-      #     snapshots: [...],
-      #     lastSnapshot: <points to last snapshot for this uniqueID>
-      #   },
-      #   '7890': {
-      #     ...
-      #   },
-      #   ...
-      # }
 
     @addSnapshots(snapshots)
 
@@ -101,11 +171,13 @@ class Store
 
       priorSnapshot = dataForUniqueID.lastSnapshot
 
-      # Build new Snapshot
+      # Build new Snapshot for adding
       newSnapshot = {}
       newSnapshot._previousValues = {}
       for key, value of s
         unless key in [@config.validFromField, @config.validToField, '_previousValues', @config.uniqueIDField]
+          unless key in @fields
+            @fields.push(key)
           unless value == priorSnapshot[key]
             newSnapshot[key] = value
             unless key in [@config.idField]
