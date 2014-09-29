@@ -88,6 +88,7 @@ Then in your code:
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
+* 0.8.1 - 2014-09-28 - Cleaned up documentation for Store
 * 0.8.0 - 2014-09-23 - Added Store for snapshots
 * 0.7.3 - 2014-02-08 - Switched BayesianClassifier to use constant quantity bucketer for larger training sets
 * 0.7.2 - 2013-08-30 - Upgraded to the latest tzTime 0.6.11
