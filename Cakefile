@@ -85,7 +85,7 @@ task('pubDocsRaw', 'Publish docs to Google Cloud Storage', () ->
 
 task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->
   process.chdir(__dirname)
-  runSync('cake test')  # Doing this exernally to make it synchrous
+  runSync('cake test')  # Doing this externally to make it synchrous
   invoke('docs')
   process.chdir(__dirname)
   invoke('build')
@@ -112,8 +112,13 @@ task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->
         else
           console.log('running git tag')
           runSync("git tag v#{require('./package.json').version}")
-          runSync("git push --tags")
+          # For some reason, `git push --tags` results in stderr output even when it works so we can't use runSync which calles process.exit(1) if there is anything in stderr
+          output = runsync.popen("git push --tags")
+          stdout = output.stdout.toString()
+          stderr = output.stderr.toString()
+          console.error("Output of running `git push --tags`...\n" + stderr + '\n' + stdout)
           console.log('pushing to Google Cloud Storage')
+          # I think the below might actually be fixed. The real problem was `git push --tags` above. Next time, I publish, I'll know.
           # !TODO: Fix this Cakefile so the next line doesn't crash. In the mean time, you can edit the version number and run the following three lines manually from the command line.
           # gsutil cp ./deploy/* gs://versions.lumenize.com/v0.7.2/
           # gsutil setmeta -h "Content-Type: application/javascript" -h "Cache-Control: public, max-age=31556926, no-transform" gs://versions.lumenize.com/v0.7.2/*
