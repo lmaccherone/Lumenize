@@ -9,12 +9,7 @@ fileify = require('fileify-lm')
 runsync = require('runsync')  # polyfil for node.js 0.12 synchronous running functionality. Remove when upgrading to 0.12
 
 runSync = (command, options, next) ->
-  if options? and options.length > 0
-    command += ' ' + options.join(' ')
-
-  output = runsync.popen(command)
-  stdout = output.stdout.toString()
-  stderr = output.stderr.toString()
+  {stderr, stdout} = runSyncRaw(command, options)
   if stderr.length > 0
     console.error("Error running `#{command}`\n" + stderr)
     process.exit(1)
@@ -23,6 +18,19 @@ runSync = (command, options, next) ->
   else
     if stdout.length > 0
       console.log("Stdout exec'ing command '#{command}'...\n" + stdout)
+
+runSyncNoExit = (command, options) ->
+  {stderr, stdout} = runSyncRaw(command, options)
+  console.log("Output of running '#{command}'...\n#{stderr}\n#{stdout}\n")
+  return {stderr, stdout}
+
+runSyncRaw = (command, options) ->
+  if options? and options.length > 0
+    command += ' ' + options.join(' ')
+  output = runsync.popen(command)
+  stdout = output.stdout.toString()
+  stderr = output.stderr.toString()
+  return {stderr, stdout}
 
 runAsync = (command, options, next) ->
   if options? and options.length > 0
@@ -92,39 +100,34 @@ task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->
   console.log('checking git status --porcelain')
   runSync('git status --porcelain', [], (stdout) ->
     if stdout.length == 0
+
       console.log('checking origin/master')
-      output = runsync.popen('git rev-parse origin/master')
-      stdout = output.stdout.toString()
-      stderr = output.stderr.toString()
-      stdoutOrigin = stdout
+      {stderr, stdout} = runSyncNoExit('git rev-parse origin/master')
+
       console.log('checking master')
-      output = runsync.popen('git rev-parse master')
-      stdout = output.stdout.toString()
-      stderr = output.stderr.toString()
+      stdoutOrigin = stdout
+      {stderr, stdout} = runSyncNoExit('git rev-parse master')
       stdoutMaster = stdout
+
       if stdoutOrigin == stdoutMaster
+
         console.log('running npm publish')
-        output = runsync.popen('npm publish .')
-        stdout = output.stdout.toString()
-        stderr = output.stderr.toString()
+        runSyncNoExit('coffee -c *.coffee src')
+        runSyncNoExit('npm publish .')
+
         if fs.existsSync('npm-debug.log')
           console.error('`npm publish` failed. See npm-debug.log for details.')
         else
-          console.log('running git tag')
-          runSync("git tag v#{require('./package.json').version}")
+
+          console.log('creating git tag')
+          runSyncNoExit("git tag v#{require('./package.json').version}")
           # For some reason, `git push --tags` results in stderr output even when it works so we can't use runSync which calles process.exit(1) if there is anything in stderr
-          output = runsync.popen("git push --tags")
-          stdout = output.stdout.toString()
-          stderr = output.stderr.toString()
-          console.error("Output of running `git push --tags`...\n" + stderr + '\n' + stdout)
+          runSyncNoExit("git push --tags")
+
           console.log('pushing to Google Cloud Storage')
-          # I think the below might actually be fixed. The real problem was `git push --tags` above. Next time, I publish, I'll know.
-          # !TODO: Fix this Cakefile so the next line doesn't crash. In the mean time, you can edit the version number and run the following three lines manually from the command line.
-          # gsutil cp ./deploy/* gs://versions.lumenize.com/v0.7.2/
-          # gsutil setmeta -h "Content-Type: application/javascript" -h "Cache-Control: public, max-age=31556926, no-transform" gs://versions.lumenize.com/v0.7.2/*
-          # cake pubDocsRaw
-          runSync("gsutil cp ./deploy/* gs://versions.lumenize.com/v#{require('./package.json').version}/")
-          runSync('gsutil setmeta -h "Content-Type: application/javascript" -h "Cache-Control: public, max-age=31556926, no-transform" gs://versions.lumenize.com/v' + require('./package.json').version + '/*')
+          runSyncNoExit("gsutil cp ./deploy/* gs://versions.lumenize.com/v#{require('./package.json').version}/")
+          runSyncNoExit('gsutil setmeta -h "Content-Type: application/javascript" -h "Cache-Control: public, max-age=31556926, no-transform" gs://versions.lumenize.com/v' + require('./package.json').version + '/*')
+
           invoke('pubDocsRaw')
       else
         console.error('Origin and master out of sync. Not publishing.')

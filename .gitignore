@@ -5,14 +5,17 @@ coffeedoctest_temp
 js
 node_modules
 src/*.map
+src/*.js.map
 src/*.js
 test/*.map
 test/*.js
+test/*.js.map
 play/*.map
 play/*.js
 play/*.csv
 lumenize.js
 lumenize.map
+lumenize.js.map
 .js
 .map
 play
