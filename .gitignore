@@ -1,5 +1,4 @@
 .idea
-.idea.testworking
 .DS_Store
 coffeedoctest_temp
 js
@@ -11,11 +10,12 @@ test/*.map
 test/*.js
 test/*.js.map
 play/*.map
-play/*.js
-play/*.csv
+play/*.js.map
 lumenize.js
 lumenize.map
 lumenize.js.map
 .js
 .map
+.js.map
+deploy
 play

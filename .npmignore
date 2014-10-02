@@ -1,0 +1,17 @@
+.idea
+.idea.testworking
+.DS_Store
+coffeedoctest_temp
+js
+node_modules
+src/*.coffee
+src/*.js.map
+src/*.map
+test
+lumenize.coffee
+lumenize.map
+lumenize.js.map
+.js.map
+.map
+.coffee
+play
