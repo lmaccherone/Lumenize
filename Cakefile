@@ -121,7 +121,6 @@ task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->
 
           console.log('creating git tag')
           runSyncNoExit("git tag v#{require('./package.json').version}")
-          # For some reason, `git push --tags` results in stderr output even when it works so we can't use runSync which calles process.exit(1) if there is anything in stderr
           runSyncNoExit("git push --tags")
 
           console.log('pushing to Google Cloud Storage')
