@@ -42,11 +42,11 @@ class Store
       store = new Store(config, defects)
 
       console.log(require('../').table.toString(store.snapshots, store.fields))
-      # | Modified_Date | _ValidTo                 | _previousValues | DefectID | RecordID | Created_Date | Severity | Status      |
-      # | ------------- | ------------------------ | --------------- | -------- | -------- | ------------ | -------- | ----------- |
-      # | 2014-06-16    | 2014-07-17               | [object Object] | 1        | 1        | 2014-06-16   | 5        | New         |
-      # | 2014-07-17    | 2014-08-18               | [object Object] | 1        | 100      | 2014-06-16   | 5        | In Progress |
-      # | 2014-08-18    | 9999-01-01T00:00:00.000Z | [object Object] | 1        | 1000     | 2014-06-16   | 5        | Done        |
+      # | Modified_Date            | _ValidTo                 | _previousValues | DefectID | RecordID | Created_Date | Severity | Status      |
+      # | ------------------------ | ------------------------ | --------------- | -------- | -------- | ------------ | -------- | ----------- |
+      # | 2014-06-16T00:00:00.000Z | 2014-07-17T00:00:00.000Z | [object Object] | 1        | 1        | 2014-06-16   | 5        | New         |
+      # | 2014-07-17T00:00:00.000Z | 2014-08-18T00:00:00.000Z | [object Object] | 1        | 100      | 2014-06-16   | 5        | In Progress |
+      # | 2014-08-18T00:00:00.000Z | 9999-01-01T00:00:00.000Z | [object Object] | 1        | 1000     | 2014-06-16   | 5        | Done        |
 
   That's pretty boring. We pretty much got out what we put in. There are a few things to notice though. First,
   Notice how the _ValidTo field is automatically set. Also, notice that it added the _previousValues field. This is

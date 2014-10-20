@@ -24,8 +24,8 @@ JSON = require(&#39;JSON2&#39;)
 
 class Store
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-Store-method-constructor'><span id='Lumenize-Store-cfg-defaultValues'><span id='Lumenize-Store-cfg-idField'><span id='Lumenize-Store-cfg-validToField'><span id='Lumenize-Store-cfg-validFromField'><span id='Lumenize-Store-cfg-uniqueIDField'><span id='Lumenize-Store'>  /**
-</span></span></span></span></span></span></span>   * @class Lumenize.Store
+<span id='Lumenize-Store-method-constructor'><span id='Lumenize-Store-cfg-defaultValues'><span id='Lumenize-Store-cfg-tz'><span id='Lumenize-Store-cfg-idField'><span id='Lumenize-Store-cfg-validToField'><span id='Lumenize-Store-cfg-validFromField'><span id='Lumenize-Store-cfg-uniqueIDField'><span id='Lumenize-Store'>  /**
+</span></span></span></span></span></span></span></span>   * @class Lumenize.Store
    * 
    * __An efficient, in-memory, datastore for snapshot data.__
    * 
@@ -61,11 +61,11 @@ class Store
    *     store = new Store(config, defects)
    * 
    *     console.log(require(&#39;../&#39;).table.toString(store.snapshots, store.fields))
-   *     # | Modified_Date | _ValidTo                 | _previousValues | DefectID | RecordID | Created_Date | Severity | Status      |
-   *     # | ------------- | ------------------------ | --------------- | -------- | -------- | ------------ | -------- | ----------- |
-   *     # | 2014-06-16    | 2014-07-17               | [object Object] | 1        | 1        | 2014-06-16   | 5        | New         |
-   *     # | 2014-07-17    | 2014-08-18               | [object Object] | 1        | 100      | 2014-06-16   | 5        | In Progress |
-   *     # | 2014-08-18    | 9999-01-01T00:00:00.000Z | [object Object] | 1        | 1000     | 2014-06-16   | 5        | Done        |
+   *     # | Modified_Date            | _ValidTo                 | _previousValues | DefectID | RecordID | Created_Date | Severity | Status      |
+   *     # | ------------------------ | ------------------------ | --------------- | -------- | -------- | ------------ | -------- | ----------- |
+   *     # | 2014-06-16T00:00:00.000Z | 2014-07-17T00:00:00.000Z | [object Object] | 1        | 1        | 2014-06-16   | 5        | New         |
+   *     # | 2014-07-17T00:00:00.000Z | 2014-08-18T00:00:00.000Z | [object Object] | 1        | 100      | 2014-06-16   | 5        | In Progress |
+   *     # | 2014-08-18T00:00:00.000Z | 9999-01-01T00:00:00.000Z | [object Object] | 1        | 1000     | 2014-06-16   | 5        | Done        |
    * 
    * That&#39;s pretty boring. We pretty much got out what we put in. There are a few things to notice though. First,
    * Notice how the _ValidTo field is automatically set. Also, notice that it added the _previousValues field. This is
@@ -97,6 +97,7 @@ class Store
    * @cfg {String} [validFromField = &quot;_ValidFrom&quot;]
    * @cfg {String} [validToField = &quot;_ValidTo&quot;]
    * @cfg {String} [idField = &quot;_id&quot;]
+   * @cfg {String} [tz = &quot;GMT&quot;]
    * @cfg {Object} [defaultValues = {}] In some datastores, null numeric fields may be assumed to be zero and null
    *   boolean fields may be assumed to be false. Lumenize makes no such assumption and will crash if a field value
    *   is missing. the defaultValues becomes the root of prototype inheritance hierarchy.
@@ -151,6 +152,8 @@ class Store
       @config.validFromField = &#39;_ValidFrom&#39;
     unless @config.validToField?
       @config.validToField = &#39;_ValidTo&#39;
+    unless @config.tz?
+      @config.tz = &#39;GMT&#39;
     unless @config.defaultValues?
       @config.defaultValues = {}
     @config.defaultValues[@config.validFromField] = new Time(1, Time.MILLISECOND).toString()
@@ -192,12 +195,14 @@ class Store
         @byUniqueID[uniqueID] = dataForUniqueID
 
       validFrom = s[@config.validFromField]
-      utils.assert(new Time(validFrom).toString() == validFrom, &#39;Invalid format for validFromField&#39;)  # !TODO: Soften this to allow for ending &#39;Z&#39; and other types
-      utils.assert(validFrom &gt;= dataForUniqueID.lastSnapshot[@config.validFromField], &#39;validFromField must be &gt;= lastValidFrom for this entity&#39; ) # !TODO: Deal with out of order snapshots
-      utils.assert(validFrom &gt;= @lastValidFrom, &#39;validFromField must be &gt;= lastValidFrom for the Store&#39;)
+      validFrom = new Time(validFrom, null, @config.tz).getISOStringInTZ(@config.tz)
+      utils.assert(validFrom &gt;= dataForUniqueID.lastSnapshot[@config.validFromField], &quot;validFromField (#{validFrom}) must be &gt;= lastValidFrom (#{dataForUniqueID.lastSnapshot[@config.validFromField]}) for this entity&quot; ) # !TODO: Deal with out of order snapshots
+      utils.assert(validFrom &gt;= @lastValidFrom, &quot;validFromField (#{validFrom}) must be &gt;= lastValidFrom (#{@lastValidFrom}) for the Store&quot;)
 
       validTo = s[@config.validTo]
-      unless validTo?
+      if validTo?
+        validTo = new Time(validTo, null, @config.tz).getISOStringInTZ(@config.tz)
+      else
         validTo = &#39;9999-01-01T00:00:00.000Z&#39;
 
       priorSnapshot = dataForUniqueID.lastSnapshot

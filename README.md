@@ -88,6 +88,7 @@ Then in your code:
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
+* 0.8.6 - 2014-10-19 - Store now puts key dates into zulu time
 * 0.8.5 - 2014-10-02 - Update to tzTime 0.7.0 which also has .js in npm for meteor
 * 0.8.4 - 2014-10-02 - Fixes so .js files make it to npm and thus meteor
 * 0.8.3 - 2014-10-02 - Fix for TravisCI failure due to not having coffee to compile upon npm install
