@@ -34,8 +34,8 @@ exports.StoreTest =
         "Severity": 5,
         "Status": "New",
         "DefectID": 1,
-        "Modified_Date": "2014-06-16",
-        "_ValidTo": "2014-07-17"
+        "Modified_Date": "2014-06-16T00:00:00.000Z",
+        "_ValidTo": "2014-07-17T00:00:00.000Z"
       },
       {
         "_previousValues": {
@@ -44,8 +44,8 @@ exports.StoreTest =
         "RecordID": 100,
         "Status": "In Progress",
         "DefectID": 1,
-        "Modified_Date": "2014-07-17",
-        "_ValidTo": "2014-08-18"
+        "Modified_Date": "2014-07-17T00:00:00.000Z",
+        "_ValidTo": "2014-08-18T00:00:00.000Z"
       },
       {
         "_previousValues": {
@@ -54,7 +54,7 @@ exports.StoreTest =
         "RecordID": 1000,
         "Status": "Done",
         "DefectID": 1,
-        "Modified_Date": "2014-08-18",
+        "Modified_Date": "2014-08-18T00:00:00.000Z",
         "_ValidTo": "9999-01-01T00:00:00.000Z"
       }
     ]
@@ -62,7 +62,7 @@ exports.StoreTest =
     test.deepEqual(store.snapshots, expected)
     test.deepEqual(store.byUniqueID[1].snapshots, expected)
     test.deepEqual(store.byUniqueID[1].lastSnapshot, expected[2])
-    test.equal(store.lastValidFrom, '2014-08-18')
+    test.equal(store.lastValidFrom, '2014-08-18T00:00:00.000Z')
     test.equal(store.snapshots[2].Severity, 5, 'Tests defaults and inheritance')
     test.equal(store.snapshots[1].Created_Date, '2014-06-16', 'Tests inheritance')
 
@@ -73,8 +73,8 @@ exports.StoreTest =
       RecordID: 100,
       Status: 'In Progress',
       DefectID: 1,
-      Modified_Date: '2014-07-17',
-      _ValidTo: '2014-08-18' }
+      Modified_Date: '2014-07-17T00:00:00.000Z',
+      _ValidTo: '2014-08-18T00:00:00.000Z' }
     ]
     test.deepEqual(filtered, expected)
     test.done()

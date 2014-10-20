@@ -111,6 +111,7 @@ class Store
     @cfg {String} [validFromField = "_ValidFrom"]
     @cfg {String} [validToField = "_ValidTo"]
     @cfg {String} [idField = "_id"]
+    @cfg {String} [tz = "GMT"]
     @cfg {Object} [defaultValues = {}] In some datastores, null numeric fields may be assumed to be zero and null
       boolean fields may be assumed to be false. Lumenize makes no such assumption and will crash if a field value
       is missing. the defaultValues becomes the root of prototype inheritance hierarchy.
@@ -123,6 +124,8 @@ class Store
       @config.validFromField = '_ValidFrom'
     unless @config.validToField?
       @config.validToField = '_ValidTo'
+    unless @config.tz?
+      @config.tz = 'GMT'
     unless @config.defaultValues?
       @config.defaultValues = {}
     @config.defaultValues[@config.validFromField] = new Time(1, Time.MILLISECOND).toString()
@@ -161,12 +164,14 @@ class Store
         @byUniqueID[uniqueID] = dataForUniqueID
 
       validFrom = s[@config.validFromField]
-      utils.assert(new Time(validFrom).toString() == validFrom, 'Invalid format for validFromField')  # !TODO: Soften this to allow for ending 'Z' and other types
-      utils.assert(validFrom >= dataForUniqueID.lastSnapshot[@config.validFromField], 'validFromField must be >= lastValidFrom for this entity' ) # !TODO: Deal with out of order snapshots
-      utils.assert(validFrom >= @lastValidFrom, 'validFromField must be >= lastValidFrom for the Store')
+      validFrom = new Time(validFrom, null, @config.tz).getISOStringInTZ(@config.tz)
+      utils.assert(validFrom >= dataForUniqueID.lastSnapshot[@config.validFromField], "validFromField (#{validFrom}) must be >= lastValidFrom (#{dataForUniqueID.lastSnapshot[@config.validFromField]}) for this entity" ) # !TODO: Deal with out of order snapshots
+      utils.assert(validFrom >= @lastValidFrom, "validFromField (#{validFrom}) must be >= lastValidFrom (#{@lastValidFrom}) for the Store")
 
       validTo = s[@config.validTo]
-      unless validTo?
+      if validTo?
+        validTo = new Time(validTo, null, @config.tz).getISOStringInTZ(@config.tz)
+      else
         validTo = '9999-01-01T00:00:00.000Z'
 
       priorSnapshot = dataForUniqueID.lastSnapshot
