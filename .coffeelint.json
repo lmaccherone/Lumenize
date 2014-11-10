@@ -1,0 +1,52 @@
+{
+    "arrow_spacing": {
+        "level": "error"
+    },
+
+    "cyclomatic_complexity" : {
+        "level" : "warn",
+        "value" : 11
+    },
+
+    "line_endings" : {
+        "value" : "unix",
+        "level" : "error"
+    },
+
+    "space_operators" : {
+        "level" : "error"
+    },
+
+    "empty_constructor_needs_parens" : {
+        "level" : "error"
+    },
+
+    "missing_fat_arrows" : {
+        "level" : "error"
+    },
+
+    "no_implicit_parens" : {
+        "level" : "error"
+    },
+
+    "no_interpolation_in_single_quotes" : {
+        "level" : "error"
+    },
+
+    "no_stand_alone_at" : {
+        "level" : "error"
+    },
+
+    "no_unnecessary_double_quotes" : {
+        "level" : "warn"
+    },
+
+    "non_empty_constructor_needs_parens" : {
+        "level" : "error"
+    },
+
+    "prefer_english_operator" : {
+        "level" : "warn"
+    }
+
+}
