@@ -88,6 +88,7 @@ Then in your code:
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
+* 0.9.1 - 2015-02-15 - Deal with real-world miner case for Store
 * 0.9.0 - 2015-02-14 - Upgrades to Store for mining
 * 0.8.6 - 2014-10-19 - Store now puts key dates into zulu time
 * 0.8.5 - 2014-10-02 - Update to tzTime 0.7.0 which also has .js in npm for meteor
@@ -122,7 +123,8 @@ In November of 2012, Lumenize wanted to start keeping old versions around becaus
   expected if it falls on a weekend. This is also potentially backward breaking.
 * 0.6.2 - 2013-02-06 - Close issue #10
 * 0.6.1 - 2013-02-03 - Updated to the laster version of tzTime 0.6.2
-* 0.6.0 - 2013-02-03 **Major backward breaking changes** 
+* 0.6.0 - 2013-02-03 **Major backward breaking changes**
+
   * Time, Timeline, and TimelineIterator have been split out to their own package, 
     [tzTime](https://github.com/lmaccherone/tzTime)
   * Lumenize has been simplfified down to four main classes: TimeSeriesCalculator, 

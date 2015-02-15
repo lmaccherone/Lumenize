@@ -169,12 +169,8 @@ class Store
         throw new Error("Got a new snapshot for a time earlier than the prior last snapshot for #{@config.uniqueIDField} #{uniqueID}.")
         # Eventually, we may have to handle this case. I should be able to enable _nextSnapshot and stitch a snapshot in between two existing ones
       else if s[@config.validFromField] is dataForUniqueID.lastSnapshot[@config.validFromField]
-        dataForUniqueID.lastSnapshot[@config.validToField] = s[@config.validToField]
-        if not utils.filterMatch(dataForUniqueID.lastSnapshot, s)
-          throw new Error("Got a snapshot for #{@config.uniqueIDField} #{uniqueID} where the #{@config.validFromField} fields match but other fields differ.")
-          # I think we can deal with this if we replace the old one with the new one. Alternatively, it might be OK to actually
-          # add a second one with the same _ValidFrom. The prior one will essentially exist for no moment in time and shouldn't be a problem
-          # unless maybe it would mess up _PreviousValues. If we do solve this, we should implement coalese snapshots to minimum 15 minute increments.
+        for key, value of s
+          dataForUniqueID.lastSnapshot[key] = value
       else
         validFrom = s[@config.validFromField]
         validFrom = new Time(validFrom, null, @config.tz).getISOStringInTZ(@config.tz)
