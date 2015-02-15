@@ -4,6 +4,8 @@ functions = require('./functions').functions  # !TODO: Do we need this here?
 {arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps} = require('./dataTransform')  # !TODO: Do we need this here?
 JSON = require('JSON2')
 
+INFINITY = '9999-01-01T00:00:00.000Z'
+
 class Store
   ###
   @class Store
@@ -42,14 +44,14 @@ class Store
       store = new Store(config, defects)
 
       console.log(require('../').table.toString(store.snapshots, store.fields))
-      # | Modified_Date            | _ValidTo                 | _previousValues | DefectID | RecordID | Created_Date | Severity | Status      |
+      # | Modified_Date            | _ValidTo                 | _PreviousValues | DefectID | RecordID | Created_Date | Severity | Status      |
       # | ------------------------ | ------------------------ | --------------- | -------- | -------- | ------------ | -------- | ----------- |
       # | 2014-06-16T00:00:00.000Z | 2014-07-17T00:00:00.000Z | [object Object] | 1        | 1        | 2014-06-16   | 5        | New         |
       # | 2014-07-17T00:00:00.000Z | 2014-08-18T00:00:00.000Z | [object Object] | 1        | 100      | 2014-06-16   | 5        | In Progress |
       # | 2014-08-18T00:00:00.000Z | 9999-01-01T00:00:00.000Z | [object Object] | 1        | 1000     | 2014-06-16   | 5        | Done        |
 
   That's pretty boring. We pretty much got out what we put in. There are a few things to notice though. First,
-  Notice how the _ValidTo field is automatically set. Also, notice that it added the _previousValues field. This is
+  Notice how the _ValidTo field is automatically set. Also, notice that it added the _PreviousValues field. This is
   a record of the immediately proceeding values for the fields that changed. In this way, the records not only
   represent the current snapshot; they also represent the state transition that occured to get into this snapshot
   state. That's what stateBoundaryCrossedFilter and other methods key off of.
@@ -134,7 +136,7 @@ class Store
 
     @snapshots = []
 
-    @fields = [@config.validFromField, @config.validToField, '_previousValues', @config.uniqueIDField]
+    @fields = [@config.validFromField, @config.validToField, '_PreviousValues', @config.uniqueIDField]
     @lastValidFrom = new Time(1, Time.MILLISECOND).toString()
     @byUniqueID = {}
 
@@ -145,7 +147,7 @@ class Store
     ###
     @method addSnapshots
       Adds the snapshots to the Store
-    @param {Object} snapshots
+    @param {Object[]} snapshots
     @chainable
     @return {Store} Returns this
 
@@ -154,8 +156,8 @@ class Store
     for s in snapshots
       uniqueID = s[@config.uniqueIDField]
       utils.assert(uniqueID?, "Missing #{@config.uniqueIDField} field in submitted snapshot: \n" + JSON.stringify(s, null, 2))
-
       dataForUniqueID = @byUniqueID[uniqueID]
+
       unless dataForUniqueID?
         # First time we've seen this uniqueID
         dataForUniqueID =
@@ -163,51 +165,65 @@ class Store
           lastSnapshot: @config.defaultValues
         @byUniqueID[uniqueID] = dataForUniqueID
 
-      validFrom = s[@config.validFromField]
-      validFrom = new Time(validFrom, null, @config.tz).getISOStringInTZ(@config.tz)
-      utils.assert(validFrom >= dataForUniqueID.lastSnapshot[@config.validFromField], "validFromField (#{validFrom}) must be >= lastValidFrom (#{dataForUniqueID.lastSnapshot[@config.validFromField]}) for this entity" ) # !TODO: Deal with out of order snapshots
-      utils.assert(validFrom >= @lastValidFrom, "validFromField (#{validFrom}) must be >= lastValidFrom (#{@lastValidFrom}) for the Store")
-
-      validTo = s[@config.validTo]
-      if validTo?
-        validTo = new Time(validTo, null, @config.tz).getISOStringInTZ(@config.tz)
+      if s[@config.validFromField] < dataForUniqueID.lastSnapshot[@config.validFromField]
+        throw new Error("Got a new snapshot for a time earlier than the prior last snapshot for #{@config.uniqueIDField} #{uniqueID}.")
+        # Eventually, we may have to handle this case. I should be able to enable _nextSnapshot and stitch a snapshot in between two existing ones
+      else if s[@config.validFromField] is dataForUniqueID.lastSnapshot[@config.validFromField]
+        dataForUniqueID.lastSnapshot[@config.validToField] = s[@config.validToField]
+        if not utils.filterMatch(dataForUniqueID.lastSnapshot, s)
+          throw new Error("Got a snapshot for #{@config.uniqueIDField} #{uniqueID} where the #{@config.validFromField} fields match but other fields differ.")
+          # I think we can deal with this if we replace the old one with the new one. Alternatively, it might be OK to actually
+          # add a second one with the same _ValidFrom. The prior one will essentially exist for no moment in time and shouldn't be a problem
+          # unless maybe it would mess up _PreviousValues. If we do solve this, we should implement coalese snapshots to minimum 15 minute increments.
       else
-        validTo = '9999-01-01T00:00:00.000Z'
+        validFrom = s[@config.validFromField]
+        validFrom = new Time(validFrom, null, @config.tz).getISOStringInTZ(@config.tz)
+        utils.assert(validFrom >= dataForUniqueID.lastSnapshot[@config.validFromField], "validFromField (#{validFrom}) must be >= lastValidFrom (#{dataForUniqueID.lastSnapshot[@config.validFromField]}) for this entity" ) # !TODO: Deal with out of order snapshots
+        utils.assert(validFrom >= @lastValidFrom, "validFromField (#{validFrom}) must be >= lastValidFrom (#{@lastValidFrom}) for the Store")
 
-      priorSnapshot = dataForUniqueID.lastSnapshot
+        validTo = s[@config.validTo]
+        if validTo?
+          validTo = new Time(validTo, null, @config.tz).getISOStringInTZ(@config.tz)
+        else
+          validTo = INFINITY
 
-      # Build new Snapshot for adding
-      newSnapshot = {}
-      newSnapshot._previousValues = {}
-      for key, value of s
-        unless key in [@config.validFromField, @config.validToField, '_previousValues', @config.uniqueIDField]
-          unless key in @fields
-            @fields.push(key)
-          unless value == priorSnapshot[key]
-            newSnapshot[key] = value
-            unless key in [@config.idField]
+        priorSnapshot = dataForUniqueID.lastSnapshot
 
-              if priorSnapshot[key]?
-                newSnapshot._previousValues[key] = priorSnapshot[key]
-              else
-                newSnapshot._previousValues[key] = null
+        # Build new Snapshot for adding
+        newSnapshot = {}
+        newSnapshot._PreviousValues = {}
+        for key, value of s
+          unless key in [@config.validFromField, @config.validToField, '_PreviousValues', @config.uniqueIDField]
+            unless key in @fields
+              @fields.push(key)
+            unless value == priorSnapshot[key]
+              newSnapshot[key] = value
+              unless key in [@config.idField]
 
-      newSnapshot[@config.uniqueIDField] = uniqueID
-      newSnapshot[@config.validFromField] = validFrom
-      newSnapshot[@config.validToField] = validTo
-      newSnapshot.__proto__ = priorSnapshot
+                if priorSnapshot[key]?
+                  newSnapshot._PreviousValues[key] = priorSnapshot[key]
+                else
+                  newSnapshot._PreviousValues[key] = null
 
-      # Update priorSnapshot
-      priorSnapshot[@config.validToField] = validFrom
-      # priorSnapshot._nextSnapshot = newSnapshot  # Adding link to next snapshot in case we want to do smart insertion later
+        newSnapshot[@config.uniqueIDField] = uniqueID
+        newSnapshot[@config.validFromField] = validFrom
+        newSnapshot[@config.validToField] = validTo
+        if s._PreviousValues?
+          newSnapshot._PreviousValues = s._PreviousValues
+        newSnapshot.__proto__ = priorSnapshot
 
-      # Update metadata
-      dataForUniqueID.lastSnapshot = newSnapshot
-      @lastValidFrom = validFrom
+        # Update priorSnapshot
+        if priorSnapshot[@config.validToField] is INFINITY
+          priorSnapshot[@config.validToField] = validFrom
+        # priorSnapshot._NextSnapshot = newSnapshot  # Adding link to next snapshot in case we want to do smart insertion later
 
-      # Add the newSnapshot to the arrays
-      @byUniqueID[uniqueID].snapshots.push(newSnapshot)
-      @snapshots.push(newSnapshot)
+        # Update metadata
+        dataForUniqueID.lastSnapshot = newSnapshot
+        @lastValidFrom = validFrom
+
+        # Add the newSnapshot to the arrays
+        @byUniqueID[uniqueID].snapshots.push(newSnapshot)
+        @snapshots.push(newSnapshot)
 
     return this
 
@@ -216,7 +232,7 @@ class Store
     @method filtered
       Returns the subset of the snapshots that match the filter
     @param {Function} filter
-    @return {Object[]} An array or snapshots. Note, they will not be flattened so they have references to their prototypes
+    @return {Object[]} An array of snapshots. Note, they will not be flattened so they have references to their prototypes
     ###
     result = []
     for s in @snapshots
@@ -245,9 +261,9 @@ class Store
       left.unshift(null)
     right = values.slice(index)
     if forward
-      filter = (s) -> s._previousValues.hasOwnProperty(field) and s._previousValues[field] in left and s[field] in right
+      filter = (s) -> s._PreviousValues.hasOwnProperty(field) and s._PreviousValues[field] in left and s[field] in right
     else
-      filter = (s) -> s._previousValues.hasOwnProperty(field) and s._previousValues[field] in right and s[field] in left
+      filter = (s) -> s._PreviousValues.hasOwnProperty(field) and s._PreviousValues[field] in right and s[field] in left
 
     return @filtered(filter)
 

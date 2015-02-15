@@ -3,9 +3,10 @@
         "name": "Lumenize",
         "groups": [
             {
-                "name": "Overview, Transform, and Histogram",
+                "name": "Overview, Store, and Histogram",
                 "classes": [
                     "Lumenize",
+                    "*.Store",
                     "*.histogram"
                 ]
             },
