@@ -1,5 +1,5 @@
 /*
-lumenize version: 0.9.1
+lumenize version: 0.9.2
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -14363,7 +14363,7 @@ require.define("/src/table.js",function(require,module,exports,__dirname,__filen
   };
 
   table.toString = function(rows, fields, sortBy, descending) {
-    var field, index, key, maxWidths, row, s, sortedRows, value, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref;
+    var field, index, key, maxWidths, row, s, sortedRows, value, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref, _ref1, _ref2;
     if (descending == null) {
       descending = false;
     }
@@ -14403,7 +14403,7 @@ require.define("/src/table.js",function(require,module,exports,__dirname,__filen
       maxWidths.push(field.length);
       for (_j = 0, _len1 = rows.length; _j < _len1; _j++) {
         row = rows[_j];
-        maxWidths[index] = Math.max(maxWidths[index], row[field].toString().length);
+        maxWidths[index] = Math.max(maxWidths[index], ((_ref1 = row[field]) != null ? _ref1.toString().length : void 0) || 0);
       }
     }
     if (sortBy != null) {
@@ -14432,7 +14432,7 @@ require.define("/src/table.js",function(require,module,exports,__dirname,__filen
       for (index = _n = 0, _len5 = fields.length; _n < _len5; index = ++_n) {
         field = fields[index];
         s += ' ';
-        s += table.padToWidth(row[field].toString(), maxWidths[index], void 0, true) + ' |';
+        s += table.padToWidth(((_ref2 = row[field]) != null ? _ref2.toString() : void 0) || '', maxWidths[index], void 0, true) + ' |';
       }
     }
     return s;
@@ -14441,6 +14441,8 @@ require.define("/src/table.js",function(require,module,exports,__dirname,__filen
   exports.table = table;
 
 }).call(this);
+
+//# sourceMappingURL=table.js.map
 
 });
 
@@ -15930,7 +15932,5 @@ require.define("/src/Store.js",function(require,module,exports,__dirname,__filen
   exports.Store = Store;
 
 }).call(this);
-
-//# sourceMappingURL=Store.js.map
 
 });
