@@ -45,7 +45,7 @@ table.toString = (rows, fields, sortBy, descending = false) ->
   for field, index in fields
     maxWidths.push(field.length)  # !TODO: Support for Markdown style justification |:---:| or |---:| and number formatting
     for row in rows
-      maxWidths[index] = Math.max(maxWidths[index], row[field].toString().length)
+      maxWidths[index] = Math.max(maxWidths[index], row[field]?.toString().length or 0)
 
   if sortBy?
     sortedRows = utils._.sortBy(rows, sortBy)
@@ -68,7 +68,7 @@ table.toString = (rows, fields, sortBy, descending = false) ->
     s += '\n|'
     for field, index in fields
       s += ' '
-      s += table.padToWidth(row[field].toString(), maxWidths[index], undefined, true) + ' |'  # !TODO: Change undefined for justification
+      s += table.padToWidth(row[field]?.toString() or '', maxWidths[index], undefined, true) + ' |'  # !TODO: Change undefined for justification
 
   return s
 

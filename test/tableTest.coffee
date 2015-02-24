@@ -22,3 +22,24 @@ exports.tableTest =
     test.deepEqual(actual, expected)
 
     test.done()
+
+  testNullAndMissing: (test) ->
+    t = [
+      {col1: 'hello', col2: 12, col3: null},
+      {col1: 'goodbye', col3: false},
+      {col2: -23, col3: true},
+    ]
+
+    actual = table.toString(t, null, 'col2', false)
+
+    expected = '''
+      | col1    | col2 | col3  |
+      | ------- | ---- | ----- |
+      |         | -23  | true  |
+      | hello   | 12   |       |
+      | goodbye |      | false |
+    '''
+
+    test.deepEqual(actual, expected)
+
+    test.done()
