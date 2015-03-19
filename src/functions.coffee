@@ -336,17 +336,17 @@ functions.percentileCreator = (p) ->
   f.dependencies = ['values']
   return f
 
-functions.median = functions.percentileCreator(50)
-  ###
-  @method median
-  @static
-  @param {Number[]} [values] Must either provide values or oldResult and newValues
-  @param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
-  @param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
-  @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+###
+@method median
+@static
+@param {Number[]} [values] Must either provide values or oldResult and newValues
+@param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+@param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+@param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
   you to provide those pre-calculated values.
-  @return {Number} The median
-  ###
+@return {Number} The median
+###
+functions.median = functions.percentileCreator(50)
 
 functions.expandFandAs = (a) ->
   ###

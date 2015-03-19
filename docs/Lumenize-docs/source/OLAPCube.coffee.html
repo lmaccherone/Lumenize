@@ -121,7 +121,8 @@ class OLAPCube
    * 
    * `getCell()` uses the cellIndex so it&#39;s very efficient. Using `getCell()` and `getDimensionValues()`, you can iterate
    * over a slice of the OLAPCube. It is usually preferable to access the cells in place like this rather than the
-   * traditional OLAP approach of extracting a slice for processing.
+   * traditional OLAP approach of extracting a slice for processing. However, there is a `slice()` method for extracting
+   * a 2D slice.
    * 
    *     rowValues = cube.getDimensionValues(&#39;ProjectHierarchy&#39;)
    *     columnValues = cube.getDimensionValues(&#39;Priority&#39;)
@@ -501,7 +502,7 @@ class OLAPCube
      *   Returns a subset of the cells that match the supplied filter. You can perform slice and dice operations using
      *   this. If you have criteria for all of the dimensions, you are better off using `getCell()`. Most times, it&#39;s
      *   better to iterate over the unique values for the dimensions of interest using `getCell()` in place of slice or
-     *   dice operations.
+     *   dice operations. However, there is a `slice()` method for extracting a 2D slice
      * @param {Object} [filterObject] Specifies the constraints that the returned cells must match in the form of
      *   `{field1: value1, field2: value2}`. If this parameter is missing, the internal cells array is returned.
      * @return {Object[]} Returns the cells that match the supplied filter
@@ -610,7 +611,7 @@ class OLAPCube
     unless significance?
       return value
     multiple = 1 / significance
-    return Math.round(value * multiple) / multiple
+    return Math.floor(value * multiple) / multiple
 
   toString: (rows, columns, metric, significance) -&gt;
 &lt;/CoffeeScript&gt; */
@@ -725,6 +726,58 @@ class OLAPCube
         s += &#39;|\n|&#39; + OLAPCube._padToWidth(&#39;&#39;, fullWidth, &#39;-&#39;)
     s += &#39;|&#39;
     return s
+
+  slice: (rows, columns, metric, significance) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-OLAPCube-method-slice'>    /**
+</span>     * @method slice
+     * @member Lumenize.OLAPCube
+     *   Extracts a 2D slice of the data. It outputs an array or arrays (JavaScript two-dimensional array) organized as the
+     *   C3 charting library would expect if submitting row-oriented data. Note, the output of this function is very similar
+     *   to the 2D toString() function output except the data is organized as a two-dimensional array instead of newline-separated
+     *   lines and the cells are filled with actual values instead of padded string representations of those values.
+     * @return {[[]]} An array of arrays with the one row for the header and each row label
+     * @param {String} [rows=&lt;first dimension&gt;]
+     * @param {String} [columns=&lt;second dimension&gt;]
+     * @param {String} [metric=&#39;count&#39;]
+     * @param {Number} [significance] The multiple to which you want to round the bucket edges. 1 means whole numbers.
+     *   0.1 means to round to tenths. 0.01 to hundreds. Etc.
+     */
+/* &lt;CoffeeScript&gt;
+    unless rows?
+      rows = @config.dimensions[0].field
+    unless columns?
+      columns = @config.dimensions[1].field
+    rowValues = @getDimensionValues(rows)
+    columnValues = @getDimensionValues(columns)
+    values = []
+    topRow = []
+    topRow.push(&#39;x&#39;)
+    for c, indexColumn in columnValues
+      if c is null
+        topRow.push(&#39;Total&#39;)
+      else
+        topRow.push(c)
+    values.push(topRow)
+    for r, indexRow in rowValues
+      valuesRow = []
+      if r is null
+        valuesRow.push(&#39;Total&#39;)
+      else
+        valuesRow.push(r)
+      for c, indexColumn in columnValues
+        filter = {}
+        filter[rows] = r
+        filter[columns] = c
+        cell = @getCell(filter)
+        if cell?
+          cellValue = OLAPCube.roundToSignificance(cell[metric], significance)
+        else
+          cellValue = null
+        valuesRow.push(cellValue)
+      values.push(valuesRow)
+
+    return values
 
   @_padToWidth: (s, width, padCharacter = &#39; &#39;, rightPad = false) -&gt;
     if s.length &gt; width

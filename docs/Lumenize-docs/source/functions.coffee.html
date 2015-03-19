@@ -380,7 +380,7 @@ functions.standardDeviation.dependencies = functions.variance.dependencies
  * 
  * http://en.wikipedia.org/wiki/Percentile#Alternative_methods
  * 
- * Note: `median` is an alias for `p50`. The approach chosen for calculating p50 gives you the
+ * Note: `median` is an alias for p50. The approach chosen for calculating p50 gives you the
  * exact same result as the definition for median even for edge cases like sets with only one or two data points.
  * 
  */
@@ -404,6 +404,21 @@ functions.percentileCreator = (p) -&gt;
   f.dependencies = [&#39;values&#39;]
   return f
 
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-functions-static-method-median'>/**
+</span> * @method median
+ * @member Lumenize.functions
+ * @static
+ * @param {Number[]} [values] Must either provide values or oldResult and newValues
+ * @param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+ * @param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+ * @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+ *   you to provide those pre-calculated values.
+ * @return {Number} The median
+ */
+/* &lt;CoffeeScript&gt;
+functions.median = functions.percentileCreator(50)
+
 functions.expandFandAs = (a) -&gt;
 &lt;/CoffeeScript&gt; */
 <span id='Lumenize-functions-static-method-expandFandAs'>  /**
@@ -426,9 +441,6 @@ functions.expandFandAs = (a) -&gt;
   else if functions[a.f]?
     a.metric = a.f
     a.f = functions[a.f]
-  else if a.f == &#39;median&#39;
-    a.metric = &#39;median&#39;
-    a.f = functions.percentileCreator(50)
   else if a.f.substr(0, 1) == &#39;p&#39;
     a.metric = a.f
     p = /\p(\d+(.\d+)?)/.exec(a.f)[1]

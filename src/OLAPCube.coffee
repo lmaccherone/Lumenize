@@ -705,7 +705,7 @@ class OLAPCube
     @param {String} [columns=<second dimension>]
     @param {String} [metric='count']
     @param {Number} [significance] The multiple to which you want to round the bucket edges. 1 means whole numbers.
-     0.1 means to round to tenths. 0.01 to hundreds. Etc.
+      0.1 means to round to tenths. 0.01 to hundreds. Etc.
     ###
     unless rows?
       rows = @config.dimensions[0].field

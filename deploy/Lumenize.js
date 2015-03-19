@@ -1,5 +1,5 @@
 /*
-lumenize version: 0.9.2
+lumenize version: 0.9.3
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -10438,7 +10438,8 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
     
     `getCell()` uses the cellIndex so it's very efficient. Using `getCell()` and `getDimensionValues()`, you can iterate
     over a slice of the OLAPCube. It is usually preferable to access the cells in place like this rather than the
-    traditional OLAP approach of extracting a slice for processing.
+    traditional OLAP approach of extracting a slice for processing. However, there is a `slice()` method for extracting
+    a 2D slice.
     
         rowValues = cube.getDimensionValues('ProjectHierarchy')
         columnValues = cube.getDimensionValues('Priority')
@@ -10879,7 +10880,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
         Returns a subset of the cells that match the supplied filter. You can perform slice and dice operations using
         this. If you have criteria for all of the dimensions, you are better off using `getCell()`. Most times, it's
         better to iterate over the unique values for the dimensions of interest using `getCell()` in place of slice or
-        dice operations.
+        dice operations. However, there is a `slice()` method for extracting a 2D slice
       @param {Object} [filterObject] Specifies the constraints that the returned cells must match in the form of
         `{field1: value1, field2: value2}`. If this parameter is missing, the internal cells array is returned.
       @return {Object[]} Returns the cells that match the supplied filter
@@ -11025,7 +11026,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
         return value;
       }
       multiple = 1 / significance;
-      return Math.round(value * multiple) / multiple;
+      return Math.floor(value * multiple) / multiple;
     };
 
     OLAPCube.prototype.toString = function(rows, columns, metric, significance) {
@@ -11216,6 +11217,68 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       return s;
     };
 
+    OLAPCube.prototype.slice = function(rows, columns, metric, significance) {
+
+      /*
+      @method slice
+        Extracts a 2D slice of the data. It outputs an array or arrays (JavaScript two-dimensional array) organized as the
+        C3 charting library would expect if submitting row-oriented data. Note, the output of this function is very similar
+        to the 2D toString() function output except the data is organized as a two-dimensional array instead of newline-separated
+        lines and the cells are filled with actual values instead of padded string representations of those values.
+      @return {[[]]} An array of arrays with the one row for the header and each row label
+      @param {String} [rows=<first dimension>]
+      @param {String} [columns=<second dimension>]
+      @param {String} [metric='count']
+      @param {Number} [significance] The multiple to which you want to round the bucket edges. 1 means whole numbers.
+        0.1 means to round to tenths. 0.01 to hundreds. Etc.
+       */
+      var c, cell, cellValue, columnValues, filter, indexColumn, indexRow, r, rowValues, topRow, values, valuesRow, _i, _j, _k, _len, _len1, _len2;
+      if (rows == null) {
+        rows = this.config.dimensions[0].field;
+      }
+      if (columns == null) {
+        columns = this.config.dimensions[1].field;
+      }
+      rowValues = this.getDimensionValues(rows);
+      columnValues = this.getDimensionValues(columns);
+      values = [];
+      topRow = [];
+      topRow.push('x');
+      for (indexColumn = _i = 0, _len = columnValues.length; _i < _len; indexColumn = ++_i) {
+        c = columnValues[indexColumn];
+        if (c === null) {
+          topRow.push('Total');
+        } else {
+          topRow.push(c);
+        }
+      }
+      values.push(topRow);
+      for (indexRow = _j = 0, _len1 = rowValues.length; _j < _len1; indexRow = ++_j) {
+        r = rowValues[indexRow];
+        valuesRow = [];
+        if (r === null) {
+          valuesRow.push('Total');
+        } else {
+          valuesRow.push(r);
+        }
+        for (indexColumn = _k = 0, _len2 = columnValues.length; _k < _len2; indexColumn = ++_k) {
+          c = columnValues[indexColumn];
+          filter = {};
+          filter[rows] = r;
+          filter[columns] = c;
+          cell = this.getCell(filter);
+          if (cell != null) {
+            cellValue = OLAPCube.roundToSignificance(cell[metric], significance);
+          } else {
+            cellValue = null;
+          }
+          valuesRow.push(cellValue);
+        }
+        values.push(valuesRow);
+      }
+      return values;
+    };
+
     OLAPCube._padToWidth = function(s, width, padCharacter, rightPad) {
       var padding;
       if (padCharacter == null) {
@@ -11345,6 +11408,8 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
   exports.OLAPCube = OLAPCube;
 
 }).call(this);
+
+//# sourceMappingURL=OLAPCube.js.map
 
 });
 
@@ -11769,7 +11834,7 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
   
   http://en.wikipedia.org/wiki/Percentile#Alternative_methods
   
-  Note: `median` is an alias for `p50`. The approach chosen for calculating p50 gives you the
+  Note: `median` is an alias for p50. The approach chosen for calculating p50 gives you the
   exact same result as the definition for median even for edge cases like sets with only one or two data points.
    */
 
@@ -11800,6 +11865,20 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
     return f;
   };
 
+
+  /*
+  @method median
+  @static
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+  @param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+  @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+    you to provide those pre-calculated values.
+  @return {Number} The median
+   */
+
+  functions.median = functions.percentileCreator(50);
+
   functions.expandFandAs = function(a) {
 
     /*
@@ -11821,9 +11900,6 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
     } else if (functions[a.f] != null) {
       a.metric = a.f;
       a.f = functions[a.f];
-    } else if (a.f === 'median') {
-      a.metric = 'median';
-      a.f = functions.percentileCreator(50);
     } else if (a.f.substr(0, 1) === 'p') {
       a.metric = a.f;
       p = /\p(\d+(.\d+)?)/.exec(a.f)[1];
@@ -11964,6 +12040,8 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
   exports.functions = functions;
 
 }).call(this);
+
+//# sourceMappingURL=functions.js.map
 
 });
 
@@ -14441,8 +14519,6 @@ require.define("/src/table.js",function(require,module,exports,__dirname,__filen
   exports.table = table;
 
 }).call(this);
-
-//# sourceMappingURL=table.js.map
 
 });
 
