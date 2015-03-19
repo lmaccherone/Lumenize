@@ -88,7 +88,8 @@ Then in your code:
 
 In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
 
-* 0.9.2 - 2015-02-23 - table now gracefully handles missing data
+* 0.9.3 - 2015-03-19 - Added OLAPCube.slice() and functions.median()
+* 0.9.2 - 2015-02-23 - Table now gracefully handles missing data
 * 0.9.1 - 2015-02-15 - Deal with real-world miner case for Store
 * 0.9.0 - 2015-02-14 - Upgrades to Store for mining
 * 0.8.6 - 2014-10-19 - Store now puts key dates into zulu time

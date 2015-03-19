@@ -313,7 +313,7 @@ was chosen.
 
 http://en.wikipedia.org/wiki/Percentile#Alternative_methods
 
-Note: `median` is an alias for `p50`. The approach chosen for calculating p50 gives you the
+Note: `median` is an alias for p50. The approach chosen for calculating p50 gives you the
 exact same result as the definition for median even for edge cases like sets with only one or two data points.
 
 ###
@@ -336,8 +336,17 @@ functions.percentileCreator = (p) ->
   f.dependencies = ['values']
   return f
 
-functions.median = (values, oldResult, newValues, dependentValues, prefix) ->
-  return functions.percentileCreator(50)(values, oldResult, newValues, dependentValues, prefix)
+functions.median = functions.percentileCreator(50)
+  ###
+  @method median
+  @static
+  @param {Number[]} [values] Must either provide values or oldResult and newValues
+  @param {Number} [oldResult] not used by this function but included so all functions have a consistent signature
+  @param {Number[]} [newValues] not used by this function but included so all functions have a consistent signature
+  @param {Object} [dependentValues] If the function can be calculated from the results of other functions, this allows
+  you to provide those pre-calculated values.
+  @return {Number} The median
+  ###
 
 functions.expandFandAs = (a) ->
   ###
@@ -358,9 +367,6 @@ functions.expandFandAs = (a) ->
   else if functions[a.f]?
     a.metric = a.f
     a.f = functions[a.f]
-  else if a.f == 'median'
-    a.metric = 'median'
-    a.f = functions.percentileCreator(50)
   else if a.f.substr(0, 1) == 'p'
     a.metric = a.f
     p = /\p(\d+(.\d+)?)/.exec(a.f)[1]
