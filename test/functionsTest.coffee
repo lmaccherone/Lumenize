@@ -264,6 +264,11 @@ exports.functionsTest =
     test.equal(functions.percentileCreator(50)(values), 5.85)
     test.done()
 
+  testMedian: (test) ->
+    values = [1.5, 2.7, 3.4, 4.5, 5.0, 6.7, 7.8, 8.5, 9.1, 10.2] #median of an array of decimals
+    test.equal(functions.median(values), functions.percentileCreator(50)(values))
+    test.done()
+
   testPercentileCreatorDecimalsOdd: (test) ->
     values = [1.5, 2.7, 3.4, 4.5, 5.0, 6.7, 7.8, 8.5, 9.1, 10.2, 11.7] #median of an array of decimals
     test.equal(functions.percentileCreator(50)(values), 6.7)

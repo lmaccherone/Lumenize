@@ -336,6 +336,9 @@ functions.percentileCreator = (p) ->
   f.dependencies = ['values']
   return f
 
+functions.median = (values, oldResult, newValues, dependentValues, prefix) ->
+  return functions.percentileCreator(50)(values, oldResult, newValues, dependentValues, prefix)
+
 functions.expandFandAs = (a) ->
   ###
   @method expandFandAs

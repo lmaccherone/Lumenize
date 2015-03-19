@@ -525,3 +525,36 @@ exports.olapTest =
     test.equal(expected, cube.toString(null, null, 'id'))
 
     test.done()
+
+  testSlice: (test) ->
+    facts = [
+      {Category: 'A', Priority: 1, Points: 10.45678},
+      {Category: 'A', Priority: 2, Points: 5 },
+      {Category: 'B', Priority: 1, Points: 17},
+      {Category: 'B', Priority: 1, Points: 3 },
+    ]
+
+    dimensions = [
+      {field: "Category"},
+      {field: "Priority"}
+    ]
+
+    metrics = [
+      {field: "Points", f: "sum", as: "Sum"}
+    ]
+
+    config = {dimensions, metrics}
+    config.keepTotals = true
+
+    cube = new OLAPCube(config, facts)
+
+    actual = cube.slice('Category', 'Priority', 'Sum', 0.1)
+    expected = [
+      [ 'x', 'Total', 1, 2 ],
+      [ 'Total', 35.4, 30.4, 5 ],
+      [ 'A', 15.4, 10.4, 5 ],
+      [ 'B', 20, 20, null ]
+    ]
+    test.deepEqual(expected, actual)
+
+    test.done()
