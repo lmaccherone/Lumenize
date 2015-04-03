@@ -9,8 +9,6 @@ src/*.js
 test/*.map
 test/*.js
 test/*.js.map
-play/*.map
-play/*.js.map
 lumenize.js
 lumenize.map
 lumenize.js.map

@@ -1,8 +1,9 @@
+# [Documentation](http://commondatastorage.googleapis.com/versions.lumenize.com/docs/lumenize-docs/index.html)
+
 [![build status](https://secure.travis-ci.org/lmaccherone/Lumenize.png)](http://travis-ci.org/lmaccherone/Lumenize)
-[![NPM version](https://badge.fury.io/js/Lumenize.png)](http://badge.fury.io/js/Lumenize)
+[![NPM version](https://badge.fury.io/js/lumenize.png)](http://badge.fury.io/js/Lumenize)
 [![build status](https://david-dm.org/lmaccherone/Lumenize.png)](https://david-dm.org/lmaccherone/Lumenize.png)
 
-[![Stories in Ready](https://badge.waffle.io/lmaccherone/Lumenize.png)](http://waffle.io/lmaccherone/Lumenize)
 # Lumenize #
 
 Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.
@@ -10,6 +11,11 @@ Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.
 _Illuminating the forest AND the trees in your data._
 
 Lumenize is a collection of tools for making awesome visualizations out of your data.
+
+## Documentation and source code ##
+
+* [API Documentation](http://commondatastorage.googleapis.com/versions.lumenize.com/docs/lumenize-docs/index.html)
+* [Source Repository](https://github.com/lmaccherone/Lumenize)
 
 ## Features ##
 
@@ -22,7 +28,7 @@ Lumenize is a collection of tools for making awesome visualizations out of your 
 * Bundled with the [tzTime](https://github.com/lmaccherone/tzTime) library (same author) for
   timezone precise x-axis. Knockout weekends, holidays, non-work hours, etc.
 * Tested - Over 600 tests (plus over 400 tests in tzTime)
-* [Documented (Lumenize)](http://commondatastorage.googleapis.com/versions.lumenize.com/docs/Lumenize-docs/index.html) [(tzTime)](http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html) - Robust documentation and examples
+* [Documented (Lumenize)](http://commondatastorage.googleapis.com/versions.lumenize.com/docs/lumenize-docs/index.html) [(tzTime)](http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html) - Robust documentation and examples
 * [DocTested](https://github.com/lmaccherone/coffeedoctest) - The examples will always match 
   the code because it fails automated testing when they don't
 
@@ -33,22 +39,6 @@ Authors:
 * [Larry Maccherone](http://maccherone.com)
 * Jennifer Maccherone
 
-Used when running:
-
-* [tzTime](https://github.com/lmaccherone/tzTime) (by Larry Maccherone with Olson file
-  parsing from [timezoneJS](https://github.com/mde/timezone-js))
-
-Used when developing:
-
-* [Node.js](http://nodejs.org/)
-* [CoffeeScript](http://coffeescript.org/)
-* [coffeedoctest](https://github.com/lmaccherone/coffeedoctest) (by Larry Maccherone)
-* [nodeunit](https://github.com/caolan/nodeunit)
-* [browserify with fileify plugin (modified)](https://github.com/substack/node-browserify)
-* [uglify-js](https://github.com/mishoo/UglifyJS)
-* [wrench](https://github.com/ryanmcgrath/wrench-js)
-* [marked](https://github.com/chjj/marked)
-
 ## Usage in a browser ##
 
 To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
@@ -57,7 +47,7 @@ To use in a browser, either host it on your own site, or if your volume is low e
 
 Replace `{{version}}` with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:
 
-`<script type="text/javascript" src="https://storage.googleapis.com/versions.lumenize.com/v0.6.8/Lumenize-min.js"></script>`
+`<script type="text/javascript" src="https://storage.googleapis.com/versions.lumenize.com/v0.9.3/Lumenize-min.js"></script>`
 
 The package is fairly large ~260KB but most of that is the embedded timezone files which compress really well.
 
@@ -79,15 +69,9 @@ Then in your code:
 
 `var lumenize = require('lumenize')`
 
-## Documentation and source code ##
-
-* [API Documentation](http://commondatastorage.googleapis.com/versions.lumenize.com/docs/Lumenize-docs/index.html)
-* [Source Repository](https://github.com/lmaccherone/Lumenize)
-
 ## Changelog ##
 
-In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.
-
+* 0.9.4 - 2015-04-03 - Fixed broken link to documentation
 * 0.9.3 - 2015-03-19 - Added OLAPCube.slice() and functions.median()
 * 0.9.2 - 2015-02-23 - Table now gracefully handles missing data
 * 0.9.1 - 2015-02-15 - Deal with real-world miner case for Store

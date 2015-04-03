@@ -105,14 +105,19 @@
 </style>
 <body>
 <div class="readme">
+<h1 id="-documentation-http-commondatastorage-googleapis-com-versions-lumenize-com-docs-lumenize-docs-index-html-"><a href="http://commondatastorage.googleapis.com/versions.lumenize.com/docs/lumenize-docs/index.html">Documentation</a></h1>
 <p><a href="http://travis-ci.org/lmaccherone/Lumenize"><img src="https://secure.travis-ci.org/lmaccherone/Lumenize.png" alt="build status"></a>
-<a href="http://badge.fury.io/js/Lumenize"><img src="https://badge.fury.io/js/Lumenize.png" alt="NPM version"></a>
+<a href="http://badge.fury.io/js/Lumenize"><img src="https://badge.fury.io/js/lumenize.png" alt="NPM version"></a>
 <a href="https://david-dm.org/lmaccherone/Lumenize.png"><img src="https://david-dm.org/lmaccherone/Lumenize.png" alt="build status"></a></p>
-<p><a href="http://waffle.io/lmaccherone/Lumenize"><img src="https://badge.waffle.io/lmaccherone/Lumenize.png" alt="Stories in Ready"></a></p>
 <h1 id="lumenize">Lumenize</h1>
 <p>Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.</p>
 <p><em>Illuminating the forest AND the trees in your data.</em></p>
 <p>Lumenize is a collection of tools for making awesome visualizations out of your data.</p>
+<h2 id="documentation-and-source-code">Documentation and source code</h2>
+<ul>
+<li><a href="http://commondatastorage.googleapis.com/versions.lumenize.com/docs/lumenize-docs/index.html">API Documentation</a></li>
+<li><a href="https://github.com/lmaccherone/Lumenize">Source Repository</a></li>
+</ul>
 <h2 id="features">Features</h2>
 <ul>
 <li>Fast, light, flexible client-side OLAP Cube with hierarchical rollup support</li>
@@ -126,7 +131,7 @@ of lead time to set service level agreements.</li>
 <li>Bundled with the <a href="https://github.com/lmaccherone/tzTime">tzTime</a> library (same author) for
 timezone precise x-axis. Knockout weekends, holidays, non-work hours, etc.</li>
 <li>Tested - Over 600 tests (plus over 400 tests in tzTime)</li>
-<li><a href="http://commondatastorage.googleapis.com/versions.lumenize.com/docs/Lumenize-docs/index.html">Documented (Lumenize)</a> <a href="http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html">(tzTime)</a> - Robust documentation and examples</li>
+<li><a href="http://commondatastorage.googleapis.com/versions.lumenize.com/docs/lumenize-docs/index.html">Documented (Lumenize)</a> <a href="http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html">(tzTime)</a> - Robust documentation and examples</li>
 <li><a href="https://github.com/lmaccherone/coffeedoctest">DocTested</a> - The examples will always match 
 the code because it fails automated testing when they don&#39;t</li>
 </ul>
@@ -136,27 +141,11 @@ the code because it fails automated testing when they don&#39;t</li>
 <li><a href="http://maccherone.com">Larry Maccherone</a></li>
 <li>Jennifer Maccherone</li>
 </ul>
-<p>Used when running:</p>
-<ul>
-<li><a href="https://github.com/lmaccherone/tzTime">tzTime</a> (by Larry Maccherone with Olson file
-parsing from <a href="https://github.com/mde/timezone-js">timezoneJS</a>)</li>
-</ul>
-<p>Used when developing:</p>
-<ul>
-<li><a href="http://nodejs.org/">Node.js</a></li>
-<li><a href="http://coffeescript.org/">CoffeeScript</a></li>
-<li><a href="https://github.com/lmaccherone/coffeedoctest">coffeedoctest</a> (by Larry Maccherone)</li>
-<li><a href="https://github.com/caolan/nodeunit">nodeunit</a></li>
-<li><a href="https://github.com/substack/node-browserify">browserify with fileify plugin (modified)</a></li>
-<li><a href="https://github.com/mishoo/UglifyJS">uglify-js</a></li>
-<li><a href="https://github.com/ryanmcgrath/wrench-js">wrench</a></li>
-<li><a href="https://github.com/chjj/marked">marked</a></li>
-</ul>
 <h2 id="usage-in-a-browser">Usage in a browser</h2>
 <p>To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:</p>
 <p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://storage.googleapis.com/versions.lumenize.com/v{{version}}/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code></p>
 <p>Replace <code>{{version}}</code> with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:</p>
-<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://storage.googleapis.com/versions.lumenize.com/v0.6.8/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code></p>
+<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://storage.googleapis.com/versions.lumenize.com/v0.9.3/Lumenize-min.js&quot;&gt;&lt;/script&gt;</code></p>
 <p>The package is fairly large ~260KB but most of that is the embedded timezone files which compress really well.</p>
 <p>Then at the top of the javascript where you want to call it, put the following:</p>
 <p><code>var lumenize = require(&#39;./lumenize&#39;);</code></p>
@@ -167,14 +156,9 @@ parsing from <a href="https://github.com/mde/timezone-js">timezoneJS</a>)</li>
 <p><code>npm install lumenize --save</code></p>
 <p>Then in your code:</p>
 <p><code>var lumenize = require(&#39;lumenize&#39;)</code></p>
-<h2 id="documentation-and-source-code">Documentation and source code</h2>
-<ul>
-<li><a href="http://commondatastorage.googleapis.com/versions.lumenize.com/docs/Lumenize-docs/index.html">API Documentation</a></li>
-<li><a href="https://github.com/lmaccherone/Lumenize">Source Repository</a></li>
-</ul>
 <h2 id="changelog">Changelog</h2>
-<p>In November of 2012, Lumenize wanted to start keeping old versions around because it was about to undergo a huge backward-breaking change. For a few days between 11-25 and 11-30, we were using an approach of multiple copies but then we switched to using git tags.</p>
 <ul>
+<li>0.9.4 - 2015-04-03 - Fixed broken link to documentation</li>
 <li>0.9.3 - 2015-03-19 - Added OLAPCube.slice() and functions.median()</li>
 <li>0.9.2 - 2015-02-23 - Table now gracefully handles missing data</li>
 <li>0.9.1 - 2015-02-15 - Deal with real-world miner case for Store</li>
