@@ -108,9 +108,7 @@ task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->
           runSyncNoExit("git", ["tag", "v#{require('./package.json').version}"])
           runSyncNoExit("git", ["push", "--tags"])
 
-          console.log('pushing to Google Cloud Storage')
-          runSyncNoExit("gsutil", ["cp", "./deploy/*", "gs://versions.lumenize.com/v#{require('./package.json').version}/"])
-          runSyncNoExit('gsutil', ['setmeta', '-h', '"Content-Type: application/javascript"', '-h', '"Cache-Control: public, max-age=31556926, no-transform"', 'gs://versions.lumenize.com/v' + require('./package.json').version + '/*'])
+          invoke('cdn')
 
           invoke('pubDocsRaw')
       else
@@ -118,6 +116,13 @@ task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->
     else
       console.error('`git status --porcelain` was not clean. Not publishing.')
   )
+)
+
+task('cdn', 'Push runtime code to content delivery network (CDN)', () ->
+  console.log('pushing to Google Cloud Storage')
+  process.chdir(__dirname)
+  runSyncNoExit("gsutil", ["cp", "./deploy/*", "gs://versions.lumenize.com/v#{require('./package.json').version}/"])
+  runSyncNoExit('gsutil', ['setmeta', '-h', "Content-Type: application/javascript", '-h', "Cache-Control: public, max-age=31556926, no-transform", 'gs://versions.lumenize.com/v' + require('./package.json').version + '/*'])
 )
 
 task('build', 'Build with browserify and place in ./deploy', () ->
