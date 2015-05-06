@@ -1,51 +1,34 @@
 fs = require('fs')
 path = require('path')
-{spawn, exec} = require('child_process')
+{spawnSync} = require('child_process')
 wrench = require('wrench')
 marked = require('marked')
 uglify = require("uglify-js")
 browserify = require('browserify')
 fileify = require('fileify-lm')
-runsync = require('runsync')  # polyfil for node.js 0.12 synchronous running functionality. Remove when upgrading to 0.12
+# runsync = require('runsync')  # polyfil for node.js 0.12 synchronous running functionality. Remove when upgrading to 0.12
 
 runSync = (command, options, next) ->
   {stderr, stdout} = runSyncRaw(command, options)
-  if stderr.length > 0
+  if stderr?.length > 0
     console.error("Error running `#{command}`\n" + stderr)
     process.exit(1)
   if next?
     next(stdout)
   else
-    if stdout.length > 0
-      console.log("Stdout exec'ing command '#{command}'...\n" + stdout)
+    if stdout?.length > 0
+      console.log("Stdout running command '#{command}'...\n" + stdout)
 
-runSyncNoExit = (command, options) ->
+runSyncNoExit = (command, options = []) ->
   {stderr, stdout} = runSyncRaw(command, options)
-  console.log("Output of running '#{command}'...\n#{stderr}\n#{stdout}\n")
+  console.log("Output of running '#{command + ' ' + options.join(' ')}'...\n#{stderr}\n#{stdout}\n")
   return {stderr, stdout}
 
 runSyncRaw = (command, options) ->
-  if options? and options.length > 0
-    command += ' ' + options.join(' ')
-  output = runsync.popen(command)
-  stdout = output.stdout.toString()
-  stderr = output.stderr.toString()
+  output = spawnSync(command, options)
+  stdout = output.stdout?.toString()
+  stderr = output.stderr?.toString()
   return {stderr, stdout}
-
-runAsync = (command, options, next) ->
-  if options? and options.length > 0
-    command += ' ' + options.join(' ')
-  exec(command, (error, stdout, stderr) ->
-    if stderr.length > 0
-      console.log("Stderr exec'ing command '#{command}'...\n" + stderr)
-    if error?
-      console.log('exec error: ' + error)
-    if next?
-      next(stdout)
-    else
-      if stdout.length > 0
-        console.log("Stdout exec'ing command '#{command}'...\n" + stdout)
-  )
 
 task('doctest', 'Test examples in documenation.', () ->
   process.chdir(__dirname)
@@ -76,7 +59,8 @@ task('docs', 'Generate docs with JSDuckify/JSDuck and place in ./docs', () ->
   outputDirectory = path.join(__dirname, 'docs', "#{name}-docs")
   if fs.existsSync(outputDirectory)
     wrench.rmdirSyncRecursive(outputDirectory, false)
-  runSync('jsduckify', ['-d', "'" + outputDirectory + "'", "'" + __dirname + "'"])
+  process.chdir(__dirname)
+  runSync('jsduckify', ['-d', outputDirectory, __dirname])
 )
 
 task('pub-docs', 'Build docs and push out to web', () ->
@@ -86,46 +70,47 @@ task('pub-docs', 'Build docs and push out to web', () ->
 
 task('pubDocsRaw', 'Publish docs to Google Cloud Storage', () ->
   process.chdir(__dirname)
-#  runAsync('git push -f origin master:gh-pages')
   console.log('pushing docs to Google Cloud Storage')
-  runSync('gsutil cp -R docs gs://versions.lumenize.com')
+  runSync('gsutil -m cp -R docs gs://versions.lumenize.com')
 )
 
 task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->
   process.chdir(__dirname)
-  runSync('cake test')  # Doing this externally to make it synchronous
-  invoke('docs')
-  process.chdir(__dirname)
   invoke('build')
-  console.log('checking git status --porcelain')
-  runSync('git status --porcelain', [], (stdout) ->
+
+  console.log('Running tests')
+  process.chdir(__dirname)
+  runSync('cake', ['test'])  # Doing this externally to make it synchronous
+
+  invoke('docs')
+
+  console.log('Checking git status --porcelain')
+  runSync('git', ['status', '--porcelain'], (stdout) ->
     if stdout.length == 0
 
       console.log('checking origin/master')
-      {stderr, stdout} = runSyncNoExit('git rev-parse origin/master')
-
+      {stderr, stdout} = runSyncNoExit('git', ['rev-parse', 'origin/master'])
       console.log('checking master')
       stdoutOrigin = stdout
-      {stderr, stdout} = runSyncNoExit('git rev-parse master')
+      {stderr, stdout} = runSyncNoExit('git', ['rev-parse', 'master'])
       stdoutMaster = stdout
 
       if stdoutOrigin == stdoutMaster
 
         console.log('running npm publish')
-        runSyncNoExit('coffee -c *.coffee src')
-        runSyncNoExit('npm publish .')
+        runSyncNoExit('npm', ['publish', '.'])
 
         if fs.existsSync('npm-debug.log')
           console.error('`npm publish` failed. See npm-debug.log for details.')
         else
 
           console.log('creating git tag')
-          runSyncNoExit("git tag v#{require('./package.json').version}")
-          runSyncNoExit("git push --tags")
+          runSyncNoExit("git", ["tag", "v#{require('./package.json').version}"])
+          runSyncNoExit("git", ["push", "--tags"])
 
           console.log('pushing to Google Cloud Storage')
-          runSyncNoExit("gsutil cp ./deploy/* gs://versions.lumenize.com/v#{require('./package.json').version}/")
-          runSyncNoExit('gsutil setmeta -h "Content-Type: application/javascript" -h "Cache-Control: public, max-age=31556926, no-transform" gs://versions.lumenize.com/v' + require('./package.json').version + '/*')
+          runSyncNoExit("gsutil", ["cp", "./deploy/*", "gs://versions.lumenize.com/v#{require('./package.json').version}/"])
+          runSyncNoExit('gsutil', ['setmeta', '-h', '"Content-Type: application/javascript"', '-h', '"Cache-Control: public, max-age=31556926, no-transform"', 'gs://versions.lumenize.com/v' + require('./package.json').version + '/*'])
 
           invoke('pubDocsRaw')
       else
@@ -136,7 +121,10 @@ task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->
 )
 
 task('build', 'Build with browserify and place in ./deploy', () ->
-  console.log('building...')
+  console.log('Compiling...')
+  runSyncNoExit('coffee', ['-c', 'lumenize.coffee', 'src'])
+
+  console.log('Browserifying...')
   b = browserify()
   b.use(fileify('files', __dirname + '/node_modules/tztime/files'))
   b.ignore(['files'])
@@ -155,8 +143,9 @@ task('build', 'Build with browserify and place in ./deploy', () ->
 
   minFileString = uglify.minify(deployFileName).code
   fs.writeFileSync("deploy/#{name}-min.js", minFileString)
+
   console.log('done')
-  # !TODO: Need to run tests on the built version
+  # !TODO: Need to run tests on the browserified version
 )
 
 task('test', 'Run the test suite with nodeunit', () ->

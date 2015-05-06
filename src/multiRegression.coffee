@@ -26,7 +26,6 @@ multiRegression.swapRows = (a, firstRowIndex, secondRowIndex) ->
 
 
 
-
 #		static double Predict(double[,] Data, double[] Inputs, ref double Range70, ref double Range90, ref double Variance, ref string ResultString)
 predict = (data, inputs) ->
   ###

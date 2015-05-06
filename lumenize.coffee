@@ -65,3 +65,5 @@ exports.BayesianClassifier = require('./src/Classifier').BayesianClassifier
 exports.Classifier = require('./src/Classifier').Classifier
 
 exports.Store = require('./src/Store').Store
+
+exports.RandomPicker = require('./src/RandomPicker').RandomPicker

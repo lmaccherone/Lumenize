@@ -696,7 +696,7 @@ class OLAPCube
   slice: (rows, columns, metric, significance) ->
     ###
     @method slice
-      Extracts a 2D slice of the data. It outputs an array or arrays (JavaScript two-dimensional array) organized as the
+      Extracts a 2D slice of the data. It outputs an array of arrays (JavaScript two-dimensional array) organized as the
       C3 charting library would expect if submitting row-oriented data. Note, the output of this function is very similar
       to the 2D toString() function output except the data is organized as a two-dimensional array instead of newline-separated
       lines and the cells are filled with actual values instead of padded string representations of those values.
@@ -796,7 +796,7 @@ class OLAPCube
     ###
     out =
       config: @userConfig
-#      cells: arrayOfMaps_To_CSVStyleArray(@cells)
+#      cellsAsCSVStyleArray: arrayOfMaps_To_CSVStyleArray(@cells)
       cells: @cells
       summaryMetrics: @summaryMetrics
     if meta?
@@ -823,8 +823,10 @@ class OLAPCube
     cube.summaryMetrics = p.summaryMetrics
     if p.meta?
       cube.meta = p.meta
-#    cube.cells = csvStyleArray_To_ArrayOfMaps(p.cells)
-    cube.cells = p.cells
+    if p.cellsAsCSVStyleArray?
+      cube.cells = csvStyleArray_To_ArrayOfMaps(p.cellsAsCSVStyleArray)
+    else
+      cube.cells = p.cells
     cube.cellIndex = {}
     cube._dimensionValues = {}
     for d in cube.config.dimensions

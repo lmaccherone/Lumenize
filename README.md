@@ -71,6 +71,7 @@ Then in your code:
 
 ## Changelog ##
 
+* 0.9.5 - 2015-05-06 - Added RandomPicker
 * 0.9.4 - 2015-04-03 - Fixed broken link to documentation
 * 0.9.3 - 2015-03-19 - Added OLAPCube.slice() and functions.median()
 * 0.9.2 - 2015-02-23 - Table now gracefully handles missing data
