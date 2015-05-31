@@ -697,9 +697,11 @@ class OLAPCube
     ###
     @method slice
       Extracts a 2D slice of the data. It outputs an array of arrays (JavaScript two-dimensional array) organized as the
-      C3 charting library would expect if submitting row-oriented data. Note, the output of this function is very similar
-      to the 2D toString() function output except the data is organized as a two-dimensional array instead of newline-separated
-      lines and the cells are filled with actual values instead of padded string representations of those values.
+      C3 charting library would expect if submitting row-oriented data.
+
+      Note, the calling parameters and output of this function are very similar to the 2D toString() function output
+      except the data is organized as a two-dimensional array instead of newline-separated lines and the cells are
+      filled with actual values instead of padded string representations of those values.
     @return {[[]]} An array of arrays with the one row for the header and each row label
     @param {String} [rows=<first dimension>]
     @param {String} [columns=<second dimension>]

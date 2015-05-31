@@ -10,7 +10,7 @@ Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.
 
 _Illuminating the forest AND the trees in your data._
 
-Lumenize is a collection of tools for making awesome visualizations out of your data.
+Lumenize is a collection of tools for analyzing and making awesome visualizations out of your data.
 
 ## Documentation and source code ##
 

@@ -27,7 +27,6 @@ class RandomPicker  # !TODO: Need to get this in the docs!!!
 
   ###
   constructor: (@config) ->
-    console.dir(@config)
     if @config.histogram?
       @table = @config.histogram
     else if @config.distribution?
