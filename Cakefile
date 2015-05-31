@@ -6,7 +6,6 @@ marked = require('marked')
 uglify = require("uglify-js")
 browserify = require('browserify')
 fileify = require('fileify-lm')
-# runsync = require('runsync')  # polyfil for node.js 0.12 synchronous running functionality. Remove when upgrading to 0.12
 
 runSync = (command, options, next) ->
   {stderr, stdout} = runSyncRaw(command, options)
@@ -126,6 +125,8 @@ task('cdn', 'Push runtime code to content delivery network (CDN)', () ->
 )
 
 task('build', 'Build with browserify and place in ./deploy', () ->
+  invoke('update-bower-version')
+
   console.log('Compiling...')
   runSyncNoExit('coffee', ['-c', 'lumenize.coffee', 'src'])
 
@@ -151,6 +152,12 @@ task('build', 'Build with browserify and place in ./deploy', () ->
 
   console.log('done')
   # !TODO: Need to run tests on the browserified version
+)
+
+task('update-bower-version', 'Update bower.json with the version number specified in package.json', () ->
+  bowerJSON = require('./bower.json')
+  bowerJSON.version = require('./package.json').version
+  fs.writeFileSync("./bower.json", JSON.stringify(bowerJSON, null, 2))
 )
 
 task('test', 'Run the test suite with nodeunit', () ->

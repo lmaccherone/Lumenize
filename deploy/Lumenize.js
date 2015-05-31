@@ -1,5 +1,5 @@
 /*
-lumenize version: 0.9.5
+lumenize version: 0.9.6
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -11224,9 +11224,11 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       /*
       @method slice
         Extracts a 2D slice of the data. It outputs an array of arrays (JavaScript two-dimensional array) organized as the
-        C3 charting library would expect if submitting row-oriented data. Note, the output of this function is very similar
-        to the 2D toString() function output except the data is organized as a two-dimensional array instead of newline-separated
-        lines and the cells are filled with actual values instead of padded string representations of those values.
+        C3 charting library would expect if submitting row-oriented data.
+      
+        Note, the calling parameters and output of this function are very similar to the 2D toString() function output
+        except the data is organized as a two-dimensional array instead of newline-separated lines and the cells are
+        filled with actual values instead of padded string representations of those values.
       @return {[[]]} An array of arrays with the one row for the header and each row label
       @param {String} [rows=<first dimension>]
       @param {String} [columns=<second dimension>]
@@ -16048,7 +16050,6 @@ require.define("/src/RandomPicker.js",function(require,module,exports,__dirname,
     function RandomPicker(_at_config) {
       var cumulative, r, total, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
       this.config = _at_config;
-      console.dir(this.config);
       if (this.config.histogram != null) {
         this.table = this.config.histogram;
       } else if (this.config.distribution != null) {
