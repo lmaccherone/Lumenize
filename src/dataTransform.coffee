@@ -11,7 +11,7 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
   @return {Object[]}
 
   `csvStyleArry_To_ArryOfMaps` is a convenience function that will convert a csvStyleArray like:
-  
+
       {csvStyleArray_To_ArrayOfMaps} = require('../')
 
       csvStyleArray = [
@@ -20,15 +20,14 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
         [3         , 4       ],
         [5         , 6       ]
       ]
-  
+
   to an Array of Maps like this:
-  
+
       console.log(csvStyleArray_To_ArrayOfMaps(csvStyleArray))
-  
+
       # [ { column1: 1, column2: 2 },
       #   { column1: 3, column2: 4 },
       #   { column1: 5, column2: 6 } ]
-  `
   ###
   arrayOfMaps = []
   if rowKeys?
@@ -46,14 +45,15 @@ csvStyleArray_To_ArrayOfMaps = (csvStyleArray, rowKeys) ->
     i++
   return arrayOfMaps
 
-arrayOfMaps_To_CSVStyleArray = (arrayOfMaps, keys) ->
+
+arrayOfMaps_To_CSVStyleArray = (arrayOfMaps, fields) ->
   ###
   @method arrayOfMaps_To_CSVStyleArray
   @param {Object[]} arrayOfMaps
-  @param {Object} [keys] If not provided, it will use the first row and get all fields
+  @param {String[]} [fields] If not provided, it will use the first row and get all fields
   @return {Array[]} The first row will be the column headers
 
-  `arrayOfMaps_To_CSVStyleArray` is a convenience function that will convert an array of maps like:
+     `arrayOfMaps_To_CSVStyleArray` is a convenience function that will convert an array of maps like:
 
       {arrayOfMaps_To_CSVStyleArray} = require('../')
 
@@ -71,24 +71,24 @@ arrayOfMaps_To_CSVStyleArray = (arrayOfMaps, keys) ->
       #   [ 10000, 20000 ],
       #   [ 30000, 40000 ],
       #   [ 50000, 60000 ] ]
-  `
   ###
   if arrayOfMaps.length == 0
     return []
   csvStyleArray = []
   outRow = []
-  unless keys?
-    keys = []
+  unless fields?
+    fields = []
     for key, value of arrayOfMaps[0]
-      keys.push(key)
-  csvStyleArray.push(keys)
+      fields.push(key)
+  csvStyleArray.push(fields)
 
   for inRow in arrayOfMaps
     outRow = []
-    for key in keys
+    for key in fields
       outRow.push(inRow[key])
     csvStyleArray.push(outRow)
   return csvStyleArray
+
 
 arrayOfMaps_To_HighChartsSeries = (arrayOfMaps, config) ->
   ###
@@ -106,29 +106,29 @@ arrayOfMaps_To_HighChartsSeries = (arrayOfMaps, config) ->
         {"Series 1": 2, "Series 2": 3},
         {"Series 1": 1, "Series 2": 2, "Series3": 40},
       ]
-  
+
   and a list of series configurations
-  
+
       config = [
         {name: "Series 1", yAxis: 1},
         {name: "Series 2"},
         {name: "Series3"}
       ]
-      
+
   and extracts the data into seperate series
-  
+
       console.log(arrayOfMaps_To_HighChartsSeries(arrayOfMaps, config))
       # [ { name: 'Series 1', data: [ 8, 2, 1 ], yAxis: 1 },
       #   { name: 'Series 2', data: [ 5, 3, 2 ] },
       #   { name: 'Series3', data: [ 10, null, 40 ] } ]
-      
+
   Notice how the extra fields from the series array are included in the output. Also, notice how the missing second
   value for Series3 was replaced with a null. HighCharts will skip right over this for category charts as you would
   expect.
   ###
-  
+
   preOutput = {}
-  
+
   seriesNames = []
   for a in config
     seriesNames.push(a.name)
@@ -152,8 +152,7 @@ arrayOfMaps_To_HighChartsSeries = (arrayOfMaps, config) ->
     output.push(outputRow)
   return output
 
-csvString_To_CSVStyleArray = (s, asterixForUndefined = true) ->
-  # This is not robust yet. Adding a comma inside a string will break it. It ignores stuff that fails JSON.parse. Etc.
+csvString_To_CSVStyleArray = (s, asterixForUndefined = true) ->  # This is not robust yet. Adding a comma inside a string will break it. It ignores stuff that fails JSON.parse. Etc.
   rows = s.split('\n')
 
   headerLength = rows[0].split(',').length

@@ -6,8 +6,9 @@ marked = require('marked')
 uglify = require("uglify-js")
 browserify = require('browserify')
 fileify = require('fileify-lm')
+run = require('gulp-run')
 
-runSync = (command, options, next) ->
+runSync = (command, options, next) ->  # !TODO: Upgrade to runSync in node-localstorage
   {stderr, stdout} = runSyncRaw(command, options)
   if stderr?.length > 0
     console.error("Error running `#{command}`\n" + stderr)
@@ -120,15 +121,16 @@ task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->
 task('cdn', 'Push runtime code to content delivery network (CDN)', () ->
   console.log('pushing to Google Cloud Storage')
   process.chdir(__dirname)
-  runSyncNoExit("gsutil", ["cp", "./deploy/*", "gs://versions.lumenize.com/v#{require('./package.json').version}/"])
-  runSyncNoExit('gsutil', ['setmeta', '-h', "Content-Type: application/javascript", '-h', "Cache-Control: public, max-age=31556926, no-transform", 'gs://versions.lumenize.com/v' + require('./package.json').version + '/*'])
+  run("gsutil cp ./deploy/* gs://versions.lumenize.com/v#{require('./package.json').version}/").exec(->
+    run('gsutil setmeta -h "Content-Type: application/javascript" -h "Cache-Control: public, max-age=31556926, no-transform" gs://versions.lumenize.com/v' + require('./package.json').version + '/*').exec()
+  )
 )
 
 task('build', 'Build with browserify and place in ./deploy', () ->
   invoke('update-bower-version')
 
   console.log('Compiling...')
-  runSyncNoExit('coffee', ['-c', 'lumenize.coffee', 'src'])
+  runSyncNoExit('coffee', ['--compile', '--map', 'lumenize.coffee', 'src'])
 
   console.log('Browserifying...')
   b = browserify()

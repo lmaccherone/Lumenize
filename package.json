@@ -43,9 +43,13 @@
     "coffee-script": "^1.9.0",
     "coffeedoctest": "^0.5.0",
     "fileify-lm": "~0.3.1",
+    "gulp": "^3.8.11",
+    "gulp-run": "^1.6.8",
+    "gulp-task-listing": "^1.0.0",
     "jsduckify": "^0.3.0",
     "marked": "0.2.x",
     "nodeunit": "^0.9.1",
+    "orchestrator": "^0.3.7",
     "uglify-js": "2.2.x",
     "wrench": "1.4.x"
   },

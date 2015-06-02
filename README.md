@@ -3,6 +3,7 @@
 [![build status](https://secure.travis-ci.org/lmaccherone/Lumenize.png)](http://travis-ci.org/lmaccherone/Lumenize)
 [![NPM version](https://badge.fury.io/js/lumenize.png)](http://badge.fury.io/js/Lumenize)
 [![build status](https://david-dm.org/lmaccherone/Lumenize.png)](https://david-dm.org/lmaccherone/Lumenize.png)
+[![bitHound](https://www.bithound.io/github/lmaccherone/Lumenize/badges/score.svg)](https://www.bithound.io/github/lmaccherone/Lumenize/master)
 
 # Lumenize #
 
