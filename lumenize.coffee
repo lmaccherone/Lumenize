@@ -25,8 +25,6 @@ And last, additional functionality is provided by:
   * Lumenize.utils - utility methods used by the rest of Lumenize (type, clone, array/object functions, etc.)
 
 ###
-JSON = require('JSON2')
-
 tzTime = require('tztime')
 exports.Time = tzTime.Time
 exports.TimelineIterator = tzTime.TimelineIterator

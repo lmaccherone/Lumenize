@@ -1,5 +1,5 @@
 /*
-lumenize version: 0.9.6
+lumenize version: 0.9.7
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -394,4194 +394,43 @@ process.binding = function (name) {
 
 });
 
-require.define("/node_modules/files",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"tz/africa":"Rule\tAlgeria\t1916\tonly\t-\tJun\t14\t23:00s\t1:00\tS\n"+
-"Rule\tAlgeria\t1916\t1919\t-\tOct\tSun>=1\t23:00s\t0\t-\n"+
-"Rule\tAlgeria\t1917\tonly\t-\tMar\t24\t23:00s\t1:00\tS\n"+
-"Rule\tAlgeria\t1918\tonly\t-\tMar\t 9\t23:00s\t1:00\tS\n"+
-"Rule\tAlgeria\t1919\tonly\t-\tMar\t 1\t23:00s\t1:00\tS\n"+
-"Rule\tAlgeria\t1920\tonly\t-\tFeb\t14\t23:00s\t1:00\tS\n"+
-"Rule\tAlgeria\t1920\tonly\t-\tOct\t23\t23:00s\t0\t-\n"+
-"Rule\tAlgeria\t1921\tonly\t-\tMar\t14\t23:00s\t1:00\tS\n"+
-"Rule\tAlgeria\t1921\tonly\t-\tJun\t21\t23:00s\t0\t-\n"+
-"Rule\tAlgeria\t1939\tonly\t-\tSep\t11\t23:00s\t1:00\tS\n"+
-"Rule\tAlgeria\t1939\tonly\t-\tNov\t19\t 1:00\t0\t-\n"+
-"Rule\tAlgeria\t1944\t1945\t-\tApr\tMon>=1\t 2:00\t1:00\tS\n"+
-"Rule\tAlgeria\t1944\tonly\t-\tOct\t 8\t 2:00\t0\t-\n"+
-"Rule\tAlgeria\t1945\tonly\t-\tSep\t16\t 1:00\t0\t-\n"+
-"Rule\tAlgeria\t1971\tonly\t-\tApr\t25\t23:00s\t1:00\tS\n"+
-"Rule\tAlgeria\t1971\tonly\t-\tSep\t26\t23:00s\t0\t-\n"+
-"Rule\tAlgeria\t1977\tonly\t-\tMay\t 6\t 0:00\t1:00\tS\n"+
-"Rule\tAlgeria\t1977\tonly\t-\tOct\t21\t 0:00\t0\t-\n"+
-"Rule\tAlgeria\t1978\tonly\t-\tMar\t24\t 1:00\t1:00\tS\n"+
-"Rule\tAlgeria\t1978\tonly\t-\tSep\t22\t 3:00\t0\t-\n"+
-"Rule\tAlgeria\t1980\tonly\t-\tApr\t25\t 0:00\t1:00\tS\n"+
-"Rule\tAlgeria\t1980\tonly\t-\tOct\t31\t 2:00\t0\t-\n"+
-"Zone\tAfrica/Algiers\t0:12:12 -\tLMT\t1891 Mar 15 0:01\n"+
-"\t\t\t0:09:21\t-\tPMT\t1911 Mar 11    # Paris Mean Time\n"+
-"\t\t\t0:00\tAlgeria\tWE%sT\t1940 Feb 25 2:00\n"+
-"\t\t\t1:00\tAlgeria\tCE%sT\t1946 Oct  7\n"+
-"\t\t\t0:00\t-\tWET\t1956 Jan 29\n"+
-"\t\t\t1:00\t-\tCET\t1963 Apr 14\n"+
-"\t\t\t0:00\tAlgeria\tWE%sT\t1977 Oct 21\n"+
-"\t\t\t1:00\tAlgeria\tCE%sT\t1979 Oct 26\n"+
-"\t\t\t0:00\tAlgeria\tWE%sT\t1981 May\n"+
-"\t\t\t1:00\t-\tCET\n"+
-"Zone\tAfrica/Luanda\t0:52:56\t-\tLMT\t1892\n"+
-"\t\t\t0:52:04\t-\tAOT\t1911 May 26 # Angola Time\n"+
-"\t\t\t1:00\t-\tWAT\n"+
-"Zone Africa/Porto-Novo\t0:10:28\t-\tLMT\t1912\n"+
-"\t\t\t0:00\t-\tGMT\t1934 Feb 26\n"+
-"\t\t\t1:00\t-\tWAT\n"+
-"Zone\tAfrica/Gaborone\t1:43:40 -\tLMT\t1885\n"+
-"\t\t\t2:00\t-\tCAT\t1943 Sep 19 2:00\n"+
-"\t\t\t2:00\t1:00\tCAST\t1944 Mar 19 2:00\n"+
-"\t\t\t2:00\t-\tCAT\n"+
-"Zone Africa/Ouagadougou\t-0:06:04 -\tLMT\t1912\n"+
-"\t\t\t 0:00\t-\tGMT\n"+
-"Zone Africa/Bujumbura\t1:57:28\t-\tLMT\t1890\n"+
-"\t\t\t2:00\t-\tCAT\n"+
-"Zone\tAfrica/Douala\t0:38:48\t-\tLMT\t1912\n"+
-"\t\t\t1:00\t-\tWAT\n"+
-"Zone Atlantic/Cape_Verde -1:34:04 -\tLMT\t1907\t\t\t# Praia\n"+
-"\t\t\t-2:00\t-\tCVT\t1942 Sep\n"+
-"\t\t\t-2:00\t1:00\tCVST\t1945 Oct 15\n"+
-"\t\t\t-2:00\t-\tCVT\t1975 Nov 25 2:00\n"+
-"\t\t\t-1:00\t-\tCVT\n"+
-"Zone\tAfrica/Bangui\t1:14:20\t-\tLMT\t1912\n"+
-"\t\t\t1:00\t-\tWAT\n"+
-"Zone\tAfrica/Ndjamena\t1:00:12 -\tLMT\t1912\n"+
-"\t\t\t1:00\t-\tWAT\t1979 Oct 14\n"+
-"\t\t\t1:00\t1:00\tWAST\t1980 Mar  8\n"+
-"\t\t\t1:00\t-\tWAT\n"+
-"Zone\tIndian/Comoro\t2:53:04 -\tLMT\t1911 Jul   # Moroni, Gran Comoro\n"+
-"\t\t\t3:00\t-\tEAT\n"+
-"Zone Africa/Kinshasa\t1:01:12 -\tLMT\t1897 Nov 9\n"+
-"\t\t\t1:00\t-\tWAT\n"+
-"Zone Africa/Lubumbashi\t1:49:52 -\tLMT\t1897 Nov 9\n"+
-"\t\t\t2:00\t-\tCAT\n"+
-"Zone Africa/Brazzaville\t1:01:08 -\tLMT\t1912\n"+
-"\t\t\t1:00\t-\tWAT\n"+
-"Zone\tAfrica/Abidjan\t-0:16:08 -\tLMT\t1912\n"+
-"\t\t\t 0:00\t-\tGMT\n"+
-"Zone\tAfrica/Djibouti\t2:52:36 -\tLMT\t1911 Jul\n"+
-"\t\t\t3:00\t-\tEAT\n"+
-"Rule\tEgypt\t1940\tonly\t-\tJul\t15\t0:00\t1:00\tS\n"+
-"Rule\tEgypt\t1940\tonly\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Rule\tEgypt\t1941\tonly\t-\tApr\t15\t0:00\t1:00\tS\n"+
-"Rule\tEgypt\t1941\tonly\t-\tSep\t16\t0:00\t0\t-\n"+
-"Rule\tEgypt\t1942\t1944\t-\tApr\t 1\t0:00\t1:00\tS\n"+
-"Rule\tEgypt\t1942\tonly\t-\tOct\t27\t0:00\t0\t-\n"+
-"Rule\tEgypt\t1943\t1945\t-\tNov\t 1\t0:00\t0\t-\n"+
-"Rule\tEgypt\t1945\tonly\t-\tApr\t16\t0:00\t1:00\tS\n"+
-"Rule\tEgypt\t1957\tonly\t-\tMay\t10\t0:00\t1:00\tS\n"+
-"Rule\tEgypt\t1957\t1958\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Rule\tEgypt\t1958\tonly\t-\tMay\t 1\t0:00\t1:00\tS\n"+
-"Rule\tEgypt\t1959\t1981\t-\tMay\t 1\t1:00\t1:00\tS\n"+
-"Rule\tEgypt\t1959\t1965\t-\tSep\t30\t3:00\t0\t-\n"+
-"Rule\tEgypt\t1966\t1994\t-\tOct\t 1\t3:00\t0\t-\n"+
-"Rule\tEgypt\t1982\tonly\t-\tJul\t25\t1:00\t1:00\tS\n"+
-"Rule\tEgypt\t1983\tonly\t-\tJul\t12\t1:00\t1:00\tS\n"+
-"Rule\tEgypt\t1984\t1988\t-\tMay\t 1\t1:00\t1:00\tS\n"+
-"Rule\tEgypt\t1989\tonly\t-\tMay\t 6\t1:00\t1:00\tS\n"+
-"Rule\tEgypt\t1990\t1994\t-\tMay\t 1\t1:00\t1:00\tS\n"+
-"Rule\tEgypt\t1995\t2010\t-\tApr\tlastFri\t 0:00s\t1:00\tS\n"+
-"Rule\tEgypt\t1995\t2005\t-\tSep\tlastThu\t23:00s\t0\t-\n"+
-"Rule\tEgypt\t2006\tonly\t-\tSep\t21\t23:00s\t0\t-\n"+
-"Rule\tEgypt\t2007\tonly\t-\tSep\tThu>=1\t23:00s\t0\t-\n"+
-"Rule\tEgypt\t2008\tonly\t-\tAug\tlastThu\t23:00s\t0\t-\n"+
-"Rule\tEgypt\t2009\tonly\t-\tAug\t20\t23:00s\t0\t-\n"+
-"Rule\tEgypt\t2010\tonly\t-\tAug\t11\t0:00\t0\t-\n"+
-"Rule\tEgypt\t2010\tonly\t-\tSep\t10\t0:00\t1:00\tS\n"+
-"Rule\tEgypt\t2010\tonly\t-\tSep\tlastThu\t23:00s\t0\t-\n"+
-"Zone\tAfrica/Cairo\t2:05:00 -\tLMT\t1900 Oct\n"+
-"\t\t\t2:00\tEgypt\tEE%sT\n"+
-"Zone\tAfrica/Malabo\t0:35:08 -\tLMT\t1912\n"+
-"\t\t\t0:00\t-\tGMT\t1963 Dec 15\n"+
-"\t\t\t1:00\t-\tWAT\n"+
-"Zone\tAfrica/Asmara\t2:35:32 -\tLMT\t1870\n"+
-"\t\t\t2:35:32\t-\tAMT\t1890\t      # Asmara Mean Time\n"+
-"\t\t\t2:35:20\t-\tADMT\t1936 May 5    # Adis Dera MT\n"+
-"\t\t\t3:00\t-\tEAT\n"+
-"Zone Africa/Addis_Ababa\t2:34:48 -\tLMT\t1870\n"+
-"\t\t\t2:35:20\t-\tADMT\t1936 May 5    # Adis Dera MT\n"+
-"\t\t\t3:00\t-\tEAT\n"+
-"Zone Africa/Libreville\t0:37:48 -\tLMT\t1912\n"+
-"\t\t\t1:00\t-\tWAT\n"+
-"Zone\tAfrica/Banjul\t-1:06:36 -\tLMT\t1912\n"+
-"\t\t\t-1:06:36 -\tBMT\t1935\t# Banjul Mean Time\n"+
-"\t\t\t-1:00\t-\tWAT\t1964\n"+
-"\t\t\t 0:00\t-\tGMT\n"+
-"Rule\tGhana\t1936\t1942\t-\tSep\t 1\t0:00\t0:20\tGHST\n"+
-"Rule\tGhana\t1936\t1942\t-\tDec\t31\t0:00\t0\tGMT\n"+
-"Zone\tAfrica/Accra\t-0:00:52 -\tLMT\t1918\n"+
-"\t\t\t 0:00\tGhana\t%s\n"+
-"Zone\tAfrica/Conakry\t-0:54:52 -\tLMT\t1912\n"+
-"\t\t\t 0:00\t-\tGMT\t1934 Feb 26\n"+
-"\t\t\t-1:00\t-\tWAT\t1960\n"+
-"\t\t\t 0:00\t-\tGMT\n"+
-"Zone\tAfrica/Bissau\t-1:02:20 -\tLMT\t1911 May 26\n"+
-"\t\t\t-1:00\t-\tWAT\t1975\n"+
-"\t\t\t 0:00\t-\tGMT\n"+
-"Zone\tAfrica/Nairobi\t2:27:16\t-\tLMT\t1928 Jul\n"+
-"\t\t\t3:00\t-\tEAT\t1930\n"+
-"\t\t\t2:30\t-\tBEAT\t1940\n"+
-"\t\t\t2:45\t-\tBEAUT\t1960\n"+
-"\t\t\t3:00\t-\tEAT\n"+
-"Zone\tAfrica/Maseru\t1:50:00 -\tLMT\t1903 Mar\n"+
-"\t\t\t2:00\t-\tSAST\t1943 Sep 19 2:00\n"+
-"\t\t\t2:00\t1:00\tSAST\t1944 Mar 19 2:00\n"+
-"\t\t\t2:00\t-\tSAST\n"+
-"Zone\tAfrica/Monrovia\t-0:43:08 -\tLMT\t1882\n"+
-"\t\t\t-0:43:08 -\tMMT\t1919 Mar # Monrovia Mean Time\n"+
-"\t\t\t-0:44:30 -\tLRT\t1972 May # Liberia Time\n"+
-"\t\t\t 0:00\t-\tGMT\n"+
-"Rule\tLibya\t1951\tonly\t-\tOct\t14\t2:00\t1:00\tS\n"+
-"Rule\tLibya\t1952\tonly\t-\tJan\t 1\t0:00\t0\t-\n"+
-"Rule\tLibya\t1953\tonly\t-\tOct\t 9\t2:00\t1:00\tS\n"+
-"Rule\tLibya\t1954\tonly\t-\tJan\t 1\t0:00\t0\t-\n"+
-"Rule\tLibya\t1955\tonly\t-\tSep\t30\t0:00\t1:00\tS\n"+
-"Rule\tLibya\t1956\tonly\t-\tJan\t 1\t0:00\t0\t-\n"+
-"Rule\tLibya\t1982\t1984\t-\tApr\t 1\t0:00\t1:00\tS\n"+
-"Rule\tLibya\t1982\t1985\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Rule\tLibya\t1985\tonly\t-\tApr\t 6\t0:00\t1:00\tS\n"+
-"Rule\tLibya\t1986\tonly\t-\tApr\t 4\t0:00\t1:00\tS\n"+
-"Rule\tLibya\t1986\tonly\t-\tOct\t 3\t0:00\t0\t-\n"+
-"Rule\tLibya\t1987\t1989\t-\tApr\t 1\t0:00\t1:00\tS\n"+
-"Rule\tLibya\t1987\t1989\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Zone\tAfrica/Tripoli\t0:52:44 -\tLMT\t1920\n"+
-"\t\t\t1:00\tLibya\tCE%sT\t1959\n"+
-"\t\t\t2:00\t-\tEET\t1982\n"+
-"\t\t\t1:00\tLibya\tCE%sT\t1990 May  4\n"+
-"\t\t\t2:00\t-\tEET\t1996 Sep 30\n"+
-"\t\t\t1:00\t-\tCET\t1997 Apr  4\n"+
-"\t\t\t1:00\t1:00\tCEST\t1997 Oct  4\n"+
-"\t\t\t2:00\t-\tEET\n"+
-"Zone Indian/Antananarivo 3:10:04 -\tLMT\t1911 Jul\n"+
-"\t\t\t3:00\t-\tEAT\t1954 Feb 27 23:00s\n"+
-"\t\t\t3:00\t1:00\tEAST\t1954 May 29 23:00s\n"+
-"\t\t\t3:00\t-\tEAT\n"+
-"Zone\tAfrica/Blantyre\t2:20:00 -\tLMT\t1903 Mar\n"+
-"\t\t\t2:00\t-\tCAT\n"+
-"Zone\tAfrica/Bamako\t-0:32:00 -\tLMT\t1912\n"+
-"\t\t\t 0:00\t-\tGMT\t1934 Feb 26\n"+
-"\t\t\t-1:00\t-\tWAT\t1960 Jun 20\n"+
-"\t\t\t 0:00\t-\tGMT\n"+
-"Zone Africa/Nouakchott\t-1:03:48 -\tLMT\t1912\n"+
-"\t\t\t 0:00\t-\tGMT\t1934 Feb 26\n"+
-"\t\t\t-1:00\t-\tWAT\t1960 Nov 28\n"+
-"\t\t\t 0:00\t-\tGMT\n"+
-"Rule Mauritius\t1982\tonly\t-\tOct\t10\t0:00\t1:00\tS\n"+
-"Rule Mauritius\t1983\tonly\t-\tMar\t21\t0:00\t0\t-\n"+
-"Rule Mauritius\t2008\tonly\t-\tOct\tlastSun\t2:00\t1:00\tS\n"+
-"Rule Mauritius\t2009\tonly\t-\tMar\tlastSun\t2:00\t0\t-\n"+
-"Zone Indian/Mauritius\t3:50:00 -\tLMT\t1907\t\t# Port Louis\n"+
-"\t\t\t4:00 Mauritius\tMU%sT\t# Mauritius Time\n"+
-"Zone\tIndian/Mayotte\t3:00:56 -\tLMT\t1911 Jul\t# Mamoutzou\n"+
-"\t\t\t3:00\t-\tEAT\n"+
-"Rule\tMorocco\t1939\tonly\t-\tSep\t12\t 0:00\t1:00\tS\n"+
-"Rule\tMorocco\t1939\tonly\t-\tNov\t19\t 0:00\t0\t-\n"+
-"Rule\tMorocco\t1940\tonly\t-\tFeb\t25\t 0:00\t1:00\tS\n"+
-"Rule\tMorocco\t1945\tonly\t-\tNov\t18\t 0:00\t0\t-\n"+
-"Rule\tMorocco\t1950\tonly\t-\tJun\t11\t 0:00\t1:00\tS\n"+
-"Rule\tMorocco\t1950\tonly\t-\tOct\t29\t 0:00\t0\t-\n"+
-"Rule\tMorocco\t1967\tonly\t-\tJun\t 3\t12:00\t1:00\tS\n"+
-"Rule\tMorocco\t1967\tonly\t-\tOct\t 1\t 0:00\t0\t-\n"+
-"Rule\tMorocco\t1974\tonly\t-\tJun\t24\t 0:00\t1:00\tS\n"+
-"Rule\tMorocco\t1974\tonly\t-\tSep\t 1\t 0:00\t0\t-\n"+
-"Rule\tMorocco\t1976\t1977\t-\tMay\t 1\t 0:00\t1:00\tS\n"+
-"Rule\tMorocco\t1976\tonly\t-\tAug\t 1\t 0:00\t0\t-\n"+
-"Rule\tMorocco\t1977\tonly\t-\tSep\t28\t 0:00\t0\t-\n"+
-"Rule\tMorocco\t1978\tonly\t-\tJun\t 1\t 0:00\t1:00\tS\n"+
-"Rule\tMorocco\t1978\tonly\t-\tAug\t 4\t 0:00\t0\t-\n"+
-"Rule\tMorocco\t2008\tonly\t-\tJun\t 1\t 0:00\t1:00\tS\n"+
-"Rule\tMorocco\t2008\tonly\t-\tSep\t 1\t 0:00\t0\t-\n"+
-"Rule\tMorocco\t2009\tonly\t-\tJun\t 1\t 0:00\t1:00\tS\n"+
-"Rule\tMorocco\t2009\tonly\t-\tAug\t 21\t 0:00\t0\t-\n"+
-"Rule\tMorocco\t2010\tonly\t-\tMay\t 2\t 0:00\t1:00\tS\n"+
-"Rule\tMorocco\t2010\tonly\t-\tAug\t 8\t 0:00\t0\t-\n"+
-"Rule\tMorocco\t2011\tonly\t-\tApr\t 3\t 0:00\t1:00\tS\n"+
-"Rule\tMorocco\t2011\tonly\t-\tJul\t 31\t 0\t0\t-\n"+
-"Zone Africa/Casablanca\t-0:30:20 -\tLMT\t1913 Oct 26\n"+
-"\t\t\t 0:00\tMorocco\tWE%sT\t1984 Mar 16\n"+
-"\t\t\t 1:00\t-\tCET\t1986\n"+
-"\t\t\t 0:00\tMorocco\tWE%sT\n"+
-"Zone Africa/El_Aaiun\t-0:52:48 -\tLMT\t1934 Jan\n"+
-"\t\t\t-1:00\t-\tWAT\t1976 Apr 14\n"+
-"\t\t\t 0:00\t-\tWET\n"+
-"Zone\tAfrica/Maputo\t2:10:20 -\tLMT\t1903 Mar\n"+
-"\t\t\t2:00\t-\tCAT\n"+
-"Rule\tNamibia\t1994\tmax\t-\tSep\tSun>=1\t2:00\t1:00\tS\n"+
-"Rule\tNamibia\t1995\tmax\t-\tApr\tSun>=1\t2:00\t0\t-\n"+
-"Zone\tAfrica/Windhoek\t1:08:24 -\tLMT\t1892 Feb 8\n"+
-"\t\t\t1:30\t-\tSWAT\t1903 Mar\t# SW Africa Time\n"+
-"\t\t\t2:00\t-\tSAST\t1942 Sep 20 2:00\n"+
-"\t\t\t2:00\t1:00\tSAST\t1943 Mar 21 2:00\n"+
-"\t\t\t2:00\t-\tSAST\t1990 Mar 21 # independence\n"+
-"\t\t\t2:00\t-\tCAT\t1994 Apr  3\n"+
-"\t\t\t1:00\tNamibia\tWA%sT\n"+
-"Zone\tAfrica/Niamey\t 0:08:28 -\tLMT\t1912\n"+
-"\t\t\t-1:00\t-\tWAT\t1934 Feb 26\n"+
-"\t\t\t 0:00\t-\tGMT\t1960\n"+
-"\t\t\t 1:00\t-\tWAT\n"+
-"Zone\tAfrica/Lagos\t0:13:36 -\tLMT\t1919 Sep\n"+
-"\t\t\t1:00\t-\tWAT\n"+
-"Zone\tIndian/Reunion\t3:41:52 -\tLMT\t1911 Jun\t# Saint-Denis\n"+
-"\t\t\t4:00\t-\tRET\t# Reunion Time\n"+
-"Zone\tAfrica/Kigali\t2:00:16 -\tLMT\t1935 Jun\n"+
-"\t\t\t2:00\t-\tCAT\n"+
-"Zone Atlantic/St_Helena\t-0:22:48 -\tLMT\t1890\t\t# Jamestown\n"+
-"\t\t\t-0:22:48 -\tJMT\t1951\t# Jamestown Mean Time\n"+
-"\t\t\t 0:00\t-\tGMT\n"+
-"Zone\tAfrica/Sao_Tome\t 0:26:56 -\tLMT\t1884\n"+
-"\t\t\t-0:36:32 -\tLMT\t1912\t# Lisbon Mean Time\n"+
-"\t\t\t 0:00\t-\tGMT\n"+
-"Zone\tAfrica/Dakar\t-1:09:44 -\tLMT\t1912\n"+
-"\t\t\t-1:00\t-\tWAT\t1941 Jun\n"+
-"\t\t\t 0:00\t-\tGMT\n"+
-"Zone\tIndian/Mahe\t3:41:48 -\tLMT\t1906 Jun\t# Victoria\n"+
-"\t\t\t4:00\t-\tSCT\t# Seychelles Time\n"+
-"Rule\tSL\t1935\t1942\t-\tJun\t 1\t0:00\t0:40\tSLST\n"+
-"Rule\tSL\t1935\t1942\t-\tOct\t 1\t0:00\t0\tWAT\n"+
-"Rule\tSL\t1957\t1962\t-\tJun\t 1\t0:00\t1:00\tSLST\n"+
-"Rule\tSL\t1957\t1962\t-\tSep\t 1\t0:00\t0\tGMT\n"+
-"Zone\tAfrica/Freetown\t-0:53:00 -\tLMT\t1882\n"+
-"\t\t\t-0:53:00 -\tFMT\t1913 Jun # Freetown Mean Time\n"+
-"\t\t\t-1:00\tSL\t%s\t1957\n"+
-"\t\t\t 0:00\tSL\t%s\n"+
-"Zone Africa/Mogadishu\t3:01:28 -\tLMT\t1893 Nov\n"+
-"\t\t\t3:00\t-\tEAT\t1931\n"+
-"\t\t\t2:30\t-\tBEAT\t1957\n"+
-"\t\t\t3:00\t-\tEAT\n"+
-"Rule\tSA\t1942\t1943\t-\tSep\tSun>=15\t2:00\t1:00\t-\n"+
-"Rule\tSA\t1943\t1944\t-\tMar\tSun>=15\t2:00\t0\t-\n"+
-"Zone Africa/Johannesburg 1:52:00 -\tLMT\t1892 Feb 8\n"+
-"\t\t\t1:30\t-\tSAST\t1903 Mar\n"+
-"\t\t\t2:00\tSA\tSAST\n"+
-"Rule\tSudan\t1970\tonly\t-\tMay\t 1\t0:00\t1:00\tS\n"+
-"Rule\tSudan\t1970\t1985\t-\tOct\t15\t0:00\t0\t-\n"+
-"Rule\tSudan\t1971\tonly\t-\tApr\t30\t0:00\t1:00\tS\n"+
-"Rule\tSudan\t1972\t1985\t-\tApr\tlastSun\t0:00\t1:00\tS\n"+
-"Zone\tAfrica/Khartoum\t2:10:08 -\tLMT\t1931\n"+
-"\t\t\t2:00\tSudan\tCA%sT\t2000 Jan 15 12:00\n"+
-"\t\t\t3:00\t-\tEAT\n"+
-"Zone\tAfrica/Juba\t2:06:24 -\tLMT\t1931\n"+
-"\t\t\t2:00\tSudan\tCA%sT\t2000 Jan 15 12:00\n"+
-"\t\t\t3:00\t-\tEAT\n"+
-"Zone\tAfrica/Mbabane\t2:04:24 -\tLMT\t1903 Mar\n"+
-"\t\t\t2:00\t-\tSAST\n"+
-"Zone Africa/Dar_es_Salaam 2:37:08 -\tLMT\t1931\n"+
-"\t\t\t3:00\t-\tEAT\t1948\n"+
-"\t\t\t2:45\t-\tBEAUT\t1961\n"+
-"\t\t\t3:00\t-\tEAT\n"+
-"Zone\tAfrica/Lome\t0:04:52 -\tLMT\t1893\n"+
-"\t\t\t0:00\t-\tGMT\n"+
-"Rule\tTunisia\t1939\tonly\t-\tApr\t15\t23:00s\t1:00\tS\n"+
-"Rule\tTunisia\t1939\tonly\t-\tNov\t18\t23:00s\t0\t-\n"+
-"Rule\tTunisia\t1940\tonly\t-\tFeb\t25\t23:00s\t1:00\tS\n"+
-"Rule\tTunisia\t1941\tonly\t-\tOct\t 6\t 0:00\t0\t-\n"+
-"Rule\tTunisia\t1942\tonly\t-\tMar\t 9\t 0:00\t1:00\tS\n"+
-"Rule\tTunisia\t1942\tonly\t-\tNov\t 2\t 3:00\t0\t-\n"+
-"Rule\tTunisia\t1943\tonly\t-\tMar\t29\t 2:00\t1:00\tS\n"+
-"Rule\tTunisia\t1943\tonly\t-\tApr\t17\t 2:00\t0\t-\n"+
-"Rule\tTunisia\t1943\tonly\t-\tApr\t25\t 2:00\t1:00\tS\n"+
-"Rule\tTunisia\t1943\tonly\t-\tOct\t 4\t 2:00\t0\t-\n"+
-"Rule\tTunisia\t1944\t1945\t-\tApr\tMon>=1\t 2:00\t1:00\tS\n"+
-"Rule\tTunisia\t1944\tonly\t-\tOct\t 8\t 0:00\t0\t-\n"+
-"Rule\tTunisia\t1945\tonly\t-\tSep\t16\t 0:00\t0\t-\n"+
-"Rule\tTunisia\t1977\tonly\t-\tApr\t30\t 0:00s\t1:00\tS\n"+
-"Rule\tTunisia\t1977\tonly\t-\tSep\t24\t 0:00s\t0\t-\n"+
-"Rule\tTunisia\t1978\tonly\t-\tMay\t 1\t 0:00s\t1:00\tS\n"+
-"Rule\tTunisia\t1978\tonly\t-\tOct\t 1\t 0:00s\t0\t-\n"+
-"Rule\tTunisia\t1988\tonly\t-\tJun\t 1\t 0:00s\t1:00\tS\n"+
-"Rule\tTunisia\t1988\t1990\t-\tSep\tlastSun\t 0:00s\t0\t-\n"+
-"Rule\tTunisia\t1989\tonly\t-\tMar\t26\t 0:00s\t1:00\tS\n"+
-"Rule\tTunisia\t1990\tonly\t-\tMay\t 1\t 0:00s\t1:00\tS\n"+
-"Rule\tTunisia\t2005\tonly\t-\tMay\t 1\t 0:00s\t1:00\tS\n"+
-"Rule\tTunisia\t2005\tonly\t-\tSep\t30\t 1:00s\t0\t-\n"+
-"Rule\tTunisia\t2006\t2008\t-\tMar\tlastSun\t 2:00s\t1:00\tS\n"+
-"Rule\tTunisia\t2006\t2008\t-\tOct\tlastSun\t 2:00s\t0\t-\n"+
-"Zone\tAfrica/Tunis\t0:40:44 -\tLMT\t1881 May 12\n"+
-"\t\t\t0:09:21\t-\tPMT\t1911 Mar 11    # Paris Mean Time\n"+
-"\t\t\t1:00\tTunisia\tCE%sT\n"+
-"Zone\tAfrica/Kampala\t2:09:40 -\tLMT\t1928 Jul\n"+
-"\t\t\t3:00\t-\tEAT\t1930\n"+
-"\t\t\t2:30\t-\tBEAT\t1948\n"+
-"\t\t\t2:45\t-\tBEAUT\t1957\n"+
-"\t\t\t3:00\t-\tEAT\n"+
-"Zone\tAfrica/Lusaka\t1:53:08 -\tLMT\t1903 Mar\n"+
-"\t\t\t2:00\t-\tCAT\n"+
-"Zone\tAfrica/Harare\t2:04:12 -\tLMT\t1903 Mar\n"+
-"\t\t\t2:00\t-\tCAT\n"+
-"","tz/antarctica":"Rule\tArgAQ\t1964\t1966\t-\tMar\t 1\t0:00\t0\t-\n"+
-"Rule\tArgAQ\t1964\t1966\t-\tOct\t15\t0:00\t1:00\tS\n"+
-"Rule\tArgAQ\t1967\tonly\t-\tApr\t 2\t0:00\t0\t-\n"+
-"Rule\tArgAQ\t1967\t1968\t-\tOct\tSun>=1\t0:00\t1:00\tS\n"+
-"Rule\tArgAQ\t1968\t1969\t-\tApr\tSun>=1\t0:00\t0\t-\n"+
-"Rule\tArgAQ\t1974\tonly\t-\tJan\t23\t0:00\t1:00\tS\n"+
-"Rule\tArgAQ\t1974\tonly\t-\tMay\t 1\t0:00\t0\t-\n"+
-"Rule\tChileAQ\t1972\t1986\t-\tMar\tSun>=9\t3:00u\t0\t-\n"+
-"Rule\tChileAQ\t1974\t1987\t-\tOct\tSun>=9\t4:00u\t1:00\tS\n"+
-"Rule\tChileAQ\t1987\tonly\t-\tApr\t12\t3:00u\t0\t-\n"+
-"Rule\tChileAQ\t1988\t1989\t-\tMar\tSun>=9\t3:00u\t0\t-\n"+
-"Rule\tChileAQ\t1988\tonly\t-\tOct\tSun>=1\t4:00u\t1:00\tS\n"+
-"Rule\tChileAQ\t1989\tonly\t-\tOct\tSun>=9\t4:00u\t1:00\tS\n"+
-"Rule\tChileAQ\t1990\tonly\t-\tMar\t18\t3:00u\t0\t-\n"+
-"Rule\tChileAQ\t1990\tonly\t-\tSep\t16\t4:00u\t1:00\tS\n"+
-"Rule\tChileAQ\t1991\t1996\t-\tMar\tSun>=9\t3:00u\t0\t-\n"+
-"Rule\tChileAQ\t1991\t1997\t-\tOct\tSun>=9\t4:00u\t1:00\tS\n"+
-"Rule\tChileAQ\t1997\tonly\t-\tMar\t30\t3:00u\t0\t-\n"+
-"Rule\tChileAQ\t1998\tonly\t-\tMar\tSun>=9\t3:00u\t0\t-\n"+
-"Rule\tChileAQ\t1998\tonly\t-\tSep\t27\t4:00u\t1:00\tS\n"+
-"Rule\tChileAQ\t1999\tonly\t-\tApr\t 4\t3:00u\t0\t-\n"+
-"Rule\tChileAQ\t1999\tmax\t-\tOct\tSun>=9\t4:00u\t1:00\tS\n"+
-"Rule\tChileAQ\t2000\tmax\t-\tMar\tSun>=9\t3:00u\t0\t-\n"+
-"Rule\tAusAQ\t1917\tonly\t-\tJan\t 1\t0:01\t1:00\t-\n"+
-"Rule\tAusAQ\t1917\tonly\t-\tMar\t25\t2:00\t0\t-\n"+
-"Rule\tAusAQ\t1942\tonly\t-\tJan\t 1\t2:00\t1:00\t-\n"+
-"Rule\tAusAQ\t1942\tonly\t-\tMar\t29\t2:00\t0\t-\n"+
-"Rule\tAusAQ\t1942\tonly\t-\tSep\t27\t2:00\t1:00\t-\n"+
-"Rule\tAusAQ\t1943\t1944\t-\tMar\tlastSun\t2:00\t0\t-\n"+
-"Rule\tAusAQ\t1943\tonly\t-\tOct\t 3\t2:00\t1:00\t-\n"+
-"Rule\tATAQ\t1967\tonly\t-\tOct\tSun>=1\t2:00s\t1:00\t-\n"+
-"Rule\tATAQ\t1968\tonly\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tATAQ\t1968\t1985\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tATAQ\t1969\t1971\t-\tMar\tSun>=8\t2:00s\t0\t-\n"+
-"Rule\tATAQ\t1972\tonly\t-\tFeb\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tATAQ\t1973\t1981\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tATAQ\t1982\t1983\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tATAQ\t1984\t1986\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tATAQ\t1986\tonly\t-\tOct\tSun>=15\t2:00s\t1:00\t-\n"+
-"Rule\tATAQ\t1987\t1990\t-\tMar\tSun>=15\t2:00s\t0\t-\n"+
-"Rule\tATAQ\t1987\tonly\t-\tOct\tSun>=22\t2:00s\t1:00\t-\n"+
-"Rule\tATAQ\t1988\t1990\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tATAQ\t1991\t1999\t-\tOct\tSun>=1\t2:00s\t1:00\t-\n"+
-"Rule\tATAQ\t1991\t2005\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tATAQ\t2000\tonly\t-\tAug\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tATAQ\t2001\tmax\t-\tOct\tSun>=1\t2:00s\t1:00\t-\n"+
-"Rule\tATAQ\t2006\tonly\t-\tApr\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tATAQ\t2007\tonly\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tATAQ\t2008\tmax\t-\tApr\tSun>=1\t2:00s\t0\t-\n"+
-"Zone Antarctica/Casey\t0\t-\tzzz\t1969\n"+
-"\t\t\t8:00\t-\tWST\t2009 Oct 18 2:00\n"+
-"\t\t\t\t\t\t# Western (Aus) Standard Time\n"+
-"\t\t\t11:00\t-\tCAST\t2010 Mar 5 2:00\n"+
-"\t\t\t\t\t\t# Casey Time\n"+
-"\t\t\t8:00\t-\tWST\n"+
-"Zone Antarctica/Davis\t0\t-\tzzz\t1957 Jan 13\n"+
-"\t\t\t7:00\t-\tDAVT\t1964 Nov # Davis Time\n"+
-"\t\t\t0\t-\tzzz\t1969 Feb\n"+
-"\t\t\t7:00\t-\tDAVT\t2009 Oct 18 2:00\n"+
-"\t\t\t5:00\t-\tDAVT\t2010 Mar 10 20:00u\n"+
-"\t\t\t7:00\t-\tDAVT\n"+
-"Zone Antarctica/Mawson\t0\t-\tzzz\t1954 Feb 13\n"+
-"\t\t\t6:00\t-\tMAWT\t2009 Oct 18 2:00\n"+
-"\t\t\t\t\t\t# Mawson Time\n"+
-"\t\t\t5:00\t-\tMAWT\n"+
-"Zone Antarctica/Macquarie 0\t-\tzzz\t1911\n"+
-"\t\t\t10:00\t-\tEST\t1916 Oct 1 2:00\n"+
-"\t\t\t10:00\t1:00\tEST\t1917 Feb\n"+
-"\t\t\t10:00\tAusAQ\tEST\t1967\n"+
-"\t\t\t10:00\tATAQ\tEST\t2010 Apr 4 3:00\n"+
-"\t\t\t11:00\t-\tMIST\t# Macquarie Island Time\n"+
-"Zone Indian/Kerguelen\t0\t-\tzzz\t1950\t# Port-aux-Francais\n"+
-"\t\t\t5:00\t-\tTFT\t# ISO code TF Time\n"+
-"Zone Antarctica/DumontDUrville 0 -\tzzz\t1947\n"+
-"\t\t\t10:00\t-\tPMT\t1952 Jan 14 # Port-Martin Time\n"+
-"\t\t\t0\t-\tzzz\t1956 Nov\n"+
-"\t\t\t10:00\t-\tDDUT\t# Dumont-d'Urville Time\n"+
-"Zone Antarctica/Syowa\t0\t-\tzzz\t1957 Jan 29\n"+
-"\t\t\t3:00\t-\tSYOT\t# Syowa Time\n"+
-"Rule\tNZAQ\t1974\tonly\t-\tNov\t 3\t2:00s\t1:00\tD\n"+
-"Rule\tNZAQ\t1975\t1988\t-\tOct\tlastSun\t2:00s\t1:00\tD\n"+
-"Rule\tNZAQ\t1989\tonly\t-\tOct\t 8\t2:00s\t1:00\tD\n"+
-"Rule\tNZAQ\t1990\t2006\t-\tOct\tSun>=1\t2:00s\t1:00\tD\n"+
-"Rule\tNZAQ\t1975\tonly\t-\tFeb\t23\t2:00s\t0\tS\n"+
-"Rule\tNZAQ\t1976\t1989\t-\tMar\tSun>=1\t2:00s\t0\tS\n"+
-"Rule\tNZAQ\t1990\t2007\t-\tMar\tSun>=15\t2:00s\t0\tS\n"+
-"Rule\tNZAQ\t2007\tmax\t-\tSep\tlastSun\t2:00s\t1:00\tD\n"+
-"Rule\tNZAQ\t2008\tmax\t-\tApr\tSun>=1\t2:00s\t0\tS\n"+
-"Zone Antarctica/Vostok\t0\t-\tzzz\t1957 Dec 16\n"+
-"\t\t\t6:00\t-\tVOST\t# Vostok time\n"+
-"Zone Antarctica/Rothera\t0\t-\tzzz\t1976 Dec  1\n"+
-"\t\t\t-3:00\t-\tROTT\t# Rothera time\n"+
-"Zone Antarctica/Palmer\t0\t-\tzzz\t1965\n"+
-"\t\t\t-4:00\tArgAQ\tAR%sT\t1969 Oct 5\n"+
-"\t\t\t-3:00\tArgAQ\tAR%sT\t1982 May\n"+
-"\t\t\t-4:00\tChileAQ\tCL%sT\n"+
-"Zone Antarctica/McMurdo\t0\t-\tzzz\t1956\n"+
-"\t\t\t12:00\tNZAQ\tNZ%sT\n"+
-"Link\tAntarctica/McMurdo\tAntarctica/South_Pole\n"+
-"","tz/asia":"Rule\tEUAsia\t1981\tmax\t-\tMar\tlastSun\t 1:00u\t1:00\tS\n"+
-"Rule\tEUAsia\t1979\t1995\t-\tSep\tlastSun\t 1:00u\t0\t-\n"+
-"Rule\tEUAsia\t1996\tmax\t-\tOct\tlastSun\t 1:00u\t0\t-\n"+
-"Rule E-EurAsia\t1981\tmax\t-\tMar\tlastSun\t 0:00\t1:00\tS\n"+
-"Rule E-EurAsia\t1979\t1995\t-\tSep\tlastSun\t 0:00\t0\t-\n"+
-"Rule E-EurAsia\t1996\tmax\t-\tOct\tlastSun\t 0:00\t0\t-\n"+
-"Rule RussiaAsia\t1981\t1984\t-\tApr\t1\t 0:00\t1:00\tS\n"+
-"Rule RussiaAsia\t1981\t1983\t-\tOct\t1\t 0:00\t0\t-\n"+
-"Rule RussiaAsia\t1984\t1991\t-\tSep\tlastSun\t 2:00s\t0\t-\n"+
-"Rule RussiaAsia\t1985\t1991\t-\tMar\tlastSun\t 2:00s\t1:00\tS\n"+
-"Rule RussiaAsia\t1992\tonly\t-\tMar\tlastSat\t23:00\t1:00\tS\n"+
-"Rule RussiaAsia\t1992\tonly\t-\tSep\tlastSat\t23:00\t0\t-\n"+
-"Rule RussiaAsia\t1993\tmax\t-\tMar\tlastSun\t 2:00s\t1:00\tS\n"+
-"Rule RussiaAsia\t1993\t1995\t-\tSep\tlastSun\t 2:00s\t0\t-\n"+
-"Rule RussiaAsia\t1996\tmax\t-\tOct\tlastSun\t 2:00s\t0\t-\n"+
-"Zone\tAsia/Kabul\t4:36:48 -\tLMT\t1890\n"+
-"\t\t\t4:00\t-\tAFT\t1945\n"+
-"\t\t\t4:30\t-\tAFT\n"+
-"Zone\tAsia/Yerevan\t2:58:00 -\tLMT\t1924 May  2\n"+
-"\t\t\t3:00\t-\tYERT\t1957 Mar    # Yerevan Time\n"+
-"\t\t\t4:00 RussiaAsia YER%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t3:00\t1:00\tYERST\t1991 Sep 23 # independence\n"+
-"\t\t\t3:00 RussiaAsia\tAM%sT\t1995 Sep 24 2:00s\n"+
-"\t\t\t4:00\t-\tAMT\t1997\n"+
-"\t\t\t4:00 RussiaAsia\tAM%sT\n"+
-"Rule\tAzer\t1997\tmax\t-\tMar\tlastSun\t 4:00\t1:00\tS\n"+
-"Rule\tAzer\t1997\tmax\t-\tOct\tlastSun\t 5:00\t0\t-\n"+
-"Zone\tAsia/Baku\t3:19:24 -\tLMT\t1924 May  2\n"+
-"\t\t\t3:00\t-\tBAKT\t1957 Mar    # Baku Time\n"+
-"\t\t\t4:00 RussiaAsia BAK%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t3:00\t1:00\tBAKST\t1991 Aug 30 # independence\n"+
-"\t\t\t3:00 RussiaAsia\tAZ%sT\t1992 Sep lastSat 23:00\n"+
-"\t\t\t4:00\t-\tAZT\t1996 # Azerbaijan time\n"+
-"\t\t\t4:00\tEUAsia\tAZ%sT\t1997\n"+
-"\t\t\t4:00\tAzer\tAZ%sT\n"+
-"Zone\tAsia/Bahrain\t3:22:20 -\tLMT\t1920\t\t# Al Manamah\n"+
-"\t\t\t4:00\t-\tGST\t1972 Jun\n"+
-"\t\t\t3:00\t-\tAST\n"+
-"Rule\tDhaka\t2009\tonly\t-\tJun\t19\t23:00\t1:00\tS\n"+
-"Rule\tDhaka\t2009\tonly\t-\tDec\t31\t23:59\t0\t-\n"+
-"Zone\tAsia/Dhaka\t6:01:40 -\tLMT\t1890\n"+
-"\t\t\t5:53:20\t-\tHMT\t1941 Oct    # Howrah Mean Time?\n"+
-"\t\t\t6:30\t-\tBURT\t1942 May 15 # Burma Time\n"+
-"\t\t\t5:30\t-\tIST\t1942 Sep\n"+
-"\t\t\t6:30\t-\tBURT\t1951 Sep 30\n"+
-"\t\t\t6:00\t-\tDACT\t1971 Mar 26 # Dacca Time\n"+
-"\t\t\t6:00\t-\tBDT\t2009\n"+
-"\t\t\t6:00\tDhaka\tBD%sT\n"+
-"Zone\tAsia/Thimphu\t5:58:36 -\tLMT\t1947 Aug 15 # or Thimbu\n"+
-"\t\t\t5:30\t-\tIST\t1987 Oct\n"+
-"\t\t\t6:00\t-\tBTT\t# Bhutan Time\n"+
-"Zone\tIndian/Chagos\t4:49:40\t-\tLMT\t1907\n"+
-"\t\t\t5:00\t-\tIOT\t1996 # BIOT Time\n"+
-"\t\t\t6:00\t-\tIOT\n"+
-"Zone\tAsia/Brunei\t7:39:40 -\tLMT\t1926 Mar   # Bandar Seri Begawan\n"+
-"\t\t\t7:30\t-\tBNT\t1933\n"+
-"\t\t\t8:00\t-\tBNT\n"+
-"Zone\tAsia/Rangoon\t6:24:40 -\tLMT\t1880\t\t# or Yangon\n"+
-"\t\t\t6:24:36\t-\tRMT\t1920\t   # Rangoon Mean Time?\n"+
-"\t\t\t6:30\t-\tBURT\t1942 May   # Burma Time\n"+
-"\t\t\t9:00\t-\tJST\t1945 May 3\n"+
-"\t\t\t6:30\t-\tMMT\t\t   # Myanmar Time\n"+
-"Zone\tAsia/Phnom_Penh\t6:59:40 -\tLMT\t1906 Jun  9\n"+
-"\t\t\t7:06:20\t-\tSMT\t1911 Mar 11 0:01 # Saigon MT?\n"+
-"\t\t\t7:00\t-\tICT\t1912 May\n"+
-"\t\t\t8:00\t-\tICT\t1931 May\n"+
-"\t\t\t7:00\t-\tICT\n"+
-"Rule\tShang\t1940\tonly\t-\tJun\t 3\t0:00\t1:00\tD\n"+
-"Rule\tShang\t1940\t1941\t-\tOct\t 1\t0:00\t0\tS\n"+
-"Rule\tShang\t1941\tonly\t-\tMar\t16\t0:00\t1:00\tD\n"+
-"Rule\tPRC\t1986\tonly\t-\tMay\t 4\t0:00\t1:00\tD\n"+
-"Rule\tPRC\t1986\t1991\t-\tSep\tSun>=11\t0:00\t0\tS\n"+
-"Rule\tPRC\t1987\t1991\t-\tApr\tSun>=10\t0:00\t1:00\tD\n"+
-"Zone\tAsia/Harbin\t8:26:44\t-\tLMT\t1928 # or Haerbin\n"+
-"\t\t\t8:30\t-\tCHAT\t1932 Mar # Changbai Time\n"+
-"\t\t\t8:00\t-\tCST\t1940\n"+
-"\t\t\t9:00\t-\tCHAT\t1966 May\n"+
-"\t\t\t8:30\t-\tCHAT\t1980 May\n"+
-"\t\t\t8:00\tPRC\tC%sT\n"+
-"Zone\tAsia/Shanghai\t8:05:52\t-\tLMT\t1928\n"+
-"\t\t\t8:00\tShang\tC%sT\t1949\n"+
-"\t\t\t8:00\tPRC\tC%sT\n"+
-"Zone\tAsia/Chongqing\t7:06:20\t-\tLMT\t1928 # or Chungking\n"+
-"\t\t\t7:00\t-\tLONT\t1980 May # Long-shu Time\n"+
-"\t\t\t8:00\tPRC\tC%sT\n"+
-"Zone\tAsia/Urumqi\t5:50:20\t-\tLMT\t1928 # or Urumchi\n"+
-"\t\t\t6:00\t-\tURUT\t1980 May # Urumqi Time\n"+
-"\t\t\t8:00\tPRC\tC%sT\n"+
-"Zone\tAsia/Kashgar\t5:03:56\t-\tLMT\t1928 # or Kashi or Kaxgar\n"+
-"\t\t\t5:30\t-\tKAST\t1940\t # Kashgar Time\n"+
-"\t\t\t5:00\t-\tKAST\t1980 May\n"+
-"\t\t\t8:00\tPRC\tC%sT\n"+
-"Rule\tHK\t1941\tonly\t-\tApr\t1\t3:30\t1:00\tS\n"+
-"Rule\tHK\t1941\tonly\t-\tSep\t30\t3:30\t0\t-\n"+
-"Rule\tHK\t1946\tonly\t-\tApr\t20\t3:30\t1:00\tS\n"+
-"Rule\tHK\t1946\tonly\t-\tDec\t1\t3:30\t0\t-\n"+
-"Rule\tHK\t1947\tonly\t-\tApr\t13\t3:30\t1:00\tS\n"+
-"Rule\tHK\t1947\tonly\t-\tDec\t30\t3:30\t0\t-\n"+
-"Rule\tHK\t1948\tonly\t-\tMay\t2\t3:30\t1:00\tS\n"+
-"Rule\tHK\t1948\t1951\t-\tOct\tlastSun\t3:30\t0\t-\n"+
-"Rule\tHK\t1952\tonly\t-\tOct\t25\t3:30\t0\t-\n"+
-"Rule\tHK\t1949\t1953\t-\tApr\tSun>=1\t3:30\t1:00\tS\n"+
-"Rule\tHK\t1953\tonly\t-\tNov\t1\t3:30\t0\t-\n"+
-"Rule\tHK\t1954\t1964\t-\tMar\tSun>=18\t3:30\t1:00\tS\n"+
-"Rule\tHK\t1954\tonly\t-\tOct\t31\t3:30\t0\t-\n"+
-"Rule\tHK\t1955\t1964\t-\tNov\tSun>=1\t3:30\t0\t-\n"+
-"Rule\tHK\t1965\t1976\t-\tApr\tSun>=16\t3:30\t1:00\tS\n"+
-"Rule\tHK\t1965\t1976\t-\tOct\tSun>=16\t3:30\t0\t-\n"+
-"Rule\tHK\t1973\tonly\t-\tDec\t30\t3:30\t1:00\tS\n"+
-"Rule\tHK\t1979\tonly\t-\tMay\tSun>=8\t3:30\t1:00\tS\n"+
-"Rule\tHK\t1979\tonly\t-\tOct\tSun>=16\t3:30\t0\t-\n"+
-"Zone\tAsia/Hong_Kong\t7:36:36 -\tLMT\t1904 Oct 30\n"+
-"\t\t\t8:00\tHK\tHK%sT\t1941 Dec 25\n"+
-"\t\t\t9:00\t-\tJST\t1945 Sep 15\n"+
-"\t\t\t8:00\tHK\tHK%sT\n"+
-"Rule\tTaiwan\t1945\t1951\t-\tMay\t1\t0:00\t1:00\tD\n"+
-"Rule\tTaiwan\t1945\t1951\t-\tOct\t1\t0:00\t0\tS\n"+
-"Rule\tTaiwan\t1952\tonly\t-\tMar\t1\t0:00\t1:00\tD\n"+
-"Rule\tTaiwan\t1952\t1954\t-\tNov\t1\t0:00\t0\tS\n"+
-"Rule\tTaiwan\t1953\t1959\t-\tApr\t1\t0:00\t1:00\tD\n"+
-"Rule\tTaiwan\t1955\t1961\t-\tOct\t1\t0:00\t0\tS\n"+
-"Rule\tTaiwan\t1960\t1961\t-\tJun\t1\t0:00\t1:00\tD\n"+
-"Rule\tTaiwan\t1974\t1975\t-\tApr\t1\t0:00\t1:00\tD\n"+
-"Rule\tTaiwan\t1974\t1975\t-\tOct\t1\t0:00\t0\tS\n"+
-"Rule\tTaiwan\t1979\tonly\t-\tJun\t30\t0:00\t1:00\tD\n"+
-"Rule\tTaiwan\t1979\tonly\t-\tSep\t30\t0:00\t0\tS\n"+
-"Zone\tAsia/Taipei\t8:06:00 -\tLMT\t1896 # or Taibei or T'ai-pei\n"+
-"\t\t\t8:00\tTaiwan\tC%sT\n"+
-"Rule\tMacau\t1961\t1962\t-\tMar\tSun>=16\t3:30\t1:00\tS\n"+
-"Rule\tMacau\t1961\t1964\t-\tNov\tSun>=1\t3:30\t0\t-\n"+
-"Rule\tMacau\t1963\tonly\t-\tMar\tSun>=16\t0:00\t1:00\tS\n"+
-"Rule\tMacau\t1964\tonly\t-\tMar\tSun>=16\t3:30\t1:00\tS\n"+
-"Rule\tMacau\t1965\tonly\t-\tMar\tSun>=16\t0:00\t1:00\tS\n"+
-"Rule\tMacau\t1965\tonly\t-\tOct\t31\t0:00\t0\t-\n"+
-"Rule\tMacau\t1966\t1971\t-\tApr\tSun>=16\t3:30\t1:00\tS\n"+
-"Rule\tMacau\t1966\t1971\t-\tOct\tSun>=16\t3:30\t0\t-\n"+
-"Rule\tMacau\t1972\t1974\t-\tApr\tSun>=15\t0:00\t1:00\tS\n"+
-"Rule\tMacau\t1972\t1973\t-\tOct\tSun>=15\t0:00\t0\t-\n"+
-"Rule\tMacau\t1974\t1977\t-\tOct\tSun>=15\t3:30\t0\t-\n"+
-"Rule\tMacau\t1975\t1977\t-\tApr\tSun>=15\t3:30\t1:00\tS\n"+
-"Rule\tMacau\t1978\t1980\t-\tApr\tSun>=15\t0:00\t1:00\tS\n"+
-"Rule\tMacau\t1978\t1980\t-\tOct\tSun>=15\t0:00\t0\t-\n"+
-"Zone\tAsia/Macau\t7:34:20 -\tLMT\t1912\n"+
-"\t\t\t8:00\tMacau\tMO%sT\t1999 Dec 20 # return to China\n"+
-"\t\t\t8:00\tPRC\tC%sT\n"+
-"Rule\tCyprus\t1975\tonly\t-\tApr\t13\t0:00\t1:00\tS\n"+
-"Rule\tCyprus\t1975\tonly\t-\tOct\t12\t0:00\t0\t-\n"+
-"Rule\tCyprus\t1976\tonly\t-\tMay\t15\t0:00\t1:00\tS\n"+
-"Rule\tCyprus\t1976\tonly\t-\tOct\t11\t0:00\t0\t-\n"+
-"Rule\tCyprus\t1977\t1980\t-\tApr\tSun>=1\t0:00\t1:00\tS\n"+
-"Rule\tCyprus\t1977\tonly\t-\tSep\t25\t0:00\t0\t-\n"+
-"Rule\tCyprus\t1978\tonly\t-\tOct\t2\t0:00\t0\t-\n"+
-"Rule\tCyprus\t1979\t1997\t-\tSep\tlastSun\t0:00\t0\t-\n"+
-"Rule\tCyprus\t1981\t1998\t-\tMar\tlastSun\t0:00\t1:00\tS\n"+
-"Zone\tAsia/Nicosia\t2:13:28 -\tLMT\t1921 Nov 14\n"+
-"\t\t\t2:00\tCyprus\tEE%sT\t1998 Sep\n"+
-"\t\t\t2:00\tEUAsia\tEE%sT\n"+
-"Link\tAsia/Nicosia\tEurope/Nicosia\n"+
-"Zone\tAsia/Tbilisi\t2:59:16 -\tLMT\t1880\n"+
-"\t\t\t2:59:16\t-\tTBMT\t1924 May  2 # Tbilisi Mean Time\n"+
-"\t\t\t3:00\t-\tTBIT\t1957 Mar    # Tbilisi Time\n"+
-"\t\t\t4:00 RussiaAsia TBI%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t3:00\t1:00\tTBIST\t1991 Apr  9 # independence\n"+
-"\t\t\t3:00 RussiaAsia GE%sT\t1992 # Georgia Time\n"+
-"\t\t\t3:00 E-EurAsia\tGE%sT\t1994 Sep lastSun\n"+
-"\t\t\t4:00 E-EurAsia\tGE%sT\t1996 Oct lastSun\n"+
-"\t\t\t4:00\t1:00\tGEST\t1997 Mar lastSun\n"+
-"\t\t\t4:00 E-EurAsia\tGE%sT\t2004 Jun 27\n"+
-"\t\t\t3:00 RussiaAsia\tGE%sT\t2005 Mar lastSun 2:00\n"+
-"\t\t\t4:00\t-\tGET\n"+
-"Zone\tAsia/Dili\t8:22:20 -\tLMT\t1912\n"+
-"\t\t\t8:00\t-\tTLT\t1942 Feb 21 23:00 # E Timor Time\n"+
-"\t\t\t9:00\t-\tJST\t1945 Sep 23\n"+
-"\t\t\t9:00\t-\tTLT\t1976 May  3\n"+
-"\t\t\t8:00\t-\tCIT\t2000 Sep 17 00:00\n"+
-"\t\t\t9:00\t-\tTLT\n"+
-"Zone\tAsia/Kolkata\t5:53:28 -\tLMT\t1880\t# Kolkata\n"+
-"\t\t\t5:53:20\t-\tHMT\t1941 Oct    # Howrah Mean Time?\n"+
-"\t\t\t6:30\t-\tBURT\t1942 May 15 # Burma Time\n"+
-"\t\t\t5:30\t-\tIST\t1942 Sep\n"+
-"\t\t\t5:30\t1:00\tIST\t1945 Oct 15\n"+
-"\t\t\t5:30\t-\tIST\n"+
-"Zone Asia/Jakarta\t7:07:12 -\tLMT\t1867 Aug 10\n"+
-"\t\t\t7:07:12\t-\tJMT\t1923 Dec 31 23:47:12 # Jakarta\n"+
-"\t\t\t7:20\t-\tJAVT\t1932 Nov\t # Java Time\n"+
-"\t\t\t7:30\t-\tWIT\t1942 Mar 23\n"+
-"\t\t\t9:00\t-\tJST\t1945 Sep 23\n"+
-"\t\t\t7:30\t-\tWIT\t1948 May\n"+
-"\t\t\t8:00\t-\tWIT\t1950 May\n"+
-"\t\t\t7:30\t-\tWIT\t1964\n"+
-"\t\t\t7:00\t-\tWIT\n"+
-"Zone Asia/Pontianak\t7:17:20\t-\tLMT\t1908 May\n"+
-"\t\t\t7:17:20\t-\tPMT\t1932 Nov    # Pontianak MT\n"+
-"\t\t\t7:30\t-\tWIT\t1942 Jan 29\n"+
-"\t\t\t9:00\t-\tJST\t1945 Sep 23\n"+
-"\t\t\t7:30\t-\tWIT\t1948 May\n"+
-"\t\t\t8:00\t-\tWIT\t1950 May\n"+
-"\t\t\t7:30\t-\tWIT\t1964\n"+
-"\t\t\t8:00\t-\tCIT\t1988 Jan  1\n"+
-"\t\t\t7:00\t-\tWIT\n"+
-"Zone Asia/Makassar\t7:57:36 -\tLMT\t1920\n"+
-"\t\t\t7:57:36\t-\tMMT\t1932 Nov    # Macassar MT\n"+
-"\t\t\t8:00\t-\tCIT\t1942 Feb  9\n"+
-"\t\t\t9:00\t-\tJST\t1945 Sep 23\n"+
-"\t\t\t8:00\t-\tCIT\n"+
-"Zone Asia/Jayapura\t9:22:48 -\tLMT\t1932 Nov\n"+
-"\t\t\t9:00\t-\tEIT\t1944 Sep  1\n"+
-"\t\t\t9:30\t-\tCST\t1964\n"+
-"\t\t\t9:00\t-\tEIT\n"+
-"Rule\tIran\t1978\t1980\t-\tMar\t21\t0:00\t1:00\tD\n"+
-"Rule\tIran\t1978\tonly\t-\tOct\t21\t0:00\t0\tS\n"+
-"Rule\tIran\t1979\tonly\t-\tSep\t19\t0:00\t0\tS\n"+
-"Rule\tIran\t1980\tonly\t-\tSep\t23\t0:00\t0\tS\n"+
-"Rule\tIran\t1991\tonly\t-\tMay\t 3\t0:00\t1:00\tD\n"+
-"Rule\tIran\t1992\t1995\t-\tMar\t22\t0:00\t1:00\tD\n"+
-"Rule\tIran\t1991\t1995\t-\tSep\t22\t0:00\t0\tS\n"+
-"Rule\tIran\t1996\tonly\t-\tMar\t21\t0:00\t1:00\tD\n"+
-"Rule\tIran\t1996\tonly\t-\tSep\t21\t0:00\t0\tS\n"+
-"Rule\tIran\t1997\t1999\t-\tMar\t22\t0:00\t1:00\tD\n"+
-"Rule\tIran\t1997\t1999\t-\tSep\t22\t0:00\t0\tS\n"+
-"Rule\tIran\t2000\tonly\t-\tMar\t21\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2000\tonly\t-\tSep\t21\t0:00\t0\tS\n"+
-"Rule\tIran\t2001\t2003\t-\tMar\t22\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2001\t2003\t-\tSep\t22\t0:00\t0\tS\n"+
-"Rule\tIran\t2004\tonly\t-\tMar\t21\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2004\tonly\t-\tSep\t21\t0:00\t0\tS\n"+
-"Rule\tIran\t2005\tonly\t-\tMar\t22\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2005\tonly\t-\tSep\t22\t0:00\t0\tS\n"+
-"Rule\tIran\t2008\tonly\t-\tMar\t21\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2008\tonly\t-\tSep\t21\t0:00\t0\tS\n"+
-"Rule\tIran\t2009\t2011\t-\tMar\t22\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2009\t2011\t-\tSep\t22\t0:00\t0\tS\n"+
-"Rule\tIran\t2012\tonly\t-\tMar\t21\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2012\tonly\t-\tSep\t21\t0:00\t0\tS\n"+
-"Rule\tIran\t2013\t2015\t-\tMar\t22\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2013\t2015\t-\tSep\t22\t0:00\t0\tS\n"+
-"Rule\tIran\t2016\tonly\t-\tMar\t21\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2016\tonly\t-\tSep\t21\t0:00\t0\tS\n"+
-"Rule\tIran\t2017\t2019\t-\tMar\t22\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2017\t2019\t-\tSep\t22\t0:00\t0\tS\n"+
-"Rule\tIran\t2020\tonly\t-\tMar\t21\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2020\tonly\t-\tSep\t21\t0:00\t0\tS\n"+
-"Rule\tIran\t2021\t2023\t-\tMar\t22\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2021\t2023\t-\tSep\t22\t0:00\t0\tS\n"+
-"Rule\tIran\t2024\tonly\t-\tMar\t21\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2024\tonly\t-\tSep\t21\t0:00\t0\tS\n"+
-"Rule\tIran\t2025\t2027\t-\tMar\t22\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2025\t2027\t-\tSep\t22\t0:00\t0\tS\n"+
-"Rule\tIran\t2028\t2029\t-\tMar\t21\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2028\t2029\t-\tSep\t21\t0:00\t0\tS\n"+
-"Rule\tIran\t2030\t2031\t-\tMar\t22\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2030\t2031\t-\tSep\t22\t0:00\t0\tS\n"+
-"Rule\tIran\t2032\t2033\t-\tMar\t21\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2032\t2033\t-\tSep\t21\t0:00\t0\tS\n"+
-"Rule\tIran\t2034\t2035\t-\tMar\t22\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2034\t2035\t-\tSep\t22\t0:00\t0\tS\n"+
-"Rule\tIran\t2036\t2037\t-\tMar\t21\t0:00\t1:00\tD\n"+
-"Rule\tIran\t2036\t2037\t-\tSep\t21\t0:00\t0\tS\n"+
-"Zone\tAsia/Tehran\t3:25:44\t-\tLMT\t1916\n"+
-"\t\t\t3:25:44\t-\tTMT\t1946\t# Tehran Mean Time\n"+
-"\t\t\t3:30\t-\tIRST\t1977 Nov\n"+
-"\t\t\t4:00\tIran\tIR%sT\t1979\n"+
-"\t\t\t3:30\tIran\tIR%sT\n"+
-"Rule\tIraq\t1982\tonly\t-\tMay\t1\t0:00\t1:00\tD\n"+
-"Rule\tIraq\t1982\t1984\t-\tOct\t1\t0:00\t0\tS\n"+
-"Rule\tIraq\t1983\tonly\t-\tMar\t31\t0:00\t1:00\tD\n"+
-"Rule\tIraq\t1984\t1985\t-\tApr\t1\t0:00\t1:00\tD\n"+
-"Rule\tIraq\t1985\t1990\t-\tSep\tlastSun\t1:00s\t0\tS\n"+
-"Rule\tIraq\t1986\t1990\t-\tMar\tlastSun\t1:00s\t1:00\tD\n"+
-"Rule\tIraq\t1991\t2007\t-\tApr\t 1\t3:00s\t1:00\tD\n"+
-"Rule\tIraq\t1991\t2007\t-\tOct\t 1\t3:00s\t0\tS\n"+
-"Zone\tAsia/Baghdad\t2:57:40\t-\tLMT\t1890\n"+
-"\t\t\t2:57:36\t-\tBMT\t1918\t    # Baghdad Mean Time?\n"+
-"\t\t\t3:00\t-\tAST\t1982 May\n"+
-"\t\t\t3:00\tIraq\tA%sT\n"+
-"Rule\tZion\t1940\tonly\t-\tJun\t 1\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1942\t1944\t-\tNov\t 1\t0:00\t0\tS\n"+
-"Rule\tZion\t1943\tonly\t-\tApr\t 1\t2:00\t1:00\tD\n"+
-"Rule\tZion\t1944\tonly\t-\tApr\t 1\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1945\tonly\t-\tApr\t16\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1945\tonly\t-\tNov\t 1\t2:00\t0\tS\n"+
-"Rule\tZion\t1946\tonly\t-\tApr\t16\t2:00\t1:00\tD\n"+
-"Rule\tZion\t1946\tonly\t-\tNov\t 1\t0:00\t0\tS\n"+
-"Rule\tZion\t1948\tonly\t-\tMay\t23\t0:00\t2:00\tDD\n"+
-"Rule\tZion\t1948\tonly\t-\tSep\t 1\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1948\t1949\t-\tNov\t 1\t2:00\t0\tS\n"+
-"Rule\tZion\t1949\tonly\t-\tMay\t 1\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1950\tonly\t-\tApr\t16\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1950\tonly\t-\tSep\t15\t3:00\t0\tS\n"+
-"Rule\tZion\t1951\tonly\t-\tApr\t 1\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1951\tonly\t-\tNov\t11\t3:00\t0\tS\n"+
-"Rule\tZion\t1952\tonly\t-\tApr\t20\t2:00\t1:00\tD\n"+
-"Rule\tZion\t1952\tonly\t-\tOct\t19\t3:00\t0\tS\n"+
-"Rule\tZion\t1953\tonly\t-\tApr\t12\t2:00\t1:00\tD\n"+
-"Rule\tZion\t1953\tonly\t-\tSep\t13\t3:00\t0\tS\n"+
-"Rule\tZion\t1954\tonly\t-\tJun\t13\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1954\tonly\t-\tSep\t12\t0:00\t0\tS\n"+
-"Rule\tZion\t1955\tonly\t-\tJun\t11\t2:00\t1:00\tD\n"+
-"Rule\tZion\t1955\tonly\t-\tSep\t11\t0:00\t0\tS\n"+
-"Rule\tZion\t1956\tonly\t-\tJun\t 3\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1956\tonly\t-\tSep\t30\t3:00\t0\tS\n"+
-"Rule\tZion\t1957\tonly\t-\tApr\t29\t2:00\t1:00\tD\n"+
-"Rule\tZion\t1957\tonly\t-\tSep\t22\t0:00\t0\tS\n"+
-"Rule\tZion\t1974\tonly\t-\tJul\t 7\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1974\tonly\t-\tOct\t13\t0:00\t0\tS\n"+
-"Rule\tZion\t1975\tonly\t-\tApr\t20\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1975\tonly\t-\tAug\t31\t0:00\t0\tS\n"+
-"Rule\tZion\t1985\tonly\t-\tApr\t14\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1985\tonly\t-\tSep\t15\t0:00\t0\tS\n"+
-"Rule\tZion\t1986\tonly\t-\tMay\t18\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1986\tonly\t-\tSep\t 7\t0:00\t0\tS\n"+
-"Rule\tZion\t1987\tonly\t-\tApr\t15\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1987\tonly\t-\tSep\t13\t0:00\t0\tS\n"+
-"Rule\tZion\t1988\tonly\t-\tApr\t 9\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1988\tonly\t-\tSep\t 3\t0:00\t0\tS\n"+
-"Rule\tZion\t1989\tonly\t-\tApr\t30\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1989\tonly\t-\tSep\t 3\t0:00\t0\tS\n"+
-"Rule\tZion\t1990\tonly\t-\tMar\t25\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1990\tonly\t-\tAug\t26\t0:00\t0\tS\n"+
-"Rule\tZion\t1991\tonly\t-\tMar\t24\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1991\tonly\t-\tSep\t 1\t0:00\t0\tS\n"+
-"Rule\tZion\t1992\tonly\t-\tMar\t29\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1992\tonly\t-\tSep\t 6\t0:00\t0\tS\n"+
-"Rule\tZion\t1993\tonly\t-\tApr\t 2\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1993\tonly\t-\tSep\t 5\t0:00\t0\tS\n"+
-"Rule\tZion\t1994\tonly\t-\tApr\t 1\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1994\tonly\t-\tAug\t28\t0:00\t0\tS\n"+
-"Rule\tZion\t1995\tonly\t-\tMar\t31\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1995\tonly\t-\tSep\t 3\t0:00\t0\tS\n"+
-"Rule\tZion\t1996\tonly\t-\tMar\t15\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1996\tonly\t-\tSep\t16\t0:00\t0\tS\n"+
-"Rule\tZion\t1997\tonly\t-\tMar\t21\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1997\tonly\t-\tSep\t14\t0:00\t0\tS\n"+
-"Rule\tZion\t1998\tonly\t-\tMar\t20\t0:00\t1:00\tD\n"+
-"Rule\tZion\t1998\tonly\t-\tSep\t 6\t0:00\t0\tS\n"+
-"Rule\tZion\t1999\tonly\t-\tApr\t 2\t2:00\t1:00\tD\n"+
-"Rule\tZion\t1999\tonly\t-\tSep\t 3\t2:00\t0\tS\n"+
-"Rule\tZion\t2000\tonly\t-\tApr\t14\t2:00\t1:00\tD\n"+
-"Rule\tZion\t2000\tonly\t-\tOct\t 6\t1:00\t0\tS\n"+
-"Rule\tZion\t2001\tonly\t-\tApr\t 9\t1:00\t1:00\tD\n"+
-"Rule\tZion\t2001\tonly\t-\tSep\t24\t1:00\t0\tS\n"+
-"Rule\tZion\t2002\tonly\t-\tMar\t29\t1:00\t1:00\tD\n"+
-"Rule\tZion\t2002\tonly\t-\tOct\t 7\t1:00\t0\tS\n"+
-"Rule\tZion\t2003\tonly\t-\tMar\t28\t1:00\t1:00\tD\n"+
-"Rule\tZion\t2003\tonly\t-\tOct\t 3\t1:00\t0\tS\n"+
-"Rule\tZion\t2004\tonly\t-\tApr\t 7\t1:00\t1:00\tD\n"+
-"Rule\tZion\t2004\tonly\t-\tSep\t22\t1:00\t0\tS\n"+
-"Rule\tZion\t2005\tonly\t-\tApr\t 1\t2:00\t1:00\tD\n"+
-"Rule\tZion\t2005\tonly\t-\tOct\t 9\t2:00\t0\tS\n"+
-"Rule\tZion\t2006\t2010\t-\tMar\tFri>=26\t2:00\t1:00\tD\n"+
-"Rule\tZion\t2006\tonly\t-\tOct\t 1\t2:00\t0\tS\n"+
-"Rule\tZion\t2007\tonly\t-\tSep\t16\t2:00\t0\tS\n"+
-"Rule\tZion\t2008\tonly\t-\tOct\t 5\t2:00\t0\tS\n"+
-"Rule\tZion\t2009\tonly\t-\tSep\t27\t2:00\t0\tS\n"+
-"Rule\tZion\t2010\tonly\t-\tSep\t12\t2:00\t0\tS\n"+
-"Rule\tZion\t2011\tonly\t-\tApr\t 1\t2:00\t1:00\tD\n"+
-"Rule\tZion\t2011\tonly\t-\tOct\t 2\t2:00\t0\tS\n"+
-"Rule\tZion\t2012\t2015\t-\tMar\tFri>=26\t2:00\t1:00\tD\n"+
-"Rule\tZion\t2012\tonly\t-\tSep\t23\t2:00\t0\tS\n"+
-"Rule\tZion\t2013\tonly\t-\tSep\t 8\t2:00\t0\tS\n"+
-"Rule\tZion\t2014\tonly\t-\tSep\t28\t2:00\t0\tS\n"+
-"Rule\tZion\t2015\tonly\t-\tSep\t20\t2:00\t0\tS\n"+
-"Rule\tZion\t2016\tonly\t-\tApr\t 1\t2:00\t1:00\tD\n"+
-"Rule\tZion\t2016\tonly\t-\tOct\t 9\t2:00\t0\tS\n"+
-"Rule\tZion\t2017\t2021\t-\tMar\tFri>=26\t2:00\t1:00\tD\n"+
-"Rule\tZion\t2017\tonly\t-\tSep\t24\t2:00\t0\tS\n"+
-"Rule\tZion\t2018\tonly\t-\tSep\t16\t2:00\t0\tS\n"+
-"Rule\tZion\t2019\tonly\t-\tOct\t 6\t2:00\t0\tS\n"+
-"Rule\tZion\t2020\tonly\t-\tSep\t27\t2:00\t0\tS\n"+
-"Rule\tZion\t2021\tonly\t-\tSep\t12\t2:00\t0\tS\n"+
-"Rule\tZion\t2022\tonly\t-\tApr\t 1\t2:00\t1:00\tD\n"+
-"Rule\tZion\t2022\tonly\t-\tOct\t 2\t2:00\t0\tS\n"+
-"Rule\tZion\t2023\t2032\t-\tMar\tFri>=26\t2:00\t1:00\tD\n"+
-"Rule\tZion\t2023\tonly\t-\tSep\t24\t2:00\t0\tS\n"+
-"Rule\tZion\t2024\tonly\t-\tOct\t 6\t2:00\t0\tS\n"+
-"Rule\tZion\t2025\tonly\t-\tSep\t28\t2:00\t0\tS\n"+
-"Rule\tZion\t2026\tonly\t-\tSep\t20\t2:00\t0\tS\n"+
-"Rule\tZion\t2027\tonly\t-\tOct\t10\t2:00\t0\tS\n"+
-"Rule\tZion\t2028\tonly\t-\tSep\t24\t2:00\t0\tS\n"+
-"Rule\tZion\t2029\tonly\t-\tSep\t16\t2:00\t0\tS\n"+
-"Rule\tZion\t2030\tonly\t-\tOct\t 6\t2:00\t0\tS\n"+
-"Rule\tZion\t2031\tonly\t-\tSep\t21\t2:00\t0\tS\n"+
-"Rule\tZion\t2032\tonly\t-\tSep\t12\t2:00\t0\tS\n"+
-"Rule\tZion\t2033\tonly\t-\tApr\t 1\t2:00\t1:00\tD\n"+
-"Rule\tZion\t2033\tonly\t-\tOct\t 2\t2:00\t0\tS\n"+
-"Rule\tZion\t2034\t2037\t-\tMar\tFri>=26\t2:00\t1:00\tD\n"+
-"Rule\tZion\t2034\tonly\t-\tSep\t17\t2:00\t0\tS\n"+
-"Rule\tZion\t2035\tonly\t-\tOct\t 7\t2:00\t0\tS\n"+
-"Rule\tZion\t2036\tonly\t-\tSep\t28\t2:00\t0\tS\n"+
-"Rule\tZion\t2037\tonly\t-\tSep\t13\t2:00\t0\tS\n"+
-"Zone\tAsia/Jerusalem\t2:20:56 -\tLMT\t1880\n"+
-"\t\t\t2:20:40\t-\tJMT\t1918\t# Jerusalem Mean Time?\n"+
-"\t\t\t2:00\tZion\tI%sT\n"+
-"Rule\tJapan\t1948\tonly\t-\tMay\tSun>=1\t2:00\t1:00\tD\n"+
-"Rule\tJapan\t1948\t1951\t-\tSep\tSat>=8\t2:00\t0\tS\n"+
-"Rule\tJapan\t1949\tonly\t-\tApr\tSun>=1\t2:00\t1:00\tD\n"+
-"Rule\tJapan\t1950\t1951\t-\tMay\tSun>=1\t2:00\t1:00\tD\n"+
-"Zone\tAsia/Tokyo\t9:18:59\t-\tLMT\t1887 Dec 31 15:00u\n"+
-"\t\t\t9:00\t-\tJST\t1896\n"+
-"\t\t\t9:00\t-\tCJT\t1938\n"+
-"\t\t\t9:00\tJapan\tJ%sT\n"+
-"Rule\tJordan\t1973\tonly\t-\tJun\t6\t0:00\t1:00\tS\n"+
-"Rule\tJordan\t1973\t1975\t-\tOct\t1\t0:00\t0\t-\n"+
-"Rule\tJordan\t1974\t1977\t-\tMay\t1\t0:00\t1:00\tS\n"+
-"Rule\tJordan\t1976\tonly\t-\tNov\t1\t0:00\t0\t-\n"+
-"Rule\tJordan\t1977\tonly\t-\tOct\t1\t0:00\t0\t-\n"+
-"Rule\tJordan\t1978\tonly\t-\tApr\t30\t0:00\t1:00\tS\n"+
-"Rule\tJordan\t1978\tonly\t-\tSep\t30\t0:00\t0\t-\n"+
-"Rule\tJordan\t1985\tonly\t-\tApr\t1\t0:00\t1:00\tS\n"+
-"Rule\tJordan\t1985\tonly\t-\tOct\t1\t0:00\t0\t-\n"+
-"Rule\tJordan\t1986\t1988\t-\tApr\tFri>=1\t0:00\t1:00\tS\n"+
-"Rule\tJordan\t1986\t1990\t-\tOct\tFri>=1\t0:00\t0\t-\n"+
-"Rule\tJordan\t1989\tonly\t-\tMay\t8\t0:00\t1:00\tS\n"+
-"Rule\tJordan\t1990\tonly\t-\tApr\t27\t0:00\t1:00\tS\n"+
-"Rule\tJordan\t1991\tonly\t-\tApr\t17\t0:00\t1:00\tS\n"+
-"Rule\tJordan\t1991\tonly\t-\tSep\t27\t0:00\t0\t-\n"+
-"Rule\tJordan\t1992\tonly\t-\tApr\t10\t0:00\t1:00\tS\n"+
-"Rule\tJordan\t1992\t1993\t-\tOct\tFri>=1\t0:00\t0\t-\n"+
-"Rule\tJordan\t1993\t1998\t-\tApr\tFri>=1\t0:00\t1:00\tS\n"+
-"Rule\tJordan\t1994\tonly\t-\tSep\tFri>=15\t0:00\t0\t-\n"+
-"Rule\tJordan\t1995\t1998\t-\tSep\tFri>=15\t0:00s\t0\t-\n"+
-"Rule\tJordan\t1999\tonly\t-\tJul\t 1\t0:00s\t1:00\tS\n"+
-"Rule\tJordan\t1999\t2002\t-\tSep\tlastFri\t0:00s\t0\t-\n"+
-"Rule\tJordan\t2000\t2001\t-\tMar\tlastThu\t0:00s\t1:00\tS\n"+
-"Rule\tJordan\t2002\tmax\t-\tMar\tlastThu\t24:00\t1:00\tS\n"+
-"Rule\tJordan\t2003\tonly\t-\tOct\t24\t0:00s\t0\t-\n"+
-"Rule\tJordan\t2004\tonly\t-\tOct\t15\t0:00s\t0\t-\n"+
-"Rule\tJordan\t2005\tonly\t-\tSep\tlastFri\t0:00s\t0\t-\n"+
-"Rule\tJordan\t2006\tmax\t-\tOct\tlastFri\t0:00s\t0\t-\n"+
-"Zone\tAsia/Amman\t2:23:44 -\tLMT\t1931\n"+
-"\t\t\t2:00\tJordan\tEE%sT\n"+
-"Zone\tAsia/Almaty\t5:07:48 -\tLMT\t1924 May  2 # or Alma-Ata\n"+
-"\t\t\t5:00\t-\tALMT\t1930 Jun 21 # Alma-Ata Time\n"+
-"\t\t\t6:00 RussiaAsia ALM%sT\t1991\n"+
-"\t\t\t6:00\t-\tALMT\t1992\n"+
-"\t\t\t6:00 RussiaAsia\tALM%sT\t2005 Mar 15\n"+
-"\t\t\t6:00\t-\tALMT\n"+
-"Zone\tAsia/Qyzylorda\t4:21:52 -\tLMT\t1924 May  2\n"+
-"\t\t\t4:00\t-\tKIZT\t1930 Jun 21 # Kizilorda Time\n"+
-"\t\t\t5:00\t-\tKIZT\t1981 Apr  1\n"+
-"\t\t\t5:00\t1:00\tKIZST\t1981 Oct  1\n"+
-"\t\t\t6:00\t-\tKIZT\t1982 Apr  1\n"+
-"\t\t\t5:00 RussiaAsia\tKIZ%sT\t1991\n"+
-"\t\t\t5:00\t-\tKIZT\t1991 Dec 16 # independence\n"+
-"\t\t\t5:00\t-\tQYZT\t1992 Jan 19 2:00\n"+
-"\t\t\t6:00 RussiaAsia\tQYZ%sT\t2005 Mar 15\n"+
-"\t\t\t6:00\t-\tQYZT\n"+
-"Zone\tAsia/Aqtobe\t3:48:40\t-\tLMT\t1924 May  2\n"+
-"\t\t\t4:00\t-\tAKTT\t1930 Jun 21 # Aktyubinsk Time\n"+
-"\t\t\t5:00\t-\tAKTT\t1981 Apr  1\n"+
-"\t\t\t5:00\t1:00\tAKTST\t1981 Oct  1\n"+
-"\t\t\t6:00\t-\tAKTT\t1982 Apr  1\n"+
-"\t\t\t5:00 RussiaAsia\tAKT%sT\t1991\n"+
-"\t\t\t5:00\t-\tAKTT\t1991 Dec 16 # independence\n"+
-"\t\t\t5:00 RussiaAsia\tAQT%sT\t2005 Mar 15 # Aqtobe Time\n"+
-"\t\t\t5:00\t-\tAQTT\n"+
-"Zone\tAsia/Aqtau\t3:21:04\t-\tLMT\t1924 May  2\n"+
-"\t\t\t4:00\t-\tFORT\t1930 Jun 21 # Fort Shevchenko T\n"+
-"\t\t\t5:00\t-\tFORT\t1963\n"+
-"\t\t\t5:00\t-\tSHET\t1981 Oct  1 # Shevchenko Time\n"+
-"\t\t\t6:00\t-\tSHET\t1982 Apr  1\n"+
-"\t\t\t5:00 RussiaAsia\tSHE%sT\t1991\n"+
-"\t\t\t5:00\t-\tSHET\t1991 Dec 16 # independence\n"+
-"\t\t\t5:00 RussiaAsia\tAQT%sT\t1995 Mar lastSun 2:00 # Aqtau Time\n"+
-"\t\t\t4:00 RussiaAsia\tAQT%sT\t2005 Mar 15\n"+
-"\t\t\t5:00\t-\tAQTT\n"+
-"Zone\tAsia/Oral\t3:25:24\t-\tLMT\t1924 May  2 # or Ural'sk\n"+
-"\t\t\t4:00\t-\tURAT\t1930 Jun 21 # Ural'sk time\n"+
-"\t\t\t5:00\t-\tURAT\t1981 Apr  1\n"+
-"\t\t\t5:00\t1:00\tURAST\t1981 Oct  1\n"+
-"\t\t\t6:00\t-\tURAT\t1982 Apr  1\n"+
-"\t\t\t5:00 RussiaAsia\tURA%sT\t1989 Mar 26 2:00\n"+
-"\t\t\t4:00 RussiaAsia\tURA%sT\t1991\n"+
-"\t\t\t4:00\t-\tURAT\t1991 Dec 16 # independence\n"+
-"\t\t\t4:00 RussiaAsia\tORA%sT\t2005 Mar 15 # Oral Time\n"+
-"\t\t\t5:00\t-\tORAT\n"+
-"Rule\tKyrgyz\t1992\t1996\t-\tApr\tSun>=7\t0:00s\t1:00\tS\n"+
-"Rule\tKyrgyz\t1992\t1996\t-\tSep\tlastSun\t0:00\t0\t-\n"+
-"Rule\tKyrgyz\t1997\t2005\t-\tMar\tlastSun\t2:30\t1:00\tS\n"+
-"Rule\tKyrgyz\t1997\t2004\t-\tOct\tlastSun\t2:30\t0\t-\n"+
-"Zone\tAsia/Bishkek\t4:58:24 -\tLMT\t1924 May  2\n"+
-"\t\t\t5:00\t-\tFRUT\t1930 Jun 21 # Frunze Time\n"+
-"\t\t\t6:00 RussiaAsia FRU%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t5:00\t1:00\tFRUST\t1991 Aug 31 2:00 # independence\n"+
-"\t\t\t5:00\tKyrgyz\tKG%sT\t2005 Aug 12    # Kyrgyzstan Time\n"+
-"\t\t\t6:00\t-\tKGT\n"+
-"Rule\tROK\t1960\tonly\t-\tMay\t15\t0:00\t1:00\tD\n"+
-"Rule\tROK\t1960\tonly\t-\tSep\t13\t0:00\t0\tS\n"+
-"Rule\tROK\t1987\t1988\t-\tMay\tSun>=8\t0:00\t1:00\tD\n"+
-"Rule\tROK\t1987\t1988\t-\tOct\tSun>=8\t0:00\t0\tS\n"+
-"Zone\tAsia/Seoul\t8:27:52\t-\tLMT\t1890\n"+
-"\t\t\t8:30\t-\tKST\t1904 Dec\n"+
-"\t\t\t9:00\t-\tKST\t1928\n"+
-"\t\t\t8:30\t-\tKST\t1932\n"+
-"\t\t\t9:00\t-\tKST\t1954 Mar 21\n"+
-"\t\t\t8:00\tROK\tK%sT\t1961 Aug 10\n"+
-"\t\t\t8:30\t-\tKST\t1968 Oct\n"+
-"\t\t\t9:00\tROK\tK%sT\n"+
-"Zone\tAsia/Pyongyang\t8:23:00 -\tLMT\t1890\n"+
-"\t\t\t8:30\t-\tKST\t1904 Dec\n"+
-"\t\t\t9:00\t-\tKST\t1928\n"+
-"\t\t\t8:30\t-\tKST\t1932\n"+
-"\t\t\t9:00\t-\tKST\t1954 Mar 21\n"+
-"\t\t\t8:00\t-\tKST\t1961 Aug 10\n"+
-"\t\t\t9:00\t-\tKST\n"+
-"Zone\tAsia/Kuwait\t3:11:56 -\tLMT\t1950\n"+
-"\t\t\t3:00\t-\tAST\n"+
-"Zone\tAsia/Vientiane\t6:50:24 -\tLMT\t1906 Jun  9 # or Viangchan\n"+
-"\t\t\t7:06:20\t-\tSMT\t1911 Mar 11 0:01 # Saigon MT?\n"+
-"\t\t\t7:00\t-\tICT\t1912 May\n"+
-"\t\t\t8:00\t-\tICT\t1931 May\n"+
-"\t\t\t7:00\t-\tICT\n"+
-"Rule\tLebanon\t1920\tonly\t-\tMar\t28\t0:00\t1:00\tS\n"+
-"Rule\tLebanon\t1920\tonly\t-\tOct\t25\t0:00\t0\t-\n"+
-"Rule\tLebanon\t1921\tonly\t-\tApr\t3\t0:00\t1:00\tS\n"+
-"Rule\tLebanon\t1921\tonly\t-\tOct\t3\t0:00\t0\t-\n"+
-"Rule\tLebanon\t1922\tonly\t-\tMar\t26\t0:00\t1:00\tS\n"+
-"Rule\tLebanon\t1922\tonly\t-\tOct\t8\t0:00\t0\t-\n"+
-"Rule\tLebanon\t1923\tonly\t-\tApr\t22\t0:00\t1:00\tS\n"+
-"Rule\tLebanon\t1923\tonly\t-\tSep\t16\t0:00\t0\t-\n"+
-"Rule\tLebanon\t1957\t1961\t-\tMay\t1\t0:00\t1:00\tS\n"+
-"Rule\tLebanon\t1957\t1961\t-\tOct\t1\t0:00\t0\t-\n"+
-"Rule\tLebanon\t1972\tonly\t-\tJun\t22\t0:00\t1:00\tS\n"+
-"Rule\tLebanon\t1972\t1977\t-\tOct\t1\t0:00\t0\t-\n"+
-"Rule\tLebanon\t1973\t1977\t-\tMay\t1\t0:00\t1:00\tS\n"+
-"Rule\tLebanon\t1978\tonly\t-\tApr\t30\t0:00\t1:00\tS\n"+
-"Rule\tLebanon\t1978\tonly\t-\tSep\t30\t0:00\t0\t-\n"+
-"Rule\tLebanon\t1984\t1987\t-\tMay\t1\t0:00\t1:00\tS\n"+
-"Rule\tLebanon\t1984\t1991\t-\tOct\t16\t0:00\t0\t-\n"+
-"Rule\tLebanon\t1988\tonly\t-\tJun\t1\t0:00\t1:00\tS\n"+
-"Rule\tLebanon\t1989\tonly\t-\tMay\t10\t0:00\t1:00\tS\n"+
-"Rule\tLebanon\t1990\t1992\t-\tMay\t1\t0:00\t1:00\tS\n"+
-"Rule\tLebanon\t1992\tonly\t-\tOct\t4\t0:00\t0\t-\n"+
-"Rule\tLebanon\t1993\tmax\t-\tMar\tlastSun\t0:00\t1:00\tS\n"+
-"Rule\tLebanon\t1993\t1998\t-\tSep\tlastSun\t0:00\t0\t-\n"+
-"Rule\tLebanon\t1999\tmax\t-\tOct\tlastSun\t0:00\t0\t-\n"+
-"Zone\tAsia/Beirut\t2:22:00 -\tLMT\t1880\n"+
-"\t\t\t2:00\tLebanon\tEE%sT\n"+
-"Rule\tNBorneo\t1935\t1941\t-\tSep\t14\t0:00\t0:20\tTS # one-Third Summer\n"+
-"Rule\tNBorneo\t1935\t1941\t-\tDec\t14\t0:00\t0\t-\n"+
-"Zone Asia/Kuala_Lumpur\t6:46:46 -\tLMT\t1901 Jan  1\n"+
-"\t\t\t6:55:25\t-\tSMT\t1905 Jun  1 # Singapore M.T.\n"+
-"\t\t\t7:00\t-\tMALT\t1933 Jan  1 # Malaya Time\n"+
-"\t\t\t7:00\t0:20\tMALST\t1936 Jan  1\n"+
-"\t\t\t7:20\t-\tMALT\t1941 Sep  1\n"+
-"\t\t\t7:30\t-\tMALT\t1942 Feb 16\n"+
-"\t\t\t9:00\t-\tJST\t1945 Sep 12\n"+
-"\t\t\t7:30\t-\tMALT\t1982 Jan  1\n"+
-"\t\t\t8:00\t-\tMYT\t# Malaysia Time\n"+
-"Zone Asia/Kuching\t7:21:20\t-\tLMT\t1926 Mar\n"+
-"\t\t\t7:30\t-\tBORT\t1933\t# Borneo Time\n"+
-"\t\t\t8:00\tNBorneo\tBOR%sT\t1942 Feb 16\n"+
-"\t\t\t9:00\t-\tJST\t1945 Sep 12\n"+
-"\t\t\t8:00\t-\tBORT\t1982 Jan  1\n"+
-"\t\t\t8:00\t-\tMYT\n"+
-"Zone\tIndian/Maldives\t4:54:00 -\tLMT\t1880\t# Male\n"+
-"\t\t\t4:54:00\t-\tMMT\t1960\t# Male Mean Time\n"+
-"\t\t\t5:00\t-\tMVT\t\t# Maldives Time\n"+
-"Rule\tMongol\t1983\t1984\t-\tApr\t1\t0:00\t1:00\tS\n"+
-"Rule\tMongol\t1983\tonly\t-\tOct\t1\t0:00\t0\t-\n"+
-"Rule\tMongol\t1985\t1998\t-\tMar\tlastSun\t0:00\t1:00\tS\n"+
-"Rule\tMongol\t1984\t1998\t-\tSep\tlastSun\t0:00\t0\t-\n"+
-"Rule\tMongol\t2001\tonly\t-\tApr\tlastSat\t2:00\t1:00\tS\n"+
-"Rule\tMongol\t2001\t2006\t-\tSep\tlastSat\t2:00\t0\t-\n"+
-"Rule\tMongol\t2002\t2006\t-\tMar\tlastSat\t2:00\t1:00\tS\n"+
-"Zone\tAsia/Hovd\t6:06:36 -\tLMT\t1905 Aug\n"+
-"\t\t\t6:00\t-\tHOVT\t1978\t# Hovd Time\n"+
-"\t\t\t7:00\tMongol\tHOV%sT\n"+
-"Zone\tAsia/Ulaanbaatar 7:07:32 -\tLMT\t1905 Aug\n"+
-"\t\t\t7:00\t-\tULAT\t1978\t# Ulaanbaatar Time\n"+
-"\t\t\t8:00\tMongol\tULA%sT\n"+
-"Zone\tAsia/Choibalsan\t7:38:00 -\tLMT\t1905 Aug\n"+
-"\t\t\t7:00\t-\tULAT\t1978\n"+
-"\t\t\t8:00\t-\tULAT\t1983 Apr\n"+
-"\t\t\t9:00\tMongol\tCHO%sT\t2008 Mar 31 # Choibalsan Time\n"+
-"\t\t\t8:00\tMongol\tCHO%sT\n"+
-"Zone\tAsia/Kathmandu\t5:41:16 -\tLMT\t1920\n"+
-"\t\t\t5:30\t-\tIST\t1986\n"+
-"\t\t\t5:45\t-\tNPT\t# Nepal Time\n"+
-"Zone\tAsia/Muscat\t3:54:20 -\tLMT\t1920\n"+
-"\t\t\t4:00\t-\tGST\n"+
-"Rule Pakistan\t2002\tonly\t-\tApr\tSun>=2\t0:01\t1:00\tS\n"+
-"Rule Pakistan\t2002\tonly\t-\tOct\tSun>=2\t0:01\t0\t-\n"+
-"Rule Pakistan\t2008\tonly\t-\tJun\t1\t0:00\t1:00\tS\n"+
-"Rule Pakistan\t2008\tonly\t-\tNov\t1\t0:00\t0\t-\n"+
-"Rule Pakistan\t2009\tonly\t-\tApr\t15\t0:00\t1:00\tS\n"+
-"Rule Pakistan\t2009\tonly\t-\tNov\t1\t0:00\t0\t-\n"+
-"Zone\tAsia/Karachi\t4:28:12 -\tLMT\t1907\n"+
-"\t\t\t5:30\t-\tIST\t1942 Sep\n"+
-"\t\t\t5:30\t1:00\tIST\t1945 Oct 15\n"+
-"\t\t\t5:30\t-\tIST\t1951 Sep 30\n"+
-"\t\t\t5:00\t-\tKART\t1971 Mar 26 # Karachi Time\n"+
-"\t\t\t5:00 Pakistan\tPK%sT\t# Pakistan Time\n"+
-"Rule EgyptAsia\t1957\tonly\t-\tMay\t10\t0:00\t1:00\tS\n"+
-"Rule EgyptAsia\t1957\t1958\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Rule EgyptAsia\t1958\tonly\t-\tMay\t 1\t0:00\t1:00\tS\n"+
-"Rule EgyptAsia\t1959\t1967\t-\tMay\t 1\t1:00\t1:00\tS\n"+
-"Rule EgyptAsia\t1959\t1965\t-\tSep\t30\t3:00\t0\t-\n"+
-"Rule EgyptAsia\t1966\tonly\t-\tOct\t 1\t3:00\t0\t-\n"+
-"Rule Palestine\t1999\t2005\t-\tApr\tFri>=15\t0:00\t1:00\tS\n"+
-"Rule Palestine\t1999\t2003\t-\tOct\tFri>=15\t0:00\t0\t-\n"+
-"Rule Palestine\t2004\tonly\t-\tOct\t 1\t1:00\t0\t-\n"+
-"Rule Palestine\t2005\tonly\t-\tOct\t 4\t2:00\t0\t-\n"+
-"Rule Palestine\t2006\t2008\t-\tApr\t 1\t0:00\t1:00\tS\n"+
-"Rule Palestine\t2006\tonly\t-\tSep\t22\t0:00\t0\t-\n"+
-"Rule Palestine\t2007\tonly\t-\tSep\tThu>=8\t2:00\t0\t-\n"+
-"Rule Palestine\t2008\tonly\t-\tAug\tlastFri\t0:00\t0\t-\n"+
-"Rule Palestine\t2009\tonly\t-\tMar\tlastFri\t0:00\t1:00\tS\n"+
-"Rule Palestine\t2009\tonly\t-\tSep\tFri>=1\t2:00\t0\t-\n"+
-"Rule Palestine\t2010\tonly\t-\tMar\tlastSat\t0:01\t1:00\tS\n"+
-"Rule Palestine\t2010\tonly\t-\tAug\t11\t0:00\t0\t-\n"+
-"Zone\tAsia/Gaza\t2:17:52\t-\tLMT\t1900 Oct\n"+
-"\t\t\t2:00\tZion\tEET\t1948 May 15\n"+
-"\t\t\t2:00 EgyptAsia\tEE%sT\t1967 Jun  5\n"+
-"\t\t\t2:00\tZion\tI%sT\t1996\n"+
-"\t\t\t2:00\tJordan\tEE%sT\t1999\n"+
-"\t\t\t2:00 Palestine\tEE%sT\t2011 Apr  2 12:01\n"+
-"\t\t\t2:00\t1:00\tEEST\t2011 Aug  1\n"+
-"\t\t\t2:00\t-\tEET\n"+
-"Zone\tAsia/Hebron\t2:20:23\t-\tLMT\t1900 Oct\n"+
-"\t\t\t2:00\tZion\tEET\t1948 May 15\n"+
-"\t\t\t2:00 EgyptAsia\tEE%sT\t1967 Jun  5\n"+
-"\t\t\t2:00\tZion\tI%sT\t1996\n"+
-"\t\t\t2:00\tJordan\tEE%sT\t1999\n"+
-"\t\t\t2:00 Palestine\tEE%sT\t2008 Aug\n"+
-"\t\t\t2:00 \t1:00\tEEST\t2008 Sep\n"+
-"\t\t\t2:00 Palestine\tEE%sT\t2011 Apr  1 12:01\n"+
-"\t\t\t2:00\t1:00\tEEST\t2011 Aug  1\n"+
-"\t\t\t2:00\t-\tEET\t2011 Aug 30\n"+
-"\t\t\t2:00\t1:00\tEEST\t2011 Sep 30 3:00\n"+
-"\t\t\t2:00\t-\tEET\n"+
-"Rule\tPhil\t1936\tonly\t-\tNov\t1\t0:00\t1:00\tS\n"+
-"Rule\tPhil\t1937\tonly\t-\tFeb\t1\t0:00\t0\t-\n"+
-"Rule\tPhil\t1954\tonly\t-\tApr\t12\t0:00\t1:00\tS\n"+
-"Rule\tPhil\t1954\tonly\t-\tJul\t1\t0:00\t0\t-\n"+
-"Rule\tPhil\t1978\tonly\t-\tMar\t22\t0:00\t1:00\tS\n"+
-"Rule\tPhil\t1978\tonly\t-\tSep\t21\t0:00\t0\t-\n"+
-"Zone\tAsia/Manila\t-15:56:00 -\tLMT\t1844 Dec 31\n"+
-"\t\t\t8:04:00 -\tLMT\t1899 May 11\n"+
-"\t\t\t8:00\tPhil\tPH%sT\t1942 May\n"+
-"\t\t\t9:00\t-\tJST\t1944 Nov\n"+
-"\t\t\t8:00\tPhil\tPH%sT\n"+
-"Zone\tAsia/Qatar\t3:26:08 -\tLMT\t1920\t# Al Dawhah / Doha\n"+
-"\t\t\t4:00\t-\tGST\t1972 Jun\n"+
-"\t\t\t3:00\t-\tAST\n"+
-"Zone\tAsia/Riyadh\t3:06:52 -\tLMT\t1950\n"+
-"\t\t\t3:00\t-\tAST\n"+
-"Zone\tAsia/Singapore\t6:55:25 -\tLMT\t1901 Jan  1\n"+
-"\t\t\t6:55:25\t-\tSMT\t1905 Jun  1 # Singapore M.T.\n"+
-"\t\t\t7:00\t-\tMALT\t1933 Jan  1 # Malaya Time\n"+
-"\t\t\t7:00\t0:20\tMALST\t1936 Jan  1\n"+
-"\t\t\t7:20\t-\tMALT\t1941 Sep  1\n"+
-"\t\t\t7:30\t-\tMALT\t1942 Feb 16\n"+
-"\t\t\t9:00\t-\tJST\t1945 Sep 12\n"+
-"\t\t\t7:30\t-\tMALT\t1965 Aug  9 # independence\n"+
-"\t\t\t7:30\t-\tSGT\t1982 Jan  1 # Singapore Time\n"+
-"\t\t\t8:00\t-\tSGT\n"+
-"Zone\tAsia/Colombo\t5:19:24 -\tLMT\t1880\n"+
-"\t\t\t5:19:32\t-\tMMT\t1906\t# Moratuwa Mean Time\n"+
-"\t\t\t5:30\t-\tIST\t1942 Jan  5\n"+
-"\t\t\t5:30\t0:30\tIHST\t1942 Sep\n"+
-"\t\t\t5:30\t1:00\tIST\t1945 Oct 16 2:00\n"+
-"\t\t\t5:30\t-\tIST\t1996 May 25 0:00\n"+
-"\t\t\t6:30\t-\tLKT\t1996 Oct 26 0:30\n"+
-"\t\t\t6:00\t-\tLKT\t2006 Apr 15 0:30\n"+
-"\t\t\t5:30\t-\tIST\n"+
-"Rule\tSyria\t1920\t1923\t-\tApr\tSun>=15\t2:00\t1:00\tS\n"+
-"Rule\tSyria\t1920\t1923\t-\tOct\tSun>=1\t2:00\t0\t-\n"+
-"Rule\tSyria\t1962\tonly\t-\tApr\t29\t2:00\t1:00\tS\n"+
-"Rule\tSyria\t1962\tonly\t-\tOct\t1\t2:00\t0\t-\n"+
-"Rule\tSyria\t1963\t1965\t-\tMay\t1\t2:00\t1:00\tS\n"+
-"Rule\tSyria\t1963\tonly\t-\tSep\t30\t2:00\t0\t-\n"+
-"Rule\tSyria\t1964\tonly\t-\tOct\t1\t2:00\t0\t-\n"+
-"Rule\tSyria\t1965\tonly\t-\tSep\t30\t2:00\t0\t-\n"+
-"Rule\tSyria\t1966\tonly\t-\tApr\t24\t2:00\t1:00\tS\n"+
-"Rule\tSyria\t1966\t1976\t-\tOct\t1\t2:00\t0\t-\n"+
-"Rule\tSyria\t1967\t1978\t-\tMay\t1\t2:00\t1:00\tS\n"+
-"Rule\tSyria\t1977\t1978\t-\tSep\t1\t2:00\t0\t-\n"+
-"Rule\tSyria\t1983\t1984\t-\tApr\t9\t2:00\t1:00\tS\n"+
-"Rule\tSyria\t1983\t1984\t-\tOct\t1\t2:00\t0\t-\n"+
-"Rule\tSyria\t1986\tonly\t-\tFeb\t16\t2:00\t1:00\tS\n"+
-"Rule\tSyria\t1986\tonly\t-\tOct\t9\t2:00\t0\t-\n"+
-"Rule\tSyria\t1987\tonly\t-\tMar\t1\t2:00\t1:00\tS\n"+
-"Rule\tSyria\t1987\t1988\t-\tOct\t31\t2:00\t0\t-\n"+
-"Rule\tSyria\t1988\tonly\t-\tMar\t15\t2:00\t1:00\tS\n"+
-"Rule\tSyria\t1989\tonly\t-\tMar\t31\t2:00\t1:00\tS\n"+
-"Rule\tSyria\t1989\tonly\t-\tOct\t1\t2:00\t0\t-\n"+
-"Rule\tSyria\t1990\tonly\t-\tApr\t1\t2:00\t1:00\tS\n"+
-"Rule\tSyria\t1990\tonly\t-\tSep\t30\t2:00\t0\t-\n"+
-"Rule\tSyria\t1991\tonly\t-\tApr\t 1\t0:00\t1:00\tS\n"+
-"Rule\tSyria\t1991\t1992\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Rule\tSyria\t1992\tonly\t-\tApr\t 8\t0:00\t1:00\tS\n"+
-"Rule\tSyria\t1993\tonly\t-\tMar\t26\t0:00\t1:00\tS\n"+
-"Rule\tSyria\t1993\tonly\t-\tSep\t25\t0:00\t0\t-\n"+
-"Rule\tSyria\t1994\t1996\t-\tApr\t 1\t0:00\t1:00\tS\n"+
-"Rule\tSyria\t1994\t2005\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Rule\tSyria\t1997\t1998\t-\tMar\tlastMon\t0:00\t1:00\tS\n"+
-"Rule\tSyria\t1999\t2006\t-\tApr\t 1\t0:00\t1:00\tS\n"+
-"Rule\tSyria\t2006\tonly\t-\tSep\t22\t0:00\t0\t-\n"+
-"Rule\tSyria\t2007\tonly\t-\tMar\tlastFri\t0:00\t1:00\tS\n"+
-"Rule\tSyria\t2007\tonly\t-\tNov\t Fri>=1\t0:00\t0\t-\n"+
-"Rule\tSyria\t2008\tonly\t-\tApr\tFri>=1\t0:00\t1:00\tS\n"+
-"Rule\tSyria\t2008\tonly\t-\tNov\t1\t0:00\t0\t-\n"+
-"Rule\tSyria\t2009\tonly\t-\tMar\tlastFri\t0:00\t1:00\tS\n"+
-"Rule\tSyria\t2010\tmax\t-\tApr\tFri>=1\t0:00\t1:00\tS\n"+
-"Rule\tSyria\t2009\tmax\t-\tOct\tlastFri\t0:00\t0\t-\n"+
-"Zone\tAsia/Damascus\t2:25:12 -\tLMT\t1920\t# Dimashq\n"+
-"\t\t\t2:00\tSyria\tEE%sT\n"+
-"Zone\tAsia/Dushanbe\t4:35:12 -\tLMT\t1924 May  2\n"+
-"\t\t\t5:00\t-\tDUST\t1930 Jun 21 # Dushanbe Time\n"+
-"\t\t\t6:00 RussiaAsia DUS%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t5:00\t1:00\tDUSST\t1991 Sep  9 2:00s\n"+
-"\t\t\t5:00\t-\tTJT\t\t    # Tajikistan Time\n"+
-"Zone\tAsia/Bangkok\t6:42:04\t-\tLMT\t1880\n"+
-"\t\t\t6:42:04\t-\tBMT\t1920 Apr # Bangkok Mean Time\n"+
-"\t\t\t7:00\t-\tICT\n"+
-"Zone\tAsia/Ashgabat\t3:53:32 -\tLMT\t1924 May  2 # or Ashkhabad\n"+
-"\t\t\t4:00\t-\tASHT\t1930 Jun 21 # Ashkhabad Time\n"+
-"\t\t\t5:00 RussiaAsia\tASH%sT\t1991 Mar 31 2:00\n"+
-"\t\t\t4:00 RussiaAsia\tASH%sT\t1991 Oct 27 # independence\n"+
-"\t\t\t4:00 RussiaAsia\tTM%sT\t1992 Jan 19 2:00\n"+
-"\t\t\t5:00\t-\tTMT\n"+
-"Zone\tAsia/Dubai\t3:41:12 -\tLMT\t1920\n"+
-"\t\t\t4:00\t-\tGST\n"+
-"Zone\tAsia/Samarkand\t4:27:12 -\tLMT\t1924 May  2\n"+
-"\t\t\t4:00\t-\tSAMT\t1930 Jun 21 # Samarkand Time\n"+
-"\t\t\t5:00\t-\tSAMT\t1981 Apr  1\n"+
-"\t\t\t5:00\t1:00\tSAMST\t1981 Oct  1\n"+
-"\t\t\t6:00\t-\tTAST\t1982 Apr  1 # Tashkent Time\n"+
-"\t\t\t5:00 RussiaAsia\tSAM%sT\t1991 Sep  1 # independence\n"+
-"\t\t\t5:00 RussiaAsia\tUZ%sT\t1992\n"+
-"\t\t\t5:00\t-\tUZT\n"+
-"Zone\tAsia/Tashkent\t4:37:12 -\tLMT\t1924 May  2\n"+
-"\t\t\t5:00\t-\tTAST\t1930 Jun 21 # Tashkent Time\n"+
-"\t\t\t6:00 RussiaAsia\tTAS%sT\t1991 Mar 31 2:00\n"+
-"\t\t\t5:00 RussiaAsia\tTAS%sT\t1991 Sep  1 # independence\n"+
-"\t\t\t5:00 RussiaAsia\tUZ%sT\t1992\n"+
-"\t\t\t5:00\t-\tUZT\n"+
-"Zone\tAsia/Ho_Chi_Minh\t7:06:40 -\tLMT\t1906 Jun  9\n"+
-"\t\t\t7:06:20\t-\tSMT\t1911 Mar 11 0:01 # Saigon MT?\n"+
-"\t\t\t7:00\t-\tICT\t1912 May\n"+
-"\t\t\t8:00\t-\tICT\t1931 May\n"+
-"\t\t\t7:00\t-\tICT\n"+
-"Zone\tAsia/Aden\t3:00:48\t-\tLMT\t1950\n"+
-"\t\t\t3:00\t-\tAST\n"+
-"","tz/australasia":"Rule\tAus\t1917\tonly\t-\tJan\t 1\t0:01\t1:00\t-\n"+
-"Rule\tAus\t1917\tonly\t-\tMar\t25\t2:00\t0\t-\n"+
-"Rule\tAus\t1942\tonly\t-\tJan\t 1\t2:00\t1:00\t-\n"+
-"Rule\tAus\t1942\tonly\t-\tMar\t29\t2:00\t0\t-\n"+
-"Rule\tAus\t1942\tonly\t-\tSep\t27\t2:00\t1:00\t-\n"+
-"Rule\tAus\t1943\t1944\t-\tMar\tlastSun\t2:00\t0\t-\n"+
-"Rule\tAus\t1943\tonly\t-\tOct\t 3\t2:00\t1:00\t-\n"+
-"Zone Australia/Darwin\t 8:43:20 -\tLMT\t1895 Feb\n"+
-"\t\t\t 9:00\t-\tCST\t1899 May\n"+
-"\t\t\t 9:30\tAus\tCST\n"+
-"Rule\tAW\t1974\tonly\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAW\t1975\tonly\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAW\t1983\tonly\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAW\t1984\tonly\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAW\t1991\tonly\t-\tNov\t17\t2:00s\t1:00\t-\n"+
-"Rule\tAW\t1992\tonly\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAW\t2006\tonly\t-\tDec\t 3\t2:00s\t1:00\t-\n"+
-"Rule\tAW\t2007\t2009\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tAW\t2007\t2008\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Zone Australia/Perth\t 7:43:24 -\tLMT\t1895 Dec\n"+
-"\t\t\t 8:00\tAus\tWST\t1943 Jul\n"+
-"\t\t\t 8:00\tAW\tWST\n"+
-"Zone Australia/Eucla\t 8:35:28 -\tLMT\t1895 Dec\n"+
-"\t\t\t 8:45\tAus\tCWST\t1943 Jul\n"+
-"\t\t\t 8:45\tAW\tCWST\n"+
-"Rule\tAQ\t1971\tonly\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAQ\t1972\tonly\t-\tFeb\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tAQ\t1989\t1991\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAQ\t1990\t1992\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tHoliday\t1992\t1993\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tHoliday\t1993\t1994\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Zone Australia/Brisbane\t10:12:08 -\tLMT\t1895\n"+
-"\t\t\t10:00\tAus\tEST\t1971\n"+
-"\t\t\t10:00\tAQ\tEST\n"+
-"Zone Australia/Lindeman  9:55:56 -\tLMT\t1895\n"+
-"\t\t\t10:00\tAus\tEST\t1971\n"+
-"\t\t\t10:00\tAQ\tEST\t1992 Jul\n"+
-"\t\t\t10:00\tHoliday\tEST\n"+
-"Rule\tAS\t1971\t1985\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAS\t1986\tonly\t-\tOct\t19\t2:00s\t1:00\t-\n"+
-"Rule\tAS\t1987\t2007\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAS\t1972\tonly\t-\tFeb\t27\t2:00s\t0\t-\n"+
-"Rule\tAS\t1973\t1985\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAS\t1986\t1990\t-\tMar\tSun>=15\t2:00s\t0\t-\n"+
-"Rule\tAS\t1991\tonly\t-\tMar\t3\t2:00s\t0\t-\n"+
-"Rule\tAS\t1992\tonly\t-\tMar\t22\t2:00s\t0\t-\n"+
-"Rule\tAS\t1993\tonly\t-\tMar\t7\t2:00s\t0\t-\n"+
-"Rule\tAS\t1994\tonly\t-\tMar\t20\t2:00s\t0\t-\n"+
-"Rule\tAS\t1995\t2005\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tAS\t2006\tonly\t-\tApr\t2\t2:00s\t0\t-\n"+
-"Rule\tAS\t2007\tonly\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tAS\t2008\tmax\t-\tApr\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAS\t2008\tmax\t-\tOct\tSun>=1\t2:00s\t1:00\t-\n"+
-"Zone Australia/Adelaide\t9:14:20 -\tLMT\t1895 Feb\n"+
-"\t\t\t9:00\t-\tCST\t1899 May\n"+
-"\t\t\t9:30\tAus\tCST\t1971\n"+
-"\t\t\t9:30\tAS\tCST\n"+
-"Rule\tAT\t1967\tonly\t-\tOct\tSun>=1\t2:00s\t1:00\t-\n"+
-"Rule\tAT\t1968\tonly\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tAT\t1968\t1985\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAT\t1969\t1971\t-\tMar\tSun>=8\t2:00s\t0\t-\n"+
-"Rule\tAT\t1972\tonly\t-\tFeb\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tAT\t1973\t1981\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAT\t1982\t1983\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tAT\t1984\t1986\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAT\t1986\tonly\t-\tOct\tSun>=15\t2:00s\t1:00\t-\n"+
-"Rule\tAT\t1987\t1990\t-\tMar\tSun>=15\t2:00s\t0\t-\n"+
-"Rule\tAT\t1987\tonly\t-\tOct\tSun>=22\t2:00s\t1:00\t-\n"+
-"Rule\tAT\t1988\t1990\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAT\t1991\t1999\t-\tOct\tSun>=1\t2:00s\t1:00\t-\n"+
-"Rule\tAT\t1991\t2005\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tAT\t2000\tonly\t-\tAug\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAT\t2001\tmax\t-\tOct\tSun>=1\t2:00s\t1:00\t-\n"+
-"Rule\tAT\t2006\tonly\t-\tApr\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAT\t2007\tonly\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tAT\t2008\tmax\t-\tApr\tSun>=1\t2:00s\t0\t-\n"+
-"Zone Australia/Hobart\t9:49:16\t-\tLMT\t1895 Sep\n"+
-"\t\t\t10:00\t-\tEST\t1916 Oct 1 2:00\n"+
-"\t\t\t10:00\t1:00\tEST\t1917 Feb\n"+
-"\t\t\t10:00\tAus\tEST\t1967\n"+
-"\t\t\t10:00\tAT\tEST\n"+
-"Zone Australia/Currie\t9:35:28\t-\tLMT\t1895 Sep\n"+
-"\t\t\t10:00\t-\tEST\t1916 Oct 1 2:00\n"+
-"\t\t\t10:00\t1:00\tEST\t1917 Feb\n"+
-"\t\t\t10:00\tAus\tEST\t1971 Jul\n"+
-"\t\t\t10:00\tAT\tEST\n"+
-"Rule\tAV\t1971\t1985\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAV\t1972\tonly\t-\tFeb\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tAV\t1973\t1985\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAV\t1986\t1990\t-\tMar\tSun>=15\t2:00s\t0\t-\n"+
-"Rule\tAV\t1986\t1987\t-\tOct\tSun>=15\t2:00s\t1:00\t-\n"+
-"Rule\tAV\t1988\t1999\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAV\t1991\t1994\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAV\t1995\t2005\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tAV\t2000\tonly\t-\tAug\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAV\t2001\t2007\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAV\t2006\tonly\t-\tApr\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAV\t2007\tonly\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tAV\t2008\tmax\t-\tApr\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAV\t2008\tmax\t-\tOct\tSun>=1\t2:00s\t1:00\t-\n"+
-"Zone Australia/Melbourne 9:39:52 -\tLMT\t1895 Feb\n"+
-"\t\t\t10:00\tAus\tEST\t1971\n"+
-"\t\t\t10:00\tAV\tEST\n"+
-"Rule\tAN\t1971\t1985\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAN\t1972\tonly\t-\tFeb\t27\t2:00s\t0\t-\n"+
-"Rule\tAN\t1973\t1981\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAN\t1982\tonly\t-\tApr\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAN\t1983\t1985\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAN\t1986\t1989\t-\tMar\tSun>=15\t2:00s\t0\t-\n"+
-"Rule\tAN\t1986\tonly\t-\tOct\t19\t2:00s\t1:00\t-\n"+
-"Rule\tAN\t1987\t1999\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAN\t1990\t1995\t-\tMar\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAN\t1996\t2005\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tAN\t2000\tonly\t-\tAug\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAN\t2001\t2007\t-\tOct\tlastSun\t2:00s\t1:00\t-\n"+
-"Rule\tAN\t2006\tonly\t-\tApr\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAN\t2007\tonly\t-\tMar\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tAN\t2008\tmax\t-\tApr\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAN\t2008\tmax\t-\tOct\tSun>=1\t2:00s\t1:00\t-\n"+
-"Zone Australia/Sydney\t10:04:52 -\tLMT\t1895 Feb\n"+
-"\t\t\t10:00\tAus\tEST\t1971\n"+
-"\t\t\t10:00\tAN\tEST\n"+
-"Zone Australia/Broken_Hill 9:25:48 -\tLMT\t1895 Feb\n"+
-"\t\t\t10:00\t-\tEST\t1896 Aug 23\n"+
-"\t\t\t9:00\t-\tCST\t1899 May\n"+
-"\t\t\t9:30\tAus\tCST\t1971\n"+
-"\t\t\t9:30\tAN\tCST\t2000\n"+
-"\t\t\t9:30\tAS\tCST\n"+
-"Rule\tLH\t1981\t1984\t-\tOct\tlastSun\t2:00\t1:00\t-\n"+
-"Rule\tLH\t1982\t1985\t-\tMar\tSun>=1\t2:00\t0\t-\n"+
-"Rule\tLH\t1985\tonly\t-\tOct\tlastSun\t2:00\t0:30\t-\n"+
-"Rule\tLH\t1986\t1989\t-\tMar\tSun>=15\t2:00\t0\t-\n"+
-"Rule\tLH\t1986\tonly\t-\tOct\t19\t2:00\t0:30\t-\n"+
-"Rule\tLH\t1987\t1999\t-\tOct\tlastSun\t2:00\t0:30\t-\n"+
-"Rule\tLH\t1990\t1995\t-\tMar\tSun>=1\t2:00\t0\t-\n"+
-"Rule\tLH\t1996\t2005\t-\tMar\tlastSun\t2:00\t0\t-\n"+
-"Rule\tLH\t2000\tonly\t-\tAug\tlastSun\t2:00\t0:30\t-\n"+
-"Rule\tLH\t2001\t2007\t-\tOct\tlastSun\t2:00\t0:30\t-\n"+
-"Rule\tLH\t2006\tonly\t-\tApr\tSun>=1\t2:00\t0\t-\n"+
-"Rule\tLH\t2007\tonly\t-\tMar\tlastSun\t2:00\t0\t-\n"+
-"Rule\tLH\t2008\tmax\t-\tApr\tSun>=1\t2:00\t0\t-\n"+
-"Rule\tLH\t2008\tmax\t-\tOct\tSun>=1\t2:00\t0:30\t-\n"+
-"Zone Australia/Lord_Howe 10:36:20 -\tLMT\t1895 Feb\n"+
-"\t\t\t10:00\t-\tEST\t1981 Mar\n"+
-"\t\t\t10:30\tLH\tLHST\n"+
-"Zone Indian/Christmas\t7:02:52 -\tLMT\t1895 Feb\n"+
-"\t\t\t7:00\t-\tCXT\t# Christmas Island Time\n"+
-"Rule\tCook\t1978\tonly\t-\tNov\t12\t0:00\t0:30\tHS\n"+
-"Rule\tCook\t1979\t1991\t-\tMar\tSun>=1\t0:00\t0\t-\n"+
-"Rule\tCook\t1979\t1990\t-\tOct\tlastSun\t0:00\t0:30\tHS\n"+
-"Zone Pacific/Rarotonga\t-10:39:04 -\tLMT\t1901\t\t# Avarua\n"+
-"\t\t\t-10:30\t-\tCKT\t1978 Nov 12\t# Cook Is Time\n"+
-"\t\t\t-10:00\tCook\tCK%sT\n"+
-"Zone\tIndian/Cocos\t6:27:40\t-\tLMT\t1900\n"+
-"\t\t\t6:30\t-\tCCT\t# Cocos Islands Time\n"+
-"Rule\tFiji\t1998\t1999\t-\tNov\tSun>=1\t2:00\t1:00\tS\n"+
-"Rule\tFiji\t1999\t2000\t-\tFeb\tlastSun\t3:00\t0\t-\n"+
-"Rule\tFiji\t2009\tonly\t-\tNov\t29\t2:00\t1:00\tS\n"+
-"Rule\tFiji\t2010\tonly\t-\tMar\tlastSun\t3:00\t0\t-\n"+
-"Rule\tFiji\t2010\tonly\t-\tOct\t24\t2:00\t1:00\tS\n"+
-"Rule\tFiji\t2011\tonly\t-\tMar\tSun>=1\t3:00\t0\t-\n"+
-"Rule\tFiji\t2011\tonly\t-\tOct\t23\t2:00\t1:00\tS\n"+
-"Rule\tFiji\t2012\tonly\t-\tJan\t22\t3:00\t0\t-\n"+
-"Zone\tPacific/Fiji\t11:53:40 -\tLMT\t1915 Oct 26\t# Suva\n"+
-"\t\t\t12:00\tFiji\tFJ%sT\t# Fiji Time\n"+
-"Zone\tPacific/Gambier\t -8:59:48 -\tLMT\t1912 Oct\t# Rikitea\n"+
-"\t\t\t -9:00\t-\tGAMT\t# Gambier Time\n"+
-"Zone\tPacific/Marquesas -9:18:00 -\tLMT\t1912 Oct\n"+
-"\t\t\t -9:30\t-\tMART\t# Marquesas Time\n"+
-"Zone\tPacific/Tahiti\t -9:58:16 -\tLMT\t1912 Oct\t# Papeete\n"+
-"\t\t\t-10:00\t-\tTAHT\t# Tahiti Time\n"+
-"Zone\tPacific/Guam\t-14:21:00 -\tLMT\t1844 Dec 31\n"+
-"\t\t\t 9:39:00 -\tLMT\t1901\t\t# Agana\n"+
-"\t\t\t10:00\t-\tGST\t2000 Dec 23\t# Guam\n"+
-"\t\t\t10:00\t-\tChST\t# Chamorro Standard Time\n"+
-"Zone Pacific/Tarawa\t 11:32:04 -\tLMT\t1901\t\t# Bairiki\n"+
-"\t\t\t 12:00\t-\tGILT\t\t # Gilbert Is Time\n"+
-"Zone Pacific/Enderbury\t-11:24:20 -\tLMT\t1901\n"+
-"\t\t\t-12:00\t-\tPHOT\t1979 Oct # Phoenix Is Time\n"+
-"\t\t\t-11:00\t-\tPHOT\t1995\n"+
-"\t\t\t 13:00\t-\tPHOT\n"+
-"Zone Pacific/Kiritimati\t-10:29:20 -\tLMT\t1901\n"+
-"\t\t\t-10:40\t-\tLINT\t1979 Oct # Line Is Time\n"+
-"\t\t\t-10:00\t-\tLINT\t1995\n"+
-"\t\t\t 14:00\t-\tLINT\n"+
-"Zone Pacific/Saipan\t-14:17:00 -\tLMT\t1844 Dec 31\n"+
-"\t\t\t 9:43:00 -\tLMT\t1901\n"+
-"\t\t\t 9:00\t-\tMPT\t1969 Oct # N Mariana Is Time\n"+
-"\t\t\t10:00\t-\tMPT\t2000 Dec 23\n"+
-"\t\t\t10:00\t-\tChST\t# Chamorro Standard Time\n"+
-"Zone Pacific/Majuro\t11:24:48 -\tLMT\t1901\n"+
-"\t\t\t11:00\t-\tMHT\t1969 Oct # Marshall Islands Time\n"+
-"\t\t\t12:00\t-\tMHT\n"+
-"Zone Pacific/Kwajalein\t11:09:20 -\tLMT\t1901\n"+
-"\t\t\t11:00\t-\tMHT\t1969 Oct\n"+
-"\t\t\t-12:00\t-\tKWAT\t1993 Aug 20\t# Kwajalein Time\n"+
-"\t\t\t12:00\t-\tMHT\n"+
-"Zone Pacific/Chuuk\t10:07:08 -\tLMT\t1901\n"+
-"\t\t\t10:00\t-\tCHUT\t\t\t# Chuuk Time\n"+
-"Zone Pacific/Pohnpei\t10:32:52 -\tLMT\t1901\t\t# Kolonia\n"+
-"\t\t\t11:00\t-\tPONT\t\t\t# Pohnpei Time\n"+
-"Zone Pacific/Kosrae\t10:51:56 -\tLMT\t1901\n"+
-"\t\t\t11:00\t-\tKOST\t1969 Oct\t# Kosrae Time\n"+
-"\t\t\t12:00\t-\tKOST\t1999\n"+
-"\t\t\t11:00\t-\tKOST\n"+
-"Zone\tPacific/Nauru\t11:07:40 -\tLMT\t1921 Jan 15\t# Uaobe\n"+
-"\t\t\t11:30\t-\tNRT\t1942 Mar 15\t# Nauru Time\n"+
-"\t\t\t9:00\t-\tJST\t1944 Aug 15\n"+
-"\t\t\t11:30\t-\tNRT\t1979 May\n"+
-"\t\t\t12:00\t-\tNRT\n"+
-"Rule\tNC\t1977\t1978\t-\tDec\tSun>=1\t0:00\t1:00\tS\n"+
-"Rule\tNC\t1978\t1979\t-\tFeb\t27\t0:00\t0\t-\n"+
-"Rule\tNC\t1996\tonly\t-\tDec\t 1\t2:00s\t1:00\tS\n"+
-"Rule\tNC\t1997\tonly\t-\tMar\t 2\t2:00s\t0\t-\n"+
-"Zone\tPacific/Noumea\t11:05:48 -\tLMT\t1912 Jan 13\n"+
-"\t\t\t11:00\tNC\tNC%sT\n"+
-"Rule\tNZ\t1927\tonly\t-\tNov\t 6\t2:00\t1:00\tS\n"+
-"Rule\tNZ\t1928\tonly\t-\tMar\t 4\t2:00\t0\tM\n"+
-"Rule\tNZ\t1928\t1933\t-\tOct\tSun>=8\t2:00\t0:30\tS\n"+
-"Rule\tNZ\t1929\t1933\t-\tMar\tSun>=15\t2:00\t0\tM\n"+
-"Rule\tNZ\t1934\t1940\t-\tApr\tlastSun\t2:00\t0\tM\n"+
-"Rule\tNZ\t1934\t1940\t-\tSep\tlastSun\t2:00\t0:30\tS\n"+
-"Rule\tNZ\t1946\tonly\t-\tJan\t 1\t0:00\t0\tS\n"+
-"Rule\tNZ\t1974\tonly\t-\tNov\tSun>=1\t2:00s\t1:00\tD\n"+
-"Rule\tChatham\t1974\tonly\t-\tNov\tSun>=1\t2:45s\t1:00\tD\n"+
-"Rule\tNZ\t1975\tonly\t-\tFeb\tlastSun\t2:00s\t0\tS\n"+
-"Rule\tChatham\t1975\tonly\t-\tFeb\tlastSun\t2:45s\t0\tS\n"+
-"Rule\tNZ\t1975\t1988\t-\tOct\tlastSun\t2:00s\t1:00\tD\n"+
-"Rule\tChatham\t1975\t1988\t-\tOct\tlastSun\t2:45s\t1:00\tD\n"+
-"Rule\tNZ\t1976\t1989\t-\tMar\tSun>=1\t2:00s\t0\tS\n"+
-"Rule\tChatham\t1976\t1989\t-\tMar\tSun>=1\t2:45s\t0\tS\n"+
-"Rule\tNZ\t1989\tonly\t-\tOct\tSun>=8\t2:00s\t1:00\tD\n"+
-"Rule\tChatham\t1989\tonly\t-\tOct\tSun>=8\t2:45s\t1:00\tD\n"+
-"Rule\tNZ\t1990\t2006\t-\tOct\tSun>=1\t2:00s\t1:00\tD\n"+
-"Rule\tChatham\t1990\t2006\t-\tOct\tSun>=1\t2:45s\t1:00\tD\n"+
-"Rule\tNZ\t1990\t2007\t-\tMar\tSun>=15\t2:00s\t0\tS\n"+
-"Rule\tChatham\t1990\t2007\t-\tMar\tSun>=15\t2:45s\t0\tS\n"+
-"Rule\tNZ\t2007\tmax\t-\tSep\tlastSun\t2:00s\t1:00\tD\n"+
-"Rule\tChatham\t2007\tmax\t-\tSep\tlastSun\t2:45s\t1:00\tD\n"+
-"Rule\tNZ\t2008\tmax\t-\tApr\tSun>=1\t2:00s\t0\tS\n"+
-"Rule\tChatham\t2008\tmax\t-\tApr\tSun>=1\t2:45s\t0\tS\n"+
-"Zone Pacific/Auckland\t11:39:04 -\tLMT\t1868 Nov  2\n"+
-"\t\t\t11:30\tNZ\tNZ%sT\t1946 Jan  1\n"+
-"\t\t\t12:00\tNZ\tNZ%sT\n"+
-"Zone Pacific/Chatham\t12:13:48 -\tLMT\t1957 Jan  1\n"+
-"\t\t\t12:45\tChatham\tCHA%sT\n"+
-"Zone\tPacific/Niue\t-11:19:40 -\tLMT\t1901\t\t# Alofi\n"+
-"\t\t\t-11:20\t-\tNUT\t1951\t# Niue Time\n"+
-"\t\t\t-11:30\t-\tNUT\t1978 Oct 1\n"+
-"\t\t\t-11:00\t-\tNUT\n"+
-"Zone\tPacific/Norfolk\t11:11:52 -\tLMT\t1901\t\t# Kingston\n"+
-"\t\t\t11:12\t-\tNMT\t1951\t# Norfolk Mean Time\n"+
-"\t\t\t11:30\t-\tNFT\t\t# Norfolk Time\n"+
-"Zone Pacific/Palau\t8:57:56 -\tLMT\t1901\t\t# Koror\n"+
-"\t\t\t9:00\t-\tPWT\t# Palau Time\n"+
-"Zone Pacific/Port_Moresby 9:48:40 -\tLMT\t1880\n"+
-"\t\t\t9:48:32\t-\tPMMT\t1895\t# Port Moresby Mean Time\n"+
-"\t\t\t10:00\t-\tPGT\t\t# Papua New Guinea Time\n"+
-"Zone Pacific/Pitcairn\t-8:40:20 -\tLMT\t1901\t\t# Adamstown\n"+
-"\t\t\t-8:30\t-\tPNT\t1998 Apr 27 00:00\n"+
-"\t\t\t-8:00\t-\tPST\t# Pitcairn Standard Time\n"+
-"Zone Pacific/Pago_Pago\t 12:37:12 -\tLMT\t1879 Jul  5\n"+
-"\t\t\t-11:22:48 -\tLMT\t1911\n"+
-"\t\t\t-11:30\t-\tSAMT\t1950\t\t# Samoa Time\n"+
-"\t\t\t-11:00\t-\tNST\t1967 Apr\t# N=Nome\n"+
-"\t\t\t-11:00\t-\tBST\t1983 Nov 30\t# B=Bering\n"+
-"\t\t\t-11:00\t-\tSST\t\t\t# S=Samoa\n"+
-"Zone Pacific/Apia\t 12:33:04 -\tLMT\t1879 Jul  5\n"+
-"\t\t\t-11:26:56 -\tLMT\t1911\n"+
-"\t\t\t-11:30\t-\tSAMT\t1950\t\t# Samoa Time\n"+
-"\t\t\t-11:00\t-\tWST\t2010 Sep 26\n"+
-"\t\t\t-11:00\t1:00\tWSDT\t2011 Apr 2 4:00\n"+
-"\t\t\t-11:00\t-\tWST\t2011 Sep 24 3:00\n"+
-"\t\t\t-11:00\t1:00\tWSDT\t2011 Dec 30\n"+
-"\t\t\t 13:00\t1:00\tWSDT\t2012 Apr 1 4:00\n"+
-"\t\t\t 13:00\t-\tWST\n"+
-"Zone Pacific/Guadalcanal 10:39:48 -\tLMT\t1912 Oct\t# Honiara\n"+
-"\t\t\t11:00\t-\tSBT\t# Solomon Is Time\n"+
-"Zone\tPacific/Fakaofo\t-11:24:56 -\tLMT\t1901\n"+
-"\t\t\t-10:00\t-\tTKT\t# Tokelau Time\n"+
-"Rule\tTonga\t1999\tonly\t-\tOct\t 7\t2:00s\t1:00\tS\n"+
-"Rule\tTonga\t2000\tonly\t-\tMar\t19\t2:00s\t0\t-\n"+
-"Rule\tTonga\t2000\t2001\t-\tNov\tSun>=1\t2:00\t1:00\tS\n"+
-"Rule\tTonga\t2001\t2002\t-\tJan\tlastSun\t2:00\t0\t-\n"+
-"Zone Pacific/Tongatapu\t12:19:20 -\tLMT\t1901\n"+
-"\t\t\t12:20\t-\tTOT\t1941 # Tonga Time\n"+
-"\t\t\t13:00\t-\tTOT\t1999\n"+
-"\t\t\t13:00\tTonga\tTO%sT\n"+
-"Zone Pacific/Funafuti\t11:56:52 -\tLMT\t1901\n"+
-"\t\t\t12:00\t-\tTVT\t# Tuvalu Time\n"+
-"Zone Pacific/Johnston\t-10:00\t-\tHST\n"+
-"Zone Pacific/Midway\t-11:49:28 -\tLMT\t1901\n"+
-"\t\t\t-11:00\t-\tNST\t1956 Jun  3\n"+
-"\t\t\t-11:00\t1:00\tNDT\t1956 Sep  2\n"+
-"\t\t\t-11:00\t-\tNST\t1967 Apr\t# N=Nome\n"+
-"\t\t\t-11:00\t-\tBST\t1983 Nov 30\t# B=Bering\n"+
-"\t\t\t-11:00\t-\tSST\t\t\t# S=Samoa\n"+
-"Zone\tPacific/Wake\t11:06:28 -\tLMT\t1901\n"+
-"\t\t\t12:00\t-\tWAKT\t# Wake Time\n"+
-"Rule\tVanuatu\t1983\tonly\t-\tSep\t25\t0:00\t1:00\tS\n"+
-"Rule\tVanuatu\t1984\t1991\t-\tMar\tSun>=23\t0:00\t0\t-\n"+
-"Rule\tVanuatu\t1984\tonly\t-\tOct\t23\t0:00\t1:00\tS\n"+
-"Rule\tVanuatu\t1985\t1991\t-\tSep\tSun>=23\t0:00\t1:00\tS\n"+
-"Rule\tVanuatu\t1992\t1993\t-\tJan\tSun>=23\t0:00\t0\t-\n"+
-"Rule\tVanuatu\t1992\tonly\t-\tOct\tSun>=23\t0:00\t1:00\tS\n"+
-"Zone\tPacific/Efate\t11:13:16 -\tLMT\t1912 Jan 13\t\t# Vila\n"+
-"\t\t\t11:00\tVanuatu\tVU%sT\t# Vanuatu Time\n"+
-"Zone\tPacific/Wallis\t12:15:20 -\tLMT\t1901\n"+
-"\t\t\t12:00\t-\tWFT\t# Wallis & Futuna Time\n"+
-"","tz/backward":"# <pre>\n"+
-"# @(#)backward\t8.11\n"+
-"# This file is in the public domain, so clarified as of\n"+
-"# 2009-05-17 by Arthur David Olson.\n"+
-"\n"+
-"# This file provides links between current names for time zones\n"+
-"# and their old names.  Many names changed in late 1993.\n"+
-"\n"+
-"Link\tAfrica/Asmara\t\tAfrica/Asmera\n"+
-"Link\tAfrica/Bamako\t\tAfrica/Timbuktu\n"+
-"Link\tAmerica/Argentina/Catamarca\tAmerica/Argentina/ComodRivadavia\n"+
-"Link\tAmerica/Adak\t\tAmerica/Atka\n"+
-"Link\tAmerica/Argentina/Buenos_Aires\tAmerica/Buenos_Aires\n"+
-"Link\tAmerica/Argentina/Catamarca\tAmerica/Catamarca\n"+
-"Link\tAmerica/Atikokan\tAmerica/Coral_Harbour\n"+
-"Link\tAmerica/Argentina/Cordoba\tAmerica/Cordoba\n"+
-"Link\tAmerica/Tijuana\t\tAmerica/Ensenada\n"+
-"Link\tAmerica/Indiana/Indianapolis\tAmerica/Fort_Wayne\n"+
-"Link\tAmerica/Indiana/Indianapolis\tAmerica/Indianapolis\n"+
-"Link\tAmerica/Argentina/Jujuy\tAmerica/Jujuy\n"+
-"Link\tAmerica/Indiana/Knox\tAmerica/Knox_IN\n"+
-"Link\tAmerica/Kentucky/Louisville\tAmerica/Louisville\n"+
-"Link\tAmerica/Argentina/Mendoza\tAmerica/Mendoza\n"+
-"Link\tAmerica/Rio_Branco\tAmerica/Porto_Acre\n"+
-"Link\tAmerica/Argentina/Cordoba\tAmerica/Rosario\n"+
-"Link\tAmerica/St_Thomas\tAmerica/Virgin\n"+
-"Link\tAsia/Ashgabat\t\tAsia/Ashkhabad\n"+
-"Link\tAsia/Chongqing\t\tAsia/Chungking\n"+
-"Link\tAsia/Dhaka\t\tAsia/Dacca\n"+
-"Link\tAsia/Kathmandu\t\tAsia/Katmandu\n"+
-"Link\tAsia/Kolkata\t\tAsia/Calcutta\n"+
-"Link\tAsia/Macau\t\tAsia/Macao\n"+
-"Link\tAsia/Jerusalem\t\tAsia/Tel_Aviv\n"+
-"Link\tAsia/Ho_Chi_Minh\tAsia/Saigon\n"+
-"Link\tAsia/Thimphu\t\tAsia/Thimbu\n"+
-"Link\tAsia/Makassar\t\tAsia/Ujung_Pandang\n"+
-"Link\tAsia/Ulaanbaatar\tAsia/Ulan_Bator\n"+
-"Link\tAtlantic/Faroe\t\tAtlantic/Faeroe\n"+
-"Link\tEurope/Oslo\t\tAtlantic/Jan_Mayen\n"+
-"Link\tAustralia/Sydney\tAustralia/ACT\n"+
-"Link\tAustralia/Sydney\tAustralia/Canberra\n"+
-"Link\tAustralia/Lord_Howe\tAustralia/LHI\n"+
-"Link\tAustralia/Sydney\tAustralia/NSW\n"+
-"Link\tAustralia/Darwin\tAustralia/North\n"+
-"Link\tAustralia/Brisbane\tAustralia/Queensland\n"+
-"Link\tAustralia/Adelaide\tAustralia/South\n"+
-"Link\tAustralia/Hobart\tAustralia/Tasmania\n"+
-"Link\tAustralia/Melbourne\tAustralia/Victoria\n"+
-"Link\tAustralia/Perth\t\tAustralia/West\n"+
-"Link\tAustralia/Broken_Hill\tAustralia/Yancowinna\n"+
-"Link\tAmerica/Rio_Branco\tBrazil/Acre\n"+
-"Link\tAmerica/Noronha\t\tBrazil/DeNoronha\n"+
-"Link\tAmerica/Sao_Paulo\tBrazil/East\n"+
-"Link\tAmerica/Manaus\t\tBrazil/West\n"+
-"Link\tAmerica/Halifax\t\tCanada/Atlantic\n"+
-"Link\tAmerica/Winnipeg\tCanada/Central\n"+
-"Link\tAmerica/Regina\t\tCanada/East-Saskatchewan\n"+
-"Link\tAmerica/Toronto\t\tCanada/Eastern\n"+
-"Link\tAmerica/Edmonton\tCanada/Mountain\n"+
-"Link\tAmerica/St_Johns\tCanada/Newfoundland\n"+
-"Link\tAmerica/Vancouver\tCanada/Pacific\n"+
-"Link\tAmerica/Regina\t\tCanada/Saskatchewan\n"+
-"Link\tAmerica/Whitehorse\tCanada/Yukon\n"+
-"Link\tAmerica/Santiago\tChile/Continental\n"+
-"Link\tPacific/Easter\t\tChile/EasterIsland\n"+
-"Link\tAmerica/Havana\t\tCuba\n"+
-"Link\tAfrica/Cairo\t\tEgypt\n"+
-"Link\tEurope/Dublin\t\tEire\n"+
-"Link\tEurope/London\t\tEurope/Belfast\n"+
-"Link\tEurope/Chisinau\t\tEurope/Tiraspol\n"+
-"Link\tEurope/London\t\tGB\n"+
-"Link\tEurope/London\t\tGB-Eire\n"+
-"Link\tEtc/GMT\t\t\tGMT+0\n"+
-"Link\tEtc/GMT\t\t\tGMT-0\n"+
-"Link\tEtc/GMT\t\t\tGMT0\n"+
-"Link\tEtc/GMT\t\t\tGreenwich\n"+
-"Link\tAsia/Hong_Kong\t\tHongkong\n"+
-"Link\tAtlantic/Reykjavik\tIceland\n"+
-"Link\tAsia/Tehran\t\tIran\n"+
-"Link\tAsia/Jerusalem\t\tIsrael\n"+
-"Link\tAmerica/Jamaica\t\tJamaica\n"+
-"Link\tAsia/Tokyo\t\tJapan\n"+
-"Link\tPacific/Kwajalein\tKwajalein\n"+
-"Link\tAfrica/Tripoli\t\tLibya\n"+
-"Link\tAmerica/Tijuana\t\tMexico/BajaNorte\n"+
-"Link\tAmerica/Mazatlan\tMexico/BajaSur\n"+
-"Link\tAmerica/Mexico_City\tMexico/General\n"+
-"Link\tPacific/Auckland\tNZ\n"+
-"Link\tPacific/Chatham\t\tNZ-CHAT\n"+
-"Link\tAmerica/Denver\t\tNavajo\n"+
-"Link\tAsia/Shanghai\t\tPRC\n"+
-"Link\tPacific/Pago_Pago\tPacific/Samoa\n"+
-"Link\tPacific/Chuuk\t\tPacific/Yap\n"+
-"Link\tPacific/Chuuk\t\tPacific/Truk\n"+
-"Link\tPacific/Pohnpei\t\tPacific/Ponape\n"+
-"Link\tEurope/Warsaw\t\tPoland\n"+
-"Link\tEurope/Lisbon\t\tPortugal\n"+
-"Link\tAsia/Taipei\t\tROC\n"+
-"Link\tAsia/Seoul\t\tROK\n"+
-"Link\tAsia/Singapore\t\tSingapore\n"+
-"Link\tEurope/Istanbul\t\tTurkey\n"+
-"Link\tEtc/UCT\t\t\tUCT\n"+
-"Link\tAmerica/Anchorage\tUS/Alaska\n"+
-"Link\tAmerica/Adak\t\tUS/Aleutian\n"+
-"Link\tAmerica/Phoenix\t\tUS/Arizona\n"+
-"Link\tAmerica/Chicago\t\tUS/Central\n"+
-"Link\tAmerica/Indiana/Indianapolis\tUS/East-Indiana\n"+
-"Link\tAmerica/New_York\tUS/Eastern\n"+
-"Link\tPacific/Honolulu\tUS/Hawaii\n"+
-"Link\tAmerica/Indiana/Knox\tUS/Indiana-Starke\n"+
-"Link\tAmerica/Detroit\t\tUS/Michigan\n"+
-"Link\tAmerica/Denver\t\tUS/Mountain\n"+
-"Link\tAmerica/Los_Angeles\tUS/Pacific\n"+
-"Link\tPacific/Pago_Pago\tUS/Samoa\n"+
-"Link\tEtc/UTC\t\t\tUTC\n"+
-"Link\tEtc/UTC\t\t\tUniversal\n"+
-"Link\tEurope/Moscow\t\tW-SU\n"+
-"Link\tEtc/UTC\t\t\tZulu\n"+
-"","tz/etcetera":"Zone\tEtc/GMT\t\t0\t-\tGMT\n"+
-"Zone\tEtc/UTC\t\t0\t-\tUTC\n"+
-"Zone\tEtc/UCT\t\t0\t-\tUCT\n"+
-"Link\tEtc/GMT\t\t\t\tGMT\n"+
-"Link\tEtc/UTC\t\t\t\tEtc/Universal\n"+
-"Link\tEtc/UTC\t\t\t\tEtc/Zulu\n"+
-"Link\tEtc/GMT\t\t\t\tEtc/Greenwich\n"+
-"Link\tEtc/GMT\t\t\t\tEtc/GMT-0\n"+
-"Link\tEtc/GMT\t\t\t\tEtc/GMT+0\n"+
-"Link\tEtc/GMT\t\t\t\tEtc/GMT0\n"+
-"Zone\tEtc/GMT-14\t14\t-\tGMT-14\t# 14 hours ahead of GMT\n"+
-"Zone\tEtc/GMT-13\t13\t-\tGMT-13\n"+
-"Zone\tEtc/GMT-12\t12\t-\tGMT-12\n"+
-"Zone\tEtc/GMT-11\t11\t-\tGMT-11\n"+
-"Zone\tEtc/GMT-10\t10\t-\tGMT-10\n"+
-"Zone\tEtc/GMT-9\t9\t-\tGMT-9\n"+
-"Zone\tEtc/GMT-8\t8\t-\tGMT-8\n"+
-"Zone\tEtc/GMT-7\t7\t-\tGMT-7\n"+
-"Zone\tEtc/GMT-6\t6\t-\tGMT-6\n"+
-"Zone\tEtc/GMT-5\t5\t-\tGMT-5\n"+
-"Zone\tEtc/GMT-4\t4\t-\tGMT-4\n"+
-"Zone\tEtc/GMT-3\t3\t-\tGMT-3\n"+
-"Zone\tEtc/GMT-2\t2\t-\tGMT-2\n"+
-"Zone\tEtc/GMT-1\t1\t-\tGMT-1\n"+
-"Zone\tEtc/GMT+1\t-1\t-\tGMT+1\n"+
-"Zone\tEtc/GMT+2\t-2\t-\tGMT+2\n"+
-"Zone\tEtc/GMT+3\t-3\t-\tGMT+3\n"+
-"Zone\tEtc/GMT+4\t-4\t-\tGMT+4\n"+
-"Zone\tEtc/GMT+5\t-5\t-\tGMT+5\n"+
-"Zone\tEtc/GMT+6\t-6\t-\tGMT+6\n"+
-"Zone\tEtc/GMT+7\t-7\t-\tGMT+7\n"+
-"Zone\tEtc/GMT+8\t-8\t-\tGMT+8\n"+
-"Zone\tEtc/GMT+9\t-9\t-\tGMT+9\n"+
-"Zone\tEtc/GMT+10\t-10\t-\tGMT+10\n"+
-"Zone\tEtc/GMT+11\t-11\t-\tGMT+11\n"+
-"Zone\tEtc/GMT+12\t-12\t-\tGMT+12\n"+
-"","tz/europe":"Rule\tGB-Eire\t1916\tonly\t-\tMay\t21\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1916\tonly\t-\tOct\t 1\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1917\tonly\t-\tApr\t 8\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1917\tonly\t-\tSep\t17\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1918\tonly\t-\tMar\t24\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1918\tonly\t-\tSep\t30\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1919\tonly\t-\tMar\t30\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1919\tonly\t-\tSep\t29\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1920\tonly\t-\tMar\t28\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1920\tonly\t-\tOct\t25\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1921\tonly\t-\tApr\t 3\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1921\tonly\t-\tOct\t 3\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1922\tonly\t-\tMar\t26\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1922\tonly\t-\tOct\t 8\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1923\tonly\t-\tApr\tSun>=16\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1923\t1924\t-\tSep\tSun>=16\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1924\tonly\t-\tApr\tSun>=9\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1925\t1926\t-\tApr\tSun>=16\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1925\t1938\t-\tOct\tSun>=2\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1927\tonly\t-\tApr\tSun>=9\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1928\t1929\t-\tApr\tSun>=16\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1930\tonly\t-\tApr\tSun>=9\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1931\t1932\t-\tApr\tSun>=16\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1933\tonly\t-\tApr\tSun>=9\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1934\tonly\t-\tApr\tSun>=16\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1935\tonly\t-\tApr\tSun>=9\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1936\t1937\t-\tApr\tSun>=16\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1938\tonly\t-\tApr\tSun>=9\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1939\tonly\t-\tApr\tSun>=16\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1939\tonly\t-\tNov\tSun>=16\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1940\tonly\t-\tFeb\tSun>=23\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1941\tonly\t-\tMay\tSun>=2\t1:00s\t2:00\tBDST\n"+
-"Rule\tGB-Eire\t1941\t1943\t-\tAug\tSun>=9\t1:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1942\t1944\t-\tApr\tSun>=2\t1:00s\t2:00\tBDST\n"+
-"Rule\tGB-Eire\t1944\tonly\t-\tSep\tSun>=16\t1:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1945\tonly\t-\tApr\tMon>=2\t1:00s\t2:00\tBDST\n"+
-"Rule\tGB-Eire\t1945\tonly\t-\tJul\tSun>=9\t1:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1945\t1946\t-\tOct\tSun>=2\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1946\tonly\t-\tApr\tSun>=9\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1947\tonly\t-\tMar\t16\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1947\tonly\t-\tApr\t13\t1:00s\t2:00\tBDST\n"+
-"Rule\tGB-Eire\t1947\tonly\t-\tAug\t10\t1:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1947\tonly\t-\tNov\t 2\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1948\tonly\t-\tMar\t14\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1948\tonly\t-\tOct\t31\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1949\tonly\t-\tApr\t 3\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1949\tonly\t-\tOct\t30\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1950\t1952\t-\tApr\tSun>=14\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1950\t1952\t-\tOct\tSun>=21\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1953\tonly\t-\tApr\tSun>=16\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1953\t1960\t-\tOct\tSun>=2\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1954\tonly\t-\tApr\tSun>=9\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1955\t1956\t-\tApr\tSun>=16\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1957\tonly\t-\tApr\tSun>=9\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1958\t1959\t-\tApr\tSun>=16\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1960\tonly\t-\tApr\tSun>=9\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1961\t1963\t-\tMar\tlastSun\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1961\t1968\t-\tOct\tSun>=23\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1964\t1967\t-\tMar\tSun>=19\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1968\tonly\t-\tFeb\t18\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1972\t1980\t-\tMar\tSun>=16\t2:00s\t1:00\tBST\n"+
-"Rule\tGB-Eire\t1972\t1980\t-\tOct\tSun>=23\t2:00s\t0\tGMT\n"+
-"Rule\tGB-Eire\t1981\t1995\t-\tMar\tlastSun\t1:00u\t1:00\tBST\n"+
-"Rule\tGB-Eire 1981\t1989\t-\tOct\tSun>=23\t1:00u\t0\tGMT\n"+
-"Rule\tGB-Eire 1990\t1995\t-\tOct\tSun>=22\t1:00u\t0\tGMT\n"+
-"Zone\tEurope/London\t-0:01:15 -\tLMT\t1847 Dec  1 0:00s\n"+
-"\t\t\t 0:00\tGB-Eire\t%s\t1968 Oct 27\n"+
-"\t\t\t 1:00\t-\tBST\t1971 Oct 31 2:00u\n"+
-"\t\t\t 0:00\tGB-Eire\t%s\t1996\n"+
-"\t\t\t 0:00\tEU\tGMT/BST\n"+
-"Link\tEurope/London\tEurope/Jersey\n"+
-"Link\tEurope/London\tEurope/Guernsey\n"+
-"Link\tEurope/London\tEurope/Isle_of_Man\n"+
-"Zone\tEurope/Dublin\t-0:25:00 -\tLMT\t1880 Aug  2\n"+
-"\t\t\t-0:25:21 -\tDMT\t1916 May 21 2:00\n"+
-"\t\t\t-0:25:21 1:00\tIST\t1916 Oct  1 2:00s\n"+
-"\t\t\t 0:00\tGB-Eire\t%s\t1921 Dec  6 # independence\n"+
-"\t\t\t 0:00\tGB-Eire\tGMT/IST\t1940 Feb 25 2:00\n"+
-"\t\t\t 0:00\t1:00\tIST\t1946 Oct  6 2:00\n"+
-"\t\t\t 0:00\t-\tGMT\t1947 Mar 16 2:00\n"+
-"\t\t\t 0:00\t1:00\tIST\t1947 Nov  2 2:00\n"+
-"\t\t\t 0:00\t-\tGMT\t1948 Apr 18 2:00\n"+
-"\t\t\t 0:00\tGB-Eire\tGMT/IST\t1968 Oct 27\n"+
-"\t\t\t 1:00\t-\tIST\t1971 Oct 31 2:00u\n"+
-"\t\t\t 0:00\tGB-Eire\tGMT/IST\t1996\n"+
-"\t\t\t 0:00\tEU\tGMT/IST\n"+
-"Rule\tEU\t1977\t1980\t-\tApr\tSun>=1\t 1:00u\t1:00\tS\n"+
-"Rule\tEU\t1977\tonly\t-\tSep\tlastSun\t 1:00u\t0\t-\n"+
-"Rule\tEU\t1978\tonly\t-\tOct\t 1\t 1:00u\t0\t-\n"+
-"Rule\tEU\t1979\t1995\t-\tSep\tlastSun\t 1:00u\t0\t-\n"+
-"Rule\tEU\t1981\tmax\t-\tMar\tlastSun\t 1:00u\t1:00\tS\n"+
-"Rule\tEU\t1996\tmax\t-\tOct\tlastSun\t 1:00u\t0\t-\n"+
-"Rule\tW-Eur\t1977\t1980\t-\tApr\tSun>=1\t 1:00s\t1:00\tS\n"+
-"Rule\tW-Eur\t1977\tonly\t-\tSep\tlastSun\t 1:00s\t0\t-\n"+
-"Rule\tW-Eur\t1978\tonly\t-\tOct\t 1\t 1:00s\t0\t-\n"+
-"Rule\tW-Eur\t1979\t1995\t-\tSep\tlastSun\t 1:00s\t0\t-\n"+
-"Rule\tW-Eur\t1981\tmax\t-\tMar\tlastSun\t 1:00s\t1:00\tS\n"+
-"Rule\tW-Eur\t1996\tmax\t-\tOct\tlastSun\t 1:00s\t0\t-\n"+
-"Rule\tC-Eur\t1916\tonly\t-\tApr\t30\t23:00\t1:00\tS\n"+
-"Rule\tC-Eur\t1916\tonly\t-\tOct\t 1\t 1:00\t0\t-\n"+
-"Rule\tC-Eur\t1917\t1918\t-\tApr\tMon>=15\t 2:00s\t1:00\tS\n"+
-"Rule\tC-Eur\t1917\t1918\t-\tSep\tMon>=15\t 2:00s\t0\t-\n"+
-"Rule\tC-Eur\t1940\tonly\t-\tApr\t 1\t 2:00s\t1:00\tS\n"+
-"Rule\tC-Eur\t1942\tonly\t-\tNov\t 2\t 2:00s\t0\t-\n"+
-"Rule\tC-Eur\t1943\tonly\t-\tMar\t29\t 2:00s\t1:00\tS\n"+
-"Rule\tC-Eur\t1943\tonly\t-\tOct\t 4\t 2:00s\t0\t-\n"+
-"Rule\tC-Eur\t1944\t1945\t-\tApr\tMon>=1\t 2:00s\t1:00\tS\n"+
-"Rule\tC-Eur\t1944\tonly\t-\tOct\t 2\t 2:00s\t0\t-\n"+
-"Rule\tC-Eur\t1945\tonly\t-\tSep\t16\t 2:00s\t0\t-\n"+
-"Rule\tC-Eur\t1977\t1980\t-\tApr\tSun>=1\t 2:00s\t1:00\tS\n"+
-"Rule\tC-Eur\t1977\tonly\t-\tSep\tlastSun\t 2:00s\t0\t-\n"+
-"Rule\tC-Eur\t1978\tonly\t-\tOct\t 1\t 2:00s\t0\t-\n"+
-"Rule\tC-Eur\t1979\t1995\t-\tSep\tlastSun\t 2:00s\t0\t-\n"+
-"Rule\tC-Eur\t1981\tmax\t-\tMar\tlastSun\t 2:00s\t1:00\tS\n"+
-"Rule\tC-Eur\t1996\tmax\t-\tOct\tlastSun\t 2:00s\t0\t-\n"+
-"Rule\tE-Eur\t1977\t1980\t-\tApr\tSun>=1\t 0:00\t1:00\tS\n"+
-"Rule\tE-Eur\t1977\tonly\t-\tSep\tlastSun\t 0:00\t0\t-\n"+
-"Rule\tE-Eur\t1978\tonly\t-\tOct\t 1\t 0:00\t0\t-\n"+
-"Rule\tE-Eur\t1979\t1995\t-\tSep\tlastSun\t 0:00\t0\t-\n"+
-"Rule\tE-Eur\t1981\tmax\t-\tMar\tlastSun\t 0:00\t1:00\tS\n"+
-"Rule\tE-Eur\t1996\tmax\t-\tOct\tlastSun\t 0:00\t0\t-\n"+
-"Rule\tRussia\t1917\tonly\t-\tJul\t 1\t23:00\t1:00\tMST\t# Moscow Summer Time\n"+
-"Rule\tRussia\t1917\tonly\t-\tDec\t28\t 0:00\t0\tMMT\t# Moscow Mean Time\n"+
-"Rule\tRussia\t1918\tonly\t-\tMay\t31\t22:00\t2:00\tMDST\t# Moscow Double Summer Time\n"+
-"Rule\tRussia\t1918\tonly\t-\tSep\t16\t 1:00\t1:00\tMST\n"+
-"Rule\tRussia\t1919\tonly\t-\tMay\t31\t23:00\t2:00\tMDST\n"+
-"Rule\tRussia\t1919\tonly\t-\tJul\t 1\t 2:00\t1:00\tS\n"+
-"Rule\tRussia\t1919\tonly\t-\tAug\t16\t 0:00\t0\t-\n"+
-"Rule\tRussia\t1921\tonly\t-\tFeb\t14\t23:00\t1:00\tS\n"+
-"Rule\tRussia\t1921\tonly\t-\tMar\t20\t23:00\t2:00\tM # Midsummer\n"+
-"Rule\tRussia\t1921\tonly\t-\tSep\t 1\t 0:00\t1:00\tS\n"+
-"Rule\tRussia\t1921\tonly\t-\tOct\t 1\t 0:00\t0\t-\n"+
-"Rule\tRussia\t1981\t1984\t-\tApr\t 1\t 0:00\t1:00\tS\n"+
-"Rule\tRussia\t1981\t1983\t-\tOct\t 1\t 0:00\t0\t-\n"+
-"Rule\tRussia\t1984\t1991\t-\tSep\tlastSun\t 2:00s\t0\t-\n"+
-"Rule\tRussia\t1985\t1991\t-\tMar\tlastSun\t 2:00s\t1:00\tS\n"+
-"Rule\tRussia\t1992\tonly\t-\tMar\tlastSat\t 23:00\t1:00\tS\n"+
-"Rule\tRussia\t1992\tonly\t-\tSep\tlastSat\t 23:00\t0\t-\n"+
-"Rule\tRussia\t1993\t2010\t-\tMar\tlastSun\t 2:00s\t1:00\tS\n"+
-"Rule\tRussia\t1993\t1995\t-\tSep\tlastSun\t 2:00s\t0\t-\n"+
-"Rule\tRussia\t1996\t2010\t-\tOct\tlastSun\t 2:00s\t0\t-\n"+
-"Zone\tWET\t\t0:00\tEU\tWE%sT\n"+
-"Zone\tCET\t\t1:00\tC-Eur\tCE%sT\n"+
-"Zone\tMET\t\t1:00\tC-Eur\tME%sT\n"+
-"Zone\tEET\t\t2:00\tEU\tEE%sT\n"+
-"Rule\tAlbania\t1940\tonly\t-\tJun\t16\t0:00\t1:00\tS\n"+
-"Rule\tAlbania\t1942\tonly\t-\tNov\t 2\t3:00\t0\t-\n"+
-"Rule\tAlbania\t1943\tonly\t-\tMar\t29\t2:00\t1:00\tS\n"+
-"Rule\tAlbania\t1943\tonly\t-\tApr\t10\t3:00\t0\t-\n"+
-"Rule\tAlbania\t1974\tonly\t-\tMay\t 4\t0:00\t1:00\tS\n"+
-"Rule\tAlbania\t1974\tonly\t-\tOct\t 2\t0:00\t0\t-\n"+
-"Rule\tAlbania\t1975\tonly\t-\tMay\t 1\t0:00\t1:00\tS\n"+
-"Rule\tAlbania\t1975\tonly\t-\tOct\t 2\t0:00\t0\t-\n"+
-"Rule\tAlbania\t1976\tonly\t-\tMay\t 2\t0:00\t1:00\tS\n"+
-"Rule\tAlbania\t1976\tonly\t-\tOct\t 3\t0:00\t0\t-\n"+
-"Rule\tAlbania\t1977\tonly\t-\tMay\t 8\t0:00\t1:00\tS\n"+
-"Rule\tAlbania\t1977\tonly\t-\tOct\t 2\t0:00\t0\t-\n"+
-"Rule\tAlbania\t1978\tonly\t-\tMay\t 6\t0:00\t1:00\tS\n"+
-"Rule\tAlbania\t1978\tonly\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Rule\tAlbania\t1979\tonly\t-\tMay\t 5\t0:00\t1:00\tS\n"+
-"Rule\tAlbania\t1979\tonly\t-\tSep\t30\t0:00\t0\t-\n"+
-"Rule\tAlbania\t1980\tonly\t-\tMay\t 3\t0:00\t1:00\tS\n"+
-"Rule\tAlbania\t1980\tonly\t-\tOct\t 4\t0:00\t0\t-\n"+
-"Rule\tAlbania\t1981\tonly\t-\tApr\t26\t0:00\t1:00\tS\n"+
-"Rule\tAlbania\t1981\tonly\t-\tSep\t27\t0:00\t0\t-\n"+
-"Rule\tAlbania\t1982\tonly\t-\tMay\t 2\t0:00\t1:00\tS\n"+
-"Rule\tAlbania\t1982\tonly\t-\tOct\t 3\t0:00\t0\t-\n"+
-"Rule\tAlbania\t1983\tonly\t-\tApr\t18\t0:00\t1:00\tS\n"+
-"Rule\tAlbania\t1983\tonly\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Rule\tAlbania\t1984\tonly\t-\tApr\t 1\t0:00\t1:00\tS\n"+
-"Zone\tEurope/Tirane\t1:19:20 -\tLMT\t1914\n"+
-"\t\t\t1:00\t-\tCET\t1940 Jun 16\n"+
-"\t\t\t1:00\tAlbania\tCE%sT\t1984 Jul\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Zone\tEurope/Andorra\t0:06:04 -\tLMT\t1901\n"+
-"\t\t\t0:00\t-\tWET\t1946 Sep 30\n"+
-"\t\t\t1:00\t-\tCET\t1985 Mar 31 2:00\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Rule\tAustria\t1920\tonly\t-\tApr\t 5\t2:00s\t1:00\tS\n"+
-"Rule\tAustria\t1920\tonly\t-\tSep\t13\t2:00s\t0\t-\n"+
-"Rule\tAustria\t1946\tonly\t-\tApr\t14\t2:00s\t1:00\tS\n"+
-"Rule\tAustria\t1946\t1948\t-\tOct\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tAustria\t1947\tonly\t-\tApr\t 6\t2:00s\t1:00\tS\n"+
-"Rule\tAustria\t1948\tonly\t-\tApr\t18\t2:00s\t1:00\tS\n"+
-"Rule\tAustria\t1980\tonly\t-\tApr\t 6\t0:00\t1:00\tS\n"+
-"Rule\tAustria\t1980\tonly\t-\tSep\t28\t0:00\t0\t-\n"+
-"Zone\tEurope/Vienna\t1:05:20 -\tLMT\t1893 Apr\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1920\n"+
-"\t\t\t1:00\tAustria\tCE%sT\t1940 Apr  1 2:00s\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1945 Apr  2 2:00s\n"+
-"\t\t\t1:00\t1:00\tCEST\t1945 Apr 12 2:00s\n"+
-"\t\t\t1:00\t-\tCET\t1946\n"+
-"\t\t\t1:00\tAustria\tCE%sT\t1981\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Zone\tEurope/Minsk\t1:50:16 -\tLMT\t1880\n"+
-"\t\t\t1:50\t-\tMMT\t1924 May 2 # Minsk Mean Time\n"+
-"\t\t\t2:00\t-\tEET\t1930 Jun 21\n"+
-"\t\t\t3:00\t-\tMSK\t1941 Jun 28\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1944 Jul  3\n"+
-"\t\t\t3:00\tRussia\tMSK/MSD\t1990\n"+
-"\t\t\t3:00\t-\tMSK\t1991 Mar 31 2:00s\n"+
-"\t\t\t2:00\t1:00\tEEST\t1991 Sep 29 2:00s\n"+
-"\t\t\t2:00\t-\tEET\t1992 Mar 29 0:00s\n"+
-"\t\t\t2:00\t1:00\tEEST\t1992 Sep 27 0:00s\n"+
-"\t\t\t2:00\tRussia\tEE%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t3:00\t-\tFET # Further-eastern European Time\n"+
-"Rule\tBelgium\t1918\tonly\t-\tMar\t 9\t 0:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1918\t1919\t-\tOct\tSat>=1\t23:00s\t0\t-\n"+
-"Rule\tBelgium\t1919\tonly\t-\tMar\t 1\t23:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1920\tonly\t-\tFeb\t14\t23:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1920\tonly\t-\tOct\t23\t23:00s\t0\t-\n"+
-"Rule\tBelgium\t1921\tonly\t-\tMar\t14\t23:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1921\tonly\t-\tOct\t25\t23:00s\t0\t-\n"+
-"Rule\tBelgium\t1922\tonly\t-\tMar\t25\t23:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1922\t1927\t-\tOct\tSat>=1\t23:00s\t0\t-\n"+
-"Rule\tBelgium\t1923\tonly\t-\tApr\t21\t23:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1924\tonly\t-\tMar\t29\t23:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1925\tonly\t-\tApr\t 4\t23:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1926\tonly\t-\tApr\t17\t23:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1927\tonly\t-\tApr\t 9\t23:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1928\tonly\t-\tApr\t14\t23:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1928\t1938\t-\tOct\tSun>=2\t 2:00s\t0\t-\n"+
-"Rule\tBelgium\t1929\tonly\t-\tApr\t21\t 2:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1930\tonly\t-\tApr\t13\t 2:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1931\tonly\t-\tApr\t19\t 2:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1932\tonly\t-\tApr\t 3\t 2:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1933\tonly\t-\tMar\t26\t 2:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1934\tonly\t-\tApr\t 8\t 2:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1935\tonly\t-\tMar\t31\t 2:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1936\tonly\t-\tApr\t19\t 2:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1937\tonly\t-\tApr\t 4\t 2:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1938\tonly\t-\tMar\t27\t 2:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1939\tonly\t-\tApr\t16\t 2:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1939\tonly\t-\tNov\t19\t 2:00s\t0\t-\n"+
-"Rule\tBelgium\t1940\tonly\t-\tFeb\t25\t 2:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1944\tonly\t-\tSep\t17\t 2:00s\t0\t-\n"+
-"Rule\tBelgium\t1945\tonly\t-\tApr\t 2\t 2:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1945\tonly\t-\tSep\t16\t 2:00s\t0\t-\n"+
-"Rule\tBelgium\t1946\tonly\t-\tMay\t19\t 2:00s\t1:00\tS\n"+
-"Rule\tBelgium\t1946\tonly\t-\tOct\t 7\t 2:00s\t0\t-\n"+
-"Zone\tEurope/Brussels\t0:17:30 -\tLMT\t1880\n"+
-"\t\t\t0:17:30\t-\tBMT\t1892 May  1 12:00 # Brussels MT\n"+
-"\t\t\t0:00\t-\tWET\t1914 Nov  8\n"+
-"\t\t\t1:00\t-\tCET\t1916 May  1  0:00\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1918 Nov 11 11:00u\n"+
-"\t\t\t0:00\tBelgium\tWE%sT\t1940 May 20  2:00s\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1944 Sep  3\n"+
-"\t\t\t1:00\tBelgium\tCE%sT\t1977\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Rule\tBulg\t1979\tonly\t-\tMar\t31\t23:00\t1:00\tS\n"+
-"Rule\tBulg\t1979\tonly\t-\tOct\t 1\t 1:00\t0\t-\n"+
-"Rule\tBulg\t1980\t1982\t-\tApr\tSat>=1\t23:00\t1:00\tS\n"+
-"Rule\tBulg\t1980\tonly\t-\tSep\t29\t 1:00\t0\t-\n"+
-"Rule\tBulg\t1981\tonly\t-\tSep\t27\t 2:00\t0\t-\n"+
-"Zone\tEurope/Sofia\t1:33:16 -\tLMT\t1880\n"+
-"\t\t\t1:56:56\t-\tIMT\t1894 Nov 30 # Istanbul MT?\n"+
-"\t\t\t2:00\t-\tEET\t1942 Nov  2  3:00\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1945\n"+
-"\t\t\t1:00\t-\tCET\t1945 Apr 2 3:00\n"+
-"\t\t\t2:00\t-\tEET\t1979 Mar 31 23:00\n"+
-"\t\t\t2:00\tBulg\tEE%sT\t1982 Sep 26  2:00\n"+
-"\t\t\t2:00\tC-Eur\tEE%sT\t1991\n"+
-"\t\t\t2:00\tE-Eur\tEE%sT\t1997\n"+
-"\t\t\t2:00\tEU\tEE%sT\n"+
-"Rule\tCzech\t1945\tonly\t-\tApr\t 8\t2:00s\t1:00\tS\n"+
-"Rule\tCzech\t1945\tonly\t-\tNov\t18\t2:00s\t0\t-\n"+
-"Rule\tCzech\t1946\tonly\t-\tMay\t 6\t2:00s\t1:00\tS\n"+
-"Rule\tCzech\t1946\t1949\t-\tOct\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tCzech\t1947\tonly\t-\tApr\t20\t2:00s\t1:00\tS\n"+
-"Rule\tCzech\t1948\tonly\t-\tApr\t18\t2:00s\t1:00\tS\n"+
-"Rule\tCzech\t1949\tonly\t-\tApr\t 9\t2:00s\t1:00\tS\n"+
-"Zone\tEurope/Prague\t0:57:44 -\tLMT\t1850\n"+
-"\t\t\t0:57:44\t-\tPMT\t1891 Oct     # Prague Mean Time\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1944 Sep 17 2:00s\n"+
-"\t\t\t1:00\tCzech\tCE%sT\t1979\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Rule\tDenmark\t1916\tonly\t-\tMay\t14\t23:00\t1:00\tS\n"+
-"Rule\tDenmark\t1916\tonly\t-\tSep\t30\t23:00\t0\t-\n"+
-"Rule\tDenmark\t1940\tonly\t-\tMay\t15\t 0:00\t1:00\tS\n"+
-"Rule\tDenmark\t1945\tonly\t-\tApr\t 2\t 2:00s\t1:00\tS\n"+
-"Rule\tDenmark\t1945\tonly\t-\tAug\t15\t 2:00s\t0\t-\n"+
-"Rule\tDenmark\t1946\tonly\t-\tMay\t 1\t 2:00s\t1:00\tS\n"+
-"Rule\tDenmark\t1946\tonly\t-\tSep\t 1\t 2:00s\t0\t-\n"+
-"Rule\tDenmark\t1947\tonly\t-\tMay\t 4\t 2:00s\t1:00\tS\n"+
-"Rule\tDenmark\t1947\tonly\t-\tAug\t10\t 2:00s\t0\t-\n"+
-"Rule\tDenmark\t1948\tonly\t-\tMay\t 9\t 2:00s\t1:00\tS\n"+
-"Rule\tDenmark\t1948\tonly\t-\tAug\t 8\t 2:00s\t0\t-\n"+
-"Zone Europe/Copenhagen\t 0:50:20 -\tLMT\t1890\n"+
-"\t\t\t 0:50:20 -\tCMT\t1894 Jan  1 # Copenhagen MT\n"+
-"\t\t\t 1:00\tDenmark\tCE%sT\t1942 Nov  2 2:00s\n"+
-"\t\t\t 1:00\tC-Eur\tCE%sT\t1945 Apr  2 2:00\n"+
-"\t\t\t 1:00\tDenmark\tCE%sT\t1980\n"+
-"\t\t\t 1:00\tEU\tCE%sT\n"+
-"Zone Atlantic/Faroe\t-0:27:04 -\tLMT\t1908 Jan 11\t# Torshavn\n"+
-"\t\t\t 0:00\t-\tWET\t1981\n"+
-"\t\t\t 0:00\tEU\tWE%sT\n"+
-"Rule\tThule\t1991\t1992\t-\tMar\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tThule\t1991\t1992\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tThule\t1993\t2006\t-\tApr\tSun>=1\t2:00\t1:00\tD\n"+
-"Rule\tThule\t1993\t2006\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tThule\t2007\tmax\t-\tMar\tSun>=8\t2:00\t1:00\tD\n"+
-"Rule\tThule\t2007\tmax\t-\tNov\tSun>=1\t2:00\t0\tS\n"+
-"Zone America/Danmarkshavn -1:14:40 -\tLMT\t1916 Jul 28\n"+
-"\t\t\t-3:00\t-\tWGT\t1980 Apr  6 2:00\n"+
-"\t\t\t-3:00\tEU\tWG%sT\t1996\n"+
-"\t\t\t0:00\t-\tGMT\n"+
-"Zone America/Scoresbysund -1:27:52 -\tLMT\t1916 Jul 28 # Ittoqqortoormiit\n"+
-"\t\t\t-2:00\t-\tCGT\t1980 Apr  6 2:00\n"+
-"\t\t\t-2:00\tC-Eur\tCG%sT\t1981 Mar 29\n"+
-"\t\t\t-1:00\tEU\tEG%sT\n"+
-"Zone America/Godthab\t-3:26:56 -\tLMT\t1916 Jul 28 # Nuuk\n"+
-"\t\t\t-3:00\t-\tWGT\t1980 Apr  6 2:00\n"+
-"\t\t\t-3:00\tEU\tWG%sT\n"+
-"Zone America/Thule\t-4:35:08 -\tLMT\t1916 Jul 28 # Pituffik air base\n"+
-"\t\t\t-4:00\tThule\tA%sT\n"+
-"Zone\tEurope/Tallinn\t1:39:00\t-\tLMT\t1880\n"+
-"\t\t\t1:39:00\t-\tTMT\t1918 Feb # Tallinn Mean Time\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1919 Jul\n"+
-"\t\t\t1:39:00\t-\tTMT\t1921 May\n"+
-"\t\t\t2:00\t-\tEET\t1940 Aug  6\n"+
-"\t\t\t3:00\t-\tMSK\t1941 Sep 15\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1944 Sep 22\n"+
-"\t\t\t3:00\tRussia\tMSK/MSD\t1989 Mar 26 2:00s\n"+
-"\t\t\t2:00\t1:00\tEEST\t1989 Sep 24 2:00s\n"+
-"\t\t\t2:00\tC-Eur\tEE%sT\t1998 Sep 22\n"+
-"\t\t\t2:00\tEU\tEE%sT\t1999 Nov  1\n"+
-"\t\t\t2:00\t-\tEET\t2002 Feb 21\n"+
-"\t\t\t2:00\tEU\tEE%sT\n"+
-"Rule\tFinland\t1942\tonly\t-\tApr\t3\t0:00\t1:00\tS\n"+
-"Rule\tFinland\t1942\tonly\t-\tOct\t3\t0:00\t0\t-\n"+
-"Rule\tFinland\t1981\t1982\t-\tMar\tlastSun\t2:00\t1:00\tS\n"+
-"Rule\tFinland\t1981\t1982\t-\tSep\tlastSun\t3:00\t0\t-\n"+
-"Zone\tEurope/Helsinki\t1:39:52 -\tLMT\t1878 May 31\n"+
-"\t\t\t1:39:52\t-\tHMT\t1921 May    # Helsinki Mean Time\n"+
-"\t\t\t2:00\tFinland\tEE%sT\t1983\n"+
-"\t\t\t2:00\tEU\tEE%sT\n"+
-"Link\tEurope/Helsinki\tEurope/Mariehamn\n"+
-"Rule\tFrance\t1916\tonly\t-\tJun\t14\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1916\t1919\t-\tOct\tSun>=1\t23:00s\t0\t-\n"+
-"Rule\tFrance\t1917\tonly\t-\tMar\t24\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1918\tonly\t-\tMar\t 9\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1919\tonly\t-\tMar\t 1\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1920\tonly\t-\tFeb\t14\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1920\tonly\t-\tOct\t23\t23:00s\t0\t-\n"+
-"Rule\tFrance\t1921\tonly\t-\tMar\t14\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1921\tonly\t-\tOct\t25\t23:00s\t0\t-\n"+
-"Rule\tFrance\t1922\tonly\t-\tMar\t25\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1922\t1938\t-\tOct\tSat>=1\t23:00s\t0\t-\n"+
-"Rule\tFrance\t1923\tonly\t-\tMay\t26\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1924\tonly\t-\tMar\t29\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1925\tonly\t-\tApr\t 4\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1926\tonly\t-\tApr\t17\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1927\tonly\t-\tApr\t 9\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1928\tonly\t-\tApr\t14\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1929\tonly\t-\tApr\t20\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1930\tonly\t-\tApr\t12\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1931\tonly\t-\tApr\t18\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1932\tonly\t-\tApr\t 2\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1933\tonly\t-\tMar\t25\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1934\tonly\t-\tApr\t 7\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1935\tonly\t-\tMar\t30\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1936\tonly\t-\tApr\t18\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1937\tonly\t-\tApr\t 3\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1938\tonly\t-\tMar\t26\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1939\tonly\t-\tApr\t15\t23:00s\t1:00\tS\n"+
-"Rule\tFrance\t1939\tonly\t-\tNov\t18\t23:00s\t0\t-\n"+
-"Rule\tFrance\t1940\tonly\t-\tFeb\t25\t 2:00\t1:00\tS\n"+
-"Rule\tFrance\t1941\tonly\t-\tMay\t 5\t 0:00\t2:00\tM # Midsummer\n"+
-"Rule\tFrance\t1941\tonly\t-\tOct\t 6\t 0:00\t1:00\tS\n"+
-"Rule\tFrance\t1942\tonly\t-\tMar\t 9\t 0:00\t2:00\tM\n"+
-"Rule\tFrance\t1942\tonly\t-\tNov\t 2\t 3:00\t1:00\tS\n"+
-"Rule\tFrance\t1943\tonly\t-\tMar\t29\t 2:00\t2:00\tM\n"+
-"Rule\tFrance\t1943\tonly\t-\tOct\t 4\t 3:00\t1:00\tS\n"+
-"Rule\tFrance\t1944\tonly\t-\tApr\t 3\t 2:00\t2:00\tM\n"+
-"Rule\tFrance\t1944\tonly\t-\tOct\t 8\t 1:00\t1:00\tS\n"+
-"Rule\tFrance\t1945\tonly\t-\tApr\t 2\t 2:00\t2:00\tM\n"+
-"Rule\tFrance\t1945\tonly\t-\tSep\t16\t 3:00\t0\t-\n"+
-"Rule\tFrance\t1976\tonly\t-\tMar\t28\t 1:00\t1:00\tS\n"+
-"Rule\tFrance\t1976\tonly\t-\tSep\t26\t 1:00\t0\t-\n"+
-"Zone\tEurope/Paris\t0:09:21 -\tLMT\t1891 Mar 15  0:01\n"+
-"\t\t\t0:09:21\t-\tPMT\t1911 Mar 11  0:01  # Paris MT\n"+
-"\t\t\t0:00\tFrance\tWE%sT\t1940 Jun 14 23:00\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1944 Aug 25\n"+
-"\t\t\t0:00\tFrance\tWE%sT\t1945 Sep 16  3:00\n"+
-"\t\t\t1:00\tFrance\tCE%sT\t1977\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Rule\tGermany\t1946\tonly\t-\tApr\t14\t2:00s\t1:00\tS\n"+
-"Rule\tGermany\t1946\tonly\t-\tOct\t 7\t2:00s\t0\t-\n"+
-"Rule\tGermany\t1947\t1949\t-\tOct\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tGermany\t1947\tonly\t-\tApr\t 6\t3:00s\t1:00\tS\n"+
-"Rule\tGermany\t1947\tonly\t-\tMay\t11\t2:00s\t2:00\tM\n"+
-"Rule\tGermany\t1947\tonly\t-\tJun\t29\t3:00\t1:00\tS\n"+
-"Rule\tGermany\t1948\tonly\t-\tApr\t18\t2:00s\t1:00\tS\n"+
-"Rule\tGermany\t1949\tonly\t-\tApr\t10\t2:00s\t1:00\tS\n"+
-"Rule SovietZone\t1945\tonly\t-\tMay\t24\t2:00\t2:00\tM # Midsummer\n"+
-"Rule SovietZone\t1945\tonly\t-\tSep\t24\t3:00\t1:00\tS\n"+
-"Rule SovietZone\t1945\tonly\t-\tNov\t18\t2:00s\t0\t-\n"+
-"Zone\tEurope/Berlin\t0:53:28 -\tLMT\t1893 Apr\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1945 May 24 2:00\n"+
-"\t\t\t1:00 SovietZone\tCE%sT\t1946\n"+
-"\t\t\t1:00\tGermany\tCE%sT\t1980\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Zone Europe/Gibraltar\t-0:21:24 -\tLMT\t1880 Aug  2 0:00s\n"+
-"\t\t\t0:00\tGB-Eire\t%s\t1957 Apr 14 2:00\n"+
-"\t\t\t1:00\t-\tCET\t1982\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Rule\tGreece\t1932\tonly\t-\tJul\t 7\t0:00\t1:00\tS\n"+
-"Rule\tGreece\t1932\tonly\t-\tSep\t 1\t0:00\t0\t-\n"+
-"Rule\tGreece\t1941\tonly\t-\tApr\t 7\t0:00\t1:00\tS\n"+
-"Rule\tGreece\t1942\tonly\t-\tNov\t 2\t3:00\t0\t-\n"+
-"Rule\tGreece\t1943\tonly\t-\tMar\t30\t0:00\t1:00\tS\n"+
-"Rule\tGreece\t1943\tonly\t-\tOct\t 4\t0:00\t0\t-\n"+
-"Rule\tGreece\t1952\tonly\t-\tJul\t 1\t0:00\t1:00\tS\n"+
-"Rule\tGreece\t1952\tonly\t-\tNov\t 2\t0:00\t0\t-\n"+
-"Rule\tGreece\t1975\tonly\t-\tApr\t12\t0:00s\t1:00\tS\n"+
-"Rule\tGreece\t1975\tonly\t-\tNov\t26\t0:00s\t0\t-\n"+
-"Rule\tGreece\t1976\tonly\t-\tApr\t11\t2:00s\t1:00\tS\n"+
-"Rule\tGreece\t1976\tonly\t-\tOct\t10\t2:00s\t0\t-\n"+
-"Rule\tGreece\t1977\t1978\t-\tApr\tSun>=1\t2:00s\t1:00\tS\n"+
-"Rule\tGreece\t1977\tonly\t-\tSep\t26\t2:00s\t0\t-\n"+
-"Rule\tGreece\t1978\tonly\t-\tSep\t24\t4:00\t0\t-\n"+
-"Rule\tGreece\t1979\tonly\t-\tApr\t 1\t9:00\t1:00\tS\n"+
-"Rule\tGreece\t1979\tonly\t-\tSep\t29\t2:00\t0\t-\n"+
-"Rule\tGreece\t1980\tonly\t-\tApr\t 1\t0:00\t1:00\tS\n"+
-"Rule\tGreece\t1980\tonly\t-\tSep\t28\t0:00\t0\t-\n"+
-"Zone\tEurope/Athens\t1:34:52 -\tLMT\t1895 Sep 14\n"+
-"\t\t\t1:34:52\t-\tAMT\t1916 Jul 28 0:01     # Athens MT\n"+
-"\t\t\t2:00\tGreece\tEE%sT\t1941 Apr 30\n"+
-"\t\t\t1:00\tGreece\tCE%sT\t1944 Apr  4\n"+
-"\t\t\t2:00\tGreece\tEE%sT\t1981\n"+
-"\t\t\t2:00\tEU\tEE%sT\n"+
-"Rule\tHungary\t1918\tonly\t-\tApr\t 1\t 3:00\t1:00\tS\n"+
-"Rule\tHungary\t1918\tonly\t-\tSep\t29\t 3:00\t0\t-\n"+
-"Rule\tHungary\t1919\tonly\t-\tApr\t15\t 3:00\t1:00\tS\n"+
-"Rule\tHungary\t1919\tonly\t-\tSep\t15\t 3:00\t0\t-\n"+
-"Rule\tHungary\t1920\tonly\t-\tApr\t 5\t 3:00\t1:00\tS\n"+
-"Rule\tHungary\t1920\tonly\t-\tSep\t30\t 3:00\t0\t-\n"+
-"Rule\tHungary\t1945\tonly\t-\tMay\t 1\t23:00\t1:00\tS\n"+
-"Rule\tHungary\t1945\tonly\t-\tNov\t 3\t 0:00\t0\t-\n"+
-"Rule\tHungary\t1946\tonly\t-\tMar\t31\t 2:00s\t1:00\tS\n"+
-"Rule\tHungary\t1946\t1949\t-\tOct\tSun>=1\t 2:00s\t0\t-\n"+
-"Rule\tHungary\t1947\t1949\t-\tApr\tSun>=4\t 2:00s\t1:00\tS\n"+
-"Rule\tHungary\t1950\tonly\t-\tApr\t17\t 2:00s\t1:00\tS\n"+
-"Rule\tHungary\t1950\tonly\t-\tOct\t23\t 2:00s\t0\t-\n"+
-"Rule\tHungary\t1954\t1955\t-\tMay\t23\t 0:00\t1:00\tS\n"+
-"Rule\tHungary\t1954\t1955\t-\tOct\t 3\t 0:00\t0\t-\n"+
-"Rule\tHungary\t1956\tonly\t-\tJun\tSun>=1\t 0:00\t1:00\tS\n"+
-"Rule\tHungary\t1956\tonly\t-\tSep\tlastSun\t 0:00\t0\t-\n"+
-"Rule\tHungary\t1957\tonly\t-\tJun\tSun>=1\t 1:00\t1:00\tS\n"+
-"Rule\tHungary\t1957\tonly\t-\tSep\tlastSun\t 3:00\t0\t-\n"+
-"Rule\tHungary\t1980\tonly\t-\tApr\t 6\t 1:00\t1:00\tS\n"+
-"Zone\tEurope/Budapest\t1:16:20 -\tLMT\t1890 Oct\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1918\n"+
-"\t\t\t1:00\tHungary\tCE%sT\t1941 Apr  6  2:00\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1945\n"+
-"\t\t\t1:00\tHungary\tCE%sT\t1980 Sep 28  2:00s\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Rule\tIceland\t1917\t1918\t-\tFeb\t19\t23:00\t1:00\tS\n"+
-"Rule\tIceland\t1917\tonly\t-\tOct\t21\t 1:00\t0\t-\n"+
-"Rule\tIceland\t1918\tonly\t-\tNov\t16\t 1:00\t0\t-\n"+
-"Rule\tIceland\t1939\tonly\t-\tApr\t29\t23:00\t1:00\tS\n"+
-"Rule\tIceland\t1939\tonly\t-\tNov\t29\t 2:00\t0\t-\n"+
-"Rule\tIceland\t1940\tonly\t-\tFeb\t25\t 2:00\t1:00\tS\n"+
-"Rule\tIceland\t1940\tonly\t-\tNov\t 3\t 2:00\t0\t-\n"+
-"Rule\tIceland\t1941\tonly\t-\tMar\t 2\t 1:00s\t1:00\tS\n"+
-"Rule\tIceland\t1941\tonly\t-\tNov\t 2\t 1:00s\t0\t-\n"+
-"Rule\tIceland\t1942\tonly\t-\tMar\t 8\t 1:00s\t1:00\tS\n"+
-"Rule\tIceland\t1942\tonly\t-\tOct\t25\t 1:00s\t0\t-\n"+
-"Rule\tIceland\t1943\t1946\t-\tMar\tSun>=1\t 1:00s\t1:00\tS\n"+
-"Rule\tIceland\t1943\t1948\t-\tOct\tSun>=22\t 1:00s\t0\t-\n"+
-"Rule\tIceland\t1947\t1967\t-\tApr\tSun>=1\t 1:00s\t1:00\tS\n"+
-"Rule\tIceland\t1949\tonly\t-\tOct\t30\t 1:00s\t0\t-\n"+
-"Rule\tIceland\t1950\t1966\t-\tOct\tSun>=22\t 1:00s\t0\t-\n"+
-"Rule\tIceland\t1967\tonly\t-\tOct\t29\t 1:00s\t0\t-\n"+
-"Zone Atlantic/Reykjavik\t-1:27:24 -\tLMT\t1837\n"+
-"\t\t\t-1:27:48 -\tRMT\t1908 # Reykjavik Mean Time?\n"+
-"\t\t\t-1:00\tIceland\tIS%sT\t1968 Apr 7 1:00s\n"+
-"\t\t\t 0:00\t-\tGMT\n"+
-"Rule\tItaly\t1916\tonly\t-\tJun\t 3\t0:00s\t1:00\tS\n"+
-"Rule\tItaly\t1916\tonly\t-\tOct\t 1\t0:00s\t0\t-\n"+
-"Rule\tItaly\t1917\tonly\t-\tApr\t 1\t0:00s\t1:00\tS\n"+
-"Rule\tItaly\t1917\tonly\t-\tSep\t30\t0:00s\t0\t-\n"+
-"Rule\tItaly\t1918\tonly\t-\tMar\t10\t0:00s\t1:00\tS\n"+
-"Rule\tItaly\t1918\t1919\t-\tOct\tSun>=1\t0:00s\t0\t-\n"+
-"Rule\tItaly\t1919\tonly\t-\tMar\t 2\t0:00s\t1:00\tS\n"+
-"Rule\tItaly\t1920\tonly\t-\tMar\t21\t0:00s\t1:00\tS\n"+
-"Rule\tItaly\t1920\tonly\t-\tSep\t19\t0:00s\t0\t-\n"+
-"Rule\tItaly\t1940\tonly\t-\tJun\t15\t0:00s\t1:00\tS\n"+
-"Rule\tItaly\t1944\tonly\t-\tSep\t17\t0:00s\t0\t-\n"+
-"Rule\tItaly\t1945\tonly\t-\tApr\t 2\t2:00\t1:00\tS\n"+
-"Rule\tItaly\t1945\tonly\t-\tSep\t15\t0:00s\t0\t-\n"+
-"Rule\tItaly\t1946\tonly\t-\tMar\t17\t2:00s\t1:00\tS\n"+
-"Rule\tItaly\t1946\tonly\t-\tOct\t 6\t2:00s\t0\t-\n"+
-"Rule\tItaly\t1947\tonly\t-\tMar\t16\t0:00s\t1:00\tS\n"+
-"Rule\tItaly\t1947\tonly\t-\tOct\t 5\t0:00s\t0\t-\n"+
-"Rule\tItaly\t1948\tonly\t-\tFeb\t29\t2:00s\t1:00\tS\n"+
-"Rule\tItaly\t1948\tonly\t-\tOct\t 3\t2:00s\t0\t-\n"+
-"Rule\tItaly\t1966\t1968\t-\tMay\tSun>=22\t0:00\t1:00\tS\n"+
-"Rule\tItaly\t1966\t1969\t-\tSep\tSun>=22\t0:00\t0\t-\n"+
-"Rule\tItaly\t1969\tonly\t-\tJun\t 1\t0:00\t1:00\tS\n"+
-"Rule\tItaly\t1970\tonly\t-\tMay\t31\t0:00\t1:00\tS\n"+
-"Rule\tItaly\t1970\tonly\t-\tSep\tlastSun\t0:00\t0\t-\n"+
-"Rule\tItaly\t1971\t1972\t-\tMay\tSun>=22\t0:00\t1:00\tS\n"+
-"Rule\tItaly\t1971\tonly\t-\tSep\tlastSun\t1:00\t0\t-\n"+
-"Rule\tItaly\t1972\tonly\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Rule\tItaly\t1973\tonly\t-\tJun\t 3\t0:00\t1:00\tS\n"+
-"Rule\tItaly\t1973\t1974\t-\tSep\tlastSun\t0:00\t0\t-\n"+
-"Rule\tItaly\t1974\tonly\t-\tMay\t26\t0:00\t1:00\tS\n"+
-"Rule\tItaly\t1975\tonly\t-\tJun\t 1\t0:00s\t1:00\tS\n"+
-"Rule\tItaly\t1975\t1977\t-\tSep\tlastSun\t0:00s\t0\t-\n"+
-"Rule\tItaly\t1976\tonly\t-\tMay\t30\t0:00s\t1:00\tS\n"+
-"Rule\tItaly\t1977\t1979\t-\tMay\tSun>=22\t0:00s\t1:00\tS\n"+
-"Rule\tItaly\t1978\tonly\t-\tOct\t 1\t0:00s\t0\t-\n"+
-"Rule\tItaly\t1979\tonly\t-\tSep\t30\t0:00s\t0\t-\n"+
-"Zone\tEurope/Rome\t0:49:56 -\tLMT\t1866 Sep 22\n"+
-"\t\t\t0:49:56\t-\tRMT\t1893 Nov  1 0:00s # Rome Mean\n"+
-"\t\t\t1:00\tItaly\tCE%sT\t1942 Nov  2 2:00s\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1944 Jul\n"+
-"\t\t\t1:00\tItaly\tCE%sT\t1980\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Link\tEurope/Rome\tEurope/Vatican\n"+
-"Link\tEurope/Rome\tEurope/San_Marino\n"+
-"Rule\tLatvia\t1989\t1996\t-\tMar\tlastSun\t 2:00s\t1:00\tS\n"+
-"Rule\tLatvia\t1989\t1996\t-\tSep\tlastSun\t 2:00s\t0\t-\n"+
-"Zone\tEurope/Riga\t1:36:24\t-\tLMT\t1880\n"+
-"\t\t\t1:36:24\t-\tRMT\t1918 Apr 15 2:00 #Riga Mean Time\n"+
-"\t\t\t1:36:24\t1:00\tLST\t1918 Sep 16 3:00 #Latvian Summer\n"+
-"\t\t\t1:36:24\t-\tRMT\t1919 Apr  1 2:00\n"+
-"\t\t\t1:36:24\t1:00\tLST\t1919 May 22 3:00\n"+
-"\t\t\t1:36:24\t-\tRMT\t1926 May 11\n"+
-"\t\t\t2:00\t-\tEET\t1940 Aug  5\n"+
-"\t\t\t3:00\t-\tMSK\t1941 Jul\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1944 Oct 13\n"+
-"\t\t\t3:00\tRussia\tMSK/MSD\t1989 Mar lastSun 2:00s\n"+
-"\t\t\t2:00\t1:00\tEEST\t1989 Sep lastSun 2:00s\n"+
-"\t\t\t2:00\tLatvia\tEE%sT\t1997 Jan 21\n"+
-"\t\t\t2:00\tEU\tEE%sT\t2000 Feb 29\n"+
-"\t\t\t2:00\t-\tEET\t2001 Jan  2\n"+
-"\t\t\t2:00\tEU\tEE%sT\n"+
-"Zone\tEurope/Vaduz\t0:38:04 -\tLMT\t1894 Jun\n"+
-"\t\t\t1:00\t-\tCET\t1981\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Zone\tEurope/Vilnius\t1:41:16\t-\tLMT\t1880\n"+
-"\t\t\t1:24:00\t-\tWMT\t1917\t    # Warsaw Mean Time\n"+
-"\t\t\t1:35:36\t-\tKMT\t1919 Oct 10 # Kaunas Mean Time\n"+
-"\t\t\t1:00\t-\tCET\t1920 Jul 12\n"+
-"\t\t\t2:00\t-\tEET\t1920 Oct  9\n"+
-"\t\t\t1:00\t-\tCET\t1940 Aug  3\n"+
-"\t\t\t3:00\t-\tMSK\t1941 Jun 24\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1944 Aug\n"+
-"\t\t\t3:00\tRussia\tMSK/MSD\t1991 Mar 31 2:00s\n"+
-"\t\t\t2:00\t1:00\tEEST\t1991 Sep 29 2:00s\n"+
-"\t\t\t2:00\tC-Eur\tEE%sT\t1998\n"+
-"\t\t\t2:00\t-\tEET\t1998 Mar 29 1:00u\n"+
-"\t\t\t1:00\tEU\tCE%sT\t1999 Oct 31 1:00u\n"+
-"\t\t\t2:00\t-\tEET\t2003 Jan  1\n"+
-"\t\t\t2:00\tEU\tEE%sT\n"+
-"Rule\tLux\t1916\tonly\t-\tMay\t14\t23:00\t1:00\tS\n"+
-"Rule\tLux\t1916\tonly\t-\tOct\t 1\t 1:00\t0\t-\n"+
-"Rule\tLux\t1917\tonly\t-\tApr\t28\t23:00\t1:00\tS\n"+
-"Rule\tLux\t1917\tonly\t-\tSep\t17\t 1:00\t0\t-\n"+
-"Rule\tLux\t1918\tonly\t-\tApr\tMon>=15\t 2:00s\t1:00\tS\n"+
-"Rule\tLux\t1918\tonly\t-\tSep\tMon>=15\t 2:00s\t0\t-\n"+
-"Rule\tLux\t1919\tonly\t-\tMar\t 1\t23:00\t1:00\tS\n"+
-"Rule\tLux\t1919\tonly\t-\tOct\t 5\t 3:00\t0\t-\n"+
-"Rule\tLux\t1920\tonly\t-\tFeb\t14\t23:00\t1:00\tS\n"+
-"Rule\tLux\t1920\tonly\t-\tOct\t24\t 2:00\t0\t-\n"+
-"Rule\tLux\t1921\tonly\t-\tMar\t14\t23:00\t1:00\tS\n"+
-"Rule\tLux\t1921\tonly\t-\tOct\t26\t 2:00\t0\t-\n"+
-"Rule\tLux\t1922\tonly\t-\tMar\t25\t23:00\t1:00\tS\n"+
-"Rule\tLux\t1922\tonly\t-\tOct\tSun>=2\t 1:00\t0\t-\n"+
-"Rule\tLux\t1923\tonly\t-\tApr\t21\t23:00\t1:00\tS\n"+
-"Rule\tLux\t1923\tonly\t-\tOct\tSun>=2\t 2:00\t0\t-\n"+
-"Rule\tLux\t1924\tonly\t-\tMar\t29\t23:00\t1:00\tS\n"+
-"Rule\tLux\t1924\t1928\t-\tOct\tSun>=2\t 1:00\t0\t-\n"+
-"Rule\tLux\t1925\tonly\t-\tApr\t 5\t23:00\t1:00\tS\n"+
-"Rule\tLux\t1926\tonly\t-\tApr\t17\t23:00\t1:00\tS\n"+
-"Rule\tLux\t1927\tonly\t-\tApr\t 9\t23:00\t1:00\tS\n"+
-"Rule\tLux\t1928\tonly\t-\tApr\t14\t23:00\t1:00\tS\n"+
-"Rule\tLux\t1929\tonly\t-\tApr\t20\t23:00\t1:00\tS\n"+
-"Zone Europe/Luxembourg\t0:24:36 -\tLMT\t1904 Jun\n"+
-"\t\t\t1:00\tLux\tCE%sT\t1918 Nov 25\n"+
-"\t\t\t0:00\tLux\tWE%sT\t1929 Oct  6 2:00s\n"+
-"\t\t\t0:00\tBelgium\tWE%sT\t1940 May 14 3:00\n"+
-"\t\t\t1:00\tC-Eur\tWE%sT\t1944 Sep 18 3:00\n"+
-"\t\t\t1:00\tBelgium\tCE%sT\t1977\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Rule\tMalta\t1973\tonly\t-\tMar\t31\t0:00s\t1:00\tS\n"+
-"Rule\tMalta\t1973\tonly\t-\tSep\t29\t0:00s\t0\t-\n"+
-"Rule\tMalta\t1974\tonly\t-\tApr\t21\t0:00s\t1:00\tS\n"+
-"Rule\tMalta\t1974\tonly\t-\tSep\t16\t0:00s\t0\t-\n"+
-"Rule\tMalta\t1975\t1979\t-\tApr\tSun>=15\t2:00\t1:00\tS\n"+
-"Rule\tMalta\t1975\t1980\t-\tSep\tSun>=15\t2:00\t0\t-\n"+
-"Rule\tMalta\t1980\tonly\t-\tMar\t31\t2:00\t1:00\tS\n"+
-"Zone\tEurope/Malta\t0:58:04 -\tLMT\t1893 Nov  2 0:00s # Valletta\n"+
-"\t\t\t1:00\tItaly\tCE%sT\t1942 Nov  2 2:00s\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1945 Apr  2 2:00s\n"+
-"\t\t\t1:00\tItaly\tCE%sT\t1973 Mar 31\n"+
-"\t\t\t1:00\tMalta\tCE%sT\t1981\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Zone\tEurope/Chisinau\t1:55:20 -\tLMT\t1880\n"+
-"\t\t\t1:55\t-\tCMT\t1918 Feb 15 # Chisinau MT\n"+
-"\t\t\t1:44:24\t-\tBMT\t1931 Jul 24 # Bucharest MT\n"+
-"\t\t\t2:00\tRomania\tEE%sT\t1940 Aug 15\n"+
-"\t\t\t2:00\t1:00\tEEST\t1941 Jul 17\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1944 Aug 24\n"+
-"\t\t\t3:00\tRussia\tMSK/MSD\t1990\n"+
-"\t\t\t3:00\t-\tMSK\t1990 May 6\n"+
-"\t\t\t2:00\t-\tEET\t1991\n"+
-"\t\t\t2:00\tRussia\tEE%sT\t1992\n"+
-"\t\t\t2:00\tE-Eur\tEE%sT\t1997\n"+
-"\t\t\t2:00\tEU\tEE%sT\n"+
-"Zone\tEurope/Monaco\t0:29:32 -\tLMT\t1891 Mar 15\n"+
-"\t\t\t0:09:21\t-\tPMT\t1911 Mar 11    # Paris Mean Time\n"+
-"\t\t\t0:00\tFrance\tWE%sT\t1945 Sep 16 3:00\n"+
-"\t\t\t1:00\tFrance\tCE%sT\t1977\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Rule\tNeth\t1916\tonly\t-\tMay\t 1\t0:00\t1:00\tNST\t# Netherlands Summer Time\n"+
-"Rule\tNeth\t1916\tonly\t-\tOct\t 1\t0:00\t0\tAMT\t# Amsterdam Mean Time\n"+
-"Rule\tNeth\t1917\tonly\t-\tApr\t16\t2:00s\t1:00\tNST\n"+
-"Rule\tNeth\t1917\tonly\t-\tSep\t17\t2:00s\t0\tAMT\n"+
-"Rule\tNeth\t1918\t1921\t-\tApr\tMon>=1\t2:00s\t1:00\tNST\n"+
-"Rule\tNeth\t1918\t1921\t-\tSep\tlastMon\t2:00s\t0\tAMT\n"+
-"Rule\tNeth\t1922\tonly\t-\tMar\tlastSun\t2:00s\t1:00\tNST\n"+
-"Rule\tNeth\t1922\t1936\t-\tOct\tSun>=2\t2:00s\t0\tAMT\n"+
-"Rule\tNeth\t1923\tonly\t-\tJun\tFri>=1\t2:00s\t1:00\tNST\n"+
-"Rule\tNeth\t1924\tonly\t-\tMar\tlastSun\t2:00s\t1:00\tNST\n"+
-"Rule\tNeth\t1925\tonly\t-\tJun\tFri>=1\t2:00s\t1:00\tNST\n"+
-"Rule\tNeth\t1926\t1931\t-\tMay\t15\t2:00s\t1:00\tNST\n"+
-"Rule\tNeth\t1932\tonly\t-\tMay\t22\t2:00s\t1:00\tNST\n"+
-"Rule\tNeth\t1933\t1936\t-\tMay\t15\t2:00s\t1:00\tNST\n"+
-"Rule\tNeth\t1937\tonly\t-\tMay\t22\t2:00s\t1:00\tNST\n"+
-"Rule\tNeth\t1937\tonly\t-\tJul\t 1\t0:00\t1:00\tS\n"+
-"Rule\tNeth\t1937\t1939\t-\tOct\tSun>=2\t2:00s\t0\t-\n"+
-"Rule\tNeth\t1938\t1939\t-\tMay\t15\t2:00s\t1:00\tS\n"+
-"Rule\tNeth\t1945\tonly\t-\tApr\t 2\t2:00s\t1:00\tS\n"+
-"Rule\tNeth\t1945\tonly\t-\tSep\t16\t2:00s\t0\t-\n"+
-"Zone Europe/Amsterdam\t0:19:32 -\tLMT\t1835\n"+
-"\t\t\t0:19:32\tNeth\t%s\t1937 Jul  1\n"+
-"\t\t\t0:20\tNeth\tNE%sT\t1940 May 16 0:00 # Dutch Time\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1945 Apr  2 2:00\n"+
-"\t\t\t1:00\tNeth\tCE%sT\t1977\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Rule\tNorway\t1916\tonly\t-\tMay\t22\t1:00\t1:00\tS\n"+
-"Rule\tNorway\t1916\tonly\t-\tSep\t30\t0:00\t0\t-\n"+
-"Rule\tNorway\t1945\tonly\t-\tApr\t 2\t2:00s\t1:00\tS\n"+
-"Rule\tNorway\t1945\tonly\t-\tOct\t 1\t2:00s\t0\t-\n"+
-"Rule\tNorway\t1959\t1964\t-\tMar\tSun>=15\t2:00s\t1:00\tS\n"+
-"Rule\tNorway\t1959\t1965\t-\tSep\tSun>=15\t2:00s\t0\t-\n"+
-"Rule\tNorway\t1965\tonly\t-\tApr\t25\t2:00s\t1:00\tS\n"+
-"Zone\tEurope/Oslo\t0:43:00 -\tLMT\t1895 Jan  1\n"+
-"\t\t\t1:00\tNorway\tCE%sT\t1940 Aug 10 23:00\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1945 Apr  2  2:00\n"+
-"\t\t\t1:00\tNorway\tCE%sT\t1980\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Link\tEurope/Oslo\tArctic/Longyearbyen\n"+
-"Rule\tPoland\t1918\t1919\t-\tSep\t16\t2:00s\t0\t-\n"+
-"Rule\tPoland\t1919\tonly\t-\tApr\t15\t2:00s\t1:00\tS\n"+
-"Rule\tPoland\t1944\tonly\t-\tApr\t 3\t2:00s\t1:00\tS\n"+
-"Rule\tPoland\t1944\tonly\t-\tOct\t 4\t2:00\t0\t-\n"+
-"Rule\tPoland\t1945\tonly\t-\tApr\t29\t0:00\t1:00\tS\n"+
-"Rule\tPoland\t1945\tonly\t-\tNov\t 1\t0:00\t0\t-\n"+
-"Rule\tPoland\t1946\tonly\t-\tApr\t14\t0:00s\t1:00\tS\n"+
-"Rule\tPoland\t1946\tonly\t-\tOct\t 7\t2:00s\t0\t-\n"+
-"Rule\tPoland\t1947\tonly\t-\tMay\t 4\t2:00s\t1:00\tS\n"+
-"Rule\tPoland\t1947\t1949\t-\tOct\tSun>=1\t2:00s\t0\t-\n"+
-"Rule\tPoland\t1948\tonly\t-\tApr\t18\t2:00s\t1:00\tS\n"+
-"Rule\tPoland\t1949\tonly\t-\tApr\t10\t2:00s\t1:00\tS\n"+
-"Rule\tPoland\t1957\tonly\t-\tJun\t 2\t1:00s\t1:00\tS\n"+
-"Rule\tPoland\t1957\t1958\t-\tSep\tlastSun\t1:00s\t0\t-\n"+
-"Rule\tPoland\t1958\tonly\t-\tMar\t30\t1:00s\t1:00\tS\n"+
-"Rule\tPoland\t1959\tonly\t-\tMay\t31\t1:00s\t1:00\tS\n"+
-"Rule\tPoland\t1959\t1961\t-\tOct\tSun>=1\t1:00s\t0\t-\n"+
-"Rule\tPoland\t1960\tonly\t-\tApr\t 3\t1:00s\t1:00\tS\n"+
-"Rule\tPoland\t1961\t1964\t-\tMay\tlastSun\t1:00s\t1:00\tS\n"+
-"Rule\tPoland\t1962\t1964\t-\tSep\tlastSun\t1:00s\t0\t-\n"+
-"Zone\tEurope/Warsaw\t1:24:00 -\tLMT\t1880\n"+
-"\t\t\t1:24:00\t-\tWMT\t1915 Aug  5   # Warsaw Mean Time\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1918 Sep 16 3:00\n"+
-"\t\t\t2:00\tPoland\tEE%sT\t1922 Jun\n"+
-"\t\t\t1:00\tPoland\tCE%sT\t1940 Jun 23 2:00\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1944 Oct\n"+
-"\t\t\t1:00\tPoland\tCE%sT\t1977\n"+
-"\t\t\t1:00\tW-Eur\tCE%sT\t1988\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Rule\tPort\t1916\tonly\t-\tJun\t17\t23:00\t1:00\tS\n"+
-"Rule\tPort\t1916\tonly\t-\tNov\t 1\t 1:00\t0\t-\n"+
-"Rule\tPort\t1917\tonly\t-\tFeb\t28\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1917\t1921\t-\tOct\t14\t23:00s\t0\t-\n"+
-"Rule\tPort\t1918\tonly\t-\tMar\t 1\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1919\tonly\t-\tFeb\t28\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1920\tonly\t-\tFeb\t29\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1921\tonly\t-\tFeb\t28\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1924\tonly\t-\tApr\t16\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1924\tonly\t-\tOct\t14\t23:00s\t0\t-\n"+
-"Rule\tPort\t1926\tonly\t-\tApr\t17\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1926\t1929\t-\tOct\tSat>=1\t23:00s\t0\t-\n"+
-"Rule\tPort\t1927\tonly\t-\tApr\t 9\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1928\tonly\t-\tApr\t14\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1929\tonly\t-\tApr\t20\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1931\tonly\t-\tApr\t18\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1931\t1932\t-\tOct\tSat>=1\t23:00s\t0\t-\n"+
-"Rule\tPort\t1932\tonly\t-\tApr\t 2\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1934\tonly\t-\tApr\t 7\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1934\t1938\t-\tOct\tSat>=1\t23:00s\t0\t-\n"+
-"Rule\tPort\t1935\tonly\t-\tMar\t30\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1936\tonly\t-\tApr\t18\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1937\tonly\t-\tApr\t 3\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1938\tonly\t-\tMar\t26\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1939\tonly\t-\tApr\t15\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1939\tonly\t-\tNov\t18\t23:00s\t0\t-\n"+
-"Rule\tPort\t1940\tonly\t-\tFeb\t24\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1940\t1941\t-\tOct\t 5\t23:00s\t0\t-\n"+
-"Rule\tPort\t1941\tonly\t-\tApr\t 5\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1942\t1945\t-\tMar\tSat>=8\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1942\tonly\t-\tApr\t25\t22:00s\t2:00\tM # Midsummer\n"+
-"Rule\tPort\t1942\tonly\t-\tAug\t15\t22:00s\t1:00\tS\n"+
-"Rule\tPort\t1942\t1945\t-\tOct\tSat>=24\t23:00s\t0\t-\n"+
-"Rule\tPort\t1943\tonly\t-\tApr\t17\t22:00s\t2:00\tM\n"+
-"Rule\tPort\t1943\t1945\t-\tAug\tSat>=25\t22:00s\t1:00\tS\n"+
-"Rule\tPort\t1944\t1945\t-\tApr\tSat>=21\t22:00s\t2:00\tM\n"+
-"Rule\tPort\t1946\tonly\t-\tApr\tSat>=1\t23:00s\t1:00\tS\n"+
-"Rule\tPort\t1946\tonly\t-\tOct\tSat>=1\t23:00s\t0\t-\n"+
-"Rule\tPort\t1947\t1949\t-\tApr\tSun>=1\t 2:00s\t1:00\tS\n"+
-"Rule\tPort\t1947\t1949\t-\tOct\tSun>=1\t 2:00s\t0\t-\n"+
-"Rule\tPort\t1951\t1965\t-\tApr\tSun>=1\t 2:00s\t1:00\tS\n"+
-"Rule\tPort\t1951\t1965\t-\tOct\tSun>=1\t 2:00s\t0\t-\n"+
-"Rule\tPort\t1977\tonly\t-\tMar\t27\t 0:00s\t1:00\tS\n"+
-"Rule\tPort\t1977\tonly\t-\tSep\t25\t 0:00s\t0\t-\n"+
-"Rule\tPort\t1978\t1979\t-\tApr\tSun>=1\t 0:00s\t1:00\tS\n"+
-"Rule\tPort\t1978\tonly\t-\tOct\t 1\t 0:00s\t0\t-\n"+
-"Rule\tPort\t1979\t1982\t-\tSep\tlastSun\t 1:00s\t0\t-\n"+
-"Rule\tPort\t1980\tonly\t-\tMar\tlastSun\t 0:00s\t1:00\tS\n"+
-"Rule\tPort\t1981\t1982\t-\tMar\tlastSun\t 1:00s\t1:00\tS\n"+
-"Rule\tPort\t1983\tonly\t-\tMar\tlastSun\t 2:00s\t1:00\tS\n"+
-"Zone\tEurope/Lisbon\t-0:36:32 -\tLMT\t1884\n"+
-"\t\t\t-0:36:32 -\tLMT\t1912 Jan  1  # Lisbon Mean Time\n"+
-"\t\t\t 0:00\tPort\tWE%sT\t1966 Apr  3 2:00\n"+
-"\t\t\t 1:00\t-\tCET\t1976 Sep 26 1:00\n"+
-"\t\t\t 0:00\tPort\tWE%sT\t1983 Sep 25 1:00s\n"+
-"\t\t\t 0:00\tW-Eur\tWE%sT\t1992 Sep 27 1:00s\n"+
-"\t\t\t 1:00\tEU\tCE%sT\t1996 Mar 31 1:00u\n"+
-"\t\t\t 0:00\tEU\tWE%sT\n"+
-"Zone Atlantic/Azores\t-1:42:40 -\tLMT\t1884\t\t# Ponta Delgada\n"+
-"\t\t\t-1:54:32 -\tHMT\t1911 May 24  # Horta Mean Time\n"+
-"\t\t\t-2:00\tPort\tAZO%sT\t1966 Apr  3 2:00 # Azores Time\n"+
-"\t\t\t-1:00\tPort\tAZO%sT\t1983 Sep 25 1:00s\n"+
-"\t\t\t-1:00\tW-Eur\tAZO%sT\t1992 Sep 27 1:00s\n"+
-"\t\t\t 0:00\tEU\tWE%sT\t1993 Mar 28 1:00u\n"+
-"\t\t\t-1:00\tEU\tAZO%sT\n"+
-"Zone Atlantic/Madeira\t-1:07:36 -\tLMT\t1884\t\t# Funchal\n"+
-"\t\t\t-1:07:36 -\tFMT\t1911 May 24  # Funchal Mean Time\n"+
-"\t\t\t-1:00\tPort\tMAD%sT\t1966 Apr  3 2:00 # Madeira Time\n"+
-"\t\t\t 0:00\tPort\tWE%sT\t1983 Sep 25 1:00s\n"+
-"\t\t\t 0:00\tEU\tWE%sT\n"+
-"Rule\tRomania\t1932\tonly\t-\tMay\t21\t 0:00s\t1:00\tS\n"+
-"Rule\tRomania\t1932\t1939\t-\tOct\tSun>=1\t 0:00s\t0\t-\n"+
-"Rule\tRomania\t1933\t1939\t-\tApr\tSun>=2\t 0:00s\t1:00\tS\n"+
-"Rule\tRomania\t1979\tonly\t-\tMay\t27\t 0:00\t1:00\tS\n"+
-"Rule\tRomania\t1979\tonly\t-\tSep\tlastSun\t 0:00\t0\t-\n"+
-"Rule\tRomania\t1980\tonly\t-\tApr\t 5\t23:00\t1:00\tS\n"+
-"Rule\tRomania\t1980\tonly\t-\tSep\tlastSun\t 1:00\t0\t-\n"+
-"Rule\tRomania\t1991\t1993\t-\tMar\tlastSun\t 0:00s\t1:00\tS\n"+
-"Rule\tRomania\t1991\t1993\t-\tSep\tlastSun\t 0:00s\t0\t-\n"+
-"Zone Europe/Bucharest\t1:44:24 -\tLMT\t1891 Oct\n"+
-"\t\t\t1:44:24\t-\tBMT\t1931 Jul 24\t# Bucharest MT\n"+
-"\t\t\t2:00\tRomania\tEE%sT\t1981 Mar 29 2:00s\n"+
-"\t\t\t2:00\tC-Eur\tEE%sT\t1991\n"+
-"\t\t\t2:00\tRomania\tEE%sT\t1994\n"+
-"\t\t\t2:00\tE-Eur\tEE%sT\t1997\n"+
-"\t\t\t2:00\tEU\tEE%sT\n"+
-"Zone Europe/Kaliningrad\t 1:22:00 -\tLMT\t1893 Apr\n"+
-"\t\t\t 1:00\tC-Eur\tCE%sT\t1945\n"+
-"\t\t\t 2:00\tPoland\tCE%sT\t1946\n"+
-"\t\t\t 3:00\tRussia\tMSK/MSD\t1991 Mar 31 2:00s\n"+
-"\t\t\t 2:00\tRussia\tEE%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t 3:00\t-\tFET # Further-eastern European Time\n"+
-"Zone Europe/Moscow\t 2:30:20 -\tLMT\t1880\n"+
-"\t\t\t 2:30\t-\tMMT\t1916 Jul  3 # Moscow Mean Time\n"+
-"\t\t\t 2:30:48 Russia\t%s\t1919 Jul  1 2:00\n"+
-"\t\t\t 3:00\tRussia\tMSK/MSD\t1922 Oct\n"+
-"\t\t\t 2:00\t-\tEET\t1930 Jun 21\n"+
-"\t\t\t 3:00\tRussia\tMSK/MSD\t1991 Mar 31 2:00s\n"+
-"\t\t\t 2:00\tRussia\tEE%sT\t1992 Jan 19 2:00s\n"+
-"\t\t\t 3:00\tRussia\tMSK/MSD\t2011 Mar 27 2:00s\n"+
-"\t\t\t 4:00\t-\tMSK\n"+
-"Zone Europe/Volgograd\t 2:57:40 -\tLMT\t1920 Jan  3\n"+
-"\t\t\t 3:00\t-\tTSAT\t1925 Apr  6 # Tsaritsyn Time\n"+
-"\t\t\t 3:00\t-\tSTAT\t1930 Jun 21 # Stalingrad Time\n"+
-"\t\t\t 4:00\t-\tSTAT\t1961 Nov 11\n"+
-"\t\t\t 4:00\tRussia\tVOL%sT\t1989 Mar 26 2:00s # Volgograd T\n"+
-"\t\t\t 3:00\tRussia\tVOL%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t 4:00\t-\tVOLT\t1992 Mar 29 2:00s\n"+
-"\t\t\t 3:00\tRussia\tVOL%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t 4:00\t-\tVOLT\n"+
-"Zone Europe/Samara\t 3:20:36 -\tLMT\t1919 Jul  1 2:00\n"+
-"\t\t\t 3:00\t-\tSAMT\t1930 Jun 21\n"+
-"\t\t\t 4:00\t-\tSAMT\t1935 Jan 27\n"+
-"\t\t\t 4:00\tRussia\tKUY%sT\t1989 Mar 26 2:00s # Kuybyshev\n"+
-"\t\t\t 3:00\tRussia\tKUY%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t 2:00\tRussia\tKUY%sT\t1991 Sep 29 2:00s\n"+
-"\t\t\t 3:00\t-\tKUYT\t1991 Oct 20 3:00\n"+
-"\t\t\t 4:00\tRussia\tSAM%sT\t2010 Mar 28 2:00s # Samara Time\n"+
-"\t\t\t 3:00\tRussia\tSAM%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t 4:00\t-\tSAMT\n"+
-"Zone Asia/Yekaterinburg\t 4:02:24 -\tLMT\t1919 Jul 15 4:00\n"+
-"\t\t\t 4:00\t-\tSVET\t1930 Jun 21 # Sverdlovsk Time\n"+
-"\t\t\t 5:00\tRussia\tSVE%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t 4:00\tRussia\tSVE%sT\t1992 Jan 19 2:00s\n"+
-"\t\t\t 5:00\tRussia\tYEK%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t 6:00\t-\tYEKT\t# Yekaterinburg Time\n"+
-"Zone Asia/Omsk\t\t 4:53:36 -\tLMT\t1919 Nov 14\n"+
-"\t\t\t 5:00\t-\tOMST\t1930 Jun 21 # Omsk TIme\n"+
-"\t\t\t 6:00\tRussia\tOMS%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t 5:00\tRussia\tOMS%sT\t1992 Jan 19 2:00s\n"+
-"\t\t\t 6:00\tRussia\tOMS%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t 7:00\t-\tOMST\n"+
-"Zone Asia/Novosibirsk\t 5:31:40 -\tLMT\t1919 Dec 14 6:00\n"+
-"\t\t\t 6:00\t-\tNOVT\t1930 Jun 21 # Novosibirsk Time\n"+
-"\t\t\t 7:00\tRussia\tNOV%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t 6:00\tRussia\tNOV%sT\t1992 Jan 19 2:00s\n"+
-"\t\t\t 7:00\tRussia\tNOV%sT\t1993 May 23 # say Shanks & P.\n"+
-"\t\t\t 6:00\tRussia\tNOV%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t 7:00\t-\tNOVT\n"+
-"Zone Asia/Novokuznetsk\t 5:48:48 -\tNMT\t1920 Jan  6\n"+
-"\t\t\t 6:00\t-\tKRAT\t1930 Jun 21 # Krasnoyarsk Time\n"+
-"\t\t\t 7:00\tRussia\tKRA%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t 6:00\tRussia\tKRA%sT\t1992 Jan 19 2:00s\n"+
-"\t\t\t 7:00\tRussia\tKRA%sT\t2010 Mar 28 2:00s\n"+
-"\t\t\t 6:00\tRussia\tNOV%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t 7:00\t-\tNOVT # Novosibirsk/Novokuznetsk Time\n"+
-"Zone Asia/Krasnoyarsk\t 6:11:20 -\tLMT\t1920 Jan  6\n"+
-"\t\t\t 6:00\t-\tKRAT\t1930 Jun 21 # Krasnoyarsk Time\n"+
-"\t\t\t 7:00\tRussia\tKRA%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t 6:00\tRussia\tKRA%sT\t1992 Jan 19 2:00s\n"+
-"\t\t\t 7:00\tRussia\tKRA%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t 8:00\t-\tKRAT\n"+
-"Zone Asia/Irkutsk\t 6:57:20 -\tLMT\t1880\n"+
-"\t\t\t 6:57:20 -\tIMT\t1920 Jan 25 # Irkutsk Mean Time\n"+
-"\t\t\t 7:00\t-\tIRKT\t1930 Jun 21 # Irkutsk Time\n"+
-"\t\t\t 8:00\tRussia\tIRK%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t 7:00\tRussia\tIRK%sT\t1992 Jan 19 2:00s\n"+
-"\t\t\t 8:00\tRussia\tIRK%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t 9:00\t-\tIRKT\n"+
-"Zone Asia/Yakutsk\t 8:38:40 -\tLMT\t1919 Dec 15\n"+
-"\t\t\t 8:00\t-\tYAKT\t1930 Jun 21 # Yakutsk Time\n"+
-"\t\t\t 9:00\tRussia\tYAK%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t 8:00\tRussia\tYAK%sT\t1992 Jan 19 2:00s\n"+
-"\t\t\t 9:00\tRussia\tYAK%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t 10:00\t-\tYAKT\n"+
-"Zone Asia/Vladivostok\t 8:47:44 -\tLMT\t1922 Nov 15\n"+
-"\t\t\t 9:00\t-\tVLAT\t1930 Jun 21 # Vladivostok Time\n"+
-"\t\t\t10:00\tRussia\tVLA%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t 9:00\tRussia\tVLA%sST\t1992 Jan 19 2:00s\n"+
-"\t\t\t10:00\tRussia\tVLA%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t11:00\t-\tVLAT\n"+
-"Zone Asia/Sakhalin\t 9:30:48 -\tLMT\t1905 Aug 23\n"+
-"\t\t\t 9:00\t-\tCJT\t1938\n"+
-"\t\t\t 9:00\t-\tJST\t1945 Aug 25\n"+
-"\t\t\t11:00\tRussia\tSAK%sT\t1991 Mar 31 2:00s # Sakhalin T.\n"+
-"\t\t\t10:00\tRussia\tSAK%sT\t1992 Jan 19 2:00s\n"+
-"\t\t\t11:00\tRussia\tSAK%sT\t1997 Mar lastSun 2:00s\n"+
-"\t\t\t10:00\tRussia\tSAK%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t11:00\t-\tSAKT\n"+
-"Zone Asia/Magadan\t10:03:12 -\tLMT\t1924 May  2\n"+
-"\t\t\t10:00\t-\tMAGT\t1930 Jun 21 # Magadan Time\n"+
-"\t\t\t11:00\tRussia\tMAG%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t10:00\tRussia\tMAG%sT\t1992 Jan 19 2:00s\n"+
-"\t\t\t11:00\tRussia\tMAG%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t12:00\t-\tMAGT\n"+
-"Zone Asia/Kamchatka\t10:34:36 -\tLMT\t1922 Nov 10\n"+
-"\t\t\t11:00\t-\tPETT\t1930 Jun 21 # P-K Time\n"+
-"\t\t\t12:00\tRussia\tPET%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t11:00\tRussia\tPET%sT\t1992 Jan 19 2:00s\n"+
-"\t\t\t12:00\tRussia\tPET%sT\t2010 Mar 28 2:00s\n"+
-"\t\t\t11:00\tRussia\tPET%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t12:00\t-\tPETT\n"+
-"Zone Asia/Anadyr\t11:49:56 -\tLMT\t1924 May  2\n"+
-"\t\t\t12:00\t-\tANAT\t1930 Jun 21 # Anadyr Time\n"+
-"\t\t\t13:00\tRussia\tANA%sT\t1982 Apr  1 0:00s\n"+
-"\t\t\t12:00\tRussia\tANA%sT\t1991 Mar 31 2:00s\n"+
-"\t\t\t11:00\tRussia\tANA%sT\t1992 Jan 19 2:00s\n"+
-"\t\t\t12:00\tRussia\tANA%sT\t2010 Mar 28 2:00s\n"+
-"\t\t\t11:00\tRussia\tANA%sT\t2011 Mar 27 2:00s\n"+
-"\t\t\t12:00\t-\tANAT\n"+
-"Zone\tEurope/Belgrade\t1:22:00\t-\tLMT\t1884\n"+
-"\t\t\t1:00\t-\tCET\t1941 Apr 18 23:00\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1945\n"+
-"\t\t\t1:00\t-\tCET\t1945 May 8 2:00s\n"+
-"\t\t\t1:00\t1:00\tCEST\t1945 Sep 16  2:00s\n"+
-"\t\t\t1:00\t-\tCET\t1982 Nov 27\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Link Europe/Belgrade Europe/Ljubljana\t# Slovenia\n"+
-"Link Europe/Belgrade Europe/Podgorica\t# Montenegro\n"+
-"Link Europe/Belgrade Europe/Sarajevo\t# Bosnia and Herzegovina\n"+
-"Link Europe/Belgrade Europe/Skopje\t# Macedonia\n"+
-"Link Europe/Belgrade Europe/Zagreb\t# Croatia\n"+
-"Link Europe/Prague Europe/Bratislava\n"+
-"Rule\tSpain\t1917\tonly\t-\tMay\t 5\t23:00s\t1:00\tS\n"+
-"Rule\tSpain\t1917\t1919\t-\tOct\t 6\t23:00s\t0\t-\n"+
-"Rule\tSpain\t1918\tonly\t-\tApr\t15\t23:00s\t1:00\tS\n"+
-"Rule\tSpain\t1919\tonly\t-\tApr\t 5\t23:00s\t1:00\tS\n"+
-"Rule\tSpain\t1924\tonly\t-\tApr\t16\t23:00s\t1:00\tS\n"+
-"Rule\tSpain\t1924\tonly\t-\tOct\t 4\t23:00s\t0\t-\n"+
-"Rule\tSpain\t1926\tonly\t-\tApr\t17\t23:00s\t1:00\tS\n"+
-"Rule\tSpain\t1926\t1929\t-\tOct\tSat>=1\t23:00s\t0\t-\n"+
-"Rule\tSpain\t1927\tonly\t-\tApr\t 9\t23:00s\t1:00\tS\n"+
-"Rule\tSpain\t1928\tonly\t-\tApr\t14\t23:00s\t1:00\tS\n"+
-"Rule\tSpain\t1929\tonly\t-\tApr\t20\t23:00s\t1:00\tS\n"+
-"Rule\tSpain\t1937\tonly\t-\tMay\t22\t23:00s\t1:00\tS\n"+
-"Rule\tSpain\t1937\t1939\t-\tOct\tSat>=1\t23:00s\t0\t-\n"+
-"Rule\tSpain\t1938\tonly\t-\tMar\t22\t23:00s\t1:00\tS\n"+
-"Rule\tSpain\t1939\tonly\t-\tApr\t15\t23:00s\t1:00\tS\n"+
-"Rule\tSpain\t1940\tonly\t-\tMar\t16\t23:00s\t1:00\tS\n"+
-"Rule\tSpain\t1942\tonly\t-\tMay\t 2\t22:00s\t2:00\tM # Midsummer\n"+
-"Rule\tSpain\t1942\tonly\t-\tSep\t 1\t22:00s\t1:00\tS\n"+
-"Rule\tSpain\t1943\t1946\t-\tApr\tSat>=13\t22:00s\t2:00\tM\n"+
-"Rule\tSpain\t1943\tonly\t-\tOct\t 3\t22:00s\t1:00\tS\n"+
-"Rule\tSpain\t1944\tonly\t-\tOct\t10\t22:00s\t1:00\tS\n"+
-"Rule\tSpain\t1945\tonly\t-\tSep\t30\t 1:00\t1:00\tS\n"+
-"Rule\tSpain\t1946\tonly\t-\tSep\t30\t 0:00\t0\t-\n"+
-"Rule\tSpain\t1949\tonly\t-\tApr\t30\t23:00\t1:00\tS\n"+
-"Rule\tSpain\t1949\tonly\t-\tSep\t30\t 1:00\t0\t-\n"+
-"Rule\tSpain\t1974\t1975\t-\tApr\tSat>=13\t23:00\t1:00\tS\n"+
-"Rule\tSpain\t1974\t1975\t-\tOct\tSun>=1\t 1:00\t0\t-\n"+
-"Rule\tSpain\t1976\tonly\t-\tMar\t27\t23:00\t1:00\tS\n"+
-"Rule\tSpain\t1976\t1977\t-\tSep\tlastSun\t 1:00\t0\t-\n"+
-"Rule\tSpain\t1977\t1978\t-\tApr\t 2\t23:00\t1:00\tS\n"+
-"Rule\tSpain\t1978\tonly\t-\tOct\t 1\t 1:00\t0\t-\n"+
-"Rule SpainAfrica 1967\tonly\t-\tJun\t 3\t12:00\t1:00\tS\n"+
-"Rule SpainAfrica 1967\tonly\t-\tOct\t 1\t 0:00\t0\t-\n"+
-"Rule SpainAfrica 1974\tonly\t-\tJun\t24\t 0:00\t1:00\tS\n"+
-"Rule SpainAfrica 1974\tonly\t-\tSep\t 1\t 0:00\t0\t-\n"+
-"Rule SpainAfrica 1976\t1977\t-\tMay\t 1\t 0:00\t1:00\tS\n"+
-"Rule SpainAfrica 1976\tonly\t-\tAug\t 1\t 0:00\t0\t-\n"+
-"Rule SpainAfrica 1977\tonly\t-\tSep\t28\t 0:00\t0\t-\n"+
-"Rule SpainAfrica 1978\tonly\t-\tJun\t 1\t 0:00\t1:00\tS\n"+
-"Rule SpainAfrica 1978\tonly\t-\tAug\t 4\t 0:00\t0\t-\n"+
-"Zone\tEurope/Madrid\t-0:14:44 -\tLMT\t1901 Jan  1  0:00s\n"+
-"\t\t\t 0:00\tSpain\tWE%sT\t1946 Sep 30\n"+
-"\t\t\t 1:00\tSpain\tCE%sT\t1979\n"+
-"\t\t\t 1:00\tEU\tCE%sT\n"+
-"Zone\tAfrica/Ceuta\t-0:21:16 -\tLMT\t1901\n"+
-"\t\t\t 0:00\t-\tWET\t1918 May  6 23:00\n"+
-"\t\t\t 0:00\t1:00\tWEST\t1918 Oct  7 23:00\n"+
-"\t\t\t 0:00\t-\tWET\t1924\n"+
-"\t\t\t 0:00\tSpain\tWE%sT\t1929\n"+
-"\t\t\t 0:00 SpainAfrica WE%sT 1984 Mar 16\n"+
-"\t\t\t 1:00\t-\tCET\t1986\n"+
-"\t\t\t 1:00\tEU\tCE%sT\n"+
-"Zone\tAtlantic/Canary\t-1:01:36 -\tLMT\t1922 Mar # Las Palmas de Gran C.\n"+
-"\t\t\t-1:00\t-\tCANT\t1946 Sep 30 1:00 # Canaries Time\n"+
-"\t\t\t 0:00\t-\tWET\t1980 Apr  6 0:00s\n"+
-"\t\t\t 0:00\t1:00\tWEST\t1980 Sep 28 0:00s\n"+
-"\t\t\t 0:00\tEU\tWE%sT\n"+
-"Zone Europe/Stockholm\t1:12:12 -\tLMT\t1879 Jan  1\n"+
-"\t\t\t1:00:14\t-\tSET\t1900 Jan  1\t# Swedish Time\n"+
-"\t\t\t1:00\t-\tCET\t1916 May 14 23:00\n"+
-"\t\t\t1:00\t1:00\tCEST\t1916 Oct  1 01:00\n"+
-"\t\t\t1:00\t-\tCET\t1980\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Rule\tSwiss\t1941\t1942\t-\tMay\tMon>=1\t1:00\t1:00\tS\n"+
-"Rule\tSwiss\t1941\t1942\t-\tOct\tMon>=1\t2:00\t0\t-\n"+
-"Zone\tEurope/Zurich\t0:34:08 -\tLMT\t1848 Sep 12\n"+
-"\t\t\t0:29:44\t-\tBMT\t1894 Jun # Bern Mean Time\n"+
-"\t\t\t1:00\tSwiss\tCE%sT\t1981\n"+
-"\t\t\t1:00\tEU\tCE%sT\n"+
-"Rule\tTurkey\t1916\tonly\t-\tMay\t 1\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1916\tonly\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1920\tonly\t-\tMar\t28\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1920\tonly\t-\tOct\t25\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1921\tonly\t-\tApr\t 3\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1921\tonly\t-\tOct\t 3\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1922\tonly\t-\tMar\t26\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1922\tonly\t-\tOct\t 8\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1924\tonly\t-\tMay\t13\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1924\t1925\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1925\tonly\t-\tMay\t 1\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1940\tonly\t-\tJun\t30\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1940\tonly\t-\tOct\t 5\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1940\tonly\t-\tDec\t 1\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1941\tonly\t-\tSep\t21\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1942\tonly\t-\tApr\t 1\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1942\tonly\t-\tNov\t 1\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1945\tonly\t-\tApr\t 2\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1945\tonly\t-\tOct\t 8\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1946\tonly\t-\tJun\t 1\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1946\tonly\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1947\t1948\t-\tApr\tSun>=16\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1947\t1950\t-\tOct\tSun>=2\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1949\tonly\t-\tApr\t10\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1950\tonly\t-\tApr\t19\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1951\tonly\t-\tApr\t22\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1951\tonly\t-\tOct\t 8\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1962\tonly\t-\tJul\t15\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1962\tonly\t-\tOct\t 8\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1964\tonly\t-\tMay\t15\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1964\tonly\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1970\t1972\t-\tMay\tSun>=2\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1970\t1972\t-\tOct\tSun>=2\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1973\tonly\t-\tJun\t 3\t1:00\t1:00\tS\n"+
-"Rule\tTurkey\t1973\tonly\t-\tNov\t 4\t3:00\t0\t-\n"+
-"Rule\tTurkey\t1974\tonly\t-\tMar\t31\t2:00\t1:00\tS\n"+
-"Rule\tTurkey\t1974\tonly\t-\tNov\t 3\t5:00\t0\t-\n"+
-"Rule\tTurkey\t1975\tonly\t-\tMar\t30\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1975\t1976\t-\tOct\tlastSun\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1976\tonly\t-\tJun\t 1\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1977\t1978\t-\tApr\tSun>=1\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1977\tonly\t-\tOct\t16\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1979\t1980\t-\tApr\tSun>=1\t3:00\t1:00\tS\n"+
-"Rule\tTurkey\t1979\t1982\t-\tOct\tMon>=11\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1981\t1982\t-\tMar\tlastSun\t3:00\t1:00\tS\n"+
-"Rule\tTurkey\t1983\tonly\t-\tJul\t31\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1983\tonly\t-\tOct\t 2\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1985\tonly\t-\tApr\t20\t0:00\t1:00\tS\n"+
-"Rule\tTurkey\t1985\tonly\t-\tSep\t28\t0:00\t0\t-\n"+
-"Rule\tTurkey\t1986\t1990\t-\tMar\tlastSun\t2:00s\t1:00\tS\n"+
-"Rule\tTurkey\t1986\t1990\t-\tSep\tlastSun\t2:00s\t0\t-\n"+
-"Rule\tTurkey\t1991\t2006\t-\tMar\tlastSun\t1:00s\t1:00\tS\n"+
-"Rule\tTurkey\t1991\t1995\t-\tSep\tlastSun\t1:00s\t0\t-\n"+
-"Rule\tTurkey\t1996\t2006\t-\tOct\tlastSun\t1:00s\t0\t-\n"+
-"Zone\tEurope/Istanbul\t1:55:52 -\tLMT\t1880\n"+
-"\t\t\t1:56:56\t-\tIMT\t1910 Oct # Istanbul Mean Time?\n"+
-"\t\t\t2:00\tTurkey\tEE%sT\t1978 Oct 15\n"+
-"\t\t\t3:00\tTurkey\tTR%sT\t1985 Apr 20 # Turkey Time\n"+
-"\t\t\t2:00\tTurkey\tEE%sT\t2007\n"+
-"\t\t\t2:00\tEU\tEE%sT\t2011 Mar 27 1:00u\n"+
-"\t\t\t2:00\t-\tEET\t2011 Mar 28 1:00u\n"+
-"\t\t\t2:00\tEU\tEE%sT\n"+
-"Link\tEurope/Istanbul\tAsia/Istanbul\t# Istanbul is in both continents.\n"+
-"Zone Europe/Kiev\t2:02:04 -\tLMT\t1880\n"+
-"\t\t\t2:02:04\t-\tKMT\t1924 May  2 # Kiev Mean Time\n"+
-"\t\t\t2:00\t-\tEET\t1930 Jun 21\n"+
-"\t\t\t3:00\t-\tMSK\t1941 Sep 20\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1943 Nov  6\n"+
-"\t\t\t3:00\tRussia\tMSK/MSD\t1990\n"+
-"\t\t\t3:00\t-\tMSK\t1990 Jul  1 2:00\n"+
-"\t\t\t2:00\t-\tEET\t1992\n"+
-"\t\t\t2:00\tE-Eur\tEE%sT\t1995\n"+
-"\t\t\t2:00\tEU\tEE%sT\n"+
-"Zone Europe/Uzhgorod\t1:29:12 -\tLMT\t1890 Oct\n"+
-"\t\t\t1:00\t-\tCET\t1940\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1944 Oct\n"+
-"\t\t\t1:00\t1:00\tCEST\t1944 Oct 26\n"+
-"\t\t\t1:00\t-\tCET\t1945 Jun 29\n"+
-"\t\t\t3:00\tRussia\tMSK/MSD\t1990\n"+
-"\t\t\t3:00\t-\tMSK\t1990 Jul  1 2:00\n"+
-"\t\t\t1:00\t-\tCET\t1991 Mar 31 3:00\n"+
-"\t\t\t2:00\t-\tEET\t1992\n"+
-"\t\t\t2:00\tE-Eur\tEE%sT\t1995\n"+
-"\t\t\t2:00\tEU\tEE%sT\n"+
-"Zone Europe/Zaporozhye\t2:20:40 -\tLMT\t1880\n"+
-"\t\t\t2:20\t-\tCUT\t1924 May  2 # Central Ukraine T\n"+
-"\t\t\t2:00\t-\tEET\t1930 Jun 21\n"+
-"\t\t\t3:00\t-\tMSK\t1941 Aug 25\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1943 Oct 25\n"+
-"\t\t\t3:00\tRussia\tMSK/MSD\t1991 Mar 31 2:00\n"+
-"\t\t\t2:00\tE-Eur\tEE%sT\t1995\n"+
-"\t\t\t2:00\tEU\tEE%sT\n"+
-"Zone Europe/Simferopol\t2:16:24 -\tLMT\t1880\n"+
-"\t\t\t2:16\t-\tSMT\t1924 May  2 # Simferopol Mean T\n"+
-"\t\t\t2:00\t-\tEET\t1930 Jun 21\n"+
-"\t\t\t3:00\t-\tMSK\t1941 Nov\n"+
-"\t\t\t1:00\tC-Eur\tCE%sT\t1944 Apr 13\n"+
-"\t\t\t3:00\tRussia\tMSK/MSD\t1990\n"+
-"\t\t\t3:00\t-\tMSK\t1990 Jul  1 2:00\n"+
-"\t\t\t2:00\t-\tEET\t1992\n"+
-"\t\t\t2:00\tE-Eur\tEE%sT\t1994 May\n"+
-"\t\t\t3:00\tE-Eur\tMSK/MSD\t1996 Mar 31 3:00s\n"+
-"\t\t\t3:00\t1:00\tMSD\t1996 Oct 27 3:00s\n"+
-"\t\t\t3:00\tRussia\tMSK/MSD\t1997\n"+
-"\t\t\t3:00\t-\tMSK\t1997 Mar lastSun 1:00u\n"+
-"\t\t\t2:00\tEU\tEE%sT\n"+
-"","tz/northamerica":"Rule\tUS\t1918\t1919\t-\tMar\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tUS\t1918\t1919\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tUS\t1942\tonly\t-\tFeb\t9\t2:00\t1:00\tW # War\n"+
-"Rule\tUS\t1945\tonly\t-\tAug\t14\t23:00u\t1:00\tP # Peace\n"+
-"Rule\tUS\t1945\tonly\t-\tSep\t30\t2:00\t0\tS\n"+
-"Rule\tUS\t1967\t2006\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tUS\t1967\t1973\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tUS\t1974\tonly\t-\tJan\t6\t2:00\t1:00\tD\n"+
-"Rule\tUS\t1975\tonly\t-\tFeb\t23\t2:00\t1:00\tD\n"+
-"Rule\tUS\t1976\t1986\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tUS\t1987\t2006\t-\tApr\tSun>=1\t2:00\t1:00\tD\n"+
-"Rule\tUS\t2007\tmax\t-\tMar\tSun>=8\t2:00\t1:00\tD\n"+
-"Rule\tUS\t2007\tmax\t-\tNov\tSun>=1\t2:00\t0\tS\n"+
-"Zone\tEST\t\t -5:00\t-\tEST\n"+
-"Zone\tMST\t\t -7:00\t-\tMST\n"+
-"Zone\tHST\t\t-10:00\t-\tHST\n"+
-"Zone\tEST5EDT\t\t -5:00\tUS\tE%sT\n"+
-"Zone\tCST6CDT\t\t -6:00\tUS\tC%sT\n"+
-"Zone\tMST7MDT\t\t -7:00\tUS\tM%sT\n"+
-"Zone\tPST8PDT\t\t -8:00\tUS\tP%sT\n"+
-"Rule\tNYC\t1920\tonly\t-\tMar\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tNYC\t1920\tonly\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tNYC\t1921\t1966\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tNYC\t1921\t1954\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tNYC\t1955\t1966\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/New_York\t-4:56:02 -\tLMT\t1883 Nov 18 12:03:58\n"+
-"\t\t\t-5:00\tUS\tE%sT\t1920\n"+
-"\t\t\t-5:00\tNYC\tE%sT\t1942\n"+
-"\t\t\t-5:00\tUS\tE%sT\t1946\n"+
-"\t\t\t-5:00\tNYC\tE%sT\t1967\n"+
-"\t\t\t-5:00\tUS\tE%sT\n"+
-"Rule\tChicago\t1920\tonly\t-\tJun\t13\t2:00\t1:00\tD\n"+
-"Rule\tChicago\t1920\t1921\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tChicago\t1921\tonly\t-\tMar\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tChicago\t1922\t1966\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tChicago\t1922\t1954\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tChicago\t1955\t1966\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Chicago\t-5:50:36 -\tLMT\t1883 Nov 18 12:09:24\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1920\n"+
-"\t\t\t-6:00\tChicago\tC%sT\t1936 Mar  1 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t1936 Nov 15 2:00\n"+
-"\t\t\t-6:00\tChicago\tC%sT\t1942\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1946\n"+
-"\t\t\t-6:00\tChicago\tC%sT\t1967\n"+
-"\t\t\t-6:00\tUS\tC%sT\n"+
-"Zone America/North_Dakota/Center -6:45:12 - LMT\t1883 Nov 18 12:14:48\n"+
-"\t\t\t-7:00\tUS\tM%sT\t1992 Oct 25 02:00\n"+
-"\t\t\t-6:00\tUS\tC%sT\n"+
-"Zone America/North_Dakota/New_Salem -6:45:39 - LMT 1883 Nov 18 12:14:21\n"+
-"\t\t\t-7:00\tUS\tM%sT\t2003 Oct 26 02:00\n"+
-"\t\t\t-6:00\tUS\tC%sT\n"+
-"Zone America/North_Dakota/Beulah -6:47:07 - LMT 1883 Nov 18 12:12:53\n"+
-"\t\t\t-7:00\tUS\tM%sT\t2010 Nov  7 2:00\n"+
-"\t\t\t-6:00\tUS\tC%sT\n"+
-"Rule\tDenver\t1920\t1921\t-\tMar\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tDenver\t1920\tonly\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tDenver\t1921\tonly\t-\tMay\t22\t2:00\t0\tS\n"+
-"Rule\tDenver\t1965\t1966\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tDenver\t1965\t1966\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Denver\t-6:59:56 -\tLMT\t1883 Nov 18 12:00:04\n"+
-"\t\t\t-7:00\tUS\tM%sT\t1920\n"+
-"\t\t\t-7:00\tDenver\tM%sT\t1942\n"+
-"\t\t\t-7:00\tUS\tM%sT\t1946\n"+
-"\t\t\t-7:00\tDenver\tM%sT\t1967\n"+
-"\t\t\t-7:00\tUS\tM%sT\n"+
-"Rule\tCA\t1948\tonly\t-\tMar\t14\t2:00\t1:00\tD\n"+
-"Rule\tCA\t1949\tonly\t-\tJan\t 1\t2:00\t0\tS\n"+
-"Rule\tCA\t1950\t1966\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tCA\t1950\t1961\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tCA\t1962\t1966\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Los_Angeles -7:52:58 -\tLMT\t1883 Nov 18 12:07:02\n"+
-"\t\t\t-8:00\tUS\tP%sT\t1946\n"+
-"\t\t\t-8:00\tCA\tP%sT\t1967\n"+
-"\t\t\t-8:00\tUS\tP%sT\n"+
-"Zone America/Juneau\t 15:02:19 -\tLMT\t1867 Oct 18\n"+
-"\t\t\t -8:57:41 -\tLMT\t1900 Aug 20 12:00\n"+
-"\t\t\t -8:00\t-\tPST\t1942\n"+
-"\t\t\t -8:00\tUS\tP%sT\t1946\n"+
-"\t\t\t -8:00\t-\tPST\t1969\n"+
-"\t\t\t -8:00\tUS\tP%sT\t1980 Apr 27 2:00\n"+
-"\t\t\t -9:00\tUS\tY%sT\t1980 Oct 26 2:00\t\n"+
-"\t\t\t -8:00\tUS\tP%sT\t1983 Oct 30 2:00\n"+
-"\t\t\t -9:00\tUS\tY%sT\t1983 Nov 30\n"+
-"\t\t\t -9:00\tUS\tAK%sT\n"+
-"Zone America/Sitka\t 14:58:47 -\tLMT\t1867 Oct 18\n"+
-"\t\t\t -9:01:13 -\tLMT\t1900 Aug 20 12:00\n"+
-"\t\t\t -8:00\t-\tPST\t1942\n"+
-"\t\t\t -8:00\tUS\tP%sT\t1946\n"+
-"\t\t\t -8:00\t-\tPST\t1969\n"+
-"\t\t\t -8:00\tUS\tP%sT\t1983 Oct 30 2:00\n"+
-"\t\t\t -9:00\tUS\tY%sT\t1983 Nov 30\n"+
-"\t\t\t -9:00\tUS\tAK%sT\n"+
-"Zone America/Metlakatla\t 15:13:42 -\tLMT\t1867 Oct 18\n"+
-"\t\t\t -8:46:18 -\tLMT\t1900 Aug 20 12:00\n"+
-"\t\t\t -8:00\t-\tPST\t1942\n"+
-"\t\t\t -8:00\tUS\tP%sT\t1946\n"+
-"\t\t\t -8:00\t-\tPST\t1969\n"+
-"\t\t\t -8:00\tUS\tP%sT\t1983 Oct 30 2:00\n"+
-"\t\t\t -8:00\t-\tMeST\n"+
-"Zone America/Yakutat\t 14:41:05 -\tLMT\t1867 Oct 18\n"+
-"\t\t\t -9:18:55 -\tLMT\t1900 Aug 20 12:00\n"+
-"\t\t\t -9:00\t-\tYST\t1942\n"+
-"\t\t\t -9:00\tUS\tY%sT\t1946\n"+
-"\t\t\t -9:00\t-\tYST\t1969\n"+
-"\t\t\t -9:00\tUS\tY%sT\t1983 Nov 30\n"+
-"\t\t\t -9:00\tUS\tAK%sT\n"+
-"Zone America/Anchorage\t 14:00:24 -\tLMT\t1867 Oct 18\n"+
-"\t\t\t -9:59:36 -\tLMT\t1900 Aug 20 12:00\n"+
-"\t\t\t-10:00\t-\tCAT\t1942\n"+
-"\t\t\t-10:00\tUS\tCAT/CAWT 1945 Aug 14 23:00u\n"+
-"\t\t\t-10:00\tUS\tCAT/CAPT 1946 # Peace\n"+
-"\t\t\t-10:00\t-\tCAT\t1967 Apr\n"+
-"\t\t\t-10:00\t-\tAHST\t1969\n"+
-"\t\t\t-10:00\tUS\tAH%sT\t1983 Oct 30 2:00\n"+
-"\t\t\t -9:00\tUS\tY%sT\t1983 Nov 30\n"+
-"\t\t\t -9:00\tUS\tAK%sT\n"+
-"Zone America/Nome\t 12:58:21 -\tLMT\t1867 Oct 18\n"+
-"\t\t\t-11:01:38 -\tLMT\t1900 Aug 20 12:00\n"+
-"\t\t\t-11:00\t-\tNST\t1942\n"+
-"\t\t\t-11:00\tUS\tN%sT\t1946\n"+
-"\t\t\t-11:00\t-\tNST\t1967 Apr\n"+
-"\t\t\t-11:00\t-\tBST\t1969\n"+
-"\t\t\t-11:00\tUS\tB%sT\t1983 Oct 30 2:00\n"+
-"\t\t\t -9:00\tUS\tY%sT\t1983 Nov 30\n"+
-"\t\t\t -9:00\tUS\tAK%sT\n"+
-"Zone America/Adak\t 12:13:21 -\tLMT\t1867 Oct 18\n"+
-"\t\t\t-11:46:38 -\tLMT\t1900 Aug 20 12:00\n"+
-"\t\t\t-11:00\t-\tNST\t1942\n"+
-"\t\t\t-11:00\tUS\tN%sT\t1946\n"+
-"\t\t\t-11:00\t-\tNST\t1967 Apr\n"+
-"\t\t\t-11:00\t-\tBST\t1969\n"+
-"\t\t\t-11:00\tUS\tB%sT\t1983 Oct 30 2:00\n"+
-"\t\t\t-10:00\tUS\tAH%sT\t1983 Nov 30\n"+
-"\t\t\t-10:00\tUS\tHA%sT\n"+
-"Zone Pacific/Honolulu\t-10:31:26 -\tLMT\t1896 Jan 13 12:00 #Schmitt&Cox\n"+
-"\t\t\t-10:30\t-\tHST\t1933 Apr 30 2:00 #Laws 1933\n"+
-"\t\t\t-10:30\t1:00\tHDT\t1933 May 21 12:00 #Laws 1933+12\n"+
-"\t\t\t-10:30\t-\tHST\t1942 Feb 09 2:00 #Schmitt&Cox+2\n"+
-"\t\t\t-10:30\t1:00\tHDT\t1945 Sep 30 2:00 #Schmitt&Cox+2\n"+
-"\t\t\t-10:30\t-\tHST\t1947 Jun  8 2:00 #Schmitt&Cox+2\n"+
-"\t\t\t-10:00\t-\tHST\n"+
-"Zone America/Phoenix\t-7:28:18 -\tLMT\t1883 Nov 18 11:31:42\n"+
-"\t\t\t-7:00\tUS\tM%sT\t1944 Jan  1 00:01\n"+
-"\t\t\t-7:00\t-\tMST\t1944 Apr  1 00:01\n"+
-"\t\t\t-7:00\tUS\tM%sT\t1944 Oct  1 00:01\n"+
-"\t\t\t-7:00\t-\tMST\t1967\n"+
-"\t\t\t-7:00\tUS\tM%sT\t1968 Mar 21\n"+
-"\t\t\t-7:00\t-\tMST\n"+
-"Link America/Denver America/Shiprock\n"+
-"Zone America/Boise\t-7:44:49 -\tLMT\t1883 Nov 18 12:15:11\n"+
-"\t\t\t-8:00\tUS\tP%sT\t1923 May 13 2:00\n"+
-"\t\t\t-7:00\tUS\tM%sT\t1974\n"+
-"\t\t\t-7:00\t-\tMST\t1974 Feb  3 2:00\n"+
-"\t\t\t-7:00\tUS\tM%sT\n"+
-"Rule Indianapolis 1941\tonly\t-\tJun\t22\t2:00\t1:00\tD\n"+
-"Rule Indianapolis 1941\t1954\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule Indianapolis 1946\t1954\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Zone America/Indiana/Indianapolis -5:44:38 - LMT 1883 Nov 18 12:15:22\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1920\n"+
-"\t\t\t-6:00 Indianapolis C%sT\t1942\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1946\n"+
-"\t\t\t-6:00 Indianapolis C%sT\t1955 Apr 24 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t1957 Sep 29 2:00\n"+
-"\t\t\t-6:00\t-\tCST\t1958 Apr 27 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t1969\n"+
-"\t\t\t-5:00\tUS\tE%sT\t1971\n"+
-"\t\t\t-5:00\t-\tEST\t2006\n"+
-"\t\t\t-5:00\tUS\tE%sT\n"+
-"Rule\tMarengo\t1951\tonly\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tMarengo\t1951\tonly\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tMarengo\t1954\t1960\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tMarengo\t1954\t1960\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Indiana/Marengo -5:45:23 -\tLMT\t1883 Nov 18 12:14:37\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1951\n"+
-"\t\t\t-6:00\tMarengo\tC%sT\t1961 Apr 30 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t1969\n"+
-"\t\t\t-5:00\tUS\tE%sT\t1974 Jan  6 2:00\n"+
-"\t\t\t-6:00\t1:00\tCDT\t1974 Oct 27 2:00\n"+
-"\t\t\t-5:00\tUS\tE%sT\t1976\n"+
-"\t\t\t-5:00\t-\tEST\t2006\n"+
-"\t\t\t-5:00\tUS\tE%sT\n"+
-"Rule Vincennes\t1946\tonly\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule Vincennes\t1946\tonly\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule Vincennes\t1953\t1954\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule Vincennes\t1953\t1959\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule Vincennes\t1955\tonly\t-\tMay\t 1\t0:00\t1:00\tD\n"+
-"Rule Vincennes\t1956\t1963\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule Vincennes\t1960\tonly\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule Vincennes\t1961\tonly\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule Vincennes\t1962\t1963\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Indiana/Vincennes -5:50:07 - LMT\t1883 Nov 18 12:09:53\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1946\n"+
-"\t\t\t-6:00 Vincennes\tC%sT\t1964 Apr 26 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t1969\n"+
-"\t\t\t-5:00\tUS\tE%sT\t1971\n"+
-"\t\t\t-5:00\t-\tEST\t2006 Apr  2 2:00\n"+
-"\t\t\t-6:00\tUS\tC%sT\t2007 Nov  4 2:00\n"+
-"\t\t\t-5:00\tUS\tE%sT\n"+
-"Rule Perry\t1946\tonly\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule Perry\t1946\tonly\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule Perry\t1953\t1954\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule Perry\t1953\t1959\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule Perry\t1955\tonly\t-\tMay\t 1\t0:00\t1:00\tD\n"+
-"Rule Perry\t1956\t1963\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule Perry\t1960\tonly\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule Perry\t1961\tonly\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule Perry\t1962\t1963\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Indiana/Tell_City -5:47:03 - LMT\t1883 Nov 18 12:12:57\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1946\n"+
-"\t\t\t-6:00 Perry\tC%sT\t1964 Apr 26 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t1969\n"+
-"\t\t\t-5:00\tUS\tE%sT\t1971\n"+
-"\t\t\t-5:00\t-\tEST\t2006 Apr  2 2:00\n"+
-"\t\t\t-6:00\tUS\tC%sT\n"+
-"Rule\tPike\t1955\tonly\t-\tMay\t 1\t0:00\t1:00\tD\n"+
-"Rule\tPike\t1955\t1960\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tPike\t1956\t1964\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tPike\t1961\t1964\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Indiana/Petersburg -5:49:07 - LMT\t1883 Nov 18 12:10:53\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1955\n"+
-"\t\t\t-6:00\tPike\tC%sT\t1965 Apr 25 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t1966 Oct 30 2:00\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1977 Oct 30 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t2006 Apr  2 2:00\n"+
-"\t\t\t-6:00\tUS\tC%sT\t2007 Nov  4 2:00\n"+
-"\t\t\t-5:00\tUS\tE%sT\n"+
-"Rule\tStarke\t1947\t1961\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tStarke\t1947\t1954\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tStarke\t1955\t1956\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tStarke\t1957\t1958\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tStarke\t1959\t1961\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Indiana/Knox -5:46:30 -\tLMT\t1883 Nov 18 12:13:30\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1947\n"+
-"\t\t\t-6:00\tStarke\tC%sT\t1962 Apr 29 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t1963 Oct 27 2:00\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1991 Oct 27 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t2006 Apr  2 2:00\n"+
-"\t\t\t-6:00\tUS\tC%sT\n"+
-"Rule\tPulaski\t1946\t1960\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tPulaski\t1946\t1954\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tPulaski\t1955\t1956\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tPulaski\t1957\t1960\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Indiana/Winamac -5:46:25 - LMT\t1883 Nov 18 12:13:35\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1946\n"+
-"\t\t\t-6:00\tPulaski\tC%sT\t1961 Apr 30 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t1969\n"+
-"\t\t\t-5:00\tUS\tE%sT\t1971\n"+
-"\t\t\t-5:00\t-\tEST\t2006 Apr  2 2:00\n"+
-"\t\t\t-6:00\tUS\tC%sT\t2007 Mar 11 2:00\n"+
-"\t\t\t-5:00\tUS\tE%sT\n"+
-"Zone America/Indiana/Vevay -5:40:16 -\tLMT\t1883 Nov 18 12:19:44\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1954 Apr 25 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t1969\n"+
-"\t\t\t-5:00\tUS\tE%sT\t1973\n"+
-"\t\t\t-5:00\t-\tEST\t2006\n"+
-"\t\t\t-5:00\tUS\tE%sT\n"+
-"Rule Louisville\t1921\tonly\t-\tMay\t1\t2:00\t1:00\tD\n"+
-"Rule Louisville\t1921\tonly\t-\tSep\t1\t2:00\t0\tS\n"+
-"Rule Louisville\t1941\t1961\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule Louisville\t1941\tonly\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule Louisville\t1946\tonly\t-\tJun\t2\t2:00\t0\tS\n"+
-"Rule Louisville\t1950\t1955\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule Louisville\t1956\t1960\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Kentucky/Louisville -5:43:02 -\tLMT\t1883 Nov 18 12:16:58\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1921\n"+
-"\t\t\t-6:00 Louisville C%sT\t1942\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1946\n"+
-"\t\t\t-6:00 Louisville C%sT\t1961 Jul 23 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t1968\n"+
-"\t\t\t-5:00\tUS\tE%sT\t1974 Jan  6 2:00\n"+
-"\t\t\t-6:00\t1:00\tCDT\t1974 Oct 27 2:00\n"+
-"\t\t\t-5:00\tUS\tE%sT\n"+
-"Zone America/Kentucky/Monticello -5:39:24 - LMT\t1883 Nov 18 12:20:36\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1946\n"+
-"\t\t\t-6:00\t-\tCST\t1968\n"+
-"\t\t\t-6:00\tUS\tC%sT\t2000 Oct 29  2:00\n"+
-"\t\t\t-5:00\tUS\tE%sT\n"+
-"Rule\tDetroit\t1948\tonly\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tDetroit\t1948\tonly\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tDetroit\t1967\tonly\t-\tJun\t14\t2:00\t1:00\tD\n"+
-"Rule\tDetroit\t1967\tonly\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Detroit\t-5:32:11 -\tLMT\t1905\n"+
-"\t\t\t-6:00\t-\tCST\t1915 May 15 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t1942\n"+
-"\t\t\t-5:00\tUS\tE%sT\t1946\n"+
-"\t\t\t-5:00\tDetroit\tE%sT\t1973\n"+
-"\t\t\t-5:00\tUS\tE%sT\t1975\n"+
-"\t\t\t-5:00\t-\tEST\t1975 Apr 27 2:00\n"+
-"\t\t\t-5:00\tUS\tE%sT\n"+
-"Rule Menominee\t1946\tonly\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule Menominee\t1946\tonly\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule Menominee\t1966\tonly\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule Menominee\t1966\tonly\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Menominee\t-5:50:27 -\tLMT\t1885 Sep 18 12:00\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1946\n"+
-"\t\t\t-6:00 Menominee\tC%sT\t1969 Apr 27 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t1973 Apr 29 2:00\n"+
-"\t\t\t-6:00\tUS\tC%sT\n"+
-"Rule\tCanada\t1918\tonly\t-\tApr\t14\t2:00\t1:00\tD\n"+
-"Rule\tCanada\t1918\tonly\t-\tOct\t31\t2:00\t0\tS\n"+
-"Rule\tCanada\t1942\tonly\t-\tFeb\t 9\t2:00\t1:00\tW # War\n"+
-"Rule\tCanada\t1945\tonly\t-\tAug\t14\t23:00u\t1:00\tP # Peace\n"+
-"Rule\tCanada\t1945\tonly\t-\tSep\t30\t2:00\t0\tS\n"+
-"Rule\tCanada\t1974\t1986\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tCanada\t1974\t2006\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tCanada\t1987\t2006\t-\tApr\tSun>=1\t2:00\t1:00\tD\n"+
-"Rule\tCanada\t2007\tmax\t-\tMar\tSun>=8\t2:00\t1:00\tD\n"+
-"Rule\tCanada\t2007\tmax\t-\tNov\tSun>=1\t2:00\t0\tS\n"+
-"Rule\tStJohns\t1917\tonly\t-\tApr\t 8\t2:00\t1:00\tD\n"+
-"Rule\tStJohns\t1917\tonly\t-\tSep\t17\t2:00\t0\tS\n"+
-"Rule\tStJohns\t1919\tonly\t-\tMay\t 5\t23:00\t1:00\tD\n"+
-"Rule\tStJohns\t1919\tonly\t-\tAug\t12\t23:00\t0\tS\n"+
-"Rule\tStJohns\t1920\t1935\t-\tMay\tSun>=1\t23:00\t1:00\tD\n"+
-"Rule\tStJohns\t1920\t1935\t-\tOct\tlastSun\t23:00\t0\tS\n"+
-"Rule\tStJohns\t1936\t1941\t-\tMay\tMon>=9\t0:00\t1:00\tD\n"+
-"Rule\tStJohns\t1936\t1941\t-\tOct\tMon>=2\t0:00\t0\tS\n"+
-"Rule\tStJohns\t1946\t1950\t-\tMay\tSun>=8\t2:00\t1:00\tD\n"+
-"Rule\tStJohns\t1946\t1950\t-\tOct\tSun>=2\t2:00\t0\tS\n"+
-"Rule\tStJohns\t1951\t1986\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tStJohns\t1951\t1959\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tStJohns\t1960\t1986\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tStJohns\t1987\tonly\t-\tApr\tSun>=1\t0:01\t1:00\tD\n"+
-"Rule\tStJohns\t1987\t2006\t-\tOct\tlastSun\t0:01\t0\tS\n"+
-"Rule\tStJohns\t1988\tonly\t-\tApr\tSun>=1\t0:01\t2:00\tDD\n"+
-"Rule\tStJohns\t1989\t2006\t-\tApr\tSun>=1\t0:01\t1:00\tD\n"+
-"Rule\tStJohns\t2007\t2011\t-\tMar\tSun>=8\t0:01\t1:00\tD\n"+
-"Rule\tStJohns\t2007\t2010\t-\tNov\tSun>=1\t0:01\t0\tS\n"+
-"Zone America/St_Johns\t-3:30:52 -\tLMT\t1884\n"+
-"\t\t\t-3:30:52 StJohns N%sT\t1918\n"+
-"\t\t\t-3:30:52 Canada\tN%sT\t1919\n"+
-"\t\t\t-3:30:52 StJohns N%sT\t1935 Mar 30\n"+
-"\t\t\t-3:30\tStJohns\tN%sT\t1942 May 11\n"+
-"\t\t\t-3:30\tCanada\tN%sT\t1946\n"+
-"\t\t\t-3:30\tStJohns\tN%sT\t2011 Nov\n"+
-"\t\t\t-3:30\tCanada\tN%sT\n"+
-"Zone America/Goose_Bay\t-4:01:40 -\tLMT\t1884 # Happy Valley-Goose Bay\n"+
-"\t\t\t-3:30:52 -\tNST\t1918\n"+
-"\t\t\t-3:30:52 Canada N%sT\t1919\n"+
-"\t\t\t-3:30:52 -\tNST\t1935 Mar 30\n"+
-"\t\t\t-3:30\t-\tNST\t1936\n"+
-"\t\t\t-3:30\tStJohns\tN%sT\t1942 May 11\n"+
-"\t\t\t-3:30\tCanada\tN%sT\t1946\n"+
-"\t\t\t-3:30\tStJohns\tN%sT\t1966 Mar 15 2:00\n"+
-"\t\t\t-4:00\tStJohns\tA%sT\t2011 Nov\n"+
-"\t\t\t-4:00\tCanada\tA%sT\n"+
-"Rule\tHalifax\t1916\tonly\t-\tApr\t 1\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1916\tonly\t-\tOct\t 1\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1920\tonly\t-\tMay\t 9\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1920\tonly\t-\tAug\t29\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1921\tonly\t-\tMay\t 6\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1921\t1922\t-\tSep\t 5\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1922\tonly\t-\tApr\t30\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1923\t1925\t-\tMay\tSun>=1\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1923\tonly\t-\tSep\t 4\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1924\tonly\t-\tSep\t15\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1925\tonly\t-\tSep\t28\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1926\tonly\t-\tMay\t16\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1926\tonly\t-\tSep\t13\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1927\tonly\t-\tMay\t 1\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1927\tonly\t-\tSep\t26\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1928\t1931\t-\tMay\tSun>=8\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1928\tonly\t-\tSep\t 9\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1929\tonly\t-\tSep\t 3\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1930\tonly\t-\tSep\t15\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1931\t1932\t-\tSep\tMon>=24\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1932\tonly\t-\tMay\t 1\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1933\tonly\t-\tApr\t30\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1933\tonly\t-\tOct\t 2\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1934\tonly\t-\tMay\t20\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1934\tonly\t-\tSep\t16\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1935\tonly\t-\tJun\t 2\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1935\tonly\t-\tSep\t30\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1936\tonly\t-\tJun\t 1\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1936\tonly\t-\tSep\t14\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1937\t1938\t-\tMay\tSun>=1\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1937\t1941\t-\tSep\tMon>=24\t0:00\t0\tS\n"+
-"Rule\tHalifax\t1939\tonly\t-\tMay\t28\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1940\t1941\t-\tMay\tSun>=1\t0:00\t1:00\tD\n"+
-"Rule\tHalifax\t1946\t1949\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tHalifax\t1946\t1949\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tHalifax\t1951\t1954\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tHalifax\t1951\t1954\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tHalifax\t1956\t1959\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tHalifax\t1956\t1959\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tHalifax\t1962\t1973\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tHalifax\t1962\t1973\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Halifax\t-4:14:24 -\tLMT\t1902 Jun 15\n"+
-"\t\t\t-4:00\tHalifax\tA%sT\t1918\n"+
-"\t\t\t-4:00\tCanada\tA%sT\t1919\n"+
-"\t\t\t-4:00\tHalifax\tA%sT\t1942 Feb  9 2:00s\n"+
-"\t\t\t-4:00\tCanada\tA%sT\t1946\n"+
-"\t\t\t-4:00\tHalifax\tA%sT\t1974\n"+
-"\t\t\t-4:00\tCanada\tA%sT\n"+
-"Zone America/Glace_Bay\t-3:59:48 -\tLMT\t1902 Jun 15\n"+
-"\t\t\t-4:00\tCanada\tA%sT\t1953\n"+
-"\t\t\t-4:00\tHalifax\tA%sT\t1954\n"+
-"\t\t\t-4:00\t-\tAST\t1972\n"+
-"\t\t\t-4:00\tHalifax\tA%sT\t1974\n"+
-"\t\t\t-4:00\tCanada\tA%sT\n"+
-"Rule\tMoncton\t1933\t1935\t-\tJun\tSun>=8\t1:00\t1:00\tD\n"+
-"Rule\tMoncton\t1933\t1935\t-\tSep\tSun>=8\t1:00\t0\tS\n"+
-"Rule\tMoncton\t1936\t1938\t-\tJun\tSun>=1\t1:00\t1:00\tD\n"+
-"Rule\tMoncton\t1936\t1938\t-\tSep\tSun>=1\t1:00\t0\tS\n"+
-"Rule\tMoncton\t1939\tonly\t-\tMay\t27\t1:00\t1:00\tD\n"+
-"Rule\tMoncton\t1939\t1941\t-\tSep\tSat>=21\t1:00\t0\tS\n"+
-"Rule\tMoncton\t1940\tonly\t-\tMay\t19\t1:00\t1:00\tD\n"+
-"Rule\tMoncton\t1941\tonly\t-\tMay\t 4\t1:00\t1:00\tD\n"+
-"Rule\tMoncton\t1946\t1972\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tMoncton\t1946\t1956\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tMoncton\t1957\t1972\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tMoncton\t1993\t2006\t-\tApr\tSun>=1\t0:01\t1:00\tD\n"+
-"Rule\tMoncton\t1993\t2006\t-\tOct\tlastSun\t0:01\t0\tS\n"+
-"Zone America/Moncton\t-4:19:08 -\tLMT\t1883 Dec  9\n"+
-"\t\t\t-5:00\t-\tEST\t1902 Jun 15\n"+
-"\t\t\t-4:00\tCanada\tA%sT\t1933\n"+
-"\t\t\t-4:00\tMoncton\tA%sT\t1942\n"+
-"\t\t\t-4:00\tCanada\tA%sT\t1946\n"+
-"\t\t\t-4:00\tMoncton\tA%sT\t1973\n"+
-"\t\t\t-4:00\tCanada\tA%sT\t1993\n"+
-"\t\t\t-4:00\tMoncton\tA%sT\t2007\n"+
-"\t\t\t-4:00\tCanada\tA%sT\n"+
-"Rule\tMont\t1917\tonly\t-\tMar\t25\t2:00\t1:00\tD\n"+
-"Rule\tMont\t1917\tonly\t-\tApr\t24\t0:00\t0\tS\n"+
-"Rule\tMont\t1919\tonly\t-\tMar\t31\t2:30\t1:00\tD\n"+
-"Rule\tMont\t1919\tonly\t-\tOct\t25\t2:30\t0\tS\n"+
-"Rule\tMont\t1920\tonly\t-\tMay\t 2\t2:30\t1:00\tD\n"+
-"Rule\tMont\t1920\t1922\t-\tOct\tSun>=1\t2:30\t0\tS\n"+
-"Rule\tMont\t1921\tonly\t-\tMay\t 1\t2:00\t1:00\tD\n"+
-"Rule\tMont\t1922\tonly\t-\tApr\t30\t2:00\t1:00\tD\n"+
-"Rule\tMont\t1924\tonly\t-\tMay\t17\t2:00\t1:00\tD\n"+
-"Rule\tMont\t1924\t1926\t-\tSep\tlastSun\t2:30\t0\tS\n"+
-"Rule\tMont\t1925\t1926\t-\tMay\tSun>=1\t2:00\t1:00\tD\n"+
-"Rule\tMont\t1927\tonly\t-\tMay\t1\t0:00\t1:00\tD\n"+
-"Rule\tMont\t1927\t1932\t-\tSep\tlastSun\t0:00\t0\tS\n"+
-"Rule\tMont\t1928\t1931\t-\tApr\tlastSun\t0:00\t1:00\tD\n"+
-"Rule\tMont\t1932\tonly\t-\tMay\t1\t0:00\t1:00\tD\n"+
-"Rule\tMont\t1933\t1940\t-\tApr\tlastSun\t0:00\t1:00\tD\n"+
-"Rule\tMont\t1933\tonly\t-\tOct\t1\t0:00\t0\tS\n"+
-"Rule\tMont\t1934\t1939\t-\tSep\tlastSun\t0:00\t0\tS\n"+
-"Rule\tMont\t1946\t1973\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tMont\t1945\t1948\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tMont\t1949\t1950\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tMont\t1951\t1956\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tMont\t1957\t1973\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Blanc-Sablon -3:48:28 -\tLMT\t1884\n"+
-"\t\t\t-4:00\tCanada\tA%sT\t1970\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Zone America/Montreal\t-4:54:16 -\tLMT\t1884\n"+
-"\t\t\t-5:00\tMont\tE%sT\t1918\n"+
-"\t\t\t-5:00\tCanada\tE%sT\t1919\n"+
-"\t\t\t-5:00\tMont\tE%sT\t1942 Feb  9 2:00s\n"+
-"\t\t\t-5:00\tCanada\tE%sT\t1946\n"+
-"\t\t\t-5:00\tMont\tE%sT\t1974\n"+
-"\t\t\t-5:00\tCanada\tE%sT\n"+
-"Rule\tToronto\t1919\tonly\t-\tMar\t30\t23:30\t1:00\tD\n"+
-"Rule\tToronto\t1919\tonly\t-\tOct\t26\t0:00\t0\tS\n"+
-"Rule\tToronto\t1920\tonly\t-\tMay\t 2\t2:00\t1:00\tD\n"+
-"Rule\tToronto\t1920\tonly\t-\tSep\t26\t0:00\t0\tS\n"+
-"Rule\tToronto\t1921\tonly\t-\tMay\t15\t2:00\t1:00\tD\n"+
-"Rule\tToronto\t1921\tonly\t-\tSep\t15\t2:00\t0\tS\n"+
-"Rule\tToronto\t1922\t1923\t-\tMay\tSun>=8\t2:00\t1:00\tD\n"+
-"Rule\tToronto\t1922\t1926\t-\tSep\tSun>=15\t2:00\t0\tS\n"+
-"Rule\tToronto\t1924\t1927\t-\tMay\tSun>=1\t2:00\t1:00\tD\n"+
-"Rule\tToronto\t1927\t1932\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tToronto\t1928\t1931\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tToronto\t1932\tonly\t-\tMay\t1\t2:00\t1:00\tD\n"+
-"Rule\tToronto\t1933\t1940\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tToronto\t1933\tonly\t-\tOct\t1\t2:00\t0\tS\n"+
-"Rule\tToronto\t1934\t1939\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tToronto\t1945\t1946\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tToronto\t1946\tonly\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tToronto\t1947\t1949\t-\tApr\tlastSun\t0:00\t1:00\tD\n"+
-"Rule\tToronto\t1947\t1948\t-\tSep\tlastSun\t0:00\t0\tS\n"+
-"Rule\tToronto\t1949\tonly\t-\tNov\tlastSun\t0:00\t0\tS\n"+
-"Rule\tToronto\t1950\t1973\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tToronto\t1950\tonly\t-\tNov\tlastSun\t2:00\t0\tS\n"+
-"Rule\tToronto\t1951\t1956\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tToronto\t1957\t1973\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Toronto\t-5:17:32 -\tLMT\t1895\n"+
-"\t\t\t-5:00\tCanada\tE%sT\t1919\n"+
-"\t\t\t-5:00\tToronto\tE%sT\t1942 Feb  9 2:00s\n"+
-"\t\t\t-5:00\tCanada\tE%sT\t1946\n"+
-"\t\t\t-5:00\tToronto\tE%sT\t1974\n"+
-"\t\t\t-5:00\tCanada\tE%sT\n"+
-"Zone America/Thunder_Bay -5:57:00 -\tLMT\t1895\n"+
-"\t\t\t-6:00\t-\tCST\t1910\n"+
-"\t\t\t-5:00\t-\tEST\t1942\n"+
-"\t\t\t-5:00\tCanada\tE%sT\t1970\n"+
-"\t\t\t-5:00\tMont\tE%sT\t1973\n"+
-"\t\t\t-5:00\t-\tEST\t1974\n"+
-"\t\t\t-5:00\tCanada\tE%sT\n"+
-"Zone America/Nipigon\t-5:53:04 -\tLMT\t1895\n"+
-"\t\t\t-5:00\tCanada\tE%sT\t1940 Sep 29\n"+
-"\t\t\t-5:00\t1:00\tEDT\t1942 Feb  9 2:00s\n"+
-"\t\t\t-5:00\tCanada\tE%sT\n"+
-"Zone America/Rainy_River -6:18:16 -\tLMT\t1895\n"+
-"\t\t\t-6:00\tCanada\tC%sT\t1940 Sep 29\n"+
-"\t\t\t-6:00\t1:00\tCDT\t1942 Feb  9 2:00s\n"+
-"\t\t\t-6:00\tCanada\tC%sT\n"+
-"Zone America/Atikokan\t-6:06:28 -\tLMT\t1895\n"+
-"\t\t\t-6:00\tCanada\tC%sT\t1940 Sep 29\n"+
-"\t\t\t-6:00\t1:00\tCDT\t1942 Feb  9 2:00s\n"+
-"\t\t\t-6:00\tCanada\tC%sT\t1945 Sep 30 2:00\n"+
-"\t\t\t-5:00\t-\tEST\n"+
-"Rule\tWinn\t1916\tonly\t-\tApr\t23\t0:00\t1:00\tD\n"+
-"Rule\tWinn\t1916\tonly\t-\tSep\t17\t0:00\t0\tS\n"+
-"Rule\tWinn\t1918\tonly\t-\tApr\t14\t2:00\t1:00\tD\n"+
-"Rule\tWinn\t1918\tonly\t-\tOct\t31\t2:00\t0\tS\n"+
-"Rule\tWinn\t1937\tonly\t-\tMay\t16\t2:00\t1:00\tD\n"+
-"Rule\tWinn\t1937\tonly\t-\tSep\t26\t2:00\t0\tS\n"+
-"Rule\tWinn\t1942\tonly\t-\tFeb\t 9\t2:00\t1:00\tW # War\n"+
-"Rule\tWinn\t1945\tonly\t-\tAug\t14\t23:00u\t1:00\tP # Peace\n"+
-"Rule\tWinn\t1945\tonly\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tWinn\t1946\tonly\t-\tMay\t12\t2:00\t1:00\tD\n"+
-"Rule\tWinn\t1946\tonly\t-\tOct\t13\t2:00\t0\tS\n"+
-"Rule\tWinn\t1947\t1949\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tWinn\t1947\t1949\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tWinn\t1950\tonly\t-\tMay\t 1\t2:00\t1:00\tD\n"+
-"Rule\tWinn\t1950\tonly\t-\tSep\t30\t2:00\t0\tS\n"+
-"Rule\tWinn\t1951\t1960\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tWinn\t1951\t1958\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tWinn\t1959\tonly\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tWinn\t1960\tonly\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tWinn\t1963\tonly\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tWinn\t1963\tonly\t-\tSep\t22\t2:00\t0\tS\n"+
-"Rule\tWinn\t1966\t1986\t-\tApr\tlastSun\t2:00s\t1:00\tD\n"+
-"Rule\tWinn\t1966\t2005\t-\tOct\tlastSun\t2:00s\t0\tS\n"+
-"Rule\tWinn\t1987\t2005\t-\tApr\tSun>=1\t2:00s\t1:00\tD\n"+
-"Zone America/Winnipeg\t-6:28:36 -\tLMT\t1887 Jul 16\n"+
-"\t\t\t-6:00\tWinn\tC%sT\t2006\n"+
-"\t\t\t-6:00\tCanada\tC%sT\n"+
-"Rule\tRegina\t1918\tonly\t-\tApr\t14\t2:00\t1:00\tD\n"+
-"Rule\tRegina\t1918\tonly\t-\tOct\t31\t2:00\t0\tS\n"+
-"Rule\tRegina\t1930\t1934\t-\tMay\tSun>=1\t0:00\t1:00\tD\n"+
-"Rule\tRegina\t1930\t1934\t-\tOct\tSun>=1\t0:00\t0\tS\n"+
-"Rule\tRegina\t1937\t1941\t-\tApr\tSun>=8\t0:00\t1:00\tD\n"+
-"Rule\tRegina\t1937\tonly\t-\tOct\tSun>=8\t0:00\t0\tS\n"+
-"Rule\tRegina\t1938\tonly\t-\tOct\tSun>=1\t0:00\t0\tS\n"+
-"Rule\tRegina\t1939\t1941\t-\tOct\tSun>=8\t0:00\t0\tS\n"+
-"Rule\tRegina\t1942\tonly\t-\tFeb\t 9\t2:00\t1:00\tW # War\n"+
-"Rule\tRegina\t1945\tonly\t-\tAug\t14\t23:00u\t1:00\tP # Peace\n"+
-"Rule\tRegina\t1945\tonly\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tRegina\t1946\tonly\t-\tApr\tSun>=8\t2:00\t1:00\tD\n"+
-"Rule\tRegina\t1946\tonly\t-\tOct\tSun>=8\t2:00\t0\tS\n"+
-"Rule\tRegina\t1947\t1957\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tRegina\t1947\t1957\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tRegina\t1959\tonly\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tRegina\t1959\tonly\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tSwift\t1957\tonly\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tSwift\t1957\tonly\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tSwift\t1959\t1961\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tSwift\t1959\tonly\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tSwift\t1960\t1961\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Regina\t-6:58:36 -\tLMT\t1905 Sep\n"+
-"\t\t\t-7:00\tRegina\tM%sT\t1960 Apr lastSun 2:00\n"+
-"\t\t\t-6:00\t-\tCST\n"+
-"Zone America/Swift_Current -7:11:20 -\tLMT\t1905 Sep\n"+
-"\t\t\t-7:00\tCanada\tM%sT\t1946 Apr lastSun 2:00\n"+
-"\t\t\t-7:00\tRegina\tM%sT\t1950\n"+
-"\t\t\t-7:00\tSwift\tM%sT\t1972 Apr lastSun 2:00\n"+
-"\t\t\t-6:00\t-\tCST\n"+
-"Rule\tEdm\t1918\t1919\t-\tApr\tSun>=8\t2:00\t1:00\tD\n"+
-"Rule\tEdm\t1918\tonly\t-\tOct\t31\t2:00\t0\tS\n"+
-"Rule\tEdm\t1919\tonly\t-\tMay\t27\t2:00\t0\tS\n"+
-"Rule\tEdm\t1920\t1923\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tEdm\t1920\tonly\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tEdm\t1921\t1923\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tEdm\t1942\tonly\t-\tFeb\t 9\t2:00\t1:00\tW # War\n"+
-"Rule\tEdm\t1945\tonly\t-\tAug\t14\t23:00u\t1:00\tP # Peace\n"+
-"Rule\tEdm\t1945\tonly\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tEdm\t1947\tonly\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tEdm\t1947\tonly\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tEdm\t1967\tonly\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tEdm\t1967\tonly\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tEdm\t1969\tonly\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tEdm\t1969\tonly\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tEdm\t1972\t1986\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tEdm\t1972\t2006\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Edmonton\t-7:33:52 -\tLMT\t1906 Sep\n"+
-"\t\t\t-7:00\tEdm\tM%sT\t1987\n"+
-"\t\t\t-7:00\tCanada\tM%sT\n"+
-"Rule\tVanc\t1918\tonly\t-\tApr\t14\t2:00\t1:00\tD\n"+
-"Rule\tVanc\t1918\tonly\t-\tOct\t31\t2:00\t0\tS\n"+
-"Rule\tVanc\t1942\tonly\t-\tFeb\t 9\t2:00\t1:00\tW # War\n"+
-"Rule\tVanc\t1945\tonly\t-\tAug\t14\t23:00u\t1:00\tP # Peace\n"+
-"Rule\tVanc\t1945\tonly\t-\tSep\t30\t2:00\t0\tS\n"+
-"Rule\tVanc\t1946\t1986\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tVanc\t1946\tonly\t-\tOct\t13\t2:00\t0\tS\n"+
-"Rule\tVanc\t1947\t1961\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tVanc\t1962\t2006\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Vancouver\t-8:12:28 -\tLMT\t1884\n"+
-"\t\t\t-8:00\tVanc\tP%sT\t1987\n"+
-"\t\t\t-8:00\tCanada\tP%sT\n"+
-"Zone America/Dawson_Creek -8:00:56 -\tLMT\t1884\n"+
-"\t\t\t-8:00\tCanada\tP%sT\t1947\n"+
-"\t\t\t-8:00\tVanc\tP%sT\t1972 Aug 30 2:00\n"+
-"\t\t\t-7:00\t-\tMST\n"+
-"Rule\tNT_YK\t1918\tonly\t-\tApr\t14\t2:00\t1:00\tD\n"+
-"Rule\tNT_YK\t1918\tonly\t-\tOct\t27\t2:00\t0\tS\n"+
-"Rule\tNT_YK\t1919\tonly\t-\tMay\t25\t2:00\t1:00\tD\n"+
-"Rule\tNT_YK\t1919\tonly\t-\tNov\t 1\t0:00\t0\tS\n"+
-"Rule\tNT_YK\t1942\tonly\t-\tFeb\t 9\t2:00\t1:00\tW # War\n"+
-"Rule\tNT_YK\t1945\tonly\t-\tAug\t14\t23:00u\t1:00\tP # Peace\n"+
-"Rule\tNT_YK\t1945\tonly\t-\tSep\t30\t2:00\t0\tS\n"+
-"Rule\tNT_YK\t1965\tonly\t-\tApr\tlastSun\t0:00\t2:00\tDD\n"+
-"Rule\tNT_YK\t1965\tonly\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tNT_YK\t1980\t1986\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tNT_YK\t1980\t2006\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tNT_YK\t1987\t2006\t-\tApr\tSun>=1\t2:00\t1:00\tD\n"+
-"Zone America/Pangnirtung 0\t-\tzzz\t1921 # trading post est.\n"+
-"\t\t\t-4:00\tNT_YK\tA%sT\t1995 Apr Sun>=1 2:00\n"+
-"\t\t\t-5:00\tCanada\tE%sT\t1999 Oct 31 2:00\n"+
-"\t\t\t-6:00\tCanada\tC%sT\t2000 Oct 29 2:00\n"+
-"\t\t\t-5:00\tCanada\tE%sT\n"+
-"Zone America/Iqaluit\t0\t-\tzzz\t1942 Aug # Frobisher Bay est.\n"+
-"\t\t\t-5:00\tNT_YK\tE%sT\t1999 Oct 31 2:00\n"+
-"\t\t\t-6:00\tCanada\tC%sT\t2000 Oct 29 2:00\n"+
-"\t\t\t-5:00\tCanada\tE%sT\n"+
-"Zone America/Resolute\t0\t-\tzzz\t1947 Aug 31 # Resolute founded\n"+
-"\t\t\t-6:00\tNT_YK\tC%sT\t2000 Oct 29 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t2001 Apr  1 3:00\n"+
-"\t\t\t-6:00\tCanada\tC%sT\t2006 Oct 29 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t2007 Mar 11 3:00\n"+
-"\t\t\t-6:00\tCanada\tC%sT\n"+
-"Zone America/Rankin_Inlet 0\t-\tzzz\t1957 # Rankin Inlet founded\n"+
-"\t\t\t-6:00\tNT_YK\tC%sT\t2000 Oct 29 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t2001 Apr  1 3:00\n"+
-"\t\t\t-6:00\tCanada\tC%sT\n"+
-"Zone America/Cambridge_Bay 0\t-\tzzz\t1920 # trading post est.?\n"+
-"\t\t\t-7:00\tNT_YK\tM%sT\t1999 Oct 31 2:00\n"+
-"\t\t\t-6:00\tCanada\tC%sT\t2000 Oct 29 2:00\n"+
-"\t\t\t-5:00\t-\tEST\t2000 Nov  5 0:00\n"+
-"\t\t\t-6:00\t-\tCST\t2001 Apr  1 3:00\n"+
-"\t\t\t-7:00\tCanada\tM%sT\n"+
-"Zone America/Yellowknife 0\t-\tzzz\t1935 # Yellowknife founded?\n"+
-"\t\t\t-7:00\tNT_YK\tM%sT\t1980\n"+
-"\t\t\t-7:00\tCanada\tM%sT\n"+
-"Zone America/Inuvik\t0\t-\tzzz\t1953 # Inuvik founded\n"+
-"\t\t\t-8:00\tNT_YK\tP%sT\t1979 Apr lastSun 2:00\n"+
-"\t\t\t-7:00\tNT_YK\tM%sT\t1980\n"+
-"\t\t\t-7:00\tCanada\tM%sT\n"+
-"Zone America/Whitehorse\t-9:00:12 -\tLMT\t1900 Aug 20\n"+
-"\t\t\t-9:00\tNT_YK\tY%sT\t1966 Jul 1 2:00\n"+
-"\t\t\t-8:00\tNT_YK\tP%sT\t1980\n"+
-"\t\t\t-8:00\tCanada\tP%sT\n"+
-"Zone America/Dawson\t-9:17:40 -\tLMT\t1900 Aug 20\n"+
-"\t\t\t-9:00\tNT_YK\tY%sT\t1973 Oct 28 0:00\n"+
-"\t\t\t-8:00\tNT_YK\tP%sT\t1980\n"+
-"\t\t\t-8:00\tCanada\tP%sT\n"+
-"Rule\tMexico\t1939\tonly\t-\tFeb\t5\t0:00\t1:00\tD\n"+
-"Rule\tMexico\t1939\tonly\t-\tJun\t25\t0:00\t0\tS\n"+
-"Rule\tMexico\t1940\tonly\t-\tDec\t9\t0:00\t1:00\tD\n"+
-"Rule\tMexico\t1941\tonly\t-\tApr\t1\t0:00\t0\tS\n"+
-"Rule\tMexico\t1943\tonly\t-\tDec\t16\t0:00\t1:00\tW # War\n"+
-"Rule\tMexico\t1944\tonly\t-\tMay\t1\t0:00\t0\tS\n"+
-"Rule\tMexico\t1950\tonly\t-\tFeb\t12\t0:00\t1:00\tD\n"+
-"Rule\tMexico\t1950\tonly\t-\tJul\t30\t0:00\t0\tS\n"+
-"Rule\tMexico\t1996\t2000\t-\tApr\tSun>=1\t2:00\t1:00\tD\n"+
-"Rule\tMexico\t1996\t2000\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tMexico\t2001\tonly\t-\tMay\tSun>=1\t2:00\t1:00\tD\n"+
-"Rule\tMexico\t2001\tonly\t-\tSep\tlastSun\t2:00\t0\tS\n"+
-"Rule\tMexico\t2002\tmax\t-\tApr\tSun>=1\t2:00\t1:00\tD\n"+
-"Rule\tMexico\t2002\tmax\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Zone America/Cancun\t-5:47:04 -\tLMT\t1922 Jan  1  0:12:56\n"+
-"\t\t\t-6:00\t-\tCST\t1981 Dec 23\n"+
-"\t\t\t-5:00\tMexico\tE%sT\t1998 Aug  2  2:00\n"+
-"\t\t\t-6:00\tMexico\tC%sT\n"+
-"Zone America/Merida\t-5:58:28 -\tLMT\t1922 Jan  1  0:01:32\n"+
-"\t\t\t-6:00\t-\tCST\t1981 Dec 23\n"+
-"\t\t\t-5:00\t-\tEST\t1982 Dec  2\n"+
-"\t\t\t-6:00\tMexico\tC%sT\n"+
-"Zone America/Matamoros\t-6:40:00 -\tLMT\t1921 Dec 31 23:20:00\n"+
-"\t\t\t-6:00\t-\tCST\t1988\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1989\n"+
-"\t\t\t-6:00\tMexico\tC%sT\t2010\n"+
-"\t\t\t-6:00\tUS\tC%sT\n"+
-"Zone America/Monterrey\t-6:41:16 -\tLMT\t1921 Dec 31 23:18:44\n"+
-"\t\t\t-6:00\t-\tCST\t1988\n"+
-"\t\t\t-6:00\tUS\tC%sT\t1989\n"+
-"\t\t\t-6:00\tMexico\tC%sT\n"+
-"Zone America/Mexico_City -6:36:36 -\tLMT\t1922 Jan  1 0:23:24\n"+
-"\t\t\t-7:00\t-\tMST\t1927 Jun 10 23:00\n"+
-"\t\t\t-6:00\t-\tCST\t1930 Nov 15\n"+
-"\t\t\t-7:00\t-\tMST\t1931 May  1 23:00\n"+
-"\t\t\t-6:00\t-\tCST\t1931 Oct\n"+
-"\t\t\t-7:00\t-\tMST\t1932 Apr  1\n"+
-"\t\t\t-6:00\tMexico\tC%sT\t2001 Sep 30 02:00\n"+
-"\t\t\t-6:00\t-\tCST\t2002 Feb 20\n"+
-"\t\t\t-6:00\tMexico\tC%sT\n"+
-"Zone America/Ojinaga\t-6:57:40 -\tLMT\t1922 Jan 1 0:02:20\n"+
-"\t\t\t-7:00\t-\tMST\t1927 Jun 10 23:00\n"+
-"\t\t\t-6:00\t-\tCST\t1930 Nov 15\n"+
-"\t\t\t-7:00\t-\tMST\t1931 May  1 23:00\n"+
-"\t\t\t-6:00\t-\tCST\t1931 Oct\n"+
-"\t\t\t-7:00\t-\tMST\t1932 Apr  1\n"+
-"\t\t\t-6:00\t-\tCST\t1996\n"+
-"\t\t\t-6:00\tMexico\tC%sT\t1998\n"+
-"\t\t\t-6:00\t-\tCST\t1998 Apr Sun>=1 3:00\n"+
-"\t\t\t-7:00\tMexico\tM%sT\t2010\n"+
-"\t\t\t-7:00\tUS\tM%sT\n"+
-"Zone America/Chihuahua\t-7:04:20 -\tLMT\t1921 Dec 31 23:55:40\n"+
-"\t\t\t-7:00\t-\tMST\t1927 Jun 10 23:00\n"+
-"\t\t\t-6:00\t-\tCST\t1930 Nov 15\n"+
-"\t\t\t-7:00\t-\tMST\t1931 May  1 23:00\n"+
-"\t\t\t-6:00\t-\tCST\t1931 Oct\n"+
-"\t\t\t-7:00\t-\tMST\t1932 Apr  1\n"+
-"\t\t\t-6:00\t-\tCST\t1996\n"+
-"\t\t\t-6:00\tMexico\tC%sT\t1998\n"+
-"\t\t\t-6:00\t-\tCST\t1998 Apr Sun>=1 3:00\n"+
-"\t\t\t-7:00\tMexico\tM%sT\n"+
-"Zone America/Hermosillo\t-7:23:52 -\tLMT\t1921 Dec 31 23:36:08\n"+
-"\t\t\t-7:00\t-\tMST\t1927 Jun 10 23:00\n"+
-"\t\t\t-6:00\t-\tCST\t1930 Nov 15\n"+
-"\t\t\t-7:00\t-\tMST\t1931 May  1 23:00\n"+
-"\t\t\t-6:00\t-\tCST\t1931 Oct\n"+
-"\t\t\t-7:00\t-\tMST\t1932 Apr  1\n"+
-"\t\t\t-6:00\t-\tCST\t1942 Apr 24\n"+
-"\t\t\t-7:00\t-\tMST\t1949 Jan 14\n"+
-"\t\t\t-8:00\t-\tPST\t1970\n"+
-"\t\t\t-7:00\tMexico\tM%sT\t1999\n"+
-"\t\t\t-7:00\t-\tMST\n"+
-"Zone America/Mazatlan\t-7:05:40 -\tLMT\t1921 Dec 31 23:54:20\n"+
-"\t\t\t-7:00\t-\tMST\t1927 Jun 10 23:00\n"+
-"\t\t\t-6:00\t-\tCST\t1930 Nov 15\n"+
-"\t\t\t-7:00\t-\tMST\t1931 May  1 23:00\n"+
-"\t\t\t-6:00\t-\tCST\t1931 Oct\n"+
-"\t\t\t-7:00\t-\tMST\t1932 Apr  1\n"+
-"\t\t\t-6:00\t-\tCST\t1942 Apr 24\n"+
-"\t\t\t-7:00\t-\tMST\t1949 Jan 14\n"+
-"\t\t\t-8:00\t-\tPST\t1970\n"+
-"\t\t\t-7:00\tMexico\tM%sT\n"+
-"Zone America/Bahia_Banderas\t-7:01:00 -\tLMT\t1921 Dec 31 23:59:00\n"+
-"\t\t\t-7:00\t-\tMST\t1927 Jun 10 23:00\n"+
-"\t\t\t-6:00\t-\tCST\t1930 Nov 15\n"+
-"\t\t\t-7:00\t-\tMST\t1931 May  1 23:00\n"+
-"\t\t\t-6:00\t-\tCST\t1931 Oct\n"+
-"\t\t\t-7:00\t-\tMST\t1932 Apr  1\n"+
-"\t\t\t-6:00\t-\tCST\t1942 Apr 24\n"+
-"\t\t\t-7:00\t-\tMST\t1949 Jan 14\n"+
-"\t\t\t-8:00\t-\tPST\t1970\n"+
-"\t\t\t-7:00\tMexico\tM%sT\t2010 Apr 4 2:00\n"+
-"\t\t\t-6:00\tMexico\tC%sT\n"+
-"Zone America/Tijuana\t-7:48:04 -\tLMT\t1922 Jan  1  0:11:56\n"+
-"\t\t\t-7:00\t-\tMST\t1924\n"+
-"\t\t\t-8:00\t-\tPST\t1927 Jun 10 23:00\n"+
-"\t\t\t-7:00\t-\tMST\t1930 Nov 15\n"+
-"\t\t\t-8:00\t-\tPST\t1931 Apr  1\n"+
-"\t\t\t-8:00\t1:00\tPDT\t1931 Sep 30\n"+
-"\t\t\t-8:00\t-\tPST\t1942 Apr 24\n"+
-"\t\t\t-8:00\t1:00\tPWT\t1945 Aug 14 23:00u\n"+
-"\t\t\t-8:00\t1:00\tPPT\t1945 Nov 12 # Peace\n"+
-"\t\t\t-8:00\t-\tPST\t1948 Apr  5\n"+
-"\t\t\t-8:00\t1:00\tPDT\t1949 Jan 14\n"+
-"\t\t\t-8:00\t-\tPST\t1954\n"+
-"\t\t\t-8:00\tCA\tP%sT\t1961\n"+
-"\t\t\t-8:00\t-\tPST\t1976\n"+
-"\t\t\t-8:00\tUS\tP%sT\t1996\n"+
-"\t\t\t-8:00\tMexico\tP%sT\t2001\n"+
-"\t\t\t-8:00\tUS\tP%sT\t2002 Feb 20\n"+
-"\t\t\t-8:00\tMexico\tP%sT\t2010\n"+
-"\t\t\t-8:00\tUS\tP%sT\n"+
-"Zone America/Santa_Isabel\t-7:39:28 -\tLMT\t1922 Jan  1  0:20:32\n"+
-"\t\t\t-7:00\t-\tMST\t1924\n"+
-"\t\t\t-8:00\t-\tPST\t1927 Jun 10 23:00\n"+
-"\t\t\t-7:00\t-\tMST\t1930 Nov 15\n"+
-"\t\t\t-8:00\t-\tPST\t1931 Apr  1\n"+
-"\t\t\t-8:00\t1:00\tPDT\t1931 Sep 30\n"+
-"\t\t\t-8:00\t-\tPST\t1942 Apr 24\n"+
-"\t\t\t-8:00\t1:00\tPWT\t1945 Aug 14 23:00u\n"+
-"\t\t\t-8:00\t1:00\tPPT\t1945 Nov 12 # Peace\n"+
-"\t\t\t-8:00\t-\tPST\t1948 Apr  5\n"+
-"\t\t\t-8:00\t1:00\tPDT\t1949 Jan 14\n"+
-"\t\t\t-8:00\t-\tPST\t1954\n"+
-"\t\t\t-8:00\tCA\tP%sT\t1961\n"+
-"\t\t\t-8:00\t-\tPST\t1976\n"+
-"\t\t\t-8:00\tUS\tP%sT\t1996\n"+
-"\t\t\t-8:00\tMexico\tP%sT\t2001\n"+
-"\t\t\t-8:00\tUS\tP%sT\t2002 Feb 20\n"+
-"\t\t\t-8:00\tMexico\tP%sT\n"+
-"Zone America/Anguilla\t-4:12:16 -\tLMT\t1912 Mar 2\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Zone\tAmerica/Antigua\t-4:07:12 -\tLMT\t1912 Mar 2\n"+
-"\t\t\t-5:00\t-\tEST\t1951\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Rule\tBahamas\t1964\t1975\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tBahamas\t1964\t1975\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Zone\tAmerica/Nassau\t-5:09:24 -\tLMT\t1912 Mar 2\n"+
-"\t\t\t-5:00\tBahamas\tE%sT\t1976\n"+
-"\t\t\t-5:00\tUS\tE%sT\n"+
-"Rule\tBarb\t1977\tonly\t-\tJun\t12\t2:00\t1:00\tD\n"+
-"Rule\tBarb\t1977\t1978\t-\tOct\tSun>=1\t2:00\t0\tS\n"+
-"Rule\tBarb\t1978\t1980\t-\tApr\tSun>=15\t2:00\t1:00\tD\n"+
-"Rule\tBarb\t1979\tonly\t-\tSep\t30\t2:00\t0\tS\n"+
-"Rule\tBarb\t1980\tonly\t-\tSep\t25\t2:00\t0\tS\n"+
-"Zone America/Barbados\t-3:58:28 -\tLMT\t1924\t\t# Bridgetown\n"+
-"\t\t\t-3:58:28 -\tBMT\t1932\t  # Bridgetown Mean Time\n"+
-"\t\t\t-4:00\tBarb\tA%sT\n"+
-"Rule\tBelize\t1918\t1942\t-\tOct\tSun>=2\t0:00\t0:30\tHD\n"+
-"Rule\tBelize\t1919\t1943\t-\tFeb\tSun>=9\t0:00\t0\tS\n"+
-"Rule\tBelize\t1973\tonly\t-\tDec\t 5\t0:00\t1:00\tD\n"+
-"Rule\tBelize\t1974\tonly\t-\tFeb\t 9\t0:00\t0\tS\n"+
-"Rule\tBelize\t1982\tonly\t-\tDec\t18\t0:00\t1:00\tD\n"+
-"Rule\tBelize\t1983\tonly\t-\tFeb\t12\t0:00\t0\tS\n"+
-"Zone\tAmerica/Belize\t-5:52:48 -\tLMT\t1912 Apr\n"+
-"\t\t\t-6:00\tBelize\tC%sT\n"+
-"Zone Atlantic/Bermuda\t-4:19:04 -\tLMT\t1930 Jan  1 2:00    # Hamilton\n"+
-"\t\t\t-4:00\t-\tAST\t1974 Apr 28 2:00\n"+
-"\t\t\t-4:00\tBahamas\tA%sT\t1976\n"+
-"\t\t\t-4:00\tUS\tA%sT\n"+
-"Zone\tAmerica/Cayman\t-5:25:32 -\tLMT\t1890\t\t# Georgetown\n"+
-"\t\t\t-5:07:12 -\tKMT\t1912 Feb    # Kingston Mean Time\n"+
-"\t\t\t-5:00\t-\tEST\n"+
-"Rule\tCR\t1979\t1980\t-\tFeb\tlastSun\t0:00\t1:00\tD\n"+
-"Rule\tCR\t1979\t1980\t-\tJun\tSun>=1\t0:00\t0\tS\n"+
-"Rule\tCR\t1991\t1992\t-\tJan\tSat>=15\t0:00\t1:00\tD\n"+
-"Rule\tCR\t1991\tonly\t-\tJul\t 1\t0:00\t0\tS\n"+
-"Rule\tCR\t1992\tonly\t-\tMar\t15\t0:00\t0\tS\n"+
-"Zone America/Costa_Rica\t-5:36:20 -\tLMT\t1890\t\t# San Jose\n"+
-"\t\t\t-5:36:20 -\tSJMT\t1921 Jan 15 # San Jose Mean Time\n"+
-"\t\t\t-6:00\tCR\tC%sT\n"+
-"Rule\tCuba\t1928\tonly\t-\tJun\t10\t0:00\t1:00\tD\n"+
-"Rule\tCuba\t1928\tonly\t-\tOct\t10\t0:00\t0\tS\n"+
-"Rule\tCuba\t1940\t1942\t-\tJun\tSun>=1\t0:00\t1:00\tD\n"+
-"Rule\tCuba\t1940\t1942\t-\tSep\tSun>=1\t0:00\t0\tS\n"+
-"Rule\tCuba\t1945\t1946\t-\tJun\tSun>=1\t0:00\t1:00\tD\n"+
-"Rule\tCuba\t1945\t1946\t-\tSep\tSun>=1\t0:00\t0\tS\n"+
-"Rule\tCuba\t1965\tonly\t-\tJun\t1\t0:00\t1:00\tD\n"+
-"Rule\tCuba\t1965\tonly\t-\tSep\t30\t0:00\t0\tS\n"+
-"Rule\tCuba\t1966\tonly\t-\tMay\t29\t0:00\t1:00\tD\n"+
-"Rule\tCuba\t1966\tonly\t-\tOct\t2\t0:00\t0\tS\n"+
-"Rule\tCuba\t1967\tonly\t-\tApr\t8\t0:00\t1:00\tD\n"+
-"Rule\tCuba\t1967\t1968\t-\tSep\tSun>=8\t0:00\t0\tS\n"+
-"Rule\tCuba\t1968\tonly\t-\tApr\t14\t0:00\t1:00\tD\n"+
-"Rule\tCuba\t1969\t1977\t-\tApr\tlastSun\t0:00\t1:00\tD\n"+
-"Rule\tCuba\t1969\t1971\t-\tOct\tlastSun\t0:00\t0\tS\n"+
-"Rule\tCuba\t1972\t1974\t-\tOct\t8\t0:00\t0\tS\n"+
-"Rule\tCuba\t1975\t1977\t-\tOct\tlastSun\t0:00\t0\tS\n"+
-"Rule\tCuba\t1978\tonly\t-\tMay\t7\t0:00\t1:00\tD\n"+
-"Rule\tCuba\t1978\t1990\t-\tOct\tSun>=8\t0:00\t0\tS\n"+
-"Rule\tCuba\t1979\t1980\t-\tMar\tSun>=15\t0:00\t1:00\tD\n"+
-"Rule\tCuba\t1981\t1985\t-\tMay\tSun>=5\t0:00\t1:00\tD\n"+
-"Rule\tCuba\t1986\t1989\t-\tMar\tSun>=14\t0:00\t1:00\tD\n"+
-"Rule\tCuba\t1990\t1997\t-\tApr\tSun>=1\t0:00\t1:00\tD\n"+
-"Rule\tCuba\t1991\t1995\t-\tOct\tSun>=8\t0:00s\t0\tS\n"+
-"Rule\tCuba\t1996\tonly\t-\tOct\t 6\t0:00s\t0\tS\n"+
-"Rule\tCuba\t1997\tonly\t-\tOct\t12\t0:00s\t0\tS\n"+
-"Rule\tCuba\t1998\t1999\t-\tMar\tlastSun\t0:00s\t1:00\tD\n"+
-"Rule\tCuba\t1998\t2003\t-\tOct\tlastSun\t0:00s\t0\tS\n"+
-"Rule\tCuba\t2000\t2004\t-\tApr\tSun>=1\t0:00s\t1:00\tD\n"+
-"Rule\tCuba\t2006\t2010\t-\tOct\tlastSun\t0:00s\t0\tS\n"+
-"Rule\tCuba\t2007\tonly\t-\tMar\tSun>=8\t0:00s\t1:00\tD\n"+
-"Rule\tCuba\t2008\tonly\t-\tMar\tSun>=15\t0:00s\t1:00\tD\n"+
-"Rule\tCuba\t2009\t2010\t-\tMar\tSun>=8\t0:00s\t1:00\tD\n"+
-"Rule\tCuba\t2011\tonly\t-\tMar\tSun>=15\t0:00s\t1:00\tD\n"+
-"Rule\tCuba\t2011\tonly\t-\tNov\t13\t0:00s\t0\tS\n"+
-"Rule\tCuba\t2012\tmax\t-\tMar\tSun>=8\t0:00s\t1:00\tD\n"+
-"Rule\tCuba\t2012\tmax\t-\tOct\tlastSun\t0:00s\t0\tS\n"+
-"Zone\tAmerica/Havana\t-5:29:28 -\tLMT\t1890\n"+
-"\t\t\t-5:29:36 -\tHMT\t1925 Jul 19 12:00 # Havana MT\n"+
-"\t\t\t-5:00\tCuba\tC%sT\n"+
-"Zone America/Dominica\t-4:05:36 -\tLMT\t1911 Jul 1 0:01\t\t# Roseau\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Rule\tDR\t1966\tonly\t-\tOct\t30\t0:00\t1:00\tD\n"+
-"Rule\tDR\t1967\tonly\t-\tFeb\t28\t0:00\t0\tS\n"+
-"Rule\tDR\t1969\t1973\t-\tOct\tlastSun\t0:00\t0:30\tHD\n"+
-"Rule\tDR\t1970\tonly\t-\tFeb\t21\t0:00\t0\tS\n"+
-"Rule\tDR\t1971\tonly\t-\tJan\t20\t0:00\t0\tS\n"+
-"Rule\tDR\t1972\t1974\t-\tJan\t21\t0:00\t0\tS\n"+
-"Zone America/Santo_Domingo -4:39:36 -\tLMT\t1890\n"+
-"\t\t\t-4:40\t-\tSDMT\t1933 Apr  1 12:00 # S. Dom. MT\n"+
-"\t\t\t-5:00\tDR\tE%sT\t1974 Oct 27\n"+
-"\t\t\t-4:00\t-\tAST\t2000 Oct 29 02:00\n"+
-"\t\t\t-5:00\tUS\tE%sT\t2000 Dec  3 01:00\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Rule\tSalv\t1987\t1988\t-\tMay\tSun>=1\t0:00\t1:00\tD\n"+
-"Rule\tSalv\t1987\t1988\t-\tSep\tlastSun\t0:00\t0\tS\n"+
-"Zone America/El_Salvador -5:56:48 -\tLMT\t1921\t\t# San Salvador\n"+
-"\t\t\t-6:00\tSalv\tC%sT\n"+
-"Zone\tAmerica/Grenada\t-4:07:00 -\tLMT\t1911 Jul\t# St George's\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Zone America/Guadeloupe\t-4:06:08 -\tLMT\t1911 Jun 8\t# Pointe a Pitre\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Link America/Guadeloupe\tAmerica/St_Barthelemy\n"+
-"Link America/Guadeloupe\tAmerica/Marigot\n"+
-"Rule\tGuat\t1973\tonly\t-\tNov\t25\t0:00\t1:00\tD\n"+
-"Rule\tGuat\t1974\tonly\t-\tFeb\t24\t0:00\t0\tS\n"+
-"Rule\tGuat\t1983\tonly\t-\tMay\t21\t0:00\t1:00\tD\n"+
-"Rule\tGuat\t1983\tonly\t-\tSep\t22\t0:00\t0\tS\n"+
-"Rule\tGuat\t1991\tonly\t-\tMar\t23\t0:00\t1:00\tD\n"+
-"Rule\tGuat\t1991\tonly\t-\tSep\t 7\t0:00\t0\tS\n"+
-"Rule\tGuat\t2006\tonly\t-\tApr\t30\t0:00\t1:00\tD\n"+
-"Rule\tGuat\t2006\tonly\t-\tOct\t 1\t0:00\t0\tS\n"+
-"Zone America/Guatemala\t-6:02:04 -\tLMT\t1918 Oct 5\n"+
-"\t\t\t-6:00\tGuat\tC%sT\n"+
-"Rule\tHaiti\t1983\tonly\t-\tMay\t8\t0:00\t1:00\tD\n"+
-"Rule\tHaiti\t1984\t1987\t-\tApr\tlastSun\t0:00\t1:00\tD\n"+
-"Rule\tHaiti\t1983\t1987\t-\tOct\tlastSun\t0:00\t0\tS\n"+
-"Rule\tHaiti\t1988\t1997\t-\tApr\tSun>=1\t1:00s\t1:00\tD\n"+
-"Rule\tHaiti\t1988\t1997\t-\tOct\tlastSun\t1:00s\t0\tS\n"+
-"Rule\tHaiti\t2005\t2006\t-\tApr\tSun>=1\t0:00\t1:00\tD\n"+
-"Rule\tHaiti\t2005\t2006\t-\tOct\tlastSun\t0:00\t0\tS\n"+
-"Zone America/Port-au-Prince -4:49:20 -\tLMT\t1890\n"+
-"\t\t\t-4:49\t-\tPPMT\t1917 Jan 24 12:00 # P-a-P MT\n"+
-"\t\t\t-5:00\tHaiti\tE%sT\n"+
-"Rule\tHond\t1987\t1988\t-\tMay\tSun>=1\t0:00\t1:00\tD\n"+
-"Rule\tHond\t1987\t1988\t-\tSep\tlastSun\t0:00\t0\tS\n"+
-"Rule\tHond\t2006\tonly\t-\tMay\tSun>=1\t0:00\t1:00\tD\n"+
-"Rule\tHond\t2006\tonly\t-\tAug\tMon>=1\t0:00\t0\tS\n"+
-"Zone America/Tegucigalpa -5:48:52 -\tLMT\t1921 Apr\n"+
-"\t\t\t-6:00\tHond\tC%sT\n"+
-"Zone\tAmerica/Jamaica\t-5:07:12 -\tLMT\t1890\t\t# Kingston\n"+
-"\t\t\t-5:07:12 -\tKMT\t1912 Feb    # Kingston Mean Time\n"+
-"\t\t\t-5:00\t-\tEST\t1974 Apr 28 2:00\n"+
-"\t\t\t-5:00\tUS\tE%sT\t1984\n"+
-"\t\t\t-5:00\t-\tEST\n"+
-"Zone America/Martinique\t-4:04:20 -      LMT\t1890\t\t# Fort-de-France\n"+
-"\t\t\t-4:04:20 -\tFFMT\t1911 May     # Fort-de-France MT\n"+
-"\t\t\t-4:00\t-\tAST\t1980 Apr  6\n"+
-"\t\t\t-4:00\t1:00\tADT\t1980 Sep 28\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Zone America/Montserrat\t-4:08:52 -\tLMT\t1911 Jul 1 0:01   # Cork Hill\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Rule\tNic\t1979\t1980\t-\tMar\tSun>=16\t0:00\t1:00\tD\n"+
-"Rule\tNic\t1979\t1980\t-\tJun\tMon>=23\t0:00\t0\tS\n"+
-"Rule\tNic\t2005\tonly\t-\tApr\t10\t0:00\t1:00\tD\n"+
-"Rule\tNic\t2005\tonly\t-\tOct\tSun>=1\t0:00\t0\tS\n"+
-"Rule\tNic\t2006\tonly\t-\tApr\t30\t2:00\t1:00\tD\n"+
-"Rule\tNic\t2006\tonly\t-\tOct\tSun>=1\t1:00\t0\tS\n"+
-"Zone\tAmerica/Managua\t-5:45:08 -\tLMT\t1890\n"+
-"\t\t\t-5:45:12 -\tMMT\t1934 Jun 23 # Managua Mean Time?\n"+
-"\t\t\t-6:00\t-\tCST\t1973 May\n"+
-"\t\t\t-5:00\t-\tEST\t1975 Feb 16\n"+
-"\t\t\t-6:00\tNic\tC%sT\t1992 Jan  1 4:00\n"+
-"\t\t\t-5:00\t-\tEST\t1992 Sep 24\n"+
-"\t\t\t-6:00\t-\tCST\t1993\n"+
-"\t\t\t-5:00\t-\tEST\t1997\n"+
-"\t\t\t-6:00\tNic\tC%sT\n"+
-"Zone\tAmerica/Panama\t-5:18:08 -\tLMT\t1890\n"+
-"\t\t\t-5:19:36 -\tCMT\t1908 Apr 22   # Colon Mean Time\n"+
-"\t\t\t-5:00\t-\tEST\n"+
-"Zone America/Puerto_Rico -4:24:25 -\tLMT\t1899 Mar 28 12:00    # San Juan\n"+
-"\t\t\t-4:00\t-\tAST\t1942 May  3\n"+
-"\t\t\t-4:00\tUS\tA%sT\t1946\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Zone America/St_Kitts\t-4:10:52 -\tLMT\t1912 Mar 2\t# Basseterre\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Zone America/St_Lucia\t-4:04:00 -\tLMT\t1890\t\t# Castries\n"+
-"\t\t\t-4:04:00 -\tCMT\t1912\t    # Castries Mean Time\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Zone America/Miquelon\t-3:44:40 -\tLMT\t1911 May 15\t# St Pierre\n"+
-"\t\t\t-4:00\t-\tAST\t1980 May\n"+
-"\t\t\t-3:00\t-\tPMST\t1987 # Pierre & Miquelon Time\n"+
-"\t\t\t-3:00\tCanada\tPM%sT\n"+
-"Zone America/St_Vincent\t-4:04:56 -\tLMT\t1890\t\t# Kingstown\n"+
-"\t\t\t-4:04:56 -\tKMT\t1912\t   # Kingstown Mean Time\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Rule\tTC\t1979\t1986\t-\tApr\tlastSun\t2:00\t1:00\tD\n"+
-"Rule\tTC\t1979\t2006\t-\tOct\tlastSun\t2:00\t0\tS\n"+
-"Rule\tTC\t1987\t2006\t-\tApr\tSun>=1\t2:00\t1:00\tD\n"+
-"Rule\tTC\t2007\tmax\t-\tMar\tSun>=8\t2:00\t1:00\tD\n"+
-"Rule\tTC\t2007\tmax\t-\tNov\tSun>=1\t2:00\t0\tS\n"+
-"Zone America/Grand_Turk\t-4:44:32 -\tLMT\t1890\n"+
-"\t\t\t-5:07:12 -\tKMT\t1912 Feb    # Kingston Mean Time\n"+
-"\t\t\t-5:00\tTC\tE%sT\n"+
-"Zone America/Tortola\t-4:18:28 -\tLMT\t1911 Jul    # Road Town\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Zone America/St_Thomas\t-4:19:44 -\tLMT\t1911 Jul    # Charlotte Amalie\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"","tz/pacificnew":"Link\tAmerica/Los_Angeles\tUS/Pacific-New\t##\n"+
-"","tz/southamerica":"Rule\tArg\t1930\tonly\t-\tDec\t 1\t0:00\t1:00\tS\n"+
-"Rule\tArg\t1931\tonly\t-\tApr\t 1\t0:00\t0\t-\n"+
-"Rule\tArg\t1931\tonly\t-\tOct\t15\t0:00\t1:00\tS\n"+
-"Rule\tArg\t1932\t1940\t-\tMar\t 1\t0:00\t0\t-\n"+
-"Rule\tArg\t1932\t1939\t-\tNov\t 1\t0:00\t1:00\tS\n"+
-"Rule\tArg\t1940\tonly\t-\tJul\t 1\t0:00\t1:00\tS\n"+
-"Rule\tArg\t1941\tonly\t-\tJun\t15\t0:00\t0\t-\n"+
-"Rule\tArg\t1941\tonly\t-\tOct\t15\t0:00\t1:00\tS\n"+
-"Rule\tArg\t1943\tonly\t-\tAug\t 1\t0:00\t0\t-\n"+
-"Rule\tArg\t1943\tonly\t-\tOct\t15\t0:00\t1:00\tS\n"+
-"Rule\tArg\t1946\tonly\t-\tMar\t 1\t0:00\t0\t-\n"+
-"Rule\tArg\t1946\tonly\t-\tOct\t 1\t0:00\t1:00\tS\n"+
-"Rule\tArg\t1963\tonly\t-\tOct\t 1\t0:00\t0\t-\n"+
-"Rule\tArg\t1963\tonly\t-\tDec\t15\t0:00\t1:00\tS\n"+
-"Rule\tArg\t1964\t1966\t-\tMar\t 1\t0:00\t0\t-\n"+
-"Rule\tArg\t1964\t1966\t-\tOct\t15\t0:00\t1:00\tS\n"+
-"Rule\tArg\t1967\tonly\t-\tApr\t 2\t0:00\t0\t-\n"+
-"Rule\tArg\t1967\t1968\t-\tOct\tSun>=1\t0:00\t1:00\tS\n"+
-"Rule\tArg\t1968\t1969\t-\tApr\tSun>=1\t0:00\t0\t-\n"+
-"Rule\tArg\t1974\tonly\t-\tJan\t23\t0:00\t1:00\tS\n"+
-"Rule\tArg\t1974\tonly\t-\tMay\t 1\t0:00\t0\t-\n"+
-"Rule\tArg\t1988\tonly\t-\tDec\t 1\t0:00\t1:00\tS\n"+
-"Rule\tArg\t1989\t1993\t-\tMar\tSun>=1\t0:00\t0\t-\n"+
-"Rule\tArg\t1989\t1992\t-\tOct\tSun>=15\t0:00\t1:00\tS\n"+
-"Rule\tArg\t1999\tonly\t-\tOct\tSun>=1\t0:00\t1:00\tS\n"+
-"Rule\tArg\t2000\tonly\t-\tMar\t3\t0:00\t0\t-\n"+
-"Rule\tArg\t2007\tonly\t-\tDec\t30\t0:00\t1:00\tS\n"+
-"Rule\tArg\t2008\t2009\t-\tMar\tSun>=15\t0:00\t0\t-\n"+
-"Rule\tArg\t2008\tonly\t-\tOct\tSun>=15\t0:00\t1:00\tS\n"+
-" \n"+
-"Zone America/Argentina/Buenos_Aires -3:53:48 - LMT 1894 Oct 31\n"+
-"\t\t\t-4:16:48 -\tCMT\t1920 May # Cordoba Mean Time\n"+
-"\t\t\t-4:00\t-\tART\t1930 Dec\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t1969 Oct  5\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1999 Oct  3\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t2000 Mar  3\n"+
-"\t\t\t-3:00\tArg\tAR%sT\n"+
-"Zone America/Argentina/Cordoba -4:16:48 - LMT\t1894 Oct 31\n"+
-"\t\t\t-4:16:48 -\tCMT\t1920 May\n"+
-"\t\t\t-4:00\t-\tART\t1930 Dec\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t1969 Oct  5\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1991 Mar  3\n"+
-"\t\t\t-4:00\t-\tWART\t1991 Oct 20\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1999 Oct  3\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t2000 Mar  3\n"+
-"\t\t\t-3:00\tArg\tAR%sT\n"+
-"Zone America/Argentina/Salta -4:21:40 - LMT\t1894 Oct 31\n"+
-"\t\t\t-4:16:48 -\tCMT\t1920 May\n"+
-"\t\t\t-4:00\t-\tART\t1930 Dec\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t1969 Oct  5\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1991 Mar  3\n"+
-"\t\t\t-4:00\t-\tWART\t1991 Oct 20\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1999 Oct  3\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t2000 Mar  3\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t2008 Oct 18\n"+
-"\t\t\t-3:00\t-\tART\n"+
-"Zone America/Argentina/Tucuman -4:20:52 - LMT\t1894 Oct 31\n"+
-"\t\t\t-4:16:48 -\tCMT\t1920 May\n"+
-"\t\t\t-4:00\t-\tART\t1930 Dec\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t1969 Oct  5\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1991 Mar  3\n"+
-"\t\t\t-4:00\t-\tWART\t1991 Oct 20\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1999 Oct  3\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t2000 Mar  3\n"+
-"\t\t\t-3:00\t-\tART\t2004 Jun  1\n"+
-"\t\t\t-4:00\t-\tWART\t2004 Jun 13\n"+
-"\t\t\t-3:00\tArg\tAR%sT\n"+
-"Zone America/Argentina/La_Rioja -4:27:24 - LMT\t1894 Oct 31\n"+
-"\t\t\t-4:16:48 -\tCMT\t1920 May\n"+
-"\t\t\t-4:00\t-\tART\t1930 Dec\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t1969 Oct  5\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1991 Mar  1\n"+
-"\t\t\t-4:00\t-\tWART\t1991 May  7\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1999 Oct  3\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t2000 Mar  3\n"+
-"\t\t\t-3:00\t-\tART\t2004 Jun  1\n"+
-"\t\t\t-4:00\t-\tWART\t2004 Jun 20\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t2008 Oct 18\n"+
-"\t\t\t-3:00\t-\tART\n"+
-"Zone America/Argentina/San_Juan -4:34:04 - LMT\t1894 Oct 31\n"+
-"\t\t\t-4:16:48 -\tCMT\t1920 May\n"+
-"\t\t\t-4:00\t-\tART\t1930 Dec\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t1969 Oct  5\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1991 Mar  1\n"+
-"\t\t\t-4:00\t-\tWART\t1991 May  7\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1999 Oct  3\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t2000 Mar  3\n"+
-"\t\t\t-3:00\t-\tART\t2004 May 31\n"+
-"\t\t\t-4:00\t-\tWART\t2004 Jul 25\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t2008 Oct 18\n"+
-"\t\t\t-3:00\t-\tART\n"+
-"Zone America/Argentina/Jujuy -4:21:12 -\tLMT\t1894 Oct 31\n"+
-"\t\t\t-4:16:48 -\tCMT\t1920 May\n"+
-"\t\t\t-4:00\t-\tART\t1930 Dec\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t1969 Oct  5\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1990 Mar  4\n"+
-"\t\t\t-4:00\t-\tWART\t1990 Oct 28\n"+
-"\t\t\t-4:00\t1:00\tWARST\t1991 Mar 17\n"+
-"\t\t\t-4:00\t-\tWART\t1991 Oct  6\n"+
-"\t\t\t-3:00\t1:00\tARST\t1992\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1999 Oct  3\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t2000 Mar  3\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t2008 Oct 18\n"+
-"\t\t\t-3:00\t-\tART\n"+
-"Zone America/Argentina/Catamarca -4:23:08 - LMT\t1894 Oct 31\n"+
-"\t\t\t-4:16:48 -\tCMT\t1920 May\n"+
-"\t\t\t-4:00\t-\tART\t1930 Dec\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t1969 Oct  5\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1991 Mar  3\n"+
-"\t\t\t-4:00\t-\tWART\t1991 Oct 20\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1999 Oct  3\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t2000 Mar  3\n"+
-"\t\t\t-3:00\t-\tART\t2004 Jun  1\n"+
-"\t\t\t-4:00\t-\tWART\t2004 Jun 20\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t2008 Oct 18\n"+
-"\t\t\t-3:00\t-\tART\n"+
-"Zone America/Argentina/Mendoza -4:35:16 - LMT\t1894 Oct 31\n"+
-"\t\t\t-4:16:48 -\tCMT\t1920 May\n"+
-"\t\t\t-4:00\t-\tART\t1930 Dec\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t1969 Oct  5\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1990 Mar  4\n"+
-"\t\t\t-4:00\t-\tWART\t1990 Oct 15\n"+
-"\t\t\t-4:00\t1:00\tWARST\t1991 Mar  1\n"+
-"\t\t\t-4:00\t-\tWART\t1991 Oct 15\n"+
-"\t\t\t-4:00\t1:00\tWARST\t1992 Mar  1\n"+
-"\t\t\t-4:00\t-\tWART\t1992 Oct 18\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1999 Oct  3\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t2000 Mar  3\n"+
-"\t\t\t-3:00\t-\tART\t2004 May 23\n"+
-"\t\t\t-4:00\t-\tWART\t2004 Sep 26\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t2008 Oct 18\n"+
-"\t\t\t-3:00\t-\tART\n"+
-"Rule\tSanLuis\t2008\t2009\t-\tMar\tSun>=8\t0:00\t0\t-\n"+
-"Rule\tSanLuis\t2007\t2009\t-\tOct\tSun>=8\t0:00\t1:00\tS\n"+
-"Zone America/Argentina/San_Luis -4:25:24 - LMT\t1894 Oct 31\n"+
-"\t\t\t-4:16:48 -\tCMT\t1920 May\n"+
-"\t\t\t-4:00\t-\tART\t1930 Dec\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t1969 Oct  5\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1990\n"+
-"\t\t\t-3:00\t1:00\tARST\t1990 Mar 14\n"+
-"\t\t\t-4:00\t-\tWART\t1990 Oct 15\n"+
-"\t\t\t-4:00\t1:00\tWARST\t1991 Mar  1\n"+
-"\t\t\t-4:00\t-\tWART\t1991 Jun  1\n"+
-"\t\t\t-3:00\t-\tART\t1999 Oct  3\n"+
-"\t\t\t-4:00\t1:00\tWARST\t2000 Mar  3\n"+
-"\t\t\t-3:00\t-\tART\t2004 May 31\n"+
-"\t\t\t-4:00\t-\tWART\t2004 Jul 25\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t2008 Jan 21\n"+
-"\t\t\t-4:00\tSanLuis\tWAR%sT\n"+
-"Zone America/Argentina/Rio_Gallegos -4:36:52 - LMT 1894 Oct 31\n"+
-"\t\t\t-4:16:48 -\tCMT\t1920 May # Cordoba Mean Time\n"+
-"\t\t\t-4:00\t-\tART\t1930 Dec\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t1969 Oct  5\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1999 Oct  3\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t2000 Mar  3\n"+
-"\t\t\t-3:00\t-\tART\t2004 Jun  1\n"+
-"\t\t\t-4:00\t-\tWART\t2004 Jun 20\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t2008 Oct 18\n"+
-"\t\t\t-3:00\t-\tART\n"+
-"Zone America/Argentina/Ushuaia -4:33:12 - LMT 1894 Oct 31\n"+
-"\t\t\t-4:16:48 -\tCMT\t1920 May # Cordoba Mean Time\n"+
-"\t\t\t-4:00\t-\tART\t1930 Dec\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t1969 Oct  5\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t1999 Oct  3\n"+
-"\t\t\t-4:00\tArg\tAR%sT\t2000 Mar  3\n"+
-"\t\t\t-3:00\t-\tART\t2004 May 30\n"+
-"\t\t\t-4:00\t-\tWART\t2004 Jun 20\n"+
-"\t\t\t-3:00\tArg\tAR%sT\t2008 Oct 18\n"+
-"\t\t\t-3:00\t-\tART\n"+
-"Zone\tAmerica/Aruba\t-4:40:24 -\tLMT\t1912 Feb 12\t# Oranjestad\n"+
-"\t\t\t-4:30\t-\tANT\t1965 # Netherlands Antilles Time\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Zone\tAmerica/La_Paz\t-4:32:36 -\tLMT\t1890\n"+
-"\t\t\t-4:32:36 -\tCMT\t1931 Oct 15 # Calamarca MT\n"+
-"\t\t\t-4:32:36 1:00\tBOST\t1932 Mar 21 # Bolivia ST\n"+
-"\t\t\t-4:00\t-\tBOT\t# Bolivia Time\n"+
-"Rule\tBrazil\t1931\tonly\t-\tOct\t 3\t11:00\t1:00\tS\n"+
-"Rule\tBrazil\t1932\t1933\t-\tApr\t 1\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1932\tonly\t-\tOct\t 3\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1949\t1952\t-\tDec\t 1\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1950\tonly\t-\tApr\t16\t 1:00\t0\t-\n"+
-"Rule\tBrazil\t1951\t1952\t-\tApr\t 1\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1953\tonly\t-\tMar\t 1\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1963\tonly\t-\tDec\t 9\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1964\tonly\t-\tMar\t 1\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1965\tonly\t-\tJan\t31\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1965\tonly\t-\tMar\t31\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1965\tonly\t-\tDec\t 1\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1966\t1968\t-\tMar\t 1\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1966\t1967\t-\tNov\t 1\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1985\tonly\t-\tNov\t 2\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1986\tonly\t-\tMar\t15\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1986\tonly\t-\tOct\t25\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1987\tonly\t-\tFeb\t14\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1987\tonly\t-\tOct\t25\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1988\tonly\t-\tFeb\t 7\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1988\tonly\t-\tOct\t16\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1989\tonly\t-\tJan\t29\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1989\tonly\t-\tOct\t15\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1990\tonly\t-\tFeb\t11\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1990\tonly\t-\tOct\t21\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1991\tonly\t-\tFeb\t17\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1991\tonly\t-\tOct\t20\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1992\tonly\t-\tFeb\t 9\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1992\tonly\t-\tOct\t25\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1993\tonly\t-\tJan\t31\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1993\t1995\t-\tOct\tSun>=11\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1994\t1995\t-\tFeb\tSun>=15\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1996\tonly\t-\tFeb\t11\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1996\tonly\t-\tOct\t 6\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1997\tonly\t-\tFeb\t16\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1997\tonly\t-\tOct\t 6\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1998\tonly\t-\tMar\t 1\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1998\tonly\t-\tOct\t11\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t1999\tonly\t-\tFeb\t21\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t1999\tonly\t-\tOct\t 3\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t2000\tonly\t-\tFeb\t27\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t2000\t2001\t-\tOct\tSun>=8\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t2001\t2006\t-\tFeb\tSun>=15\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t2002\tonly\t-\tNov\t 3\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t2003\tonly\t-\tOct\t19\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t2004\tonly\t-\tNov\t 2\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t2005\tonly\t-\tOct\t16\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t2006\tonly\t-\tNov\t 5\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t2007\tonly\t-\tFeb\t25\t 0:00\t0\t-\n"+
-"Rule\tBrazil\t2007\tonly\t-\tOct\tSun>=8\t 0:00\t1:00\tS\n"+
-"Rule\tBrazil\t2008\tmax\t-\tOct\tSun>=15\t0:00\t1:00\tS\n"+
-"Rule\tBrazil\t2008\t2011\t-\tFeb\tSun>=15\t0:00\t0\t-\n"+
-"Rule\tBrazil\t2012\tonly\t-\tFeb\tSun>=22\t0:00\t0\t-\n"+
-"Rule\tBrazil\t2013\t2014\t-\tFeb\tSun>=15\t0:00\t0\t-\n"+
-"Rule\tBrazil\t2015\tonly\t-\tFeb\tSun>=22\t0:00\t0\t-\n"+
-"Rule\tBrazil\t2016\t2022\t-\tFeb\tSun>=15\t0:00\t0\t-\n"+
-"Rule\tBrazil\t2023\tonly\t-\tFeb\tSun>=22\t0:00\t0\t-\n"+
-"Rule\tBrazil\t2024\t2025\t-\tFeb\tSun>=15\t0:00\t0\t-\n"+
-"Rule\tBrazil\t2026\tonly\t-\tFeb\tSun>=22\t0:00\t0\t-\n"+
-"Rule\tBrazil\t2027\t2033\t-\tFeb\tSun>=15\t0:00\t0\t-\n"+
-"Rule\tBrazil\t2034\tonly\t-\tFeb\tSun>=22\t0:00\t0\t-\n"+
-"Rule\tBrazil\t2035\t2036\t-\tFeb\tSun>=15\t0:00\t0\t-\n"+
-"Rule\tBrazil\t2037\tonly\t-\tFeb\tSun>=22\t0:00\t0\t-\n"+
-"Rule\tBrazil\t2038\tmax\t-\tFeb\tSun>=15\t0:00\t0\t-\n"+
-"Zone America/Noronha\t-2:09:40 -\tLMT\t1914\n"+
-"\t\t\t-2:00\tBrazil\tFN%sT\t1990 Sep 17\n"+
-"\t\t\t-2:00\t-\tFNT\t1999 Sep 30\n"+
-"\t\t\t-2:00\tBrazil\tFN%sT\t2000 Oct 15\n"+
-"\t\t\t-2:00\t-\tFNT\t2001 Sep 13\n"+
-"\t\t\t-2:00\tBrazil\tFN%sT\t2002 Oct  1\n"+
-"\t\t\t-2:00\t-\tFNT\n"+
-"Zone America/Belem\t-3:13:56 -\tLMT\t1914\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t1988 Sep 12\n"+
-"\t\t\t-3:00\t-\tBRT\n"+
-"Zone America/Santarem\t-3:38:48 -\tLMT\t1914\n"+
-"\t\t\t-4:00\tBrazil\tAM%sT\t1988 Sep 12\n"+
-"\t\t\t-4:00\t-\tAMT\t2008 Jun 24 00:00\n"+
-"\t\t\t-3:00\t-\tBRT\n"+
-"Zone America/Fortaleza\t-2:34:00 -\tLMT\t1914\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t1990 Sep 17\n"+
-"\t\t\t-3:00\t-\tBRT\t1999 Sep 30\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t2000 Oct 22\n"+
-"\t\t\t-3:00\t-\tBRT\t2001 Sep 13\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t2002 Oct  1\n"+
-"\t\t\t-3:00\t-\tBRT\n"+
-"Zone America/Recife\t-2:19:36 -\tLMT\t1914\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t1990 Sep 17\n"+
-"\t\t\t-3:00\t-\tBRT\t1999 Sep 30\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t2000 Oct 15\n"+
-"\t\t\t-3:00\t-\tBRT\t2001 Sep 13\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t2002 Oct  1\n"+
-"\t\t\t-3:00\t-\tBRT\n"+
-"Zone America/Araguaina\t-3:12:48 -\tLMT\t1914\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t1990 Sep 17\n"+
-"\t\t\t-3:00\t-\tBRT\t1995 Sep 14\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t2003 Sep 24\n"+
-"\t\t\t-3:00\t-\tBRT\n"+
-"Zone America/Maceio\t-2:22:52 -\tLMT\t1914\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t1990 Sep 17\n"+
-"\t\t\t-3:00\t-\tBRT\t1995 Oct 13\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t1996 Sep  4\n"+
-"\t\t\t-3:00\t-\tBRT\t1999 Sep 30\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t2000 Oct 22\n"+
-"\t\t\t-3:00\t-\tBRT\t2001 Sep 13\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t2002 Oct  1\n"+
-"\t\t\t-3:00\t-\tBRT\n"+
-"Zone America/Bahia\t-2:34:04 -\tLMT\t1914\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t2003 Sep 24\n"+
-"\t\t\t-3:00\t-\tBRT\t2011 Oct 16\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\n"+
-"Zone America/Sao_Paulo\t-3:06:28 -\tLMT\t1914\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\t1963 Oct 23 00:00\n"+
-"\t\t\t-3:00\t1:00\tBRST\t1964\n"+
-"\t\t\t-3:00\tBrazil\tBR%sT\n"+
-"Zone America/Campo_Grande -3:38:28 -\tLMT\t1914\n"+
-"\t\t\t-4:00\tBrazil\tAM%sT\n"+
-"Zone America/Cuiaba\t-3:44:20 -\tLMT\t1914\n"+
-"\t\t\t-4:00\tBrazil\tAM%sT\t2003 Sep 24\n"+
-"\t\t\t-4:00\t-\tAMT\t2004 Oct  1\n"+
-"\t\t\t-4:00\tBrazil\tAM%sT\n"+
-"Zone America/Porto_Velho -4:15:36 -\tLMT\t1914\n"+
-"\t\t\t-4:00\tBrazil\tAM%sT\t1988 Sep 12\n"+
-"\t\t\t-4:00\t-\tAMT\n"+
-"Zone America/Boa_Vista\t-4:02:40 -\tLMT\t1914\n"+
-"\t\t\t-4:00\tBrazil\tAM%sT\t1988 Sep 12\n"+
-"\t\t\t-4:00\t-\tAMT\t1999 Sep 30\n"+
-"\t\t\t-4:00\tBrazil\tAM%sT\t2000 Oct 15\n"+
-"\t\t\t-4:00\t-\tAMT\n"+
-"Zone America/Manaus\t-4:00:04 -\tLMT\t1914\n"+
-"\t\t\t-4:00\tBrazil\tAM%sT\t1988 Sep 12\n"+
-"\t\t\t-4:00\t-\tAMT\t1993 Sep 28\n"+
-"\t\t\t-4:00\tBrazil\tAM%sT\t1994 Sep 22\n"+
-"\t\t\t-4:00\t-\tAMT\n"+
-"Zone America/Eirunepe\t-4:39:28 -\tLMT\t1914\n"+
-"\t\t\t-5:00\tBrazil\tAC%sT\t1988 Sep 12\n"+
-"\t\t\t-5:00\t-\tACT\t1993 Sep 28\n"+
-"\t\t\t-5:00\tBrazil\tAC%sT\t1994 Sep 22\n"+
-"\t\t\t-5:00\t-\tACT\t2008 Jun 24 00:00\n"+
-"\t\t\t-4:00\t-\tAMT\n"+
-"Zone America/Rio_Branco\t-4:31:12 -\tLMT\t1914\n"+
-"\t\t\t-5:00\tBrazil\tAC%sT\t1988 Sep 12\n"+
-"\t\t\t-5:00\t-\tACT\t2008 Jun 24 00:00\n"+
-"\t\t\t-4:00\t-\tAMT\n"+
-"Rule\tChile\t1927\t1932\t-\tSep\t 1\t0:00\t1:00\tS\n"+
-"Rule\tChile\t1928\t1932\t-\tApr\t 1\t0:00\t0\t-\n"+
-"Rule\tChile\t1942\tonly\t-\tJun\t 1\t4:00u\t0\t-\n"+
-"Rule\tChile\t1942\tonly\t-\tAug\t 1\t5:00u\t1:00\tS\n"+
-"Rule\tChile\t1946\tonly\t-\tJul\t15\t4:00u\t1:00\tS\n"+
-"Rule\tChile\t1946\tonly\t-\tSep\t 1\t3:00u\t0:00\t-\n"+
-"Rule\tChile\t1947\tonly\t-\tApr\t 1\t4:00u\t0\t-\n"+
-"Rule\tChile\t1968\tonly\t-\tNov\t 3\t4:00u\t1:00\tS\n"+
-"Rule\tChile\t1969\tonly\t-\tMar\t30\t3:00u\t0\t-\n"+
-"Rule\tChile\t1969\tonly\t-\tNov\t23\t4:00u\t1:00\tS\n"+
-"Rule\tChile\t1970\tonly\t-\tMar\t29\t3:00u\t0\t-\n"+
-"Rule\tChile\t1971\tonly\t-\tMar\t14\t3:00u\t0\t-\n"+
-"Rule\tChile\t1970\t1972\t-\tOct\tSun>=9\t4:00u\t1:00\tS\n"+
-"Rule\tChile\t1972\t1986\t-\tMar\tSun>=9\t3:00u\t0\t-\n"+
-"Rule\tChile\t1973\tonly\t-\tSep\t30\t4:00u\t1:00\tS\n"+
-"Rule\tChile\t1974\t1987\t-\tOct\tSun>=9\t4:00u\t1:00\tS\n"+
-"Rule\tChile\t1987\tonly\t-\tApr\t12\t3:00u\t0\t-\n"+
-"Rule\tChile\t1988\t1989\t-\tMar\tSun>=9\t3:00u\t0\t-\n"+
-"Rule\tChile\t1988\tonly\t-\tOct\tSun>=1\t4:00u\t1:00\tS\n"+
-"Rule\tChile\t1989\tonly\t-\tOct\tSun>=9\t4:00u\t1:00\tS\n"+
-"Rule\tChile\t1990\tonly\t-\tMar\t18\t3:00u\t0\t-\n"+
-"Rule\tChile\t1990\tonly\t-\tSep\t16\t4:00u\t1:00\tS\n"+
-"Rule\tChile\t1991\t1996\t-\tMar\tSun>=9\t3:00u\t0\t-\n"+
-"Rule\tChile\t1991\t1997\t-\tOct\tSun>=9\t4:00u\t1:00\tS\n"+
-"Rule\tChile\t1997\tonly\t-\tMar\t30\t3:00u\t0\t-\n"+
-"Rule\tChile\t1998\tonly\t-\tMar\tSun>=9\t3:00u\t0\t-\n"+
-"Rule\tChile\t1998\tonly\t-\tSep\t27\t4:00u\t1:00\tS\n"+
-"Rule\tChile\t1999\tonly\t-\tApr\t 4\t3:00u\t0\t-\n"+
-"Rule\tChile\t1999\t2010\t-\tOct\tSun>=9\t4:00u\t1:00\tS\n"+
-"Rule\tChile\t2011\tonly\t-\tAug\tSun>=16\t4:00u\t1:00\tS\n"+
-"Rule\tChile\t2012\tmax\t-\tOct\tSun>=9\t4:00u\t1:00\tS\n"+
-"Rule\tChile\t2000\t2007\t-\tMar\tSun>=9\t3:00u\t0\t-\n"+
-"Rule\tChile\t2008\tonly\t-\tMar\t30\t3:00u\t0\t-\n"+
-"Rule\tChile\t2009\tonly\t-\tMar\tSun>=9\t3:00u\t0\t-\n"+
-"Rule\tChile\t2010\tonly\t-\tApr\tSun>=1\t3:00u\t0\t-\n"+
-"Rule\tChile\t2011\tonly\t-\tMay\tSun>=2\t3:00u\t0\t-\n"+
-"Rule\tChile\t2012\tmax\t-\tMar\tSun>=9\t3:00u\t0\t-\n"+
-"Zone America/Santiago\t-4:42:46 -\tLMT\t1890\n"+
-"\t\t\t-4:42:46 -\tSMT\t1910 \t    # Santiago Mean Time\n"+
-"\t\t\t-5:00\t-\tCLT\t1916 Jul  1 # Chile Time\n"+
-"\t\t\t-4:42:46 -\tSMT\t1918 Sep  1 # Santiago Mean Time\n"+
-"\t\t\t-4:00\t-\tCLT\t1919 Jul  1 # Chile Time\n"+
-"\t\t\t-4:42:46 -\tSMT\t1927 Sep  1 # Santiago Mean Time\n"+
-"\t\t\t-5:00\tChile\tCL%sT\t1947 May 22 # Chile Time\n"+
-"\t\t\t-4:00\tChile\tCL%sT\n"+
-"Zone Pacific/Easter\t-7:17:44 -\tLMT\t1890\n"+
-"\t\t\t-7:17:28 -\tEMT\t1932 Sep    # Easter Mean Time\n"+
-"\t\t\t-7:00\tChile\tEAS%sT\t1982 Mar 13 21:00 # Easter I Time\n"+
-"\t\t\t-6:00\tChile\tEAS%sT\n"+
-"Rule\tCO\t1992\tonly\t-\tMay\t 3\t0:00\t1:00\tS\n"+
-"Rule\tCO\t1993\tonly\t-\tApr\t 4\t0:00\t0\t-\n"+
-"Zone\tAmerica/Bogota\t-4:56:20 -\tLMT\t1884 Mar 13\n"+
-"\t\t\t-4:56:20 -\tBMT\t1914 Nov 23 # Bogota Mean Time\n"+
-"\t\t\t-5:00\tCO\tCO%sT\t# Colombia Time\n"+
-"Zone\tAmerica/Curacao\t-4:35:44 -\tLMT\t1912 Feb 12\t# Willemstad\n"+
-"\t\t\t-4:30\t-\tANT\t1965 # Netherlands Antilles Time\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Link\tAmerica/Curacao\tAmerica/Lower_Princes # Sint Maarten\n"+
-"Link\tAmerica/Curacao\tAmerica/Kralendijk # Bonaire, Sint Estatius and Saba\n"+
-"Zone America/Guayaquil\t-5:19:20 -\tLMT\t1890\n"+
-"\t\t\t-5:14:00 -\tQMT\t1931 # Quito Mean Time\n"+
-"\t\t\t-5:00\t-\tECT\t     # Ecuador Time\n"+
-"Zone Pacific/Galapagos\t-5:58:24 -\tLMT\t1931 # Puerto Baquerizo Moreno\n"+
-"\t\t\t-5:00\t-\tECT\t1986\n"+
-"\t\t\t-6:00\t-\tGALT\t     # Galapagos Time\n"+
-"Rule\tFalk\t1937\t1938\t-\tSep\tlastSun\t0:00\t1:00\tS\n"+
-"Rule\tFalk\t1938\t1942\t-\tMar\tSun>=19\t0:00\t0\t-\n"+
-"Rule\tFalk\t1939\tonly\t-\tOct\t1\t0:00\t1:00\tS\n"+
-"Rule\tFalk\t1940\t1942\t-\tSep\tlastSun\t0:00\t1:00\tS\n"+
-"Rule\tFalk\t1943\tonly\t-\tJan\t1\t0:00\t0\t-\n"+
-"Rule\tFalk\t1983\tonly\t-\tSep\tlastSun\t0:00\t1:00\tS\n"+
-"Rule\tFalk\t1984\t1985\t-\tApr\tlastSun\t0:00\t0\t-\n"+
-"Rule\tFalk\t1984\tonly\t-\tSep\t16\t0:00\t1:00\tS\n"+
-"Rule\tFalk\t1985\t2000\t-\tSep\tSun>=9\t0:00\t1:00\tS\n"+
-"Rule\tFalk\t1986\t2000\t-\tApr\tSun>=16\t0:00\t0\t-\n"+
-"Rule\tFalk\t2001\t2010\t-\tApr\tSun>=15\t2:00\t0\t-\n"+
-"Rule\tFalk\t2012\tmax\t-\tApr\tSun>=15\t2:00\t0\t-\n"+
-"Rule\tFalk\t2001\tmax\t-\tSep\tSun>=1\t2:00\t1:00\tS\n"+
-"Zone Atlantic/Stanley\t-3:51:24 -\tLMT\t1890\n"+
-"\t\t\t-3:51:24 -\tSMT\t1912 Mar 12  # Stanley Mean Time\n"+
-"\t\t\t-4:00\tFalk\tFK%sT\t1983 May     # Falkland Is Time\n"+
-"\t\t\t-3:00\tFalk\tFK%sT\t1985 Sep 15\n"+
-"\t\t\t-4:00\tFalk\tFK%sT\n"+
-"Zone America/Cayenne\t-3:29:20 -\tLMT\t1911 Jul\n"+
-"\t\t\t-4:00\t-\tGFT\t1967 Oct # French Guiana Time\n"+
-"\t\t\t-3:00\t-\tGFT\n"+
-"Zone\tAmerica/Guyana\t-3:52:40 -\tLMT\t1915 Mar\t# Georgetown\n"+
-"\t\t\t-3:45\t-\tGBGT\t1966 May 26 # Br Guiana Time\n"+
-"\t\t\t-3:45\t-\tGYT\t1975 Jul 31 # Guyana Time\n"+
-"\t\t\t-3:00\t-\tGYT\t1991\n"+
-"\t\t\t-4:00\t-\tGYT\n"+
-"Rule\tPara\t1975\t1988\t-\tOct\t 1\t0:00\t1:00\tS\n"+
-"Rule\tPara\t1975\t1978\t-\tMar\t 1\t0:00\t0\t-\n"+
-"Rule\tPara\t1979\t1991\t-\tApr\t 1\t0:00\t0\t-\n"+
-"Rule\tPara\t1989\tonly\t-\tOct\t22\t0:00\t1:00\tS\n"+
-"Rule\tPara\t1990\tonly\t-\tOct\t 1\t0:00\t1:00\tS\n"+
-"Rule\tPara\t1991\tonly\t-\tOct\t 6\t0:00\t1:00\tS\n"+
-"Rule\tPara\t1992\tonly\t-\tMar\t 1\t0:00\t0\t-\n"+
-"Rule\tPara\t1992\tonly\t-\tOct\t 5\t0:00\t1:00\tS\n"+
-"Rule\tPara\t1993\tonly\t-\tMar\t31\t0:00\t0\t-\n"+
-"Rule\tPara\t1993\t1995\t-\tOct\t 1\t0:00\t1:00\tS\n"+
-"Rule\tPara\t1994\t1995\t-\tFeb\tlastSun\t0:00\t0\t-\n"+
-"Rule\tPara\t1996\tonly\t-\tMar\t 1\t0:00\t0\t-\n"+
-"Rule\tPara\t1996\t2001\t-\tOct\tSun>=1\t0:00\t1:00\tS\n"+
-"Rule\tPara\t1997\tonly\t-\tFeb\tlastSun\t0:00\t0\t-\n"+
-"Rule\tPara\t1998\t2001\t-\tMar\tSun>=1\t0:00\t0\t-\n"+
-"Rule\tPara\t2002\t2004\t-\tApr\tSun>=1\t0:00\t0\t-\n"+
-"Rule\tPara\t2002\t2003\t-\tSep\tSun>=1\t0:00\t1:00\tS\n"+
-"Rule\tPara\t2004\t2009\t-\tOct\tSun>=15\t0:00\t1:00\tS\n"+
-"Rule\tPara\t2005\t2009\t-\tMar\tSun>=8\t0:00\t0\t-\n"+
-"Rule\tPara\t2010\tmax\t-\tOct\tSun>=1\t0:00\t1:00\tS\n"+
-"Rule\tPara\t2010\tmax\t-\tApr\tSun>=8\t0:00\t0\t-\n"+
-"Zone America/Asuncion\t-3:50:40 -\tLMT\t1890\n"+
-"\t\t\t-3:50:40 -\tAMT\t1931 Oct 10 # Asuncion Mean Time\n"+
-"\t\t\t-4:00\t-\tPYT\t1972 Oct # Paraguay Time\n"+
-"\t\t\t-3:00\t-\tPYT\t1974 Apr\n"+
-"\t\t\t-4:00\tPara\tPY%sT\n"+
-"Rule\tPeru\t1938\tonly\t-\tJan\t 1\t0:00\t1:00\tS\n"+
-"Rule\tPeru\t1938\tonly\t-\tApr\t 1\t0:00\t0\t-\n"+
-"Rule\tPeru\t1938\t1939\t-\tSep\tlastSun\t0:00\t1:00\tS\n"+
-"Rule\tPeru\t1939\t1940\t-\tMar\tSun>=24\t0:00\t0\t-\n"+
-"Rule\tPeru\t1986\t1987\t-\tJan\t 1\t0:00\t1:00\tS\n"+
-"Rule\tPeru\t1986\t1987\t-\tApr\t 1\t0:00\t0\t-\n"+
-"Rule\tPeru\t1990\tonly\t-\tJan\t 1\t0:00\t1:00\tS\n"+
-"Rule\tPeru\t1990\tonly\t-\tApr\t 1\t0:00\t0\t-\n"+
-"Rule\tPeru\t1994\tonly\t-\tJan\t 1\t0:00\t1:00\tS\n"+
-"Rule\tPeru\t1994\tonly\t-\tApr\t 1\t0:00\t0\t-\n"+
-"Zone\tAmerica/Lima\t-5:08:12 -\tLMT\t1890\n"+
-"\t\t\t-5:08:36 -\tLMT\t1908 Jul 28 # Lima Mean Time?\n"+
-"\t\t\t-5:00\tPeru\tPE%sT\t# Peru Time\n"+
-"Zone Atlantic/South_Georgia -2:26:08 -\tLMT\t1890\t\t# Grytviken\n"+
-"\t\t\t-2:00\t-\tGST\t# South Georgia Time\n"+
-"Zone America/Paramaribo\t-3:40:40 -\tLMT\t1911\n"+
-"\t\t\t-3:40:52 -\tPMT\t1935     # Paramaribo Mean Time\n"+
-"\t\t\t-3:40:36 -\tPMT\t1945 Oct # The capital moved?\n"+
-"\t\t\t-3:30\t-\tNEGT\t1975 Nov 20 # Dutch Guiana Time\n"+
-"\t\t\t-3:30\t-\tSRT\t1984 Oct # Suriname Time\n"+
-"\t\t\t-3:00\t-\tSRT\n"+
-"Zone America/Port_of_Spain -4:06:04 -\tLMT\t1912 Mar 2\n"+
-"\t\t\t-4:00\t-\tAST\n"+
-"Rule\tUruguay\t1923\tonly\t-\tOct\t 2\t 0:00\t0:30\tHS\n"+
-"Rule\tUruguay\t1924\t1926\t-\tApr\t 1\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1924\t1925\t-\tOct\t 1\t 0:00\t0:30\tHS\n"+
-"Rule\tUruguay\t1933\t1935\t-\tOct\tlastSun\t 0:00\t0:30\tHS\n"+
-"Rule\tUruguay\t1934\t1936\t-\tMar\tSat>=25\t23:30s\t0\t-\n"+
-"Rule\tUruguay\t1936\tonly\t-\tNov\t 1\t 0:00\t0:30\tHS\n"+
-"Rule\tUruguay\t1937\t1941\t-\tMar\tlastSun\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1937\t1940\t-\tOct\tlastSun\t 0:00\t0:30\tHS\n"+
-"Rule\tUruguay\t1941\tonly\t-\tAug\t 1\t 0:00\t0:30\tHS\n"+
-"Rule\tUruguay\t1942\tonly\t-\tJan\t 1\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1942\tonly\t-\tDec\t14\t 0:00\t1:00\tS\n"+
-"Rule\tUruguay\t1943\tonly\t-\tMar\t14\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1959\tonly\t-\tMay\t24\t 0:00\t1:00\tS\n"+
-"Rule\tUruguay\t1959\tonly\t-\tNov\t15\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1960\tonly\t-\tJan\t17\t 0:00\t1:00\tS\n"+
-"Rule\tUruguay\t1960\tonly\t-\tMar\t 6\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1965\t1967\t-\tApr\tSun>=1\t 0:00\t1:00\tS\n"+
-"Rule\tUruguay\t1965\tonly\t-\tSep\t26\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1966\t1967\t-\tOct\t31\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1968\t1970\t-\tMay\t27\t 0:00\t0:30\tHS\n"+
-"Rule\tUruguay\t1968\t1970\t-\tDec\t 2\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1972\tonly\t-\tApr\t24\t 0:00\t1:00\tS\n"+
-"Rule\tUruguay\t1972\tonly\t-\tAug\t15\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1974\tonly\t-\tMar\t10\t 0:00\t0:30\tHS\n"+
-"Rule\tUruguay\t1974\tonly\t-\tDec\t22\t 0:00\t1:00\tS\n"+
-"Rule\tUruguay\t1976\tonly\t-\tOct\t 1\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1977\tonly\t-\tDec\t 4\t 0:00\t1:00\tS\n"+
-"Rule\tUruguay\t1978\tonly\t-\tApr\t 1\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1979\tonly\t-\tOct\t 1\t 0:00\t1:00\tS\n"+
-"Rule\tUruguay\t1980\tonly\t-\tMay\t 1\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1987\tonly\t-\tDec\t14\t 0:00\t1:00\tS\n"+
-"Rule\tUruguay\t1988\tonly\t-\tMar\t14\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1988\tonly\t-\tDec\t11\t 0:00\t1:00\tS\n"+
-"Rule\tUruguay\t1989\tonly\t-\tMar\t12\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1989\tonly\t-\tOct\t29\t 0:00\t1:00\tS\n"+
-"Rule\tUruguay\t1990\t1992\t-\tMar\tSun>=1\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t1990\t1991\t-\tOct\tSun>=21\t 0:00\t1:00\tS\n"+
-"Rule\tUruguay\t1992\tonly\t-\tOct\t18\t 0:00\t1:00\tS\n"+
-"Rule\tUruguay\t1993\tonly\t-\tFeb\t28\t 0:00\t0\t-\n"+
-"Rule\tUruguay\t2004\tonly\t-\tSep\t19\t 0:00\t1:00\tS\n"+
-"Rule\tUruguay\t2005\tonly\t-\tMar\t27\t 2:00\t0\t-\n"+
-"Rule\tUruguay\t2005\tonly\t-\tOct\t 9\t 2:00\t1:00\tS\n"+
-"Rule\tUruguay\t2006\tonly\t-\tMar\t12\t 2:00\t0\t-\n"+
-"Rule\tUruguay\t2006\tmax\t-\tOct\tSun>=1\t 2:00\t1:00\tS\n"+
-"Rule\tUruguay\t2007\tmax\t-\tMar\tSun>=8\t 2:00\t0\t-\n"+
-"Zone America/Montevideo\t-3:44:44 -\tLMT\t1898 Jun 28\n"+
-"\t\t\t-3:44:44 -\tMMT\t1920 May  1\t# Montevideo MT\n"+
-"\t\t\t-3:30\tUruguay\tUY%sT\t1942 Dec 14\t# Uruguay Time\n"+
-"\t\t\t-3:00\tUruguay\tUY%sT\n"+
-"Zone\tAmerica/Caracas\t-4:27:44 -\tLMT\t1890\n"+
-"\t\t\t-4:27:40 -\tCMT\t1912 Feb 12 # Caracas Mean Time?\n"+
-"\t\t\t-4:30\t-\tVET\t1965\t     # Venezuela Time\n"+
-"\t\t\t-4:00\t-\tVET\t2007 Dec  9 03:00\n"+
-"\t\t\t-4:30\t-\tVET\n"+
-""}
+require.define("/node_modules/files",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"tz/africa.lzw":"Rule\tAlgeria\t1916\tonly\t-\tJunČ4\t23:00sČġ0\tS\n"+
+"ĀĂĄĆĈĊČĎĐččĖ\tOctĨĚ>=1ĞĠĢĤħ-ĪāăąćĉċĴ7đēĕėMarĞĝğĦĤ1ĦĨņĬŉįŌĎ8ŏĔĶœŕ 9ŀřĥĢŝīňĮŋıĵĒŦŒŔ\t ĿŘłŮħĩűĭŊİč2ħŷő\tFebĜŬſśůƂŇƄšıƈťƋĸĺğƑģ\tńŞŲƅŢ2ĿƊŧź1ŗŁơƓƁƤƗŴƇƩŐĶęěƨƠŃĖƳŠƵ93ūƪėSepČŽƯŚŜƕşųƆǃǅƸėNovıŻƱƢƿƃǁǓ4ĝč45ĶApŕMĒĽĿ 2ŜǝǐƥƘǥĝǆķĹŻŤǰŜƣǠǒŢǦƛĶǈǊďǜǿǟƖǡŢ7ƷŸĄǪĞǧžưǏǀȂıȐȅǇǉĞĐȗƾŅȁƦȜŎǹœĕ Đ 0ǲșȦǶ97ȩǖǺƞǯȰůȀȍțč7ŤȪź2ĝżȱƔȚȧɁɃȸȇĞ2ŻƯǞȥȿɌ98Ɖȸǩŕ2ǧȯɉƲȳǂɚȞȹ\t3ǯǱȽƿZĒňfĉca/ŉiĈŃ:1Ǳɼ ėLMTČ8Ď Ũż5 ɡ01\n"+
+"\tʐȼ9:ƼėPʂŵ1ʇŔżʎʐƢŜȎ\tWE%sʃǥ0 ƍbǰʊǾĢʏʐǝʢCʥʧı46 Ɲʋ7ʲʠůėʤʨ95ʻJanǰ9ˀǝėʶ˅63 ɝż4ˀȼħʢʤʦ˅ȶʼĹǰʞʳʡțʶ˞Ȝ9ˡtǰ6˙˦ȧ˝ʸč8ʚȫˎŜːET\n"+
+"ɯne˕tlˊtic/Cape_VĈd́-ś34ġ4ɿ\tʁ˅0ʿʟ-ɬń\tCV˅42 ȇˀ̠ɢ̣VȘʊʽ15̡̫Ķ̤˟ʊǘvʮʋ̡̫ˏ̮˽˿ɱɳɵNdjamenŌĦɻ̨ʀʘĴ2˹˂ʣA˟˫̳˘ʟǝǝWA̰ıɚʛrʋ8̢ͣ̈́͘ɰĄɲ̇ɵAbi͊ˊĖȰďġ8̛̙ŵ͗ʟʌ̢Gʂ\n"+
+"Link˕ͲɴɶͶ͸ˋAΎɵB͌ako\tΈΊΌΔ͇ΐͷ͋ΓΕ/ΗnjāΜΉ΋΍Ρ͵Σˊίͳ̉ĒΙrĕΝήΠεαΒδΏDΙźλΟΦοΤρɵFreetowěφϋ΢πνΏLo͍ʐϕϙʹΑϊϠ/ǘuΙchotĺϟψϢγϤOϧgadougϸάΞϖωϱΦSao_TϜăϮΰϰΓ̃̅̇/St_HeĂ͏ΜƃEgypĺʩɧęlČǧ˚ƀŰƖКМО94ɛȒƝǜˁħȾĬЩНʹȑƋɝУвЦǴ\tжЫ4йȆȠȉХдăсʹɒǷǨȔżнǳƳыǥɒǹа2ŎшȌеЛзǥ3ʹǧǗǙбќɖўЪѣɧлч̭пѕˆȷȒȫČгѰєџЫ5Ŏč5ŤėаёѨѺѫѿɎѵaȬĿХѓЙѻı5ū˵ĿŹҌЦҏШґѿҔ96ѤĨȠ3ħɔщрҜҟĳ9ЬĶ҃ĿҦѝъҩ8їȸСȕҙȲқ҇əѢǹҸɼҺɊҐҽ8Ǥəҁ\tѶё͡һѪѠəǕҊȬĳѹӅӑ9ħčҭҗбӎӄҼәȖʍ̢л̄stύiŻ˚ǎӡӐЫˆĞĢҡɐӨtThuŖȋѩҳѫƈ0ĐǹɐƼɆӾ҆зԂѴƋɐӺuǮӽɭӿҨԁĢ҉кϹ\tӸԐԓгҲԖԋĢӓԚgӴԟɕԊƞӥѭԛ1ħԈԔԫӴ԰ɧɐŪԩҚӱԵЮԎȠԝӻԩҧыƈƭɧѶ̴ԺӏԀԣՇӀĚȡՃԡՅʍǸҷΫɪՋӰՍԬՏɏՀaөԞԲԠŅͅͱΡ̊irΛɬ5ġ˫͔̜ʪƝˀ̷ыEʷ˽ƃGhˊƧӛЬɒȟǊ҄ǿʔħGH̰Ƴվրƙւ̧ĶDecɩҍȋΆͯ̀թξccrċ-˚:5͓͕̚ţˀ΄\t֏Зʦ˾ͰϤBissaӼ̓ġǱƈͿ֪ɾˉˋż́˺͚̺֬Хėֲ֛֝ϤNaլoͶĞʔ7ɻĐճƙ;СˀɔėE͛ıҤշ:ҤĶBס̦0ץȄėשAU˒׬ʟןр͛ЉεאגͶϾddֶ_͵abċ׹Ώ׻խ׽ϤAsmŔ؆έχΡ؉דiϖσr_es_Ђ̄͌؇͈ב؊ؗϤDjibϸ̆آϥؤؖϖK͌pāϼμΦؕ؋ΦǬϵ؀sՂخػؗIn؀ˊɶntր͏ĉvΛكذ׽نوnζmoխْ׼مهĊٗȫϫte׍͆εǬnխvİ֤:4Ł;ך18ҵ̫Ȱٰͽ̙M׀˫Ũٷٯ̖ҤͿR˟̨˸΃׊֮·ƃΉbyŢ5ф҂ǻՇ̷ԻăڎڐҒҶȒׂѧԉڍتڛѿҿȸ҃ūڗՌ̚ڣڑ՗ڞ͹ևԳڢڏڑǧԅңѸůژڬڵҒԄҷڱ֙ڳƖښŢҵͦĝėлڲӛګۆͦэəҡүнҧې˵ڷɜѐĐҎۏڭͦۀȒیĝ۞՜ڽڤəۢƜǻ Ѣ҅ڴ۩8ѾӒяũۃێۧۘə۴ʅҮۭ۸Ԫ۱Ţȵѭѐۥӗۅ۠Ӝԍۿĺ ܈ۄĬېՆڦҊŕӸӫӃɣ܊ھܕɧаܙĉוԳըϤTĉpolӬȰ֧ځֿ˅ƈͬۨċ˨˴ˆˍʟ̷נ˼ۑܴېܷ˅Ӛʛyʋ͟ʐܼрܾӜʻȇۮ״˥ů݁ջıȵˬ݇ץ͙պʃՆ̨̼żʪʰݑЦݔ˩ܕݘɟ̿Ħݚ̢ݜƤʛuĉ̆uŚəڝ۬Оں۹ܜĂݱݳiݵͦܖƋŨĞ܁щݿiݴĤԂԙ܎ԜբtSՑڪ՜ފތӴ0ԥƫܘޒޔƻԉͅ ٕ٠/œݲދށĤĠ5˚ܱı̝ˀ̖ĢޘޫӋU˩ƳǬխ֠ΛčǄԷцɒ֭ڼ޼o޾ףޜѥǚĵ֭ҧ߇߉Пǹʬҹ߅ګߑc޿ЬۚȒ̼ʄӭڡƖߙߛޮРՑ1Ȼ܉ĬߤҒԾސ2ūߏԡ߭č6܍ėƺɓČޖݽăߵҟ߸ɨё߳ԕࠀ7گƋߺɆߡڻߘٚ߈ߚȜࠉхֆߪܒ߿ࠐߒȵҫȶƫҘߗۧࠇ۫Ǩԛࠄ۰ߣࠚࠒɁࠂԆǽࠨ߬ࠪߛɂߧěࠧ߫࠙޽ࠫȵޏۋࠦɇ࠰࠹ࠑծԘ࠵бࠡ߾Ӌ࠲ޚ࠽Ңࠖࠍզ޻ࡋԂߋĘՑ࠷ࠎࠢࡓԤԮԧƼࠅࡒ࠺ࡄԶɄȬ߄ۦࡉ߭Ն߯࠾ԧ ࠯ߢ࠱ࡢԵړȓũѢࡈЧࡲࡃࡴߧТ՚ȯ܂ࠩࡳݞԵѢۋȔӸޠŻ߽ࡺࡂ߉ࢅڸǊקۮࡱ࢏ࠒ࢑՘Тƚ࢕࠘ࡊࢄʍݸࠥ࡞ħݣоࡡࡼܟՐТ Ŏ࢝ࡑƃࡪʍބࢣѷࢌ࠸࢟ࢩࢳ\t؏xސࢊࡗұࠆ࡛ږ02քӋźࣀ࠶ࢍпࢲ՟ڞޕǽࣂࢨ࢐Ֆ࡝ࢌࢷ࡙ࡩࣄߝࠊߨࡸࣔࢱࣝࡾߠࢦ߆ࣄࠤ߹ࡗɇ࣢ࢃࢺȉࢫŻ߲࣍ࣕ࢘ʍࠂѶ࣮࢜ࡻࣖ1ࠂҸࠄࣣࣵࢠٴՈҋ߼ɓ࢖ࢹࣾࡍߺȉࣧࠏअࡕӌ࣭ऋ࣏ࡕߺ࡯ࣚݼࢎऌࣷƚǹѮ࣓ग࡛डȸѶ࢔ः࣯ࣖƼढȔԶࢯࢂࣽठࡵՉɠफऴࡄࣇ܆ũ߄ࣼࢗऻࢢӞࢭजࢧऄࢺƟयɞ߄हुӴࠌोČࡸॎटऻࣞ۶Żसࢸࢲ2Đࢽޝޑөࢋऑ࡚ࢠ3क़ڔƞࢮीॖӴ3࣪ɨआलߐ࡛3ࠂаऱࣔޣϤָ̊b̄nɴͺצȰ־ٳĎ˔ʽफ़׉Ŝ߭˳˅Ӈͨż˯΃͂ˑۡ঍ůএջ٦ϖEl؂בՑٮܯ4ٲ֩˅̕ ׂׅ͙ͮȜʻ˖ƭচħজ˞٦֞Ώœpuϑו԰։ްč0˔ٿܻ׆C׸ؒϖ়াoϖBঁtyώظؓ٨̋৏৑uΪmbݲؑϽϤৎϑϖG؄ࠐ֝خ৥৐ϤHؐ৖৬৚০ϤKiϵܬৗ্৴৮ΦLuৠয়բhӬ৳ঽ৵৿ݵτИƖאmتǓҭॠօĻnԒॕਏ਑܄ǧਔࡶਖਘޢֳΦWΊdϪekŮ8ʔ̘ٳʅ̨ʬ࡯˹קǇরৄ৆ŔݭĘ̦̑ͤݏ־ݣ਻ǳ਽ʹਹͩƨݫʱৈ͙S੅Ӝʪʈƨ਻ːעӜ̘˖ۮܴਚͶċͣসܦ৿aϺɺ1Ġ॰ৃĎ˫̪͠׆ͮخL੣os৑ˊguਆৌϤੱ੤৑֢zza٬lĂੰੲੴاϸضৢعΡ੼ੳزΊفբaઆ੽੻تώઃઅ੺੢ગਊˊdઌ৘Ϛઇৼ̄ث৻੻દ׏Ċ͍κઝ઎બΦPٚϑ-̼oহޥىReĚiĒɩٯś֧੩ߩবĚ޳׆Rܾ઻ٟىœhăĠуٯন΀ৄˈ૊ʟ޴̢SCʃƳ੎ь੆ࠕਠľṶ̑ԕ૤ѡʹۊࣉŕޠǮ૪ܥɰϖJoտǹsৠrgɈܯ޵ਯ9਱Ǝਲ਼੭ਵĨ੏Ӛੇ਻૤੎֍઱εૹૻ૽૿ଁ৤բĈӼخଖˊଘݲଚؽ؅؅̀ૣuઢěɁ࡬ࣉҘࡨञޔଫȜւ8۔ڕФऋଳ͹Ɂࡵлק଱п଼ବȵےଷख़࣋ђș੡ΡKտrϑumীȼ૘֪ɪଐପ͹৊ݧĢʪׂʉż̀׵׆תخ୏Ŕ୒m૸ਁકƃTીsǓ߁॒ՊȣेƖୱnֶ୴ࡕߟआ୸ҧ୻୽ȃମߕɟƽ୹Ĭ஄୳ȃࡵ҃Ȯࡁ\t஍Ǣृ૱ࣳࡐ஋ăகȃ஗ߟǰऊ࢞஝૦Ʉɞࣴࢸத૮୶ࢮ̷ஃ୲Ǣࢴ࢈ɞज़ࣛञபЬலࠃɇமԡஸǣѬளࡊਗľॆڼிࠔ४Ǽசய୼எѬ࢒Čஒऋஸ॒ࠞ࢔Ӯ஛ஔரȏ࠭Ƞࠌ΄ȤƳ௕ࡍӌࠗȘۧ௤ܠ܀ࡐ௢୰௜ͦऎࡗ௧ӯࡉஸٵݖ૟աॣࡗ௙்அͦऔɅ௓ƒګஸӚइࠠ௙ே௰Ԃ३ଯࡇఋఆ఍ӵ߂࢓ࢥƱ௮୺ఔԃࡌॡ୊ݣ௵ஷజȢࡅொఠ̡௢୍ε஍ʠЭܰਯ˶݅ୣ˰ޛʔҖ\tʗ˅ૈʈߩܴத݂","tz/antarctica.lzw":"Zone Antarctica/Casey\t0\t-\tzĚ\t1969\n"+
+"\tĢ8:0ĖĘAWST\t2Ħ9 OĊ 18  2ĥ0ġĢ11ĺė\tCAīĭ010 MĈķ5ķĹĦļ\tĤĦŁĩŅĮľıĳ2ĶĸĺŒľŀĘŃŘŇ2 Febĸ1Ĵ7ĺuŒŔħ\tŗT\n"+
+"ĀĂĄĆĈĊČĎDavisĕŁĚzĜ957 JanĴ3ŒŰŕĘDAVĬĝ64 NovŒŵƉƋğũūƕţ\tƙƛņ0İĲtĴŞŐĻĢ\t5ƬƮĬřŉŋrĴŉĮűƫƗƭƚƾŇŮƳĸƶŠƹƻǈƽņ1ŨŪŬ2ŮǅĦŲƹƖŵƽŹāăąćĉċč/ŋwsāƇĘƦĝ5ƟǙƓŒ6ƬMĩǋƱśƴĵŏǑĢǓŵǼWŸźăIndiƑ/KerguelenǱęěǴƸȅƬTFĬǤŻǧžǪƁumātDUrƄlș ŉǲȞ947š0ƬPMƜƌŨƐƒ14Ƥƈȹ56ƠƢȽƼȰȥȋżǨſǫSyowaȜǳƌƎɅĸĠƹ3ƬSYOȥRuș\tTroȴư5\tmaxŁǁ\tlđtSuțĿǞĭŀCEī\n"+
+"ɬɮɰɲlư4ɶɸŁƳɼɾʀʂűĕŀUTCȦǦŽǩƀ/ʍɳƥěĮ0ŎǷǗƤŀʦʏ%sʠɕȩʤVostokɞɋƎDecĴ6ǹƬVOŅʵȨʣǫRothȔɝʨƊĝ7ɍ˂˄ĴŒ-ɦǈRɪĬ","tz/asia.lzw":"Rule\tEUAsia\t1981\tmax\t-\tMar\tlastSun\t 1:00uċĥ0\tS\n"+
+"ĀĂĄĆĈĊČ79ċ995ĔĬepĚĜĞĠĢĤĦĨī-Įāăąćĉĸ96ĐĒļOctŀĝğġģĪŇĔŊĂ E-EurŎĴčďđēĕėęěŚŃ 0ĪĩĦĬšeţťŧũĸĶŐĻĕSľřłŜŶŹňŻŽŦŨĳŐŒŭŕŗƈśĢƋīƍįżĀsĳƀČĎĸ84ļApęďŵŷŅīĭƞ ƠƢƒƤďƤ3ƖŘƭƛ\tƝŋƴuơĉƣčƨČ9ďƅƇŲƉĢ2ĪsǀŠƳƵǆƷčĻǊǌĖĘƘŴǒĦǔưźǗǄƶŏǊ2\tonlyļŰƘaŘ23ƯŷƲǂǘaǇ9ǭǯǱļƆĿǏSǶ\tǸŷǁŢǾȀƻƕůǠȈǢǓŸƱƎȐǚ9ƻǊƄĽȇŁƙ ǣ0ǔȎƟǩǙǫĹƔŔĕŖŘȖŜȧȩŠZǯăũ/Kabā\t4:36:48 ĕLMTċ890\n"+
+"\tɕɄŹĕAFɏČ45ɔɖɅň\tɚT\n"+
+"Ⱥnȼĳ/Yerevaġǒ58Īɋ\tɍɜȁ4 ėy Ȧɠ\tǹɘ\tYERɻ57ɾĘʃɗ0ǃǅǿĳ ʈR%sɻǋʎr 31ʁȷʃʅīǦʘSʜʢȆȦ3ʥɷȜŏAMʚʜ5 ʭ2ɽȦǓʐŷəɎŐ7ʿĦʓǪĊʴʶȋ012ʞȦʸʽǤ˅ɣʴɦƞɤzɮ˃œŮǟűȤŴʑșǧŋ˚˜Ǌ7˞ƼǡŜ5ȍȹȻɤɫBakĨǹČ:ʻɸɺĸ˽ɿʣʰʆBAKʋʍŰ˕ˇȭa ̆KˋǝːʡʣʾɕʄǺŹ̑ʪŐʢAugʠɓ̙ʦ̍ʕʳZ̓ĹˏʭȈǶʮĪ˕ƩZʜ6̴ōƒA̫ʛ˃̴A˛ę̼ʶŻ\tDh˷Ċ2ĦķȃǲĕJŃČȋʦ˥Ǽİ͈͊ˌ0͎ǰ͇͐ecʄďʻ˱ŉɨɪĉ/͚kĊɇˍɈʒɌ˂1ɑ̥ɕ˰5ǹ͌ļH͵94ʢȳʃɇ3ɣBUʊĸ4ˏ̂1ɟ̙˰·ļI̞ɝ̮ľ΅ɢļΉ΋Č5ʬľ̤ΛʆDACɻ7ʢŰȦ̸̙ͰΈDɏ͌͝ΥīͭĊBDͩͅ˴ͫThimphĨͺɶɆ˾΀4ʍ̡̣ΐʃΓɣΖɻ8ʍ΄ΰˀ\tBTɏɧ˳Indĉn/C͉goǔɄ49Ͳļ˿Č0˄ΒϛIO̷ηΕϹϠɩοa/BrĠei\t7Ʌϯ4ͳɹ΀26ʞʃЉΔĕBNɻ3ʯ̙ɶ̅ИϾͪЁRɲϪǯ\tɇͦЌϋɜ88͸Ч˼ϭɣRЏЯΆΈΊɻ΍ʎyʃϯʆJΗ΁ʸ̂ʠΛЕĖ˂͆S͉ngΌī͏ļ͒ŜƻƿǦDыэяɝʧ΁Ǟȳńǀ˱͘ăьФΌďђȔƬŒїŷљ˙PRCƦŒѫǟǲ ƨѯŹѱ˧ѳѵƤŒǝȅƇś>=1ďƿȚѲѴƦ˫҅əƫĬĠ҉1Ɯ̛θРЀ/ѧю͉ЇН˰4ƻʹɻˍʃНƱћ\tC̬Ϯҫŷҁүν˳ȽUЄmqЇͺŶͽҨ̀8ϻĕXJ˘˧HKѩǮ͟ƩҕďǹΔǦѥ\tӋӍѸȆʄīӓƜǖӊӌɝѷӏҔęͽӞ͗͆ӘӣӎȄĕD͢ċ̚ΔȪӗӢ΁˫ѸƪƬƻөӕӫӸύӮ͠ӱͣΔөӶӬ΁8ԄǳaǲǭӿǻԁΌԍΠѠƗȵӴӟŉ˙ԋ5Ȃӥ\tѡ2ĻԉӠİԋϮĸͻӐę҈ҊԜӪԟӸԮѸNovӳԨԞӡԭǉőƨѬҖnҘԍԓŹӖԠƨѸѡʡԳԊԶǜՂļԹԻԱӒΜՒĸ6Ք7ŒӦՅҘŒՉҎԿČ՞ƁաԤƗՙե՛ԩăԋ7ƻѸԆӜԳԀԵƁ͞ӯѹգ=ՈΜջը9ƂՎծҗҊհӵ˲ϿȽHǯg_K֓ЈɅɇлӂϳɽȳΤМŷӘӋұʢԆˑоϛскʸʭϑ֡Ź֣̒ʛ͆TaiwɲΌӤտɿċĻѽҜ˙ֶָֺӭ։ƽѣƌ˦İֹׄġɝӺԣӼֿ׊ʧѰֵַ׏Όגտ՗ӳҍ׌ă׎׆ԌԭǞ־Ҍқ͇יׅאצԘ˭ת׋ӖפׯԡԎՄ׳חѾ׭כΠǭΠՃ\tן׻Ǖ׵ךץԮΠķբ؆ј׾؊Ք6ԙ׉ס؈׮՝ўؔѓ͓ז˥ѿ׍؉ׯ7Ձ7ȡה؏ט׃أƁئȡѡ؆էآؙĵվ͒͠lנ׫ءףحض׹խؖѤҝȽׄpІ\tНαЫɐő Jɲʁ1ҳрWт3Ϙŗٓ֩ртɞʹΣ2ʢŝĦٕī׶Ҷִ˙ėcaĨթƹőǭՄկպԔ٬aٮٰőٲ6؃ןՙՑղǟٻ՝նԣǴٶׁעڅٯ՝ՍډǠٶզڍ٭ڏթĻѸڊ֋1Ѯ׫Ӗڗټժ׈ͤ؟Ӷڢ՝҄ևǞהڔքٸ˧کթګΫ˭گ֎Ծİڳև؁և؃ڮڝ׀ڠ͆ڼ7ھյڷۂڧڄۆئ˫Ȳ֊ՆҊԧձںăۆ՟ېɤҕՙەӔڱڻٺژևԗč˖۝ۋڌڡۣټ7ۦЮۊۓΐیͨҸɫکДɄٍ͌Čˎِْģ٧ڎĨMO̬Ĺ ֧͌܃ҵҰ٫˧CyƫǄƁښדӑіۄ˙ܒܔǥևܗտرǭסۗүܓЄܟՠفשۃŹօİܝܩիفرزڄܲܕĵҒۧԯցتՊܹ͆ܪם͠ӛԦ۵݂ܨܺۥܵƗܤͧ݊ܞս˝ǍȣųġܥݒܳƸŐԍՄԛ۫مɫNicϫŏǒ1ͼɊ֜ȁʢ՗ģ4ʃȧܧݓEE܈ɊȆݴŷ̺ŏݸͅLinkҞݥݧƒƐoو/ވݨaݣπbiliĈȋ:5ϯҋ۽ЭЯɴޜǞTBЏɽх2̄ɣޤỈВ̙ʑ̨ũ ެ܈άĘʠ٤ʤ̦׫ެтʝӼʁ9ު޲ʖGݹ̾Ǭ߄ŤƐƀ߇܈ɽ̯ˢňߌſƒߏ߉ȯ ֟ȵ̴Ǧ߇޿̊޸ߞްɷߖƑŏߙδĦɽєȦϵɕ̧ʲĊ߫͜фߤߓ̗٦ߦʆ߇ɦξȽDޕң˼ǒۼݮۿّnְٜޫLкˏFebȦʢȌ߼ɕпɣ֫Ό֭٢ЛࠚϛTࠐիмʁࠡيϛWޭA͜ʒ֮ʍƮ࠙\tࠛļࠤࠀ۷֖ͫlͮtĊͺݬޞЮϒޚͼɣͿк΃ŗчиΟ΁ΎԐģΑ͹ΜĕϕΌΙpࡅ۠Źࡘɝʸ֟֯ࡕшϕР Ƚّͮr࠿֘ϴ:ۿ֜86ώ̢ģЯЉ࡯ˎΝЏ3܊͢޹̲ύࡰީ̙ЉӁ\tJAVЙˏ՗Гࡖ\tࠬB࡙ːǸٟٝࠜࠟpʮ࢐ш࢓Ԗм܃ĕࢠΠʒɿ࢞ɣࢥՂ࢐ʆ࢓ࡧȽPǯtϥ˷֘1ࢇɣϲɒɊࢨࢆࡰࢹļP΀3ࢎԺࢩļࢫлࠋȦ߃̙࠶࢚͑١࢜ࢗࢿ࢟I࢔ɝࢽԐࢣ࢒ࣘԭࢧࣜࣖࢪࣟթݳࠎࣉ࠭ƦɊ࣌܂ࢿࢮࣘࢰ۸͊ơǠЉʌ֙۽ȁࡸޚДլMࣄࣆvࣝࠬT࠮Θ ࠓࠕ ࣓࣎ࠢٞ֬࢝ࣨࢤࣲّ࠭ͫyapŧĊϯ2ǒɉࣺࣅ ࢏࣏ࠫޭΌߑΣ࣮ࠢшΨтٿࣩ࢘ӉİIrץۯƦɣǴ٣؟ؐ˙शसԍڥऽؗ͆ुؤط҆Ŀ͔ॆीषׯ۱ӚƇǸیӖै̟ܬԐĢܚܯث˧क़Ǭƃԏӧݐफ़׽ॏץǋॣݖȋ०ӟॗॐƓग़ӧׂ݀ॠॲǊּ݆ܷ॔ॱ४ܼĹ।८ाय़वॹĹঁ؍Ȣ঄ॎॸֺεёڒॵঅ२এɳĦ঒տ݇ॾेॲεͥĦҧˠ঍ؼঞঐĦড0ণ݇९؇ধঘ0ڑֽǠॅদ३঱঳ॼĿশ״র߷ॴথ१ॷইন0ܡ঻ূ॰িεृওȋॶ׬স͜ৎছॽॖৌ͍ˌҋঃटকৄăक़εķ͌ড়७৞঎৅ঘࡻڛ঵৑ؽ\tৢˍԢ৖়ঝ৓৥ƻ৥ȡ़মिগ৛৺ˍȡভ৘৸ˍॻঢ়৯৙ڞفজਆ਀৥˫৥ঋ৽য়৒਑ˍਓˍঋਅ৩ৡট0ͽ৭ঔڌৰ৲ਣԣਏਟৱਡऽ͌ॕՄ২ষਙਯਢব॔মسਠনʻুঽ׼ৠਭ਽঺ो৐ਐ৪ˌ݈ਰۛਖਦ৙ੋਢۛਞلਇ2ԍਰਕ৮ਗਧਮ੘ਢਝৗਬ৲Δ͌Րਲ৾আ਼ঘ੥ফǞ੔াਇࣅˌКਊੜ৙ੳ੦ਸ৶ੈ੫ੴƨ੦ৼ঵੩খ੉੦઀ফ਄ਹ੽੃੬Œ੦੍ਜ਼੏ੲએফ੓੢لࠁɫTehॲͼҥ؃ࢻڞʰԦɈ؃Tόί߲࢑IRт7ʍथɡ࡞ॲમ̬ĶʰΔक़ષܐ৅qƦ৴͠ש੷३ીƤھƧײઌुેčڈ঴ęՐઓএ૎૊Ƥبӑૅ૕ƦՔɒ੆ԛưȸॿ૖ګ૟ݠߓșǥ੪੃૎५εۛהģ̚Ǥؠধ૮পۛѡ૳ʦૣޒЁ˶ghdadޙࣸЌϱ͵ͷݽࣸɆࡼɻͶުƩт8ࡑн޼વaીAͅ˙ZiЦѝفєѢ૔İଠଢࡐऩՖԺଦ੕˧଩ׯҦف૲ͥ਴ନଡଳ੅բ૳ଧăଲࠞଵӑڟৃਘହପɞفן૳ݵ਻\tୁׇܘѭޙ୆ৰ୑΁ਉĕୌ৷଱଺Ԗग़ԑढ़īݵDୗୟࣚ਎Ƈାସୀ୨װ΁ঋଡ଼୕োଟ୯Ԭ৭Ѻ਋୶ପ5চ͠ة୅ੁେ୮୽୿੆۴͖୏୘Ρୃę୬ୖ͆஌Ѫԣ؅՚ੱ୞୽ૂܾͽݵ৿ୈ׷஛ۑƽķஊڍ஌ૐ஀ӑǭஞ૬ந୪ौӾର஠Հତ͓ୣ૶୼׷଼ঌࡻਬ஌ৈ؝אଷ஑஺ԭு७ড়ி୯5୚ࢉŴஸடஅ׷௎ӛԈள௓ԭ݅ஜ৤୭୐ௌ௛১਺஧୯إஶغ ˫ି௟ପ௦ڥݫઌ୘اஎˌ૛ழĵைɤ̢ڦோପ8௹ةѼ௞୘௿ரו௽॑௎שԍ௫ఄ௕୫௪௘௬॑௡ۜƬܮஃ୧௾కӛ௰ఈ࣫௴ҙ௶௙Ƥ৕৉ѻ௱୯ɑ௴ӵఃపॊ७ʠ఩ପ૟ਤȋఘஹஙׯవד௻Аళ఻ஔ૑ȋం௅఺ख़॓Ŀஐ୵ేॢశ2ķ఍୯ȁఆ ஂযெǊனܾȦణఓŐ౛ఱస஋౓஼ଶ౞୘΁ଵాఌఒ౩௹Ǵ૓మఴ௹ӛలటॺু۴౒ఴఏौ౗౤ఴక़୻్উఆ1౅ౌ௷Ĺదঢ়Қెಌčౕಀ௤ఴరఖǑ୴హಒಘ౶৺౮ୟ঑డ઀౳঱இணĢ҄ಡЦঠ௴ऌ˥௒౟ಮ౉ౄ˥ಁ঱஢ত౐ಱமಢĦ಺ૻҒಬ঱ౡ಻ԗದ͜ೆૻȟೄ͜౦ҕ௩ಽઅ௙ε஼ਅǦಸীӻ೑௄ఙஒಿেݎŘರ୎ಖ঱કఢՄFri҉ి஭೔ಳĦ௎ૻೞౘే૰ಈએ೎্ೣĢĻ೦Ӗୁৣఆ2ਓ೽ˍನ஽஬ഉড়೜ஏ೷ಲഄˍూ͠ૻ഍஘ழ৥಺Ǵ೬೮=೰೉ജആಠചೕˍȒȱতട೯ദ೟ெ৹ˬ಩ԛം૿/JɮǄaĂmޙ͌ޚɽࡲࡄ̙ࠇŶଉ͑΀଒൅ŷୁIଞ˧ّpץɉୡܿಛಲ൒ൔۦ஍७ȉt҉੘ఒ൚ଳಘہ۳൘૬൤࣠קԏǲڂೱҜચπokyo࠵ࡰɶޛଊЬϗࡿcࢁΐŞल࣑Ьُ࣭ٔदрC٘ٚtࠍऎī൫J൐İJor଄ؤೆଥ౗ܰă඘කसȟܠોݚ˙ජඛخƁઑǲ৑Ӗඪस௎؅݉ඩ඙ණܻ೿ܷܦ඲ؤಎբభ୆නමूఆෂԝ͆඾૝డਗහඣ॑௹رබ൑ළఉఠբഭԲݢභැѶŐɣѡේ඼්ූƦಘ־౭ස෥ෞǊഋהഇ෎෬ඹĹഖܾࢸෲෝ෴५ವ෱ඨ෕෭̭డಐஃා෻ھȞ˭෣ු඗෦ౚݞܾซො฀෻೗Ƈ෣ౣڄ෋Ƞฐ७ธזȸලฎĹಘعଯ૵චࢉรংεٴঌǏടภǕยෞಣಮ૨ĝρŇȘษ෋อ৛ฮǴǏฺౄܛด৆ೋݏಊมෳ৆஼رఘ์෺৆౵ǎŁัƛ๒็೨৛ؕƈ๘ȘӶ฾ഩفոͽ෿ญีˍƨȓতใφๅ෫๓৫๬ഫѡะ೭าƍ൳ЁAmđɳ˼ǹ4ൂЎЙඊɕݵ෋ށִ๼/Alđtǲ˰࡯डݮ́ࡒʂ϶ʆAࢻ·ِĠࠖη߅ĉࡨɍ޶Ӆɤࢻȁ຤ߴຫʵ̾ε߸ʟࡣаຝɺഷQyzylළɃ˼Ĥԡࣺນʀປ઴ɣKI̶ĸຠ߯٣ࡅʆ໋ໍƸࡨƫඑ\tຕஃ໔କࡋඐबື໊໌ϖˏ߁໡໛ລĊ໔ຩຜ໣໕෵඀ģફ໚ϛQY໰ȁ܀ࠌČ߻жʱȬ̩Ċ໷̽߬েːຶαļ༄࠹֐ɫAqtobă຃ɶൈຆ̀ާບࢅ້Ʃ̈Йʒ໐ຈ໵ຝ༠Ʀ̠໘໨׫̇Tໞߜٛ໡༊ə༧ૈ໗ʟ༫ˆຯ༭໭ࡕ༦Ϟ̟໲ત໮໪ɤQTˋຳ༈ࡔ༥˖ཇ།Сຏ༑ڏͼŅઢަ່ࠧແʆFOࡏ໏ຢ໑໮ļཝࡏ6ࠩ໛ȅHEϖໟ໙༳Ĭཫ໥༷໙໩ຯSཫ༽ཌྷཪཬཁ֧གྷ༾ʒ༻ཇ܈ິ ȵ໾̌ྃ཈າĦ྆ຶཀྵəཏഷOषغઠбൽ༚ཙ༝ཛɣΊA༡ມࠌརཱྀļྠ཭ུ༹ஃྠ༯֟༲ϛྨુྪ༤ྲྀ༁ƀྠ̬ɑ࢖Б˓Яޱຯྐྵߚǋ̴ĕྲ̔ཿ໴࿀ྷƒཞଝྍ༇έྐϛ࿎ऴăKyrgຼŐจլ൧҉఑ศۡ࿗࿙࿛z࿝ॳ७ݡݑ˙࿘࿚࿜˪ীุǐǒ࡝୏࿯࿧˝ೖ˭വۖഷBޗhkeކɄɵб໅༛໇ྜྷྑ\tFRUྡྷ༣ຮ࿌຦တU޶̕޺̘ྦǦဘ޿̠ࡶ̖྾໒ī࿹࿜KGཉྎࡨࡶˎສဪ࿖\tROԂව௏Ŝಅİဵ့ಈஸ୏ွΌ൦೑௑૬၂ɝķױ൞֋෪ಋă၈ĺ෯ೝ౞ၑ஍୹ಪၕံேൖ సಲၖ๕ొ౑ఒၖఊज़๧௞ၦ෇ค೸ြၛΠܼ6ऻज़ڂ௫ၖၲɣӛՙ၎ၮၐၰčܼЭ൮ցൢ಑ၿӸϗෘقႅ૴োຎƆoɂɶഇޚฮࢻ0Ɋ໧༤ω໊тࠊ܁༤࣐ࢉඍЙඏ໙Ⴃࠝࡠऑ ӄඋ႞ʋ༛ʟྥࠪΔ၂ֳɻؔီϐЯ࠶Ⴗҷ༎ͫP൷юङюࠪ࠘Ѝ႘ႚ༪ႜ࢑K႟ˏඉඅႤඎ༰໠Ⴂ֪࣒ϏȦࣧඒļაဳLࠔɲପ਩ృ੗෹˧უbქׯყഗݏนܦწხ̀෶ශცİჵnღჸႌ၀ڄჼღഝ঵ඟ࿤ɹფჽჯುƗၽӶᄃჯೆ෰઄୏ᄑ̀ೆఝಕჴᄊ୽ၲרज़ධ͆ᄗၱ՝๞෤˙ᄤڽஶɳᄕڍᄪۇතට࿭ძᄝගᄲȔදჺăᄰးה෈ԴᄵჭᄋƁး௖ၭᄐᄶƦՁႊᄹػ๲ᅂჶƤՁ५಩਍๨ᄼᅊథᄬᅏฅᄣᅚč෨ᄡၭษᄪ૟ॢᅎᄢᄩᅠ౔ڥಊำᅟᅃఴപ˟โ૩ณ჻ᅬඥಓ࿫ᅷᄴᅹᅲ఻ķ๭๷ᅾ׋۶Ⴡ଀ІЄǷࠆɷൃޠŷᄗຌဳNB඙ɩ൸Č3Ք΂ஈᅯӀ٨ӖᆖᆘeᆚȞᆝǞոಉ݉ͩࡨɫKu഼a_Luτŧа4֚Бݮˍ໻཯ޚ˰݈ƅ΀༇߯໡ࡹऻພЙࡾდ࣯ҚͽMພ٘БᇏɕࣁůᇌѩႬ༤Дᇋࠥईऊ໳ეႪуऑူࣣǳᇛ༶ᇗࠪʆMYϟᆮȽᆱcςჇࢇĤ࢈ࢻАޯᇘ࢑Bཞᇍ܃ᆤrᆙϜཞұࠒࠔᇤႯѓ࣒֮ྜྷҬΝሃླᇮሔůᇲҝϢϤɲ/ėlϤveϬുᆏ༙Ͷൄɡ5ˤů΀ၳဦǳࢌ\tۅ֓oغƺᅋ෷ᄻĖሷሹ૏රฌۘሿ෌Ǌݟ๮ᆆᅞ٬ቅᅓฝฯቊᅰቌюሸ͜ჿה̰ᆍᅐڻቅಮεլӛ቙ಛڨቝೀࣿ͜ȕȤȊ൱ږብ۴๭ᅶŚቫๆቜቔغ৻ളቐቲŘݚຎ֒vଆͰΆᆽሩɒʸϏສHOሴĵႮሀŹMቅኊVჀདUěɲჭǶ޸ࡹДˏᆾኇ̢ࢭྟLྡᅅ܃ኑቶ\tUእንҞϨoiჭlsֺДҬࣺ༇ኈᇐྦྷእΪ኎ᇯኤኦƺ༷लኩϪغCኊာ႙ရከቅዊ܇ຍ࠺Ёȿth຀dχɈĤڞ໅ЯϓΕକ໴ҥȡNPϟƳP˷ޗ࠿ಹ௴Ա०ƹ࿤ ያkይ৆ᄍŘዱ׊Ҍղድዬĝ৆းଥᅪǂዶዸ঱੟͝ଭԻᄨጇጁዮ͜၄గෲຎȿषᇷЇۻɶࡱኅϴ࡜ϔٟ࡚ጡ˥࡟ᇧࡢཌዡࡗтΡऑ·ሲĕKAࡏΫྼဦጀዷጂġPႸስƳE࿛ptǇʌൖఢᅸżፁܓፄǚፆΠቈ೶ቃţፂፍȮɵၝጆŢፋፃፅ၊őථѢǦචፔፌ፞՝ઊĿௗᆇƎ፜ፖŪ6೵ƗૼᅿżያĂĝބăǊ৤ྎฑ೭Ҙၟዴ፷ሥࢴϿ፼ೊชᎀ۔ፓᎄ፹Ͽ࿼ڥ૳೙ዿᎎᎆăຳ೿న೦ۗጀ፸᎗ቧ͜૱ၔፉ᎞ᎅ፺Ꭱ෽௣᎝᎖Ꭸ೺ವฺൡባ᎕഼Ꭷ᎐Ħጋਗ਼ˡĝ๠ቛ፶Ꮅᎏ᎘ᎸౕጏŢᎭᎷጌವซ᎔ᎬᏀᎠ৥ഋ़ᄇ݁ዪᏎᎮഊ౫ќᏅᎿ᎟Ꮧഏ୓วዳᏔጐᏝᎷᏟտϏว෉ᏕᏥᏂᏧ஀௻ᅀ፤ᏇᏮჿᅇᎍᏖᏦ஬๫ঃ๯ĨͦᎾᎦᏁเആᏢᏫᏤᎶᏮᄙทᎋੀቒᐈᐃ৥๵˟෢ᐍᏛᐂᏏਃቹቱtั᐀ᅞຎGaz͋ࣀ႖ྚϳʒϙຉ്ୟݸкࣛʀຶȧ፥፝ފ߈Ⴙʍᇈཌݵൎ܈໴ຊ෦ᆔŐऍ୴ᐘᎨᑃ্Ⴛ࣍ʁƛݽʆᐯ৔࣓ᑏʒᏴĄᐸ৛ᆑᑐཽᏐ࢖࠲Ƌ༤ᐴᑖᑉകᑋ໡ݵĕᑑജᑔᑇϿᆔഷHࠔrಭ˼Ӏণ႘ᐪࡌൌŹୁᑑࣚࠧᐳߧፕƀᑃթᐺຢၞᑔ౟൏࿃ᑀŷ຋ᑘ፼ᑬᑣᐸ͆PςቀଏԸମፚăᒗޕ໎కऊᅝᐏİᒟቀርడᄮӖᒧவѸฦᏛ\tᒭኍਿᒫᒖᒘᅅᐅᆭዔሠɲޕĊ-ඃ்ረϲƧɽ֧ʡٕޱࡲ܉Ώ჎ŹᒭPHላࢢሏආऩतࣇࣨᓑᓓዓᆉ/Qኛ૒˼Ͱݭኅ܌߽ɣGરგĠଓəʪ\n"+
+"ރޅᆯͫᓡ࠿ʟȽ˶ઞַߔຎRiङdh૴ɇໄݮύ༈პႎଔɦᓳkᓵТᔁଅhᔑຏdeġᓲބᔐȽᔀᔂᔕᇵuֹitഷSބgच඙ăᔆᇃʸᆾʢᇮᔮ˼਄ᇆʸᇈᇞϛᇓᇡȞᇎႡኣѣᇒᇔЙᇖᕀࢿ࢈ᔼࡊᇝࣈᇚᔽлᇣྀ൹एࠞᇨྜྷᇟᇫᔽ՞ᑦᑅᕘƅGཱིመϛSᕠഷCሸomb൸˰˻˽ᆐࡅ˻ੳሯҩዤભጣᇀᒉ϶భ઻Hᕸݼᕻஃጧ٠ࡢ྽ȧጥጬ̷ࠧԦᑍ̳ϚшL̈ƓთήᖍጰϚʆᖑ༆Б߁ΐᖖዠᕷဳS࿙ȮͽČ਱ಙ۞൩Ꮳİᖣ೭Ūᖦȁণѡ൰፵Ĭᖤ፰಺෰௝Ꮎᖷᖯ՝ዺӳ᎜ыᖸڇ፨ႄഒᄈᖮȮཧၬᎳܦᗋ፰๏Ɨ೷Ӷᗑᗇವ੥ᖶᗗڴ௴ਾቬӖᗜőڵլීᗃ˙ᗢࡴᒹᅩᖫ୏ᗢ઱ᗫ஽ᗏᗄᖿሺ቎բᖼቋ˧ᗢ8ඥ૊ᅖᗳᗨᗅ҃فᒣ਍ᗠᗴȮࡳ೿ᗹᒥѦᘃႁ౺ᗭڍᗼႂፑƗՐᗧᗻᘐႃశ۴ᘈᘂᗵᅡুᘙቴᘏᘢఫ௯ᘁᘛᘢ఼Ꮸ૚ᘠᘬȮᘮ৉ᗚ፬ᘡᘳ቗Ꭴᘦᖾᘹ࿩಩ోᘎᘽŪᅭᏠႭሽᗢฉ౏Ꮣᗮᘐᙊਪ॔ჳᘉᙄᅔ࿟ᘻᖽᙉઈೢᙀᒱᙉঁቈᐜኩᙈᙎ፽0ᙖ഑ᙣᖿ቟ആᎫᙓᎢু๸ЇፉᙃᙯᒛԻउᎋᙝᗅ೾ഐဏᙹᙩݩᏃᙶᒤᗖᙻ৚శᙱ ͋Ꮨ৥ڭҕฒᘼᗗതተቩᎼ๹ᙳᚒ৚ᆄԚ๗ᚗݑຎDađscܕࠇᕭኟᓧᑚƱᗅᑯᚠǄэ༔ແᆜࢄညྜጱ͇U٘༢ཡ༤ٌߴ܊ᚺယέဤ޻သѰᚺအႬ9໾sᚸTӈስຎ˶юk൵ᆺǣབྷൾ໿΍ĥ؃ޥɻۼӼᕁࡗΩᔛᓴᓺФᛖᔝɫᒗჽm_Pᔙᔄᛧ᛬ͫᛔg᛫ᔖViᔙࢴɲăഷćhᔪჭŘǹͻɅᚩᇽဋ̃ᓩଔHဓᚽጸ༻ླྀᛃ޸ᛅᖎ້ཅA᜖࿃཮ഇྊဖĊ઩܈გْ໽ဥལĕ઩ཐҞDuჭЇ຃ዝᜋе࿅\tᓫᔎᔜᔖᜰᜲᔖMǄٮŘᔧᚢĘͮϣແ႕ͻᚶި᜸S˗໎ᚼྤྵᕣᝑ໖ႛሲӕʴྮ༱ᚾࠣ᜝ཱི᝙ངཷˊᜟᕌᝤᜣካ༅࿝ᚸU̶ഷֶsဃ᛾ᚳЉޝຘᜍཚဎआᚻྣຣᖘྂᝪ᝽᜗ʟ᜙࠴ྶʔƀងᝧʭྫཅᝯᜦᝮᝰᇴɫ֒_Ϩi_Mބᔄࡹ֚჊ᇆᇖā໙ស࢑Pણ޷໇ᔺʆIΩ࢕ᓈࠗʦࣝIγᕕ࿒ɽ჉ᇥሑफᕗϷឯבྴ឴ាΠᔸឤᇉឿʋᛌឱ̲࠴ሙৱោܠ᝿ݫᛤৱΩ","tz/australasia.lzw":"Rule\tAus\t1917\tonly\t-\tJan\t 1\t0:0Ě1ĝ0\tD\n"+
+"ĀĂĄĆĈĊČĎĐĒ\tMar\t25Ĵġě\tSĥāăąćĉ42čďđēĕėęķ0ĢĠŌģļħĿĪłńĮēıĳ29ŋĢĢĻĦľĩŁŃĭņĺepĴČ2ĸŎĢĤšĨŀ943Ŕ4įř\tlastSuėŭŏşőŢŴŶŖŧOctĘŷƄōĸĤZĎe Ŀtralia/DĲwiŉ8:Ŷ:20 ēLMTĈ895 Feb\n"+
+"\tƻ 9ĸēACSƱ1Ƴ9 ıyƺƼƾ3Ģœǁ%sTƇĄWĪ7ŹŦįƍƏŽſƁƃġŀƔǕAǗĉ7ĶǛŘĲĺƂ>=ĚƒćƆŲǧĪ8ŷǬ\tǝżžƀƂŝǤŏűĽǖǹǚŅźǮǡǱǳǣĹŠȇǸĉĊƋįNovĈŬȑůŐǷǨ99ťȋǭĳȎǲȃȒǦǗƫ06ȘēDecƐȬȠȆŒȯŌŬŌŜȨǿǠȂǴȭȢĴȾɉ08ǜƎɃȁǢŌȄŰ\n"+
+"ƖnƘƚƜƞƠPerthĘ7ƨ3ƪ4ƭ\tƯǄƳƵȵcǋĘƧŏǐWǒǄŵ3 Jāɱ ɳǏǗǧɷɖƗƙĆƛƝƟ/EucŽɲ:35ƪ8ɩɫƲƴ ɯɾƧ4ĶǐCɶǓŔɺɼlʝƨʠʂʢʄǷQǘĚǼǾǟɑȹǥʯǘȦŗ\tƷbɐǡȬǶȔʰĉƳĪȗēʴȀˁɆȺǦ˅ȤōȤŃɂȪȐɓɇȇHoƞdađȖŃȖŷˊɏʵˍȟʸ˛˝i˟ˡȤŷȖŹ˖ǰȫɆƆɗəʈɛʋBrisbĖă1Ĝ1ƄʖƮưʙ5ɱ̆ĸǐEɷʱ̏ĜɴʰA̓Ǔʅɘʇſ˽ƠLƥdemĖ ƽ:5ʔ56ʗ̌ǅƴ̖̑ĩ̔̚ǩ1̴̘Ą̛ɸȥɻɽƻĈ̗Ģ˜˞ˠ̽ʮȔSʱǹĶ˦ǞˌɅ˪ȅǦ͍ˆȲʳɏĉʷ͖Ƿ͘98ȿ0Č͑ˀ͔˙ˏ͠ʺȳʽƸū˂ĺ͗ǘ˲͐͢İȍ˶˘0ǵͳ͙ͬˈĢ˵nȏĶ˸Ϳ͌ˈʲȧ͹ĳƑȑ˃Œ͡ȥͮŻ2ŃΈȓΓˈǻ΍ŻȞ˙ΒľΔȊʼΗĢΚʹȖ·Ō͸Ż˨ͩͽ˚ΜȰ͚΍ApŚͲΛΤɋĬΟǮαɒγΣĄ͍Ȱɍ̧xįιȩͻμʹω\tϋɎƏ˗͞ɕ˺̟ʉɜ/ḀŽˮăƾ14ƪƬ̋ɬʚʾɱƾŏǀǂϫǇǉϮʒǏ̶C̸97̺̓ǍǏ͍Ǒ̜Ƿɸ6πʼǾϘˎ˫ŒІɍǼΰ͓τ;νĄЏ͏ϖͨДĈЍľІŜ̹ȌϏ΅=ɍΪЅͭǼʾЛϑЩǩͶ8Ě΄ȏЮȔɸ8ˣ͢˥ΎЭШзȉǹȲд˷ΑΉЎтͮЊͻ·͕ɕЯ͢ČȖ΃н˗э΢чПǹЈƌɏȪΘϙȡрˆɍѓКσѡȻњȖğȤɁǽўϐЌ͟ѣȤǳήУоцЖAƱȰĢǼągѺͪОЗɋĚϕͧЋюѢшζͮώǯХͼЕǦѾɊБςГжҏŌϊaόǀκғеΪϛɚʊƠ˜̃ɠ\tƾ4ϥуɪ̱ɭ Sũ̻є̚ǃĪ1̯ǝ̩1̩ƒҺНɴEDɸċƶƸӆ̒ϻЇӏƱ̷̜Ҩ˼Ҫ/Cur̀Ϥʒʔ2ɍϪ̍ҷҹ̓̐ϰ̽ҽĉҿ ӁęӄġӆȠ̚ӊҾ7ӍƹӨͅų͊ʤ̹́ʨӼ̑Ӕ̾ǦV͎ˆ͸ˋɄМͫȔԉǩʻŧЬѨпŒԒϼбίͺҔҝľԚ8ȲѦф1їυљĄԢԤёКіѩԈǹѥѮѧҜѳяԑ΋ˈ˴ѕѲѻԲάɋԝĳԗՀǷԉѿґu҃Ն҅Ѵԙ҈οԶԎԱՈɋηʼҒҌјѼՉҙρՅԷՇԺϓҊĄҤ՜ԩ՞ɋҠҢѰϗԿՏϚʆҩϞMelboӜ̞Ǎƾ52̰ϫƵϭԄɴ̶̾̕ևǏԉӕǔǷNԊͷՔʶԸҎľ֒ԓͮЬ2ΡիǦ֚ԛǹгԾԟԘ֙ǹԔύթղ֑֠ǹԜѹժҖְ΁ˆѯŻ԰֨Ą֢ԣъ͜Ŝ֗Ѫֽћˈѯԍ֖ҍׄA֢9˓ƴֳֵ֮Ȕ׎ȲȰՄ҄֯וɋҀθՌךɔׅ֘Ȱѷͥ֕˩ճף׍՘ґ֧֭դŒ֒ȰќѹՎכײխϔҡ֬ФҦױ֩զ׼ҋדӇմ̞նʋSydɘˡ̗ϧցփӥֆƻөϸć֏֋ؖӽ׬֏̝˻̠ә˿oken_Hill̪ĵƨ̊ҴքӺӆǀEӬƳ̯҂ 23϶ӪǁظȤǈˠ϶ǎӾЃɸϽنǏ֒ىםٌχĄϺЄȇLH֤сͧ׷؆ף֪ٗЙԦŝδăٟԋ׀͒ՕƒěϷַֹٞ٘͢ԞΆ٣φ٦͢ՙѝƏ͝٫Ĝهׄٷׇͣרβ٬ٿǕٷ׏ˈיժ٤ɪٯȤחѸɂٜٶ٘Պҁנڕ٭ڀڗŌצͦհךچԹħٟҐҁׯ׿ƅԪڧՠΧқ٪ĸږ׺է՛֮ڎڮɌ׻կыװƅڜؠϜ̡/LordةowƘ̐36Ϩ̲ؓօӎ֌ύطиӃř̴هٟٗʄҨntĲƎicƠıcquĲiƘєz۱ʙǇȚvصӫӋӀƎӂӲŌӴ̑ӉӋӹ̵ؙؕ̈́֊ӭǇώۼ ͅsɱ۰۲Łʖřؼ̎ۖӐԀ9ӒܘԆ̔ƫ̆ƙκ̩ɨ ɦ۾ӨȠŘIҽۂIndƟnӚh̀ſ̧ćɤ0ŭؒӤۓش̓ܺєCXƱؠ\tܯܱĖӚocoćې֞ƨєʘĉܨƻېهēCC݆ŲFijiˈԴȤșțҥхŏȠЖݠݢڃՊēԖҜܧŞĒǕݮݣȰŜǼ۵ĴׂŮĸݭݡݺĞמڰբՕݵĹ-ݸބɉ̆ސмھǱ2ͼٝރݯܠΌވݩĚދ΃ގޚĞΙĞмňޞɍޠݷݟޏܠΦŧި˗ЧڳެȇݹސŹէݾڍݬޢޅԧڼį޲ͻު޵ލ˺\tPacifۦ/޸1Ġ̬ƨɨܾĊƵӁ26̏٫޸FJ̔݇ߋߍߏc/GambۮĳƭƧ5ҰرݕĊւǝɾ-ϯєGǍߤߌߎߐř۫esžƭϥʀے߶ӯƎ߹ЀźAR݆߉ߥࠂߨTahitݣࠉ̫ƧӮߘ̈ࠎtɱ-ؗįTAHࠕƗߊࠁߧߩ۬mĒϦƪůے84ɨɯܦϾǌʒ߻ࠌĞ۷Gҽѿʛȶؼؾۖݛhܭ̣nk ࠗ࠳G࠵ࡖ࠲ߐSaipĖۂࡗߐࠚƜwaĘߓʒƄߗزĪࡆ̓ę٫ēGIL࠯̞ࡤߨEܰɟbӜņ࡫2ϧƫࡅࡁ࠷ࡴߊHOيǇ߸̓ࠩܪࢋࢍڋɾ1ދēPࢌǔϛࡻ/Kì̧ࠞࠞ࠷ĜśۑߘࡱƻࠩĜ4ݔINࢎࠦࠨࠪƮࢲ̿ܗƼ࠸ӪLࢹࡣ࡜ߨıjӜoĈĠࢄذࢇ̏࢓M࠮Ī6࢏ࠏӨࢊ࣏࢝ʆ࢟KࡨjƝeƥࣈĝƾࢆࢫ࢈࡫Ӫ࣑࣓ࣗࠧ࢑̈ƿ\tKWѽΝʇgؼ0ߞ࣯ࣗࣁߦߐChuuk܅ͥĝߴ̱׏ࣦӽݛHUࡹƘ࢟Pohnpࣟ܅3ܼւ࣯ࣥ࣍POࢳ\tࣼ࠘ࢠݏƜ̅Ĝ5ߔ̯जܩ࣯KOӬܛࣹ࣫ӪरलȤझशऱࣘɘ࠱ࣽߨNaӜu࣡अࢰࠌޖɻ̨ԧझݚ\tNࠔŔւܕ्Ͽ࣯Jल࠽ࣵęࢻ࣡ॏ॑ࢴϵ࣯ࣕॡǕNCǘђϼӣģȶޞ٬ݫނ१३ǩԴ7ѯ֝ČӽޡŲ२ˈٹįɯࡪѡЖॿȖ׵ɂؼͲ߈࠰࢟Țumeࡩࣧʔ4इӋւňęࡎؖȠॿ२͋ħNZĪ֞ͮݾ חށŏআথĉӢΖǮ Źٽİ१যȥԴ3ޓѱХ޴ۀهমদС9়גҔԨĹMসĪ3ŹŁһҤڕষॾহ৏ŔєҸŪڛূ্ŁঁŇĖ঄ॼԪতǘްݧȜִٝׄࣿaɡ߫২নݨҌʟעׄ১ǩǫ΍ݳڲ՝Ǖ৯ৱ࠶৻֜ͰՆ৷ڎ৺ϼĶѤڄԏ҆ਂh৲ਅ਎ٛգਉԐণহ7ԭˇ٢ּ਒ਔϼਞٲ׾хਉφ਋ˇ͛ձিՖȇਢ਄ٱ٨ݩ޴ਙ҆਋ڊҐ؄ڿγਚăਲ΂׭਽׿ਸՐă਺ΩɊԦԨהħੂѦ״ৈٴŭ਩০থ੓է৛ס৭ਁਓਃՓਜ਼ũѺੇڥ੉ਖ਼ҟ߂ңਧҕڎੂ؂կڷװ੗Ļ࢞ࣂϟʎkŽܰय़ϯ࡮ݕԣʖ۵ӄॎĢ১তϻ4̯ছęवઇথઉӖࣙ੸ੑŭܾ࢘࣋ં ઄ؼࣹ߁ऌAग़ઌ̨઎।ʟ\tੂCHAʄࡓࡕ࢟ąc੻Ėdƙۢۤࠞۧ/McMӜdoਁoإǘА΍ݾ̈ॱŞ٭HЖCૄःǩ৅ˉ֦е৥ލŲૐૅ૓੃ਗՕॼ્੶ઔी/RĲotĎgࡩࢮࡃĝ઀ईࢬࢧ٭ݛKيઃțࡳࢶӽ૛ःCK۠঎੸Niuă࢒:ĉݓ࣭࣌ࣉєNऎĪपࢶĠॠ଒ॶࠦӂକ॥ऎࠀ૥Țrf˝૒Ġ࡫ܽ࡯ݖࣦଦ˕ॐईଔमॠFए࡛૥ߋŽॅ߱ɤ̮଍ƻ߻įPW଴ऑۇt_Mۇࠆby̪গଌચ8ࣸॗ୎ङୀMҵ̳ࡏߊGୃ੸Bռ૬ƥvثĂęࢨગब଩8୑ɾ߳࡬ɩPୗք۷Pଡ଼॓Ԃ୭क़ग़Ƶػޖ୴୶ޯࡋcؼʖؼӳमӪBǃण࠳Pࠝۧࢢė-ʞࢨϩ଩उࠨƧॏPडȖʖ܋̩֞ͅஙञܭ੷ଶago_ߋபࡪŭ3ɤࠥચॸԂ̩फ़ଉΘઙ஗ߓଜӪNलЇܢrாєஊиɺ઄ǎ௅įSࡒƥર੸஭஫௓ଵतMˮࡨǊŲWψކͮੜѨӽĚׄ௝ސޜŧ՛ৰеϧڬЖ௦ޛ௠੤˨ৰ\tދ௤Ǖ௰ޤ੫ը੭\t௭ݶ௯௞૊੣ড়ݴŮŐ஧तιƟயʒܧ૱ɬவʧஷଜߜ̫୩ߵ஽଎૵\t௝ल5୒ࢭࣧĢ௦SܟĞӃ࠿śؼఀࢗދ௦௝ଂࡺ੸࡙a˟lۧnƝ୦૯গࠌࠥ࢐ঞ࣯SBएितFakaoଣ࠷ࣉؑఙ૲࢈ଉӪT૷௧ஂܦఢĈ࢙\tౘ֐ȇT૫ঔԵਭɣঅǕ౤n૬םলĳټц૙ౣ౥౯ץ৪॰٫޾Ų౬౮౸Ȱଭި৔঍ఴ૥౾ৰapॅ࣮ଋࣤ஗૳࣮ƫࠫ࢕Łࣦ౟TಕѮ̏ދಈౠOళऐ੸FƂafuࢦଧېନߵ಑ࢊTVే࢟Wో̅ŎݑঘࡰࣦࢊࣲౙǕVĖ۬tಌл௲Ūĵોޘಿುৰೄ࠼Իфؽ೉ॽȇೀnೂ೎৩ͧ೒௣ॳŲೖ೘ЙѬ்੤џŷೝভೋ೗್ˈк৆߃ৣ೦೓޶ħೠ೬ˢਵೲ೨˹ଃ૥Efৰಶଊɦࠣ஼চौঝॆĢ೶ೃ\tVUߣࠖ੸಴ج́Ĉગӡ஖ಭ಻࣯Wଳ\t","tz/backward.lzw":"Link\tAfrica/Nairobi\tĄĆĈĊAsmera\n"+
+"ĀĂĔćĉ/AđdjanēąĢĊTimbuktuĞāăAĚĭĤrgentāĊCatamarĉĄĻĖĽĿŁŃ/ComodRivadaviĝğĹŎģAŞăōěŏAtkŢĸŪļAľŀłnĊBuŀos_AĎesŲŏźżžƀrƂķĠĺūŦŵŒŸŔņňŊŌƎļŅŇŉŋŰƍťėłkoůĪƙŏŕĜl_HŊbourƌŤƏėƑŷńordĐaƄģƪƽbƟƵļįjuĩƿǀĊEnsŀŝǅǍ/IndšƓǗǙǋpoliƃƨģFƻt_WayneƴǕǜǚĊǱǞǠǢǰǘǲǟǡsǯǤƷőƹ/JuǉyǕȄȆǾơǖǹǋ/KnoxǕȑȓ_INȋƶȐŶucky/LƱǢŠlleǕȤuȦiȨǮţǕŴȁœMŀƽzƿǿ/ȷǘoȺțǇƻoŁoīȌMɅtƊalɂŏŚo_BĜncɇȼPǧɓAcƊɐƐȵƓǂƾǕRŽŊioɡĊDŀvěɈȜShipďȠɭ/ɛrǨof_SpčƧȌVĎgāǯPacifĈĤȟklĩdĄŁƗłģSƱth_ɛȩǾsšĤshgaǄtīʦėʩkhʬŝʥʧKǠůŇʯʧŅlcutŇʷĊɵĩgʴĒĄʰŔhɅgqāg˅/ˇnˉčʽńhu˘k˓˕Dʴů˛/Dʎĉ˕˗˙ˋĘʧƮrđn˕Urum˒˦KaʩʫƳȲ˯Ċ˼ʠŉǘu˻ņ̆dĶ́ˍMʎäˌʧ̐ĉɬ̎˰ɓCɶ_Māh̔ˆčgɅ˕JěusɎem˦TeƬAŠv˕Tɶmp˝̸̯Ĳ˕̐ůs̫r˦Uǉ˘ʢʗˈ˵ʖĩǄƕ̈́̂/UʖnɔņƻǾt͕ʜ/FŊoȪĄ͛ĩ͟͝ě͡ǯEƲope/Oslɇͣ͜ʒJĩ̞ǫŀǾ̪ɌɎʧSydǭȇA;ƫʧACTͽsͿǡˆ΃΅ĄΈ΀ń͎ěĜΎΐʧȤƼƭowȪ·ΏΉĊLHIΜΧ˖ΓeΆΖΑċSWάΗ˧ŊwāΕΦθNǧhηγɕǢǄǭνΝĊQŻŀͲʗσΊḏčϓωέʞ˂ς́β̚ǄɾϗθT˽̆šϑĊȷlưƲψΥϊ/ʈctƻϦϜξγPěʠīϝĊWƂtϧ/ɕƥŀƭȯlϡγYĩɘλnŸɻɒɔɖɘ\tɕazȯĤɟȱűȼπďnʴēИКl˧eСɅʴɻSaɓʍuͳЗĜЧ/E˽Ё́ɉǋ̪ХжЛϿΏɻƮǡfaȔ\tŅŸŞĤͤŒcɻWānɷegыǋюCŶƫВјŃēьǓик-ЯsʻchewĩɻTɄɆѣћǎкě˴мȜEdŗɆĪѤюɊ˞ŇʋѻļSǨJohǐњэĊNѮfƱǘ͕dɻVЍƱɱ̈́҂Ċʍʏʑђ҈ɑѡŸѵґ˖˽ѫѭѯѺПȌWɶteˏrǑҐѥYĳ̦Ҧʝͥš̥ыɶȩŔɋāŶɎʌʎʐʒйΏɲӅȯͯӑҶrIϏǘхşǋѣuǄǾĕǁčďēEgypлűͫďͮ˧ӡǡĪ\tEƁͪͬӱȤȿӵӯͭͯḆшфȲӿӱ̜ǢŃ̓ԇͯįĜsǻӹӰͯӼƽӵGBԓԀȣɅԗēԙ-ӷɠԆtc/GMTē\tԩT+0ͪԦԨԪԬԮ-ԱԥԧԮԶԪԹӮԳԼԠƊŀλѬ˕Hː_ʹ˘ēՉ˟ː͚ͶԧRΰkĨŠăIcϔӜ̙ĮҷɖēIɖ̧̩̫ȩ̮\tӚĜ̱ɻ͸ŉĖēհč˪՟/Ѳȡʹ͸ʄұĠҢӏԧKѯĨȩμփaօe҇ПӤĮćǻˋĀbyǔȼǈǊҩ\tȷxĈoЃ։aСҶɻ̐Ⱥѐ֛e֝ɘ֠ĨSƲ֥֪֞_Citȇ֜֞ԨŀěӌȲրҤʓȠҘ\tNZӍңʒ̜ņʴժ׆-CHA΍ӀɮɰӓČŜj̘ПˍˬˊēPRC׈ցɼҍnͮˋ׀ʒɛŸͮץׁʍ̥͉ӄ׬ԧЯŗǔ׷ˎuĳסӎׁT˷kױ׊˝׿\t׼ЌpԛӱǪҹawסǠϐԆӺԕφɅؔɾuʫɏշϣїˋROפշSeƱЉ\tإK˫˓aǟƊēSرسОĠԍǖΏ͎гēTƲkΰԲԧUΌԬهהҲȜAɗҸaĿ\tUSĤʖѪ֖Ȍŧaũٖٔe˂ǚɻPˏŀiъٞŴizɅٙȜԉĉӄٕٓѝŁџוȍǝǛȎׯǶƃٞӗ-ǴБٸғw_YƻăڀѸrվă׼ՏǠг̈ٞƮѯiiɻڃ̃ȒȔٞڜѨŇrكɻɯɌoֶē̟ٞѬiʫڏǕɯnҞګٕ҄ʚ֌ƠȜȤƈ˘̱Ƃٳɼ؁Ĉ؆ԧ׳бّɇٞ׹oǔEԳUTCىۓم͓ۓىіҞը؎ͯɊsЎēWѨUۗے۔ēZڔ","tz/etcetera.lzw":"Zone\tEtc/GMT\t\t0\t-\tĉT\n"+
+"ĀĂĄĆ/UTCČĎĐĚCĔāăąćUCċčď\tħēLinkėćĒČČĒ\n"+
+"įıĳęěĶļUniversalĹİĲĥĽĜĶōZuluŊĻōĵŐĘGreenwichŖŌśĊĿŘĊ-0ťļřČŪT+ŭĺŦĴŨŚŸTŭĕĤŧT-14\tƃīĒƂƄĢĖŲƂ3ƅƏĐƈ13ƋſŻƂ2ƅƚƒū12Ɩůƞ1ƅƤƝƁ11ơƍ1ĎƭƇƞŽģƢƁ9\tƶƧ-9ƫƀ-8\tƿƹ8ƼƘ7\tǆƹ7ǄĈū6\tǎƹ6ǋƈ5\tǕƹ5ǓūƄƄƹ4ǚƁƏƑđūƕžƴ-ƚƜǤƁƠǧƬƅưƨǠ+ƦƦǬǵǴƜǫĒ+ǮƳŲ+ƑǣǽǦȀƀ+ǝǝǸǟǯȈǗǗǸǙȎŻ+ǐǐǸǒȔǌųǈǈǸǊțǽǁǁǸǃȢĊ+ƸƸǸƻȨųƯƂĞǸƭǴƩďȷƧǵƪȯǵƜƟǲȾ","tz/europe.lzw":"Rule\tGB-Eiră1916\tonly\t-\tMaĔ21\t2:00s\t1ğ0\tBST\n"+
+"ĀĂĄĆĈĊģčďđēĕ\tOct\t ĜĞĠĢĦGMĪĬăąćĉċč7ĐĒĔĖAprļ8ĝĥĢĤĠħĩīāŇįŊĲ1ōĵŐ\tSepģōĿġ\tłńŞĭňİŋ1ŖŦķĘŔ24ŗŀģĥŜŅşĮŉıČŸŎĶĖũū3ĦŮŁĄŲņƇŶţ9ƌŧż\tƑƀůŚĦĨƅŴšƉčƛźƎŪĝƛƓŰƕƦŠƈŋ2ĦƬėaŽŖƱƣƄųƵƙČƸƜķĹĻ25ơƔŃƴƘŢǅĜƺŒŔ 3ǍƂśƥǂǑƩěǇĖǉļǙƱűǐŵǒ922ǢƻŽďƿƃǝƗǪǠǮƺǤ ƾŘƲǏǞǷƷǙǕœŨun>=ĎǚǀǵƆȂĲ2ǙǅſƭūSȈȊȌǧƳȁƨƷſȅŔșȉ=ưǾȎŝǶȠȒǌǅďőȆȥțǲȩǴȫȐȭǅȯ93ŖǣĺȇȦǮȝȀȬƶȒťŏķǖɃȊȨƁȪǩȻǬŖǅƛȲȤȚȋȶɒȸɔɉČƠȣɏȧȍɠȟɢȾĜɣǮɚɦȜȷǜȹƧɫ3ȄɌɰȴɧǳɴɡǄȾȢɺ\tɎɼɲɟɿɪʁ3ǌɥɼɑƢɩɈʌďɣōɻɜʈʒʊʔǫȿǯʆɜʑřʓȺɷƫʄʢȦʛʥʝʧʌʩƍ\tNovɱɞůǨʋǫ4ƹʄFebɦȓɨʯɶʁ4ǔʄĘĔɼǮƣĢŮħDɵǃʽɭ94ǙőugɦƛˑǛƤ˖ǟŋ4ː˚ȖʅȳɜːǾ˓B˕ʀʽʃʳƏʸˣʮˤ˴Ʃ4ʎʪȆMđȊ˯Ɓ˱˳ʼ˾̀ʳJāˠ˺ˣǁʞ̋Ĳ4ȱĸɂˏǚʻ̔˧Ĵ́ɛȦʤ̒ȏˈʽɋʳƞʭ̥˥ȑČ4̩ŧɎ1Ȕ˰Ǵ̞̖̲̉ɍ˞ģĦˢɓ̊˧̼Ėʵʷ ɅǾ̝ʰʽŹˌƼģſɾ˼̖̓͏ʳǤ3ľ͋Ȟ̺̰ʲ̳Ȇǘˆ͕͟˚͡ǈɂƠɆƖ͍Ʃ5̀95ɯˬ̢ț͓ɳͦͯŋͱĲʹͪĻˏ͜Ɓ̧͌Ͱɹʳʫȵͥ̓ͼͿȔ96ĦɁ΂ˮ̜͞ΏČ5˶͢ͷɽͺΎ·ͽȽ5̘΋ɝ΍̦˗ͰͅͶ͔̐΢άͽɗͳəίʇʹ˻β˦ĲΓʡ˭̣Ϊ̮ɕ6˙6˜ǰ\tlastȥσ˽ŋφξɀ̙ΖɄǦ͝ɇΚΒſČ6ʘϊʇ̤͂ͧ6͘ŧˁ˃ƋαΫνČ7˩8Δϣʚκ̭ϒĲϲĲϴ΁˄Ϛ΅ΙΣϽ˙ͳŻ͑όώϐƣuϹ̓Ľ98˙8ηǤˏ̶ĠЎΆγБ9ͲЇΕ˄̆0ЛȞZđăEurope/Lđdđĕ0ğĤ15 ĖLńģ8̱ Dec Ľчзŀ\n"+
+"\tэ ъłȭ%řΒ8 ǉ͉7ьюǀĖƥϻ1їĺǘѡ͉ĥuћļѐνѓĲΒѩяƃEUƳ/ǝLink\tЫЭЯбгеѽЮаJersey\n"+
+"ѸѺѼЬ҄ҀnдnҏѾаGu҇n҉ҋҍѻ҃ѿвғ҂ҐѿIsĂ_of_Ęn\n"+
+"ШnЪҦаDublѹж:ǋĥм\tоTрϴ A˞ч2ѩ-зҾěӀDпƊ6 ˍ͉ѥŮӋӍ5ҽѡǀIĩţӔјшѦыэѪƃȑѭǓухч6ѰѫȑǏ/ӠӃ̰0 ϫ͉лӦ0Ӳƃӟӡ̰ӣѣ ӔӿԁśĖǏ̻ӕƼĽԉәӨѱśԃӸ˚7 ͇ӉӉĥԋϵԎ̰іǖĽіԊԕӳȭӵӷϕѢtљѰѝ\tԮϱѡј͛ԟКԡνԭԄ9ѯԪѲѴԿǐѳϻōČϾʙʬļЍ̒SǞՈϱή˸ЊϏȈՏѧƲ-ՓѴϱϩϿĽ՛К՝՟ϻˡՁǌȗϋύՙҕĽ՜ΔըՋĜmaxЈŔ՘ϐղզǀՒƗՔՁďոպТս՚տХէƗWćЬՉϽϵΨĜ֌λւƆ֐ѽ֓ƺ՗կվˢմ֏֑Ŕաǯǻ֣֗ĕǞ֜֒ϱժСŨƮ֊ձ֬՞֥֝ն\tևջծЋ֋́ƃ֚ĭ֧֯օֽչϿֶեʺ֭ƗC֦ӢπŔͬ3ԂׄǞגֻĳ֩ɂդ֌֎ƆלְŌţϖɎ̃ʬǌӿ֙כדƊՊčϖ˸׫ț׭ȝֹפױ˚ʿΊͣ֗αׅăץ׈˨ǯ͇ļǮ׮ףĭ؆̖ΉƝ͑2ƛ؍ցװם˛ןĻ ſ؍֤׼ؚϟ˚լί׷ȋ؋Ρ؄\t̰ؐΝգ،׺ؙצ˿ǯ˸Ȍؠאآצ7׳ՌθʚتʉĦجخ9ؾطֵ֡֋سב׽7բТסَؼ׈7ֲئׁ֠ձٕ؏׽Г׊ֈϊ׍ؗךُםΒ٢׌ٌٝ͝׻ĭEِؿ֕ρțөԗ٧Ɔٲםىًٜ֟ٸĦءٱِْϗՏڂ؎Ъِٙķٛհڊڄڌם١־Ėƞ٥ѫؘփ׽٪ڗڈښƃړ\tĀssiaţή̎lډȓיśM˥ڦڨڪײǯфcĝŖԖڃėͮĭڵکרǯˍƟľ˓˓M̹Ɔۃڷ״يūعǀǀڳǐۏƚۆęۈĝטśۋۍۂuڧۄƊͩĖڭډӿ̒ڳDǞۙۧʡ̾عѫĦڳK۰ۤڶȒˋʳϫ͒۞ڱ۷SۯƗ۱Ǭ۾ؓŽƒ۟ƒƃڳMۺۥېǡٿūסڛܐ܅ܓۼǓ؜۫۶ػۣܔЅϽ˫Ɏܙ܃ŨܝۦВДω֪ڒܣă܈сѮĜխ٥ٞܵۻܮ8ȽčֿܻثܭېǬۛռ֡a؝ڰٹśج܈݈ܗ׀Ϗ݌؋܎ڋڥܾ݇Ǧ01ϵڙ٭كʜم݆ѮΑֳڐվܼݛܥČ٪Ƹݠ٬ځغ՞ҲăWEӃŰՄ\tݺѓĪݸحݻэǀؐCEށұЩėޅ̒ؐMފsނލEޏ˓ՈޗދƗAlbanܮʾǯ̎ҕȌܚݐǞޞޠޢې؈ƺ؊͉ƟڣܴʅޟޡޣֿؒؕơՑޫ޸ޮؑו̿޴śڤެ޹ې7ذژۜ؞ݽݏݦޝ߁ܮߌܠ޳ܢٰă߉߂ϱ̌ؓĔդީߓƆߝߖߠرߑڿߛ޷ޭߖ̠̪ߏǮߤܬߔ߯ߋ߱ŧǻǙߚ߀߸֞͐ߢŖߵجߧߋήǻߴ޵߭ࠇϻڇۇԈ߫޿߷ߊࠏߘĜ߾ࠕߞوۨƻߢǌࠅ߿ֱࠖےƟڃࠌࠣࠜϾƺࠑ߽ܫࠆߕېࠬʄǻſࠚߦ࠲ܦɥ2ďࠢࠛܿ܊ڏƮ2ō࠸ĭࠎՋǹࠂ؋ࠓڜ࠹ࠀࡊߘ࠯߇޶ࡉВ޻ɰƋ࠿ࡐࠤࡘ࠘ࠓ߈࠺Ջߍίߣ࠰ތҳҖґTĉޡċ:ČҽӺнӒč4ѩԴމԙʾ ަԒࡹƃࠎމށܧࡾāࢁśՈࢄޔࡩҴҗ/AҤrrڪъ6ğ4ӀӂĲݟѩѫĖݺࡼӔƏǘԀӨࡺޅՋлżѤԻࢧކݾࢌǐӇώrܮǆɥ ǌ؃ޫۤtࢷܕ׿ŧظЁ׏ࠍࢿࣁ̖ߺɍȆ1͹ل߶ߦࣉޣʖ˚ϖЗقݭࢵࣀޣήܩϸࡏࡈࣔޯڇ̴ǽ࣑ࠆࣤ֔߄ࠒ࡜ࣣࢶܿࣃࡃū2ࠄࠩރҡаViennڷğӜӏࡵӸЕ3ӆœࢉĦވޓԙƸऋʅ࣫ࢳ̖ӺԦӥƓऑऍࢅ̰лग2ࢯsऑއEՀ˿उrĽठ׮ऑĖࡻ࣋ऑࣜ࣊औնऑࢋऎࢎ࡫ѿMѹsѻĤͱࡱӔअӄࢰƂ;ژࡶžԐyӉѩ˓ĖޗԙƑࢇnӗѩݙژSK̖ѡࡿࣶचדऴ˪ࢇlч3क़ƃۙ۸/ۮѮॆख़ėज़ܸԐऩԺबӨ˓ǀޗՀč ࢥؕडॏƃ॑ࢪՁठࢭঁھढॹܫॼԙǬॿŪљщŘঃśۙޛޔĝݟѡউԛॸэॱFޅݲ࢚ј࠽чˑ३Ԍॲ۹ƗBelgiumۅ࠭͑ ؖѐׯরল঴শۅ۲ТS݌ٷݎࣇǞ঱঳঵ষ۲হǗľ܎াƆৌু৏ǬࣳĖ܀࣏܂ࣩোীৎȒ৛ڈ˅৉Ɣ߭ৗৣܟ৑܁২ࠔ৖ৢূ৭࠵ɂǋয়৊ি্৴Ǭࡋ߲Žࢼ৔ৱĭ৫৽ǭɊϿ৆tৈਃڤਆ৙˅࠼৓݅৻৘Ȓࡥƞ޽ৰ࣢ăਐȮ࣭͓ਃਝħ৳਑࡚࣌ŭਣٺਅਦਉࢺưਫުਖ৬ɖ߄৞ਜਬਞਮǅεʠ৅Ηݶৡৼ਑ࠞɎǡ٦ਲ਼৲੄Ĳɤ̡ģǙ੉ߥਭੌɣࡂ࡚ؖࢽ਴৽3৿Ξǥݤ৕੔ਗɣ࡙ϊ࠽੡਄਻੕ʂ࣭ڽਗ਼ੋ੤Ⱦߩߎז؂ਕੱਵ3ਨίČ੩ਤਟʗਡ੿਺ਥ੬ʠ৮ࡅ઄੊੣੺੆࣎ď੒࣒ઍੜࠞ؊੾ੂਜ਼৙ޤƺ܀৸઒جઁ˪ࠦŤ੩ਏ਼إ࣭ز੸ઔછੴִۓઑݭઢ̗ۛĔઘੰભ࣋ߘōੂࣹҵѶrۻলŁࡱ7:॔ॄŸϴ࢟૆ૈϵBӒЕঈęপपԠӨࢠݿআ࣏Ԝʶч8भބԙĎौ૖ھॡ֝ॣŸ૞vĽӞЍ્ǜਮހছӹ૦Ƹংࢨƃछ૶।ࢥǘऑਟॣؾशѴࢳোā˟ࠥ৮͛৹੪ħଊթࡠעਏ଒ՋͲ8͵ʆেة৉ଐBଗВ৥˸޽କ޶ଡ঳࠻ʄଥઽ˓մિ࢐SҬۦૈט૥૊8ૌૻΦ:ΦķI૒˚૭ࢦগϵ॒̖ठԝ͉१૘ࢱś૽ࡼ5ૢयझनԞǘ୎޾অԙ٘ॵࢮ৉୆଑ପচԙଚ঒p͉ԓ୚˓ؐ୥ܸୢټ֒୯ݰњ঍ࢊѴ୥כzхh̖યܩࣨݥઓ؅୼c୾झ؉ʶрΘ߭Cஆஈ˚੼ࠑ࣡અஏ୽઻͠ਊࣚٯ୻஘̰ࣟȆǆહஅடࣗ਷ஂ੢஥இ̖એǗϥך଱ґP࢕gҚݽ5ે4࢚ହͱ્ஹ:஻ķPୂԸĺ૩֒ॣ஻୨Ľঠङૻ୐ஐބजࠝଆ௓ࢍƗфnոrिמহષਢࡨ௙ࣾ௜௞Ȍݔחࠩ௤௛Ƽ௞જࡌкڊਤ௚௦୿પઋ੓ă௵௮௷Ǖ۴׹஝௬௶ԅશ۫த\t௼௝઻ݔٔంƆఊ௯ήࠑ؟ఈ఑̻۳ଋĦઙఐ௥௽Ԥఆ঻௹஄ఉఞఋఠ௿˟Ǽદ֭ݸ ࣺ/C҄nhagࣾөुૹହПԁ఺ࡴحୂ࢚JޡপԳƃగொ୊૟ୌড׎حॢऎ୿ୗ్Ԕќైదѻॣ଻౗୸ௗޕҳӆtόntic/FƼoăӌҽે0஼Ӂࡶ0іౄॖ11ԽࢡআГԽՈ૵ǐThƆݰІ͵ݢځॺైǞಃಅՁಇࣴݕϐଯతಎĭݰݞ0Χٶଞܫ܆ƆಗŋȾজಛݴڑಕجಢಥōڠƞɼஂ̒ಠĭಫƸ0ಭ׋͆஋ʇ޾ݦమAm҇౧a/Dޡ௦sవvॖ-й4ுీ࢜ӓ॥͉ૡӨ-ॱWG୦खœӰࢯӋݙಀG௔Ղэ૚ȀಿುࢷcೄScoĊsbysȈdмĤࡅାठ૊ĳ೔ॠ೗ॐح೛֔౔୫ĠӋ୭ॢ೤૾ГୟؕӋॻ୹഍ౠeӆ೫ೃ/Godtవ˃೘ҽ࢘Φ࢛ࡶ૥ڭೕೡ঄ݿഅଘഇೠ೗ೢѴ೚ދ೪ೂ೭/ಫ-೏ʍğі೾നāപ೗೏śಫAശޖીTalҺࣿƂ39ബ೒଺ॆĤ൓ബTധіϫைŔ૫9॥ࢁ൚ভ൜एঞęୢଡ଼कӆӈԈবݡॳ̰ѡࢥкൠ౟̖࢚ঀӊӨݙ५ज़७܅Ͻൣউഈġୢॻथ୦ൣঀ࢚౎ഋ֝୴Ձіൽୱ୹౒ݰൣୋ౺୷େথĠठӼě඘ѼसƗFѹ౤d୉߄Ʌെ̀અඪĒޡත̰ਫ਼Ͽϟ௫Ɔපඬܦࡒੵಓ՚ಋઌă඾බවВ͵ݫ՚ݙରോ࢐Hૄѹki൒ൔ4ൣହّ૦͛൥ෙηHॊ൪ҋඟ\t෈ғට௔8२෧ޚसҟऺаීlڨѺ෗రżࣽవmҰඩ࢕ncŷ੼ަ৯ਲ௺෨กฃהৄڈ಼ৰڤFซŷఓؔ௢ৠ฀ޡฌƊࠐ঺਱બ෇ดۚ৮դਹෆชปƷ৥ঢ়ธஃجณส৤ܠ১਎޶ัขƷ੗ϊਸจతุผ܉ิਂఏĭเƷඹෂ৸วฉ็Ȓ˩ਿฏଝਔЂ߭๎ǅ੦ۇ੨์฿รȕ݉Ư৹பษูਠࢺฮ๣๗Ǭ੼̴ਪม๤แઊਰ๢ଐ๪ࣶ਷๨๵๞Ǭமজ๴ਤ๪੎؀֧Ʌ฾ะ๻଎ɥϭຆǞກ้ࡦ຅๯ກ๙ؔไนලຈࡥܩ๮ທๆຈયƞ௪ຝยาɣ๬࣎ƾຌบ๥ંࢺǦສຘລȾพǱ๿ඳຈ๽௲๜ງາ൓ஊʷ຋ๅ຤ຬ׾ǯઞఁߒ๝າˊడ׭ѫۋຍ๻໌Ǻנઑ࣯ໃแް͐யڊ໐ຫ໙ຏ޲،ݙ຀໒ດŽਖ਼ƃໞັໄ؛໔؝؟໤ື໋ບͣੑۊܐ໑໴ߘڽە໳໭஀ͣફ۠໹ໟ˧યظઑාื๻7ஓؔ໽௣໬แ༎ࠦ੨ଧݷෑளƼiૅ0ൔऄ౳आॾࢭкক࢞૙ğ༠ܹ\t௄૤൪ऩ౹༧ඞ೧ƃ๎ಁ൮ࡿ૝ୡௐऌ౑௔ோӇgӽ૲Ħ༷කإௌ૥୙ഉ༽๰؅཈ଅཎषޜȐ҇ոnષஒ๸΍جGབྷޡཚવ໯ļŭໂĄའཙఘசੀՎݭཟrམར஡ǗďະŴཀྵཱིఆ౹ǚ໫ླཱྀཡఘƺฆ޽໲ศ཰ི͗நཝȁཹ஭਷܏ຣॿʶࣽtރஉ௠ĝ࣐ྑ۷ǂྒྷvྕྗ઩ݔž߆඲ෆྟྡލ྘ʄગனէலѿ঱r൐ஸטࣶദ༣ईǖ൹ொࢬ૕ोԩ୏Ӻଳྠeྖލொӱཎྈཱྀ౛൘ࢲ෱෕ෳ/ZЬ౧୾రଡ෷షҰమరGib࢕lt͑౮ěҽ౲ൖӅག୘ঽཅѬєஹୗ૝࿂̒म౽ൾ࿃ѼଇඨȐĊхŋ੝ޥ̏ ࡆ༒Ŵခแင఍࠙඼ညeဂढ़࣭ဈ້ཞဋ˧໡஋޳་߭Gမ߃଍ࠨဗȁအ̰੦࠶ࡡ޶ဠဒแ΀ྃဆဏဥǶဧͳရ͈ࠋࡕဟံ7༁ຄ߫๣ိဓߟ຿ĝ࠾ཧ၃༔ວ֧΄ฯဦီŋ༕ཤݳ཯ွ׳ّ࣍Ο၎၂ၗ༖ϸڤ၊ၒڇଥſනݚၢଓࢺĜൔဴကၑၪବࡄʑၨံ࠴຃ډ໗ĄၶତࡄࣷျहరAടࣾʥ3೏ʹྐྵрͳཊࡸૻႇ೼ɍധӔഩྸԖ༴޾ၩඔˊୗƑऑၩொ࢚गႎэ˓ႚ཈౾෯඙ཕĭHȈgƼཚƋၫǥဉăႮnႰrႲၤƮعသǞႸႺႲູ׭྆ฉჂႱฤྭ஋ྥཌ߬ჁႯ჊ྫྷ߲ߢ๔ྦྷ჈გႻ௾჌͈֗ࡇႷლར༏੶ణج჉მఅཬฏقజႭტཫͨၚɦక๯შཚ;ຊମჶჰΛ৥Ǥ˅ხსႹდͳؤ5ئ๚ੑၺჷͿᄇئ߼ܳ߭ᄍΛฅ՚಼ھଐᄔͳ੼෍ձრ\tᄛஹစҕᄘ໾ศᄢՖڀڑ჏ݚᄛၷ੟ࠒעؘྱаଡdaЯώƂĎࡳႊŸП԰྽཈Ÿऑᄍொѡगೖ࿼୑୿ᅆჰ࿏ௌ႖௏࿼པ௘ƆIฃ඿ڸฎঢ়ภၮĭᅙল෉ڸཤੈǀڤᅢᅛۑฎગઑᅨ޶ᅪᅤโ৮੾ଟਤᅲ෪৵̍හੑᅰ߭ᅹභȾ๽ਛჇతᆁ੍ࠞᄀ໩ႀƗᆈӹໆ˂ĝ່იᆇᅚᅳޤ൵ķ؊̛֘ݚᆏ˚˙؈ෂᆝ׃ศᆠ؛అᆤჭᆦฉᆨ˩4ࣘ̚ˮ،ָǞᆨ׳ϡჳᄦ๯ᆨᆊͫఛᆶᆎᆗᅺͳͲ6̘ࣙɄᆵཧᆠᆺᅦؖᆶಿౣޡ౦౨RҊkjaྠѻ್ҽϖ೒ПᅋĕӟᇄතӠ௔Ϩ౔ঠফՃভϜᅡ࿦Ķӓᄤ੠ঽଐIᇳႲ੼ܲᇸᅩᇻګ࣭ဳ၏ᆎሁᅥၲƐဤ৺ᅘሇۑᅵላ๣ᇺൎႼۚ཭ٷᇿᅱሎ੾ล်ህልሔำઉሄሒሎࢹሉĲ၁ᆟሎ௰ᅼާࠡᆽሬࡥظဖሌᇲሡეᄱ͊ᅠăሓᇴྣረ௲ሙᆀሬფŬྌሆሸཛཤࠒݭሾེᅵ၈ຣԵሬࠉנሰ๕ᆷሬڇઞரᆧቛࡓ஍ቚቊᇈϕЈˎᆴࡎઅ቏ξࣖ6η˸ˏሞራቤࠞฆࡧሼቔቊ7৥ۇ଎ၺቬϱၽū׍ᄠኁو˙ϼߎቨᇋቪ቟ቻ฻ᄞ̒ሀቻຏᇾတሽሎ7੦ቷࡔᆕجኇኛϻ˫ኒኆኚਙۜ੨ኀኚયቷሤᇹኬ֓ܺݣቃባሿၓࡌƠᇸᅸኚၘηۇቲሪኼቻڇኗ቙቉኷ࠞ˸ኺ஝ᄵ/Roುݽේାृ༢рᇈᅒ࿻ዓൔିĖRୂईඝ༧ඉཎቬొୄౕখཎᅍد൤ዦሁ࿏௖ଈෲరዐዒరV݌ೃҰድીዷ࢏ґ৆nҮ༜noǞL݌ྠ࠳ֲ̘ಉᄬఈጊtጌඅѮ̘ኒા༚ѿRiႰ൒࢘ႇķ࿬࿐੻ૈ˫ዠ૤ԥೞ༦࿷൙ጡරśLՀ૬൷ԉ܎൥ጰķጩƚ౔Ә୚ጯጧ̒ጳ૤ආ࿀फጸႏጺዟॊӔӖ౹൬ටࡼख൰୓ൿബ۸ढ़ዯᅌ༿૾ோј̵൲ݮۼ६८ՋፆऩֶૺႥ঎ඌඅௌ፪එƃጓጕඔوࡾ౅ඥႪ෫ছಶӺඤ9ፑୈಶफ़౅͉ඦ୺ҟయી࿖೬hᎋ࢐ዺduzႁીࣼlޢۤƂˊूጣ૒౜ƂžബWധ୶ࢱാ੻ķKധൣ፠࿐ভ୕৚೔1ዛഃୈǅӺӤᎁཎ࿹ፓ൯གྷଁፗভፙ൵ॕ͉Ⴄސ፝ࡼႢ˞።ඁKඃDॴࢭॷᅔ޾උॽ൶ওঊᏗඒ୳཈ВᎂআВഐൣ֌Ѩན࿾೥Ꭾѣॷ૱෧൭ಶई౷ె፻୺ƗLuպᇵྙ฽ႶӁᏻהቌ֫ኘᐁᏼק࠼ຩ᐀ᏺᐈથݔથ༘ጉᐂฝ߄ب௲ઠᐓᐎႽūᐗᆔ৩ᐚ჋਀گᆆجᐍᐢ߻቗ႵᆍƆᐧᎹᆑϬฮଐᐮ৚ิჵᐬĭᐴܖ໛งᐌᐔᅴ৶ǊલᐆᐺຏਚຖኟᐡǅኖᆳɄ౏ڤᐺ੦ੇთᐳᐿ਒ᑁ˄ݤݚᐺከ໨ଏਤᑜȒᆲϘ̅ᑏ޶ᐺဿļᑈᑕᐈ੨ჺᑟઅᐺུļᅟᑉᏹᑖࣦ࣎ᐲᑠᑖᆄ܍ࡨ࿟ીᐍemboЬ˟Ӎഽዖᇢ౱ॕऑᐧ૫іԝǋ࿱ᐧ༸ɘ԰೟౎ѫਟᒘ׾૦࿶ፉ፜֝ᒟோ൷Ԩᒣ̥ਮ଄Ꭷ̒ᅖǐĘ࿥ߋ໧۝ኻઅᒲ࿦ϻ੦ଥƛኵƗᒹߋ໵Žኯਤᓁኣતቒሶăᓇ၅ࠥՍ׸Ꮨᒸൎᒺᓎଣಒʇࢼᐆᓍᓗ଍၎޿ዎᓇз58࢙ᄿइዩफ࿰ደሡየୋफᏗއᏋ౓ट፫̒ዧདईᏕ႘ۖᓔڪ౛ᓼ࿑ൊࡪరCh༝ѹaЎीः೑Ꭰ࿐ᄈķC൝ӻ˂Ľፖࢱ஻࿪ķ૑॓फ़ൃžୢዷࠖႛፔགྷ൸෧Ꮩࡼᔟ०ŤᅃཀᏍགྷᔡᏃĦᏐᏒ९።ग़ड़ݰӺӖ࿋፬ভᎸಐᔢݜ፼ঐᎶѲד፶ᒮޙႫࢍᓡđa೰ݽؕૈ೽዗ᅀ༰ᔗ૲༫௃ധᕚፐ༩śཇཀлጶ୍ཌྷ࿼๎ᒭዳ࿿ĭN࿇஑௨ࡌቸᆕNӡǞᕰടᐃᑘᕵƲAпᕹᕱሂຊகśᕷǐᕺᕲᄪۓསЂᖀᖉᖃᐕܟɰᐗ΍ᖈᖂᕻᖓโኳώ׫Θᖐᖙ஑ਈ৮׍αᖘƗᖊ๏੍ᇉᑍᑥȝᖡᖩᖒǬኜ՚ณiৈΡᖨƆᖪ๟ᖥݣᖧ˥ᖽǬክᖶࢷᖹ࣑ᖻᕯᖳ੨੖ቧģᓚᗉᗂᖳဍࡌਈᗁᖑᖚȾΑᎪኋᗐᖗᗓᗚ3ถĚሻஃᗊăᗃᗣစڮᕾਤᗪ׳຾ሗ=ᗦᐠᖲᗢਾ኿຺ۜ๯ᗃضࢺᗵଐᗾ༈ႾၠభЩ᎐ґೀώ҇ᄸষзࡲ੝ᓧʍ્ᘑǮᖪӬȾԛഩĽ્ǆᖪN཈ࡽፏԉѐᔯ፞ञೞዪᕩ̒ᖪᕬᏪ౟ᕹೱwᗻ௟ᗖФᘂᘳᘵᕳ˷Ʈዌᐸᗩᘺརᑩ޳ఈʵrᘴᙃࡠݭᙇᙉͿժ6˫ಯʚᗑሟᕯᙂᙏξٚƮᓙቢᖩᙘϠᑩ๋݅ዎOҩoዓ܎ᓧႌᏵᘝཎᙍۜொᔦĽӺ༼ᒤ௉ᘢᘩऩᘫᎰĦᙰĔዲᘰዴ࿓రᙦlᙨArĺ౧ҒgyeƼ೴ࣾǞPoᅫƋฎ༉ᙞƆᚕᚗჅቈ᚜ᚖᆘᓃ੠ఈ᚝ᚣߘྛݚᚧᇅᗿ੏޽ၺᚬᆂᚮʳ޲ሄᚫᚢᚭ၌܁ᒷศᚲఌᕽᖎᓋ༭ᚹᚳᗤļྛ๣ᚿ஠ྏᗳၜᚸᅫᆱྋᚦᛅྏຊྜᛊᛕΛڬٍ̑ਤᛋͳ׳ᓤಒ׍ᇂᚡᅫᛣဣᛞઅᛠ5ࠞቾɭ๯᛭ᙐ༬ᇊٷᛦĭᛠοຮ᛫ᚾᛚΒχᙒۜᛥᛲ᛿6˩ᙑᛤݣᇒጛаWƼsawᎢනᓧᎡ೺ၧࢡധञፕᘧጪཊጷ୬ƃᚿඔǭᒏཎᚿᙲᏇȓറᙷൡᘢধேᜨᛕᘯ࿼ׇൺՋᇤഓᘱƗᚕrĻᏽʄฆથᅷ᛬ೱᝀᘶᚵလᐅᙀᛄ᜿ᖄˀᆒ๷ົᚔᝇሂᖔڈ᏿዇ᚡᝏᐕลთᛙ᝝ƪᐰڼຶ᛾ᝢሧۿᝒᑵᝡᝈᐻᝪ˃ᝓཷă᜾ᝮᚤȜᝳᝎ᝶ܠ᝚ᛃ᝵Ȓᚻᝄ᝹᝿ȰȒЖ̚๓๴ڤងǬᑳఢ᝔᜽᝖਽ཛྷថ᝜ᝮᑾᝦฉឌຉ੏ແቓល˙င৅ញฑ޶លຏܩຑសធ੭ࢺຜᙖ᝴ឬጢɣᑣŨឤึ߭លຠ͑ຢឰ᝺ᖬᛓឃឲណຯᜅᝢઈᐼ๛ែះ᚟ផ᛹ឲખ஋ឞ᝾ឬርϪᝒ๹ᛟ៕Ͳ໌ٓᑈᗶពနࢺ៟ଐឌ؈உᆤଝᐋឫᝢ໚ၸ๋Ʊཾឱ៭ឨఀĝᛔ៴௷ឣ਌ᗴ๹ឋ៕ᑒ࣎ŭ៱༅១ဨ៺ऒ˟਋̅ࢼ៸ᝈூ៨θଝǡǭ̷ڲ᝕៭ᚻ᠋ଞ់᠏ᇽឈ៼ᝠᚸ៭׳ේᆻჭ᠎ჱᠦᛎబឹឬ5χئ֖ღ᠘ᝈᠰᙚ஛ՎᄂឿՕ๠ઊঋ៥ឬپረટᒿ᠆وε٘ᠧᠺᚽរᡂዅנჟཧឌᡊශરසַᡓឬᄰ݃ݣᡀ៚ᝢ١ᡖጐ֢ំᝈ෭๠݄ৠዎѸೳе౮ጦधହсӚૈ࢘ᡲᕘčठ᙭႘ᄙ᝿ᒟዙगई࿷עᎾϻࢤᏜԉƣԽ᡿ႨईঀӾᇮюѫ᜷ᒟ঑ঀᇭያౝĦᒰ጗ୟᏯѧ౿ഴसᇓ౤ᇖ࢑zೱeĢᇟ˨೐᜖ᏉᇟΜᕖӀ෣૤᡻ᎆ႘-˓᝿AZOᇪӔᢂᜭᇥᜣ᝖ᢾᣀഎᢏᏜᢑᢚᣅś᜷ᣈ೥ठᢘপᣎᄙಀᏡᓺԑ႖Ᏸэᇟ౞ᣒᕏᘈႃᢦᚌĘde࡮ᣏે੻ᢰഒğᣭዖFധᢸॖ᙮ᣟǀ᝿MADᣁ౔ᢃౖڊᢍ෬ᣋ୩ǋᣖӧᢓݾಁ۰ዑ࡞ᗕვĝᡒቓᔣࠜငɣជᑤةᡀڤᤖܮɸᆉᡋᑥᡟઅ᤟ߋᛯኩઽၺᤧၱᘽኄᡞᄠ᤭ଘ࣭ᑫਤᤳᓝረ٥ᅿᤎམܮ݂ಙᡝݵᡍతᤸ᥀Ձωጙኵᒁ࢐ଡஇƼ᢫ᝀு೏ो఼ெtࢁᔚྥўࡶԺ႕Ꮙ˓᤭ඔഏউᏧᏞૼᕊᏡ႘ᥡᤏ߂፶ᥠᕉඓᏡᕌݾ୺᥌ґKൎѹѹg࢕තղ᠕Ġᙫྻऊԕᓲ૪ᙹѰᢼ᜴ᘢᔿᐫᔵᕅ፥඄ಆᢟጿᤊᑚঙ౒ݲᕚࡅᓶᄭড়ඡ૝নඈঌюᎷݻࢎᘉऻos೰ᜓѦƑ૆᜖ॆᦰᘐԛॉ૤႔ൃᏂᦦૈйൣۙᘙČ೔घ୚ᄭᧁєӏǉѰ඀ᦑං፦৾ᅂԕᦧ॓Ӻय़᡽᧍ܥᦒᏓᦔᓻᦞᥡᕅ፶᣶Бᦞ᧙፤᧏඄ᦛഐ௎ᣗ᜙মজᦢѣ঩౎ᦟমᦩరSimf҇Юᚖتᄽᥕᕘൗᦊ᎞Ǝॊ࢚Ӗᎇ᧓ബᕂ॔᧗᧌ፘ൴ᆡ૭ే୐ᓳዮԦ፡ԕ᧦ۄ᧛ᔸ᨜ᨒᔻՁ᧖ᦻᦖᦴ᧔Ѯዛ۬୲Ŕ᥯ौᨑࢊד᨟ݰፎԑॷ৔ᨱᆕ᧐Βᒚᦝ჏ᦥᦏ፣᨞᧨᧜Ձᒮ᧵Ꮕᩇୟ፱ᣞᑚ෰ࢅদᢟӺᢄ᧮ፙᩒᦣ᧥ᨢ᧷᎗ᚖgo᥽a᥿Ğீࡽ೾ૹ᙭෮юॱTSAएᙺӰᨺڏTᩯ੍ᨥॖ፺ю᧮ĩ᩶Ϡѡԝᕡ᩻४ᕅVOL෬፨୪ᩚঘ᪅᪇೥ᕚᏖ᧭ബ᪆LᕇᏦ᪌ᦐ᧚ᩅ᧰ᦜ᧬ᦗ؞ᨢ᧰ᜱԱ᧳Ꮧᩉज़ᩜଲa௜ڪ୙ƸᄾുൣᘜᨧᩳƎᖐ᩷ᜫ᡽᪸᩼ɣлᏵࡅѰၧۙKUY᪉ഐᦤᩳᔶᨼ᪑ᨧᩁ۬ᦙ᪐ᅒᥦᣗॱ᫅Yঐᥗ͉ᩔᒪ᪡᪍ܥᩮMᩑݟᔽᣜԨᪧ᨝ڪ᫢᫤༲টᦞ᪼Ųಿڶ/Yek݌ೂnbᒈᛈğĞɸᄿ೿ᘜᩪႵ˿ंӀ༮ጽഩጭන᫂ബSVআᨏȈॗԕӜ᫠ۼᬑᥪᦕ᫰᪄᫡ᬒᣓ፸౸᫕᪠ᬘ᪚ۼYEK᫭᪞ᦞ࢘ভᬪKӃᩘ᧲᫊ᬗബᬲഖӆ᫴Omा᪃5טૉ᡹ᧃ᪁ᏉࢻബO᪹ۗᨐԕᬰᬨۄᭋS᫓᧞᧴ᬧᩃڪ᭓ᬢᏵᧃ᧴᭐᭙ĸڳᬭ᧫ᦞ౰ϵ᭓᬴ݟ᪤᪋᭟ᭊۗᦩA᫴͇᦬࿢ĉᭀᭉ͛᢯᪲Ӯц࿶᭐Ѱ᭠͆OV᧕᪺Ѱ᭧᭡Nᮄ᭕ᨷ᫏ᮁᬟۼᮋV᭜౅᭞ᪧᮉۙᮓ೥ᣛ्ȓᮐᬙۄᮛ፽ঝ᭥᧴ᮉᮃᮅ᪣ᨾᬷюᮂʴᮄᬻ᭲ک/᭴k᎔ҳt᭸Ӝᆱுീ᡹ोᨊ᡽ᮯKR᩾Ⱦ᩸ᬖюᮙᕅᯅ൉૾༤ᮎᬯᮑۄᯎᮕᬤ᭦ᯔڪᯖᮤݠഐ᫨ᣗ᭠ᮚᮌᯝᬮᮧബᮓ᭪᧱᪥ᮭཥബᯎӃ᭱᫴K࢕sጇyᜐѻԈࡱ೺ᒌॊ᧖ᎆᦎ᯻ভᯰ᭍ᬕ᩺ᯮᮡᯛᯆᮍॶᮏ᭏ᯚ\tᯜ᪗᭝ᬥዥᯋᰑᰓ᪝ᮦᪧᓥᰄᯆᯪ᭬᪦ᣗᮨᰒᰠ᯲᮴I௝uᮺ᯺ത౰лᡳᦴᰯᬈĖୁएᰀ᩹ᔘᰉϵIRᬳᰆ᩹᡽ᰞ᭑ڪ᰾ᬬᯐᫎᯙᰊԵ᰿ᯗ᧤᧴᱄᭡᱇᭤᫯᧴ၭ᰽᰿ᰡᮬᦞ᱒ᰶᱚᰨೄᔆiᒺဇଶ೼ᬂᧃںᕛԕᱞ\tYA᱀ɣᯉᰈ঻ᰑᱰ᱈᫚ᬝ᱑ᱷᱱᱏᮗᣗ᱘᭡ᱸ᱕ᣜ᪟ᰗ̿ᬹᱱᱛᩙᱼভ᱇᮲᫴Ya᮷ᰭŕૈᓥᓤᱩൣᱫᔨюᱮᱸᮆ᭎юᲂۙᲄ᱉ᱻᰝᱽᱹᨪᬣ᱐ᪧᲥᕅᲧᯪ᯦ᓱ૚Ს᮫᲍Ჰᲊᬳᱡ/Vόdiv᦬to᯺ᓥ̱ᦾᬂᜦ᪁᰻ᱶভVLᯇᬔ᱂ࡹѫۙ᳒ᯏᱺ᭖᲻᱌᳚᱿ᰖᩁݠᰑ᳠ᯥᰜᣎ౹᪔᳓᲌ᬶᓶ᳤᳑ᳬᲾKవғyጟ᳐Ğ̵Მ᭽ᱬᲟ᲼Ტᰇ᡽ᲱܥᲳᏔᯒ᲎᱅ᱯ᱾ᯐ᧣ᲀ᪠ᴄᬩᴌ᭪౱᳥᳗᳓ᲅऩᨿᓱԴ᳚ᲴཊᢃᓫކᲷ᲋Ჹᳮ᱗ᴀᲾ৆kవྵᱶᦱᆱᬂ0᜜ᔲᬅ᳐ϵJCՀᗣᒚ᣸ᑴബJदᴴངࢨǀۙᩮᲬ᧝ᴈᲶᰑᵈ᳡ᳯᵆᕅᵎᯐԛࢭ፱ᵌ᱌ᵓᴟ᱖ᴜᬐᴥᬵᯬᳯ૚ᵈᲑ᮴ĘႰᄸާъଷᕗᇢᯁ૕ᨋᴣፘAമᯈᮇᵅᰑ᣼കᴇᰎᵢᵹᵴᵏ౎ᳪ᱌ᵺᴙঔᶂഃᵺ᳭ᵡᶂ૚ᶊᴪĊdҳkᚖyᬿिᘐႈᵭᨈ૦ᵱᲉᏄᵴᴁ᳖ᵸᶄᶀᲨ᳝ᳩ᳘ᦑᶦᰔᮖ᳢ࡹᵑ᧚ᶬᰛᵜᳩᶉᶡᴦᶌᵝভSRޅᲾUώ-ᕰ࢕ᴿ੝ା࿫Ꭽ᳽ᲞᲗᬱᴥᱳᵷᲤᲫ୦ᅉᘪᓼᶱ፤ᶳᵊᵽᶍᵿᵻݰᴎᶯᶤᴊᶅ᳧ᶵᦗᎵᵳഅ᧪൷ᴡᳩᴝᳬᶹ᭭ᵘϵᴞᳳ᪬᥏t᫸Ᲊ႐ᣮᩧో૮ݠᶰബPݻᶢᯊģ᧠ܥḅTᰍࢮᶂᷘۄḌᶁᓱḊۼḓᯝ᫦ᴚᯠᷨḑڪḘᵛᲆᳯഃḌᵥೄ࢒ᩢy၍ுዝ᯾एᨉᵰዛᷩভAN᳔ᱴᓼ᫪ʅḶ෬ठगѥᴢḉᰑḵ᳛ᵼḏᶻᴊṄḔᶶṃḼḙᯟᵐṍṅ᧪ᷧᲈḳ֕Ḷഖ࿔ৗ᥾ࡰᦁϵ࿬Ꮙࢩᔫ࿵іᙶᏊᦈᕥ୔আधᨊḜṖܫމᵂᜠᳯബᎲ୧ᒔᒮ᜻ᚃѺᦪᄶীṝṾбjҸlᇛऀ\tҌ෕ẂṜᩢഗరᚕd᩟೬ڪẊṽ࿚ẀẎẂ৆࢕je᳄ẉᎊẘ঳ẁ᧸ᶔpẞạẋảᩡᣩẂZశĊ˃ẖkẂழశҚẌ࢕౦ҩᇜaǞSpaһለᤒࢻយతềểާקฎǻǲីỀỂỄሏឝ៤ਤỊỔሜ੏ệ៎ăộỌྥᖅỈجỠਘᚩដ޶ỦចᑯỞŨồỡࣖ޽៻਍ཧừឍ࣭ᝬଐỷ๷ຊ៙અỼមỮỷᗫྙᗗ᝹ἄᗱᤚាᠡứ߭ἄິ៷ỤỒịᤢຊỗἀỰक๠᝸๯ỷ៮ߡࡍṟ˒᠅ĭ἟ຏ˸ฦఈ἟Αવɻ๓Ǧ᠄᠗ƗἬቡἣỻἚد᝼ƒἫἹቀ᤯ࠧ౏ỘἾལረƠᄙڤ἟๽ួἸἕச௩ᇁᐆỷߗ၅ἯᠡៅቹὓؤှᠹٷᐒἴἾኸᐣઊᝅศὓࣖىᖝᄬ᤼ὠ὎وၘש༂ᑰὦὡᡐ؝ᝌაņॿỰAfẔБᇏᝂ֋Ȕළ௺ύịώ὿ϠቖίᄒྞỠᾉೃБߗေҕ჎໗ᾇѹᾑ೭ᾓሳƮܪᙀᾙnᾛaᾓὨϢࠑᤔᑶşᾢᾤᾦఙܡኘᾭ὾ᾒᠽྤڽრᾳᾊᡈᇶᾠᾫĂᾺ᾵ᾼ఩ᛈᾎᓡᩢࢷත౮࣏ᥓᴲᎅ᣷ṀᣗѫỦᒦᢈ୩႞ᦆׄἚ଄Ꮌᢛ࿽ᘱރᾤఱeᰬڪ࿨йḮ࢝᡽૚ࢢרᶝӔṧᄙǀݺጴіӤԛ῱ῬআᔳᤋݐἚᒟ഑ᇯ࿄ὼᾴᾜᒟсୟĎᨖϵṷᰂṻᢤލᣥᇕᚌCޡ჊ᣠጯ᳌૔rᣰᎱḵࢣௌ॔֌౻૛೜രঋԽῳ፮യঀԨṁᣘᢣᔃẏીS᳆cᴬᚖ৏ࡱᳺᶛआ୞᡼ऋࡱኤআᦂ⁀ᎽૣӢᒡ࢚ṧᄧऌ‫೿Ӥѥᢋ⁇ṷᙽ῟ଈἴw༝є໌මᗏᖖ⁍ỉ⁚ڧန⁞Тᖖಕ༙ᔄᎌ࿗஬з႐౵ᓧᭂᎴᦎӍෙ̘ᔝႋృȈऑS⁣ĢᔀᕭႬăTЬkҊᕼỆᚷਤ₅௝₈ᝁ͙ᡑါ߭₍₇ཚᝩ܋ᝥၺₕ₏ᐵᅦቘόಡ₆₝ᝯᄱኞଐₜₗ฻ᄑᄠ₩ᖫઉᓊ₨₣ₗᑌ؝ၿ₡಴₳ủ᏾₧₌₺๟ȼգᚷڤ₮⃁ྙᗮઅ⃅໅ᾕὁₛ₿⃋ᕽ₠ݚ⃊៖ķںၹ᐀⃔ኑࡄ⃃޶⃔ឨ؁኎ฉ⃟၆ᕾ⃄⃏ᚴሺ⃢ಖ⃨યǻ₷⃓⃨ᄖ⃫ַಪ⃲ࡠ₭⃨ᠥάၛ₱₾₎ེჾὝᗴₓ಍ູ⃨ላ₲℀Ϳ৥̴ᒾ⃙⃏ᠷ࠼ታ⃿ₖͿ₫נ⃰⃧ℋϠຏ۪ቂℐℜΒ₵ŕ℅Ɨ⃊ᜉ᏾⃒ℕ₝℩ᕽ⃝ₔ⃏ቼϻಈ̛ۜ⃎™ℳϱ͵ᛶ℄⃹ℹᖵձЙ᾿₄Ⅎ੦޲ſჀ℧Ⅎᑝ۝ᾅ⃬ℹࡥ޲Ǚ᭘ℛ№၅ᛪℸ⅗وȽ༕։ኴᐆ⃊ὢŧኮ⃵℆ℹὰᤣة⅚₝ᡃₑᝀ₱⅖ⅭժـᠳᐥⅧ⅛ᡕ෋Ͽᐗℰⅸ₝ᡢⅻෂ׍ⅷ⅋™ᡨေڮቿ℡⅛ↈᕽታⅲཚ݀ද℉ℬ→ᘄࣵℚ⃞⃏8ࣖП᥂ನ๯⃊↝९ᜊಊཧ⃊݂ಶጏЉᜋ↢⃏᥇ݪᄫЌ↨↰ǲĠᖭĻᜄ቙ዎҨ࿦᫻̏ᔌᱨᰲࢁଽዞԵധᎺᜲᕀĦ₮ඔෝ፠᰻ݙ₮TR෬ᩱऐ෧⇎ᦚĠᥴ౞୯ṔḢᏨᏣḡḛᤉХᎈ⇜૝Ꮥᩔᩎᨩᩒ᭖⇮᥵࿒Ҏర↾ޡ᫼ڮ᮳ೄ⇷⇀ڮ᪪᥸ࣽʷĿĿ᷉आᎡ∄࢙ᎫᶜᨊᕈᕁᬓḸᔹ᧯Ꮖঀ⁖ይ˚ዢౌᦎḺᨴᨤᧄ᪵ᔩѲ⁏ॾঀᏧᒪޙᥩ೥᰻ᕍᕆ∀ѿUzhẓഝᎢൔᎵᙫ⇊ᥘ⁔Ṭ∖ᨘ।᧋ཎतदᰢᦎṣ౓य़῝ྦ᭡∝ఽᔴŻᨓᅁ᪴ᣄ≆ᷛḏ∧ᨍᏤ∎ᢜ∩ᯐ∫⇳′ắᄹೱo∱ᚏŗ᪰ᩦᨃ∈ࡳᔒUḯᶝ≚ķᨎ∑≎ᔺፚ࿮ᒕዬ∾˛ᨾ⇒ᵹ᪜≕᪒ᘬ∨ᥲ∪⇩ށ","tz/northamerica.lzw":"Rule\tUS\t1918ćĉ9\t-\tMar\tlastSun\t2:00ćğġD\n"+
+"ĀĂĄĆĈĊČĈď\tOctĕėęěĝģ\tġSĦāăąČ42\tonlyįFeb\tĎĞĠĢŐWĽĨŀĈ45ńņňĐAugć4ĝ3ģuőġPŔĿĪ9ŘŚŇįSepĴĘĚĜŏġĻŪĩČ67ĝĠ6įıĳĖŶķŹĺ\tļħūžƀĈ73įApĔƇĶŸĹ1ĹĥƎŽƒŢŅŰĐJaĜƃƊƝŐƟľơ97řƤŜ\tŊŌ2ƔƫƞżŖƱƃĈ8ƃŝƗŵƚĸŐƬĤƽŬ8ƀ2Ƃƕǅŷ>=1ǈġǊ\tƮŕĆǐ0ƀmaxįĒĔǔ=ċƻƭǌƁǠ\tǢǤĐNovƌěǕǗƊŻZŅăEST\t\t -5ĹĐȀT\n"+
+"ǽnăMȁȃȅ7ȈđȁȌǾ\tHȑď10ȕțȋȍǿȁ5EDȂȄȆĹŀE%sȢșCȁ6CȨȒ-6ȬĆCȯȱȎȖT7MȷȪȔŐŀMȾȘɀPȁ8PɅȅ8Ȼ\tPɋƠNYCČǐůƵǦǆŷǘŧǛżɚɜĈɞƴƄĲɢƉĹŻəɛɝǗĈ6ǃ\tƖƘĵɣǫǋɳɩ92ɶ95ŢĐŲŴƙɾɱƌɧɴĈ5řɷɹƅɯƛŐǼǾ America/New_Yorkď4:5Ⱥ02ȅ\tLMȂĊ83 Ǵv ĊˀŏŤ58\n"+
+"ȃďȇɈĆȮȰɝ0ˇȃȫŐɨ\tˍʹŭ2ˑˉɕ˗Ł6˛˓ġ˕˞ɷ7ˡˊġȭɘƯChʢagoˏɟįJķ1ƺƜƼƠˮ˰˲˴ɪǗĐʗʌɰʚʏ˽˯ʣ̀̂˵Đɡ̆ʙǙ˼˭̋˱˳ɪŃʕǒɼƈ̓ɥǜă˾̙̌ʃ̛ʆʈƌųʘɤɲ̖˿̦ʓžʖɮ̮̒ʏȣʝʟʡʣ/̤̘˜5ȟ36ʵʷʹ8ʻʽǵˀ8˂ğ9:24ˡʲ˪ȼȾˏ͖Ĺ̀̀ȽˎĈͅ Ǧ ˀͦŹ˨ȕȊČͣʾˀ5ͨģ͜Ő͞˳͠˘łʹ͘\t͸˟ͻͽ̗͚͟˦΀ŀ͸Ɍe̻ʠ˰ʥʫth_DakotʤCentʠȅȺŘ:1ʴ- ͈ć͊ʼͯˁ΢Ρʯ4ˆˈ-ɇͼɊ͡9ʃ ƅ 2ͱλͳα͗ŽΈ̺ʞΌ̾ǴrΐΒΔΖʤʦʨSaĂmΞ:Π39ȅΥʸΧ͋Ϊ͏ά1ʯʄˡγŽεȂǟʼκ2͆ξĠΆ͙ȰΉ΋̽ώΏΑΓΕΗ/Beāahϕ4ɇ7ϚΦʺΩ͍ΫĞά53ϥɕϨƁȞ͌ʿ ІϯːπɕΈƠDΚvʠ́ʃ̃đḙ̄ɿɦПСУɪġɬ̶̄ɽ̇ź̉ƯРnТĔ̎бЧň2ŃǻзĨйлžʔ9ɸ̝Щ˻ǬЬкЮъщывƆд̠ʛȎϵ΍цУȹʰ͒ʱ͇ϜЉЖ͎͐Ġğ͕αϦɉ΄ʃЛ˒ϦўĔГŗ˚ѭВѰ4ˠѺƭЭѶѰſБˋđˬĨCAŁċоɡϢɤǚ̢ͽҋŗĎоƧĜˀ̸ƍ˭ҕʆǙъɹɻэǉ̕҉ҟ̓žЦʊҥжҝҨž̨ѕİг̟Ҝϴυ϶/Los_AngeĂsȓʰĞ˅Ѥ͉ϞЋϠŏɇѹ˒ɔ҆ɗζѽˡӔġҊɖ҃˧αӚŽӖȿΊҺ΍˷ȎaŦͰğЍϙĐЈǂІκĊ˛ɓʰȔ41ӋČĠʝşλ0ѩѲȪӡĐɎ͹ӒԅɕӣͿˈӷŐԇȑɷ9Ӷ-ӡŀԍǁԂɻλЙͩԏ-͒҆YѰ8ԂϬϮԠȸԘĆԚ9͋κ3ԂКԖԣͼԥζӍʿԳԶɕAKɋτ̼΍SitkaȄϢʰɔЄӼĊſιĲ͎Ծ0Ɲ˹Ր9ӾŞgԁԃԖԆɖԓ˙աԌѼѾԬȕԈžԕԡԭӝԺϫՔԳͲϰԡԷŽԹ˘Ի ԽոԿՁϳՃφʤMetĖՉ։ՊӬ˹ϖΣʶѥӲՓtՕկϖȺˁӰѥ՛ԜԀǐՠ֘ԑգԉզӕը֧ġԒ˘6ծժ֨ղ֕վԴԫԋ֤ԈҹՄ̾YΔuΗĳˀήƬͱ͉֜ՒӴΰȸ͒Ċʰׅ֒˘՜֠Ԃάշ׋ȕYդͺրԤ֩ל֫\tי֭֯ȪչŀջČստח҆ՀՂʜӦ̾Ӂchʫ˱ăׂģ͓4Ր֔׉Ծ5͒ͣ׆ӽ֟՞֡וԄ-ȞȕҊ֦α،҆؎̿AWTˀŭͱ՝ׂλŤĠuˡؑͼؓҊPؗŗթȝȟ֤؎ƐʝƗءثנAȡխرԿHԦճ֖յԵןպغѧ׫ץցׯћױϷʟՋӉɔʄ׽׈ՔӵؐƬƝ3͏؄Ĉג؇הֶ؋ǚǳךԊٞɕNמ˒1ٟ\tNդՒɻء٩B٬פ٣҆BفԲֵο׬ԸفͯكȅצĆ׮փװֻʤAdΔًΡŤَ٘׾ّ׊ȝƝѽ:ٖ՚ٚ՟؉ٯȕ٫؏٧ǚŀ٥ӗةٴנڞخٮٓȕٱףڜٵٷմٹזتظٽ͍ك؋زŽعڄћPacifʢ/HŅolāŦںږƝϭ׽ъ ҙˀʼڛؐ̈́נص͢ʼԝؽٝ،ԳɥHȷۜͤayλӻۗ٧ۙįۛ˙ Ʒͦϙؾۭږ̔Őۤ͹ͱʊִն؊ۡۚךІӨͦ͏۶ڵ֤ȡ\n"+
+"Link ۀۂۄcۆۈۊۊܒہۃۅJohnĘŅֺօ/P׵ΚiǲȔ2ɔ֛אϝЊʿΫٕڔ٢ѮĆѷŭ׼۔ͧ ث1҅נȐ͹׼ԝܿ݁݃ϧѼ׼κ݉ğ݂ѿ݄٬ӟѳѻζ6͏ͥϤݓǥȗքһBoisăβϖήӯܱѦϟ͐1ȇ٨әէζƹۧ۩ՙ܉ݨܻ҆7Ѭݗ֤݅Čݾ۲ŋͦʼݺܹ҇ϳƎ IndiƨapۉݥؘӺ̏\tӨĝтюʀľގސޒnޔޖӆŗʅʇű̷̬уҰΊޏޑޓޕlޗبČޫǄ̞ǇЪĥݡ΍޲ޤʤ߂޴ާȅȇ4ʯڗΤӱսЌΡȇсϱͽѰǐͻޢ޳ޥ޵ޗ;Ѹߔߞŭڥ͗ߙ߃ߜӆߡʓدrλ׼ݺ˩įͬʒІ۾2۵ٝρĐȳ˘ӊԝ2ԟٺ˜֤߲ъٳ߰˫ζ7ݒ˒߰ȉȑǟڥࠇˌ҈ȏēΚ̍ʆǗоҤޮޟЫƯǦ̲ࠗࠚśެʋјҸƠࠡӂ̲ŢɷسǅࠝҦяࠠࠖࠬ޹࠮ъנҭ࠲үܥһ߅ޥ/ࠫ˲߈ϖߒʼڏߏӏέږݖďρ·Ѱ5ࠋࡐĹࡄͷ҃ӻ۞ڳ؊ࠍ˖ٲͪ҆˥ƱܽƨͦԪࠁѠ࠳ӛۥࡥֳ߿܀ࡢͼࡤ7ࠑͫࠏƂࡳŽ˗Ū V܏cΚȎs˟ޚࠜࠨ޾ࡾࢀnࢂnࢄࢆо࠼ࢉʎްࡿࢁࢃeࢅʒƔʒ̪࢈ҷࢊލࢌࢎ࢐࢜޹Ďʉޭ࢔̈࢖ࢤ࢙࢛ʆƳࠥ̐ۨՋĺ̢ࠞࢗࢍࢰ޹ǀъƔ޻Ү̡ࢋ࢘࢏࢚žаࢴҵїࢡ࢕ࣅࢼࣇࢱ6ࠤƥ̫ࠧ࣎ࢭ࣐ࢥࣈɷҳࣁ࣌ࣃњӥچ/ࡁʤࢯ࣒ࡆ̓ğІߍ֓ࡋѩѢАМؒ٦ࡖӾࣩ࢐ߡ6݇Ɨλࡩڴˢ߱ࡡαࠒ˖ѰࠊࡻࠎϩƂ߫ͨࡲࣵأ͚ǟІͯ ߮ٝइࡽލPʠrň޸ࠛ࠱ࢬ۹ޠĂܒटडߢޚ࢓ࣙ࠾झप޹̩࢝ь࠽ࣄऱrठळࢨࠦ࣢фΊञऺफ̳ҎࢶқڻҒࡾूऻʒࢿ6࣠ࢠ޽ࢹोल࠯ޚ̅थƋ࢖ौफࣔभࢫयज़ॕृҲž࣠ख़ॢࣣќ̾ࣧ/Tӄl_CՇ۩ȫЄğࡉϛӌܳѨϡӉࡏ࡫ओڤߘढ़ߕݙࣾ߬ې߯ࡸڮआ˝उࡕःऌǮ݈͆ʴݺࡑϲȋƠPikăʒࢳࣖĒňै॔ঝটডࢲࣉाष̯Ĩঞঠࢾž࢟तॢॊ঩঳ɷʅࣽɭ࣍॓ࣚ߀७ޣޓܧֈʠsbur՞ॷԣ࣮ॻܲѧߐ،Џߠࡓ5΀লؚ̣҃ࣿμऑࠌ঍̴ֳ۟ࡪচই˘7ӳڲৢࠂנͬࠐएλ৯ংςऔĠख͍घ৶छࠔƌΗʬফЄҫशग़হƯSਂ঻ŭƑवࢪࣘুरਊ਌ফ̳ॎিिްਁē਍5ਏ˅মग़রă਋ਞਗĎ়ਚয̹څܦ८Knoxࡆڕյࡊॽ৕Ťڹ৩ߡЄ΀ਧਃ৪Ҳए߶৾৤ɷػԞ৶ਾѰĉࡰࠀं࡟৲ऎগ੍Н਀PЀskiࢆॗࣂषਉ঱ੜਫ਼੠ਐࣗਛżਜ਼Ƈ੧ঢ঴і੫ঝ੦੟߳ভ਑੫ৃ߄৅ࡂW܏aǢcਸ਼Ⱥৡ࣯ॼ৔ࡌ֏3৚ऒ৸঄઎੭ė੧࡛ࣼࣿ১੓੉ࠅࡻࠈ৫঒੔ࡹ0খࣿ৵ঙਖ਼ˎकۧ߬٨ੈࡣنࣤਰ੽ࣨevۨਸ਼ȟ1͆ਹઉݯ͒ߊ৘ζʇ੆νचચ֮જࠓࠉࣴৣࠃડࡷમތޡҽuݥvilĨн࣋থćґҧΊ૓૕૗૙ХॠŴǺ࣏ލૡs૖૘਄ঽЦ॒ʍ࡬ࠟन૫૭૤ޙ࢒ॡਓॣ૪o૔૬ૣ਄ƃҘƉࠩ૒଀ૢ૮޹ҡ̳੹ਭ࢖૷ଃ঴੡࣡଑࠿΍KΚtuckyҼଊଂ૮ਸ਼؞֑ߎ਺ઊȺ˅ી˘ݝ˒ߤଓଥਿ٢੎ઐ଱ģΥଣ૸Ίકۓā؝ભৱ٬ڒःઝރࡦnࡨ੘૴ȶ৫ݎՔࡱঌૐӤ६ʤଛΛଞଠࡃŅtʢॱoࡆϘ׻Їࣰପ͐ǐږߣધ͹୬ج୅ମǮԨ୒߷ࡪ৿૑хֈrݤĳŗҍ࣋૲еसи୻୽Ҍ૦ੳஅt୼ՇƐޚޜҐࢢ஋஍୾ъƀо३૽५و/Р஌இȫ3Ѝӻ٘՛ઍହ୰˘ݰݷͰୃऄڟৰࡼࣷःடகई૊ૈஸ৫நலঔƒয়ঊ੒࡞ঐ୹Ίևਲ਼m܏e଄ࢇষ૽੤ேΚoொȎ்ૻ਒૳ਔनை௔ோফыण޼௚஄௜௓௕ௌ̴क़Ҷ஛ਮهࣥ௝௨ݧȇ࣬ࡱࡊ۽ųॾ߸୭ԎனԂ௱௟੄Ԕ੆௃ऋࡠ৫۝ৠ୶ंଷজ˭ޓډĭ஀ࣖҤஒনఏޥ఑īఓƵʗ߿ଈ҉ఐՊѸޚƷȄŎࠞœ˽ఢŁণƵ՝šţťɥũఫఙణؙஉۢޯżCబƢשң௏௤௑ͽిࡥকਬਤीెషשǏǑࣂǨ૨૴ғా౎कǰǣǥШǨǪగడౘ৺ౚǲ٪ǵǷnǹఠਦtܟܡࢱ1஘஁ǅ ౟ౕż਋౮ܢĭ౲ࣖҭ౱౫ਁ౺౰җ૛ेřƹౠ౬ಃĭಅఔşćт؞௛ಋܠ౻Яͭřࢵň౓ల౷Ơ౹ಖࢱɞ͢ಚଗࢉಓ૾ਕಌ͢ࢿޙಛđŅǕĎॉ૟ಂಢͭಮЦʗMಲ=Ńڻਥಷ౯੨Ҫರ౞૞࠴Ĩಡೄ޸ʒנʗǨޞࣚಠ౭ಸʒʅǂਇসಶೌಗ࠙ऽଐోਜೞ࣓ҡ೚ੲଘೕಬ԰౽యǓǸǖࢸ՗௥ಕ್೭౉೩ࠨ݁ಪೋೖ೷͊௎ǧೱǗ೼ƊDғ೥שŎ౑ɺ೰౩ೲ೼౅ഊౙǐ٨౜ഃഐċഒೝ೿౻ക՗ڧ౧ಝ೼ஜࣥ਋_ಌ-਼ȟ5ନࣰݿďബӈ ೥ʽѰْ˒ളമ ౗a఑ڣ஫ٳ഻ʴശുಙપִˡബೃ౻േѸ஭ݲαൌാീழൌഊേഖӻʾോ۸్ിՊുଙ̾GoҾe_Bࢶ-ʯ՗ϖԂࡊറഫ۸ഴ٠஫୆ൄഽఢഷζĈ൞Գ൶٪դઌ൉ڹൌ൷ಹ඀Ļഞࢅ൏۱থˀ঒ൔబඏӘ൓ൟ൙҃͆ͥ஬ݺ൮ඌಌA৹બ൝αචൠ఑ඣெȚϒۃ౛īଅ౳ĔধಟƯHථfධĉ඲ࣖʗඵಔත޶යǤಘॆদ಴ಊෂදළѱࢇಐ߶ೳශමසරʄޚ૜ ƃವೊăු෌ɵɝŃ੹ řುౌෟහ෢ം\tۢොधෞඹූऴμ౜ಜഄි೵෋෪ɪƔ௘ȄŢ෧ਜ෩ූƣ࣋౿෦૩භෲ෍෵෿ܮ෹ೂคญලɠࢶહ෹౅ณɝตा˹ฑ෨ฌɝ೮෶ࢷ෯૵෱෕ญฤ੹ϭภฃยɪċ͢Ц૜ೈวғปาஉ ෉೔ซสɝಎƵҭվฯżฺ9ۢ෿ݰ็Ơ้3ʅணाಽഐ͔๎เ෠͢Ń෇ฦ්๐෾ඳ෭ź๟ั๊๡඾ɮλ๘Ĩ๐ฆতࢶɞุ่๦3๯ไ̬ธข๴แಥஐķ๫๳๏๵మा෮ช๭๵ฝƦ຀അ๥๽๊຋੪Ґ๻຃ຐ3ਏٖลതຏ๚๊ਏಯ੪๕Ǖ๗ຕ๙෼๊ใลฐຂວර4ҡມึ෸ອຉຐѽŁࢩഎ௣ஃบ๦ຸҖਣ४มຐࡔ࠸೛ௐಶ้ໆ࢞ໂ௭ะ໅ࢿ؁່ౄ໊๦ʱೡ੪೪ຮ෍6̨Ɠ໔ຽ໖ຐໞރ२௬௤ദܦป൭ࡍ͔ژʴ܆ݰˡඨปණ൸໴͝బ໷಍໹ۺย໼൐۳฽܀s໾ӛ໻ழ໵ༀउ൳ඨൕՊ໷൤ʤGĖࢂ൪൬˄ાٗݬ՛໱ěͰ༇ඩ༑ࡓોʮĹ໶ࡓ༎ȕAդ7٢་แ༁ࡥ༢༐ɺ਀๕ĲŅͭऴઌ˶ķೈǚ౅༹t༻ۜಙाཁຈȏŅ༺ĜಭͭċຌĜಝགಶངཆຑདཉ෸ǚೂམཏຩෘ๱Ƒ්འͭਪŭҬ̬ϑt຤ɶཋಱࢍཅཡະལफɥགྷཌྷུŁࣕถদ࠮སཻཙເƱ෣ົࣃ྄ཱེི໒ɹम໏żཧ੷ƒ྇ச໩ౌྒηƺ഍Ҥຜ೴ྊཎČ๊೹ಧҷഥ௮રһཧ໭Ĉğ༜଩ Рઃ฽ఆࠄʳୀୋ໳ට໺౎༳3༦໭Őཧ༳כ˒༏༉ସ༧࿂ྃĜ༳Ɠ༵࿈˘๊༢࿃৹Ǡ࿐྽યୗϽĖࢍ-ϑblŅȅŤί͓ྯര࿘ൡ༷ࠉ؊ඨŝȗƠTʫ୞̦ĮॆĔ఻ൌ౅࿳୼Λ࿶ສੲฮ຦Ĩ࿽࿵˴๝๫ஓစ࿴࿿ဈง̬ဃཱဆဎ૚๰डಈ්နཅ෡์မ฿ဌ࿾လ̚ɝ࣠ຳച೉෰\tရ̦сผཛྷഐํ఼࿲ဍဣʃ࠹టೇ෸ဋăာรͭ྇ྏྗਜှ฻ิ໡̠࿼ဵ̦๓๝౔दศါ။༼Ł࠰ຼ၉ಶ၅๧௫୾ಁၚ๶ཨ໎၃żၚŮ޸ೢໃ၄ၓढ๢੣ၙၫ਎ູ၈นၯဢ̦ਅ୿ၢķငွၰ4ခ౦Ƕ̷ၼၒၶ଍໦ၳြႅဇ೏ޚʾஊအႌೠਙၨྐဴႆྒྷƱ໧ীၣ੻९ၓȫ౱ږയ͉ʆࡻ༶ࡤൿএŐှࡤłޅb۴༅ႧబႮ૏ġႭ།Ⴔ౎ࡽ႞Thědʠ༘ॶ௴γۑ஽৷ߺդȞྵ١Ⴛ࿫ࡵ௄Ⴌၓࡵ࿀ઠ୐ა఑ႽਯһNipi˲ĜȫЏѫ჈ლՊႮԂߵࠆࠞȧԉႰႲК༆Ⴋ༈Ⴜ࿚஝Ra܏y_Riлϕ׍હშ઎༶ਿწ௹߶΀ǚ୏Łʴ༃ఋ0ჵ௾༣৪༓/AୟΕՉფʲઅ࿨Ⴅ჉ρᄈѼᄊpλٳρᄎ࡮ႯᄒႳᄇబਿ௸ᄩઘდୄఎĨ੿࢏ĭຒҤƹၴෝ\tᄼཡธ์ƀႄᅅఒ෬ఖබᄻ܏ᅆజਚటဳƯᅋ͢ฬпćƪ්ᅘຟஉฮᅖᅐᄽతоద฽ဩᅄżᅟŮࠛಐஒಓŦǚవᅗᅑభஉ໛ᅤཱུຒ૜΢ᅪғᅭຒʗฟᅣăᅭຠ຺ஂၘᅃᆈၲ႕ၣƠᅟҪဉ၏෺ᆓ࣊౾̬఻ཱᆓঽၖྉಶᆞ޹དྷ໚ೣᅬᅷʒႀྖஃೂᅟ6ᆙ๸௙ᆭౌᆯ๨೯ၗᆀᆨᅥࣀᅡ೓ශᆯࢿ೨ྈ࠽࢛ᆢᆩҢǮದᆬ̓ࢅᆮᇈǎᇊьಝŹᇆǬ႞ᅅრeŠѠܮ୫׽ǎୀlˀ୯ġᅋ;ࠐ΀ᄦඬRᇛ઀ᅌ௢ఱႊᇭgᇯఛၜĝǏཱᇴᇶ๊ҡၠ်ေᅂဪᇼޥͭᇿ̪೑ິᇻᇮሆᅙཽᇓೱഛ්ህసຘᇸืሌᇵሎ๊ᅓੲྞශሕၡީਚሙဠăሢᅦ࣋ᅨన૴పƯሩహᅯŠᅱళᅴżሱᅮတᆳљౌሹᄿഏǕ౶ၐғሿመሒಁሹਡƀ੢ਈಶቊ޹ቌᆦၩሸልస໓ᇱၮᅃሱቘ࣋ᇌಁSwۃ஖ਠ෬ቚဪቡባቑᇸᅺਦቢfቤཀྵय़ቍ೜ᅃቩተऽங໨ᆴ೤ቯ஖ᆰਆᆐቼᄙሢѠ˅ᇟ஦0ᄵ݋ሢܻᆰए୍̒נ߻ᄙቷtॳৌrଜӇ٨͓൱༝ኊവų݋༶ܻѽነј৶Ϧኍࡓ؊Ϧኖދ৫ʴԝኑદபżEdmᅌīᆊቁǩᆺƠኹኻᇷቺĳᅕཱዃ಍ཷᇹಁዊಘ෽ႉ්ዏ෎዆႐ǿኺ෡ዑኂሽਜዔłథŋధᅪሯĨዟ຅ŝᅰŢಉ؟ఴኸዙŗየቓ႖Ưዟᅚᆋ዁ድደၱ෿ቭ˖ዻſቦ቎ᅃዔጁዖዾጅႀዸႊጉቬᆧዂዻ༯ుዒᅏዘዄ྆ྤ቟఼႞ዃ࿵ფȔ྿ංЈ՛͆ʊ݋ዊܻǎኤబϨżVƨcᇰ๢ᅎቄጮጰጲ๩዇ᇺሧ\tጯࢍᄐዡŌᅩЪዥăጾጱዱාሴያᅲዮƠፇᅸ෿ᆜጼፐ೎԰ూᆹႊፕबዖᆅཱ፛ၸъཫሼಁ፛໥ࠐొቔ႞ፇ଀чԗΡĞܮᇠ൳ӡፐԯጪӠྼ࿫ӣᄙΓwsŅॳኚeܑ፯Ѫѣ൲ݳ͵బԯੀ፹Ő፶उኳԀᄷ݋̐ݠო΍Cኚܣጟ֙ყᎉݞ᎗஫͆Ӵᎊנլఛྸλ᎖ɁɧTʩKጸᆸᇲ්NᎰYᎲዅ቞ɮወጼᎷᎱዋ๝෵ႊᏀᎹᏂ࣋ႏව೽ăᏆᎺ˙ፁዣፄᎯᏁፉሳᇲፍሷəᎸᏏሺᆚŴፓශᏎшጂྦĹഇғᏣɷዲጚཱᏪ԰೧ፘᆡᅃᏯԧጙቻዝᏔᏇǁ౐ઢሑሂࢊ႞ۀӂniωě՞נzᐋɵ༢Ꮳ༳ʆए౓யႨ੏ϙԲӻ኶ჷ࿫ᇨĠ୴֖ੇ୔ᐛმჹࣥIqϒ૔ĳᐊᐌ൐՝ࡻᏣࡤη০ᐙ௻ᎋ౎ᐝӾϬᄓჩ஻ኄ࢚ۉֿăᐬzŁІ؛๑΀Ꮳᐹᐟᄪயঔǟખ߬ܿಓᇪᄳ࿖Ꭵ୵ᑏఇǮІඝᐙᑕᄲᐸᐥܦ჻ܐ܏_ޏĂ֖ᑄቑᑊᏜ੄ǟᑍᐡૅ્ऍ՗৴ᑠ২፺఑σ᎙̾ాmbʡdӃჄ݀įᐋᑅЯ݋Ꮳܻᐳᐘኒᄗᑌࡰᐼჶர୳ѧ෥ͦز΀჋ᑷᑒͦᑺंϦእᑤһYୡwkᐅfΊᑭಥᒍᑰጩኮᑼՊጭ႞ޏu૖ʭᒰʆ࿀ӡᏣԯ7ϙኴኩމĹᒎԦᒵᐷ࿫ᒸᑿʤW˯Μ׵rݦďԷ፰ژ؆ԁˡչᏣר˦஭፲݀ࡪᓁᑰ፷؊ӡ༶፼႞፾ᎀფ׌ӹኟጣڙߗαᓟᑰᓡႚࡰ܈ᒝᎏˣᓨᓋᎧᄗ፼ࠪexʢ၌ႀదฉጕđᔈᔊၡଆŸᔎශևᔉcၷᆱįྲōሃၑᔘᔒሤᇱຎጼᔢᔚŁᆷᔝeፈෛ఩ྑᔑᔩŗ๷ลᔦᔗᔲ̲ᔜĐదᅿີȏᔹႇଆl๣๬ᕀᔙ̦ъ୳᏿౪ႊᔨᕉƪᐞ፩ዴĨᕏǮཾປျསᕁᑑᅹጏࠠᕜĠŃǱᕌೲᕎᕡʳ౤ᕓႝᓐ̿ጰķॷɇ׼஦сۓࡧݐЎᇥį߻שӻྲ؝ࡻᕖᐲ͏؛થᐶġᕖᐝ஬༃ᐵ୷঍ᄙևᒄՊქٍᄢ෢ᕶୋݐ൯ணᒞͽդ8ᕾᔭᖀᒗி԰ʴᕿᎬ઎ᖉᒧ΍ĒΗm࿴ࢅѠະ଺ᕴᖡઃ๑؝ኞᑻபש୆఍ഋ΀ᖫનഡମᖐ୞टeŜΟ՘઺༝َᕿᖹಉ׍િ઎ᒟᖾ୲ǁᄫࡗᕁᑾ௯ܦᕏॳॵϕͅኈᗏ໱ᕷᐙȟಉ͔Ꭽނɪ܅༠Еዬ؊߹ᖞ˘յΪ჉ϦᎣͭӻඑͧᗴᖝᕼิ֕ᗮ඄ኳત঒ρᗃᒠኢᄶ࡝ᘃડᄑކᓷᄖᘍᄙOj઀gᖓବᓳ՚ᕵܾᗪӭኞᘇଯᗱྐྵԂᘂᗖᗷሇ৔ᗻȕᗯ๊ᗿશᘁᑡᄖᗗᘅƅᘧ၀ᑹᘒ࿒ᕺᘍྡྷᖿ؍դ԰ᐒഄއࡪϦᕖГഖᓌδᖬᒀ˯ჀЁuᖓᕲኞᘡᖷվӻಉʓ൰ᘽᗰᎫᗳᘸࣸና඄Ԃᗺᙣᘴ஭ᘷᖼᙩᗸӻᘼᎢɁᘾ݈ᘋᙆᙁᗂᗝ੏ᙅᖽĈᙈԝᐓվᙌᗜᕈ኱ᄙHʠᖰsૣ˳ݨᙠႤɵྱᖢᗒ਼ʲ୆ᗼᙷᙤ໲ᘫᙧ჊ᘮ͢ᙫЋᘱށ඄ᘵ۩ᙰఌᙻᗾᘆᙶᘳணᘿᘭᘄ۱߾൳᚜ᘳၿᖘׂᔄ֬ރᙑᔐᚉᒏٳᚺ᎘ᗟྪaza֌᎞ኊ൰ᙜᚖᖸᙟ˄ϣᛂᗽ᚞ᗲᚠᙱᕻᙪᘰ᙭ᖹᘀᛕᛝᘺ᙮ᙵހݔᗸᘉᑓᙺᚁᚷৠᚹᘲךϙ۔Ϣᚿ֥ᛁ݋ᙎᙓʤ൫˯a༘ސʠėďɇǊᛒᗑᛤ؁ᚇᚨᘨᙥᛜᚭᛯᗹᚦᛡᚪᒢᖺᜒᙲᚯᛨᜆᛳ᛫ᚴᘹᚣᛰঊᛲᜎູᚽᛷᔀįᎩƱᛂ᛼ᗄЕ݈ङᛝᘘႾijᙘሆݨ࿦0ᕳᗧᚽᕸƝʱ᙭ᗭᜫᛀᛚᘪ᜙ᛘ᚝ᇾᛠᝇ᛹ᘅᙹᔄᅴ࡮ᖹ۾ڹբᜭႯᚸ᝔ĹPؖభӿ՞ϢᝋؠᜫᅴئᝢΪ٢᝚ךᖄત჉ӡ᝕͹ᛵࡧᜪӓիդʇᔄӜԯࣔᛸᜭࡶᔄԙ੏ڥӡᕖԍᑑងԮ࿖ᘔႱᘖďឈᕁដᗅᜫចھྩՅƨΗᑩsabӄ᜞୤፲ᕴᗨᖙᘤ୪ᖜᚱդᝆ᝹ָឭᘩˀᜑᝌᚲᚥܴᝲ᝺ᙳᜡធࠞɑុ᝘ᓪឺᄐ੆፴ើᝡዱᝣ؜ᗴᝧឯၐPᝪ៉ᝬខᝯ৴ឹ૴ឿᜨᛶំឰ߼ៜӛҋ᝿঒ᝮ৫ជݴᙼᜫញ࿖៣៧Ǯតᓝ៩ប਀᛿ઁᜅɷ࠹ƲᕫኃƠ៴Ǣ࣓៸ದጋ॔ȣɺࣥNėសیˊ؂ᓴ֝΢൉٢߰៽ᜅࡵႷளඬ൫rŌƒᅚ஑ᆿ෺᠙᠛Ʊਏ7ᆥሊ᐀ཱᠡރำᏰᕥဲ්ᠪƒႀҭᏡᏌ\tᠱᠭฏဟ࠾႞ᠡിҾലՍ͓ݫጣឮᡁኇੇĐB֝ឫ࿆Ĺᠪ༒៼ӄizফĬతሟೱೀɱൟۤżϾ޶ᡕዋŗ࣠దǨ฾ශᡠᡔফ໠оᔞ෥ᔠғᡪᡢీᅧዢᅩႄᡳফ8๜࣋ᔞĬᔿᠷᡓᡴ԰ᔫᔼዢᔾ࣏᠄஝᡺͂Ğί՚᠏ڪᄖᢍᗞӥᛎୟܖϾrmu఑ྫྷ׌ᖖᚤᝁᖍं࿯ɺ༮উλ܈ٝ࿇࿙ࠉڥඨŀᡑ˭Rރཀྵ᏶ᢇŌႃ්Cᢶᠲשנޜሠᠶᢾྡྷʅʃ˶ƨƌᛍǹᔖ෺ᣆᚂᕘຌᕄᏋೂᣑη᡽๰мᣏ໪һCҾឝᄀʣ˜ᗥՙڏ՛ͪᣦࡉƌJَ֝ᛶᄤ͝ᢶО˭ubసฐᔔć๤ᔏC᣷᣹ሞ࣡Ȟᕆͽᤀၕፀན౨౪ᢁ᣿᣸ᤈᡘ੪ᣄᣗᤇፉၧޛཀላ᣾ᤕహᤗҭᤓౌᤎస6ዲ஑ᡱఽᤜᤤ఺᣽ශᤢ௪ᏃᡨᣐᤩᆃᎽᤅ᤮˦෬ሓᤛᤏᤸɷᆥ᤟ቈႄᤷъᤂకกᢽᤩཀྵ৬ၳᤍ᥉ރ಻ᏸᤶᤜጒీੲ᤺᤭ᥓщ᥋೺Ꮶጼ᥃ᠥዌᅉ᥈᤼Ʊᠬ՛ሥ᥁ཱᥟᢸ݄ౝഄᣏ౅᥃ᖠשದဧǕᥰಶᥲᇂ຺ɡ౓᥇᤻సᥧᚂቒྜྷᤚጵ˽ᤜĉྡྷᇋɮሦᄔᣅᦉᤴׁᔯĠᇎᤡᦉᅚᆄᡛᦕᦐᥤ԰ྡྷ᥼ШᢼᦜᥱᦉǪĠႛ̭زᦖਜ᤮ᑲǮ॑኿ᔷᇖဪ᦮Ġᔵࢵᆹᦫᤲᤏ፨ᙐ៺Ĝᦻᤔᦽౣ࿸ᤋዀᦻᦥᧄ0ᤂ᥽᥯ිᦴၑᦶ0ഌᤄᦹᧇᥗ᧑ౖᤇ൛ལങᣎ᧐ᦼՊ᧝оႏฟᧂᦗᧄᅿᔥ᧡᧊᧣՗ᕣ౛ǳണᦆ᦬ᤨ᧪Ɣᕤ᧗ᦎ᧚Ή᠅໫aવ᜻ߒ͒ឥݬ8ᣩএ߶ᗦHᣯͱ˷ᇣĈ֢ૌӛᤇᣵхᢿᇉዖງᔏDᨙጆራዢຬཱ᨞խႈᥜǇುᡝғᨥƒᔻƶᨢᔷᠶᨭƱᣓޛᣋ๲ᨤᨙᥔైƦᨸᨲᣞល࿿Β௞ࠬȅߋ؂ᗎӱᨉᡎྲྀʉDᡌఉ᛭ᨓலᨥࡵ୑ᐠঁᢧ༭ᑷᑳᒖᨔ᠗ᩝᛓއᒢࡪᩛ࿱ਊϒǶᏼᖾᕙሂᢁϑlᩫ೸ǁ᤿ૼɣ๻ጜॲᩱવdʫ࣫ΟᢢХੁᩪᄘƠGᙘ஖ᡭᏉ౧෵ᢁ᪈ᛍ୉Ꮡລཱ᪐஖ʻዌ෗᪏᪉שᢆ੪ီႄ᪖ᣇ᧞ţᤧ᪇᪜ᣒ฼ᥢጼ᪢፨ᇱ᨜ᦇƯ᪭Ǒዖᣖྨ࿛᪖eǢĖࣸŏ᜿ጣˁκᣲŐ᪢ᨗ෱Շ੶ᢅዌᥗ෺ම᫈ש࠹ᇑቴᨩ๥᫏ǁऴ᫒ྥ᫔ጼᫎୟᩭᦃᠮŧ᧽຃᫖԰ᥦቒ቟Ǌ᧶᫤᫞ǟಈྜᦲ᪦ซ᫏᫮᏷ႜၻཱ᫝੟ഖ᧱౥᧎ဨႊ᫺Д᫽įႏᇔᢊᕭPΏ-Ӫ-Pʡࢼᩇϖᨅ᠍Ⴅ࿮ᬓᜬP᠎܅ࡧ໯۬லᬂजභŅd౏ᩭሁᤌ๟ᬤᬦ᩵ၺᧁ᫹ᬫ᪮ಆ෷ᩯᬪސ౉Ꮧຣ഑ᬈᛉ΍॰gଞტϒpaਸ਼ɔ഼ᖶ߫΀ۇᬷᢖ᧿һƧǢ˰ࠂȔબᣨდ᭕஥\tK᠎ត჎კᒗୈǁ൳იᖐēୟᐅquݧ൮ᛗϚͦ᭰ᩋᬗ᜾ᙛᔼF᠎ᚪ༢࿰ռԜતᢱࠞA࡮ԧᘏ᢫᭺ᢨᄺᏍʢᢷᣁഘᧇ๺Ꮆᮊᣀԛ༿Ĝᬺᅁႄჟጱ᫵ᔥ᤬෺ᮙᇒዖᤠਜᮟᬲఔǅᠵ౅ᮤ᪴Ꮌĳཕᬼă஝Ēޥᭀᖓ߉ˊᢢᨈ௄Π᠏̐ᡌܽ༠ƹᙀ໦ݷ᭟ރͱ۳હᑊᮊߡθᘣͦචᯅᚂ൅ᄋ൳ᗶᚶ࿓ᖤᑜᦃᯊጱ᭎஝ᐃ៵˜׍᧌ۑ௄ྭ؃ͽ֝ᯤ߾᠑ᖏ܎ܐ࿛ᯠǢ࿛ాyǢnᄙਜ਼ʠཅჿᔊᬒ͔͓׏ᩋϙݜࡌᢦ༬١ᙯ࿀ᢲڂ༊ᰈୖ᮱i᭪ӄ༻൴ߊᛑ஦બඑྺᡎ֤ᩜᣁᯄ඘ָᘳ፸ഺᒶɖᓏᬽ൥rƨd_Tৌʭ໭ᰗᚳ᭗ࡢ᭙ʵ᭜஫᭞ᯙࠄᓄ஺˞ഖͱͯᐓ᢭ᰏ","tz/pacificnew.lzw":"Link\tAmerica/Los_Angeles\tUS/Pacifĉ-New\t","tz/southamerica.lzw":"Rule\tArg\t1930\tonly\t-\tDec\t 1\t0:0Č1ĝČS\n"+
+"ĀĂĄĆĈĊĚĎĐĒĄprĘĚĜĞěĒĤāăąćĉ3īďđēOctĈ5ěġĈŉģĥĺĨĽ2ĩ4ČēMaıęňĵŔĸĦĻĩ3őĽ9ĮNovĲŚğŋŝŎļ9œčŀĮJāũĴūĵŌĹħů4ĿĭēŵnņŪĶ-ŭŽŒƀŁ\tŃŅ1ŇŸŊźƉşĉ43ŲƁĄućřƓŜōƊƘƚĬƍƏƅƓĠƕƣƗŰ6ƛƍŖŘĳŉƢżƯ4ƱƧĮƩƠŉƬĢƖŏ96ƦųłńŷƷķƮǅǇƲĮĕėƑƆǂ\tŻŞǐ4ĩ6ƱŕŗǌśǎƹǜǞǠƎǋǖƫŬǏů67ǒēAİĘőơǥǛǰǲĉ68ƾǋSun>=ƶĵǘǚŮǞȀǾŤǴǶȃȅȇƆƸǻĩ7ǝƽƂaƄ2ƚǭƭǦůȚǳ\tŖđǀǤƈǯĩ8ȀȜĔĖǣŹǃȮĉ8ŤĉĊĮƴǙȄȆȈČȗȌȹȻ99őǊŅȓɂƒǁǮȤĩɉȧƩɎȕȢȷɓ2ĞČȲȿȡǍȭɜĞǲȲǔ\tċǗɒȘɝ0ȀɯȐȨǢɘǬɣǄćɯȱǉǪɍɁȇɐȉŬZĎe America/ĻentinʏBuʒos_Aires -3:5ʥ48ʣ LMTĈȺ4 Ə ľ\n"+
+"\tʸ-4:16:ʩʣ\tCʮĩɝ ȩʷʹʻĵǴRʯĽ0 ǔˉĒˋČşAR%sˏǆ9ʳń  5˔ʤŉ˘˚˜ɔ˟ʴʵ˥˖Ɗ˙˛ʯɯˑƴˢ3˥ʥĵ˨˳\n"+
+"ʅnʇʉʋʍʏʑʓʕʏCordobaʣʻʽʿʪ-ʬ˄1ʱˠtʵ1˯ʼʾˀē˃˝ˆˈʸ˕ŉˍ˝ċ˒Ė̠˼Ĩ˲˪ȏ̜ˢˤ̩˦̲ć̴˝91ˇŗ˸̱Ŕ\tW˙̿́ʴɝ˺˧̳˩̿ˬˡˮ̺˰˽˪˵͂r̺̈́˻˗͐˾̀̂ʊʌʎʐĆʒʔʖ/Salt̑ʺ:2Ġœʫʭˏ̛ʴʶ̡͖̕ˁ̥˅˶ayͅĮ͉Šˑ˓;̼Ą͑Ǟ͓̝ˣ͎Ύ̾ɔ́˷͕ˊ̫͇Ήȼ͋ˡ͍͞͏̽ΐȼΒ͝ΜΖΐ͚Κ˹Τά˳\tɻ̷̚Ε͉͆˿ʆʈͥ̅ͨgͪ̉/TucumȞ̒ʹĜ52͸̙ͻˡͽΜ̣̔˂̙Ɋ΄Ά΍ιˎΊ̯c·͘˝6ΩΔα͠ΦγΠ͛Ϊ̪ˌΞϟϭ͌0θ˱ΧɉϧΰΫϪΏγή̓ΛĒ͟Έϟɯʲƃˢ̟ϝĮ͈ЇĞЉȄęϼЄΥϿ˜λ́ν̄ͧ̇ͫʏLa_RiojͲʻ27ʹʲ̗͹ʰŰ̷ϔ̪ϖ̖Ϙ̦ϛ·̬ϠΌϽϸϬ˞̷ϨʹЅϤΘϮęлϲ͊͂yˢ7ϷчΨуЕͳβ͙ɞщіЅмЈ ЊъЍēЏ˴БѠГΣхЗΗεʴηϩІTКͤН̆ͩ̈ͬͮn_ŵϊͳ3ˋЮ̘ͺвͼЌϕ̢з΂ç̂΅ыΟĊ΋̰Ѝѓт˭̹ѫјэΚ҈ϰ͆ѥшȩѐђ̵͡ϺѕϣҦѦĞћϷўѧңдїҠΉџŵl 2ҙЖқδĞʪѯ8үΏѳͣМͦѷρѹʏŵjuяͳ͵ʼϏēа҆̚ϓҞͳж΁ϙҎϜпмːϡҪϫҧϦуҼ̻ϾΗȼ΄͜ 4ыҡӯ̷2ӃЍǘЏSҜ̓1ёѣьш˭6Ϸǘ˙ӽɔ2ҥӧ͒ҩҕҫҿҭίԍИҬӁˡѰҚϞӆμ̃ӉπςͬCaͱωrʎϋȠĝ̖҄бʲ̠҇ӝ̤ӟкԂґ̮оҟрӨϧӫцԒϭԕԂӵɉΡ̝ѪҽӭϹɉԐпчЁӱќΝҶѧѡӛ˰ѤՖ0ВnҺ϶ѱՑӀζӹԜѲѴӈοПσMʒ̎zЩ:35̡ϐ҅ԱӚԳҊӞйюҐϳҒӥԑԎΑӪԖӮɉӰˢӳՅґ9ˑѯӫ˰ӻԉӾӱՙΝՆ̀ζ֓ɑĵӼ̿ϏҝӴ֏ϏӂֈՍϻӦԗԓ֋ЃӬѲԓʲңȠ֥А՝ SepҺԆբԒѮԚզՋըƣѻLuisԓɱĞɳȿɘȀǹɤĦ׈׊׌ɯǲɻȁɿȔד֟ǃӇԠիѸРͭȞ_׉׋ԫյ2҃ӗϒ̝ҳ̓ռԵվ̨ӢӅнҔՐՂҗ͔ՀѬՍաէԈRԊӶ˷1֍׺֛֑Ԛ֞ʃ֖֠ҢЂ֙ϱ֛́՘ӄ֏֫Ӻŉ֮֡ҮѱҰֹҲؘҵָВҹһ֩ЀդJϊ͵·ח׋ϲذ0Ω1ӛѝӅթפОצσХo_GͯĂgʛϋ3ʾώշ԰г֙Դи΃տԸցԺ׽ԼҖөҘدҧՎ˭іׁ͗њՄէئ՞ЋַҬ٬Պֱգɰե؝ˎـξقӋקUshuaiղ3ʥ1ӕԯӘչ׳ٔ׶ٖҍԷ׺ԹғϢք̶֭٠׀օє٤֬ѭ٨ЂՔϱ՜ִ΅ʵ؅Լ՛ثѨ՟ٱՁօׂ̝ԛׅ̬\n"+
+"LʕkժͧCuraʎoڹѷu̐ѴĄٹСУPaz̪šճ6ˁױ֐̠ێَսŠՈę֞ەېǘBO؉Ċ֣̓شԂ۟ʯƉBڽzilۘɖǋʵĈǘȊ۩ۭ۫ŠŢĊƚȑƵĘה۶ۋ۸Ő۰Ņ۲ ɚǙ܁۬ۮƘɈώǓȴř܈ס܊ƣ۪܂܍95ɟɽǵıʽĲɸܗ۷ܚ5Ěĉܐ۽ũܔȬ܋܃ܛǈƜȿܓ܀ܤܙǞܲƍɩ Ťܭȶܖżܘ܌ǞțɽܴĚܿƇܯܚ6ŇȲزƄľۿܕȋ\t݃ܰݎȧɡ݂݉ܶܥǞݏɽܼݝݕ݌ǨȍȾǢܵܣݟܸǾƱǾǲēŦŨݬؓɛĦݘܚ8ݢƜݵǷݔݸ݁ݺݠȹƼ݇Ǣǖ݊Ʌݗކ98ވƜƩһނ݀ݖݻȯɧɽFebĈǝތǺăޙȹޛޓǋޕ݊۵ܷ݄ȹɼƜޝޟ ǲޢוޤޏȰ܅ĈƱޫɭ޸ݯސŤݐȞδܾݞޅ߁Ⱥ޻ދ܉ޘޏ֐ȧ޲۳ޖ݋ޭܰߑȲޔݥރߏ߁̀ߒޞĈ޵߈߀ޮՇ޻ɝߕެݮߧɊߡ޳߇ݭ߉߮őߚީŇ޾ȣߴߘܺŴ߅ݓ޶ݧȼƚȼŇɌɀȔؼ߫޿ގߟǝࠆĮߓɶ߹ߥࠎ߮ޒƍߓࠋࠂߗܚǆ޻ ޽ߎࠃɉާࠚߢܡࠝ߭ߘࠧםĘࠣݦࠞɔްƳݫߜɄޣࠗߘ࠵࠯ࠜࠤ࠳Ψ߰δ࠸ߖࠬࠟ߃ɽƿƚߺݹߦ۸˵ࡃЫߕލޙࡑɯĚࠈגࠌ߻ࡏۮࡘԓǩࠓʀߍ߳࡞ԓ߶ɽހ܇ࡀࡇԓ߾ࠈĉ࡜ࡎ࠻࡟Бȧ࡫őࡍބࡧɯݾƨǫ࠱ߝݧɯ࠙ťŧĘࠕ࠲࡮ךࡒࢊܮ࠳ࢍ߷מȆȀࡻߞ݄לωx࠯ࠔɬ࡝ࡵ׍ҿࠋēࡣࠊʂ࠹޷ࢡɝچࡃɘ2Ǹࡦࢫ01ƚࢬǝࢥߢ࢞ࠖࡖࢴࡿࠒࢺʀࢰȖ࠺ࢽܡɝࣃࢹޟࢻࢲࢽȠࢮࣂࢱ࢐ࢌ0ׯҿޕ࣊ࠉɏࣄࢪ࣎ࢆࣙࢯ࣒ࢩࢄࣕכ0ڄࣀ࣋ࡤࢨࡆ߼ࡶҁ࣐Ȕࣃࢼݠɝմҿَࣩࣚʁࣜࣤ3࠮࣑࣠ࣽ࢑ࣧȀ࢛ࣺ࣌ܮףۇ/ŦrĎhaĒ2ĝ9ʿˑӖϙ،˥औĵޙFNс֐ֺּęԁʹझ͆ठԏֻֽċजŉटडљҭ֒रϱफԓ́भДषČलع֧͔ӛऩࠒNԞЛفʗeĂmЖࢵʦېङ˝छѱޙBϹȰतֽچӄक़ैѵԡѻͱʠॎ˦38΀॓ĩॕпޙAMсग़़ढ़Ը˄εЊׯˢŸफ़ٷऋѶ/F̌ͱĂձओճ˖ۑच؍ׅॗ؄ज़दॽबथयॖݠक़عؐՉԌإݗָऻथࢵϷ঎ुуؽΝय़ٸঀRĖifă-औĉۏঊ॔ঌֱত٢ˑॴधڳঞওमڧসগέњशঝय़ऺঐঢখܸঘऴूΓধϱ঩ॿԡąagڀ̉ॏऔϗӗ̀ষЅহ̿঻ডঽֱē৉ࠆোৢऱৄع3ঐׯ঒ࢣ৑Һ৓िৰљࢵज़঒পԡŖceЦইࢰʦӕ\tৠ७঍৻৥ো২ؾ৫ɉ5ζڡ৺ৎՍې़Ӳ৵є़কէ৤أ͌জ٪ি৊ॴਗࢡ৏Ҭ৷Ѣਧ৕ԟऌBahڂইҁĝЮਊঋণ਎࡯৳৮৔Аؼζֿਢੀࢬ৷ۥ਱ॾਲ਼ঀͮنۊāoҽʾӸ঵६੃ਘ݄ਭܹӷ৲ܿԇऱ؈ϥੜਬ͑਀οԥmpنGڽndʇ१३ਖ਼५ĉ਌Ҵࢡ॰͢੐ԡڻڂ̐Ж4Ъघ਽শ·९ॱऴ৲़৴ॶٯদઋݠ੾Й৖οPঃنVौhۀӜյۖ੹ৡકܸગ˝ॳডਦڨĄʮ੫ͧBoУV׋ͱϰ৞ઈ਋ষ˰ઌॲʪॴભ੼ǴϙՎਠূાખઍҬচۚҐરઙͧŖʖu׌Ҵ਻ਗ਼੺ઽ৯નૌȯુબૐ̿એथӸધ݄઩ɔʲઐૃ՚યॠہ/EʟȄּরʻ3ख੸ઉਜ਼˥յञખCીোૃ଀ιC૤৳ׄ-ଇ੽ଃ٢૬૦ଆՕଉ׍ګҺʲ੣઒ࢣ৲ݵęূ଎Ǵଉ઱ʏم_ܘnc੖ҀĠچ૚દ̺଎९ଐપૡड़ଔڢଖॸѩଚॼଜࢬଞŧଠ૿କѳƣC਷ĦҍǽĪĮभȵƔࡴ୉ۭăҍȎۢΈǶȫࣣୈ୊ୖǆ࠽ݴ࢈۲˖u୒ࡼ˂ୟΑݛǢɫ͟୧ލ୔ୋ˞ࡸ࢈࣏୦୨ݖ୳ୠ7ܝܳǢ2Ť୰࣭ă୼șƌݪܠǝ஄୲୫ĉ୾șɋɾࣻŤ୹߬Ħஇஐۺޑஊகɪġୱ࠺ச97ࡰǙּɪČ஗ࠍதȦަ࢝ʀ஖஡୺Ɖத8ऀįܠő஍ணஏސ୘ߑǡıɘஃழஎ୕ૠȯɳɗல\t஬ࢠதߙɽ୐ܡௐ୓ிߠȼǩב௎஽ࢪ௒ܨࠦறȔளĞ୧஘ஆ௙ஹɡČ௟ஶ௙ୢɴ௄௞ோ௉ȼ௲୐ࡓௗ୩௒ࡉƜܟĘ஌௶௠௙Ťࢬ்͆௥௏ழ௩୪௉ࡗɦஞ௅஠௧அఐĦלɠ୮௮అ௰఑׏୭௴ఌ௯୞డ1୿ƍంɶఖ0஢ఆనஉǡđࢯమరఠచࢴళƝćɶƱ௽୻୫ੋࢣࠇ஺࣏ࣻదżஇౄࢷ୏னశుଥר̈৙ବʻ4৞॒૽ӘૉʿౚˁSचˑݑୄଲΝCL॔ېҸ٭;ౙʿ౛ౢ॔ଷ౦׺౩॔˟౭ਰ̪౰ƻౡӟ7ঐ౼଍ŉஇ౩сšಃةĮ౸ŒϏ؜౧ϱಎƘϏAƞ౮౷౪Œ౬ā૏ؠĵ౩ۡ౿ਜಌ̤ಛƘಂܟಙĒଢ˂ನŰಂֵ́ԬĞ·ಇLذƑʈİ־˸஡ӄ౸թۊcমʍ૳astʋĒЬԀʹзےূ೎ЬૼEϙಊभ˥Ьಡ୫EASॲۣ͜،ʵೀ̺ʾೝ௉೟ೡৼਕಫ2ې୰୅ϱ೬૱AʓŗńચͯͥƇ\tzഁݡڝϹٟ؁١પۣӡԼಸ಺೯ಽೱ೦௧ು౪ஶOԋ୭ȪɢࢃୈഗࠄȧంӲࣽͣۆঀળًસͳ5ʾʽ૚Ȱڤ೤٥॑ն৪ঋ ଟֶಒČCഗ഼γۅॊ/ڻڽڿۍյ4ಂથଯ޲ę૮ճιेഃԸӽڵڷഥઁڼھa੖ുLowʋ_Pʌପʡ\tൕnkൗ੬൙൅ുKڽĂੳij൪౓Gڀyaq׊ۮಅ঳ˆ੹ȺଡʼউēQ೘ӛಮEଖೃھೆc/وlapౖ૗յ5੷਼ৠҳඋଖއ˥೩͆GAಛƉFͯ൪Ľ୍२౏p\tඔೊȓ࢟ࡴඩlණĊ୘ౙఔࡤŤࠖභඹૺߌඵ୩ශŒğŰஓ୐඲tප࡭Ħ෇ƥȧݑĈःżිސ஧෌೉෎Ȅළݖෙ8ࠐސెం෍ාࢲ෢݆Ɯ௕Ʊැă෢Ňࡑē୐క෰\t෢Ʊ෴ేి෗ෑඪऺࢣιȒ࣫δ෪กࡠఉදࣻĚॅ۵ףtඔ̈එSͱďeŁʥܧЭമۓΤผॺ෵चೣ്·෇FKॲ৲׹ׅศสҧݽোؒČฯ಺০ֽˣˢऩӄษൔ૒̊΅ʒ́Жஂόର੆ҸыGFϥಂƏӄ์ॠ൫ͧ൸ൺʖЖώग่ਕƴ͎4ెGBGϥېֵੈઅ๡Y˝7ਕ౭ҳؾG๫Θ๋๫ƉۊڽșŇޯ࠯ଡ଼வƣ๸ऒஐ๻஥Ȁ௃୑ލກșɈߠܫ๾ຉŗຂ߂ߩ࣢๿żຊӯࠡɃຖĦຘߨ࢓࠰෠๷ຑഘజ۾ࠖພ߯ຠˣຢ຀຤ട຦ɪປຐ๹ടࠑࠈ๾ఏຩ෤ܛࣺ෨ෟຨຯɉࣟ௳ຈ࠺ຩ෻Ğ࡙ஔభ෸ຩஹߓ຿Ƅແີɉ׎ࢴලࠊ෿ăຊɯőЈ୚తɂ໛\tໝĞໟĞۼநධໍࢋຝ຤໠ɲ௤ࣛ໎໰Ğෳఢງ࡛໔ऒซइ࡚ࡤອທ໶఩৶໡ࣻנ࣓໯๹ୁ\t໿໅࣡ണ઀իsȄ೅Ď๙Ĝͷංฟѫܜ๛ૅ̭ۙ఩ыP๳஛̜ӄ༦๬ʲܟ·ຊ༦˾຀ʋ௨යු߅ູࠍP༴Š௲ഡຳ໇༼Ľ୘ස෵ன໒༂ຝགĊɈű໺ࣂǝຨཋ஝ரȝƄ༹ࢠ༻r༵པސݳేຏཁཛɔప߿བྷປ຺ཋ௓ఁ୛ཀࢪཚ༵Ű༷ཧཉໜཪ෬ఫ཭༒ไ൝iωಭԭӔพ඄ɰ঴થٴ౭૧ഺ໥༼PEിฑณʔตouthهěgڂʣऔೱԭྃाĮGԊ౓ກԨibବʨ༚઻चধœਈˁP೘؂ྲત໥ϙ๠༩ΤɫݴE๤๺ഷୃڭ൏୏ց෣྽ਧS੏ॉऌછrt_of_Sඖʕϋ0೩ගฤϮൎڢൔڶ൩૲࿑࿓࿕࿗࿙՟ു೸৚ۭඔ൨ڸു࿧࿔࿖࿘ځ࿬ऌ೸ʔ৚a࿲࿦ঃ࿶࿪࿹૲Domʕ̅က࿴ဂ࿩࿸࿚ുੱʒad࿿࿤࿳࿐ဎ࿷࿫૲൸ပौྕpeဌယ࿒ဃတ࿺ঀƴiന൧ဘခဧဏဝുMĎtsʋڽtဥঀ࿵ဳစുถନŗྗौemΆူဍဲလ၁ऌ၃Kitးုڷေ࿨၎ထၐ࿓׉೅ဗၗ၌ၙငၛੑ࿓Tઠω׌ွԡဿၚဪॢ࿓શ൥ʓၬચရၤၰοTજඔ൧ƣUཛ࿾đҍ஧ƿࡺơ࿇Hݖႁƞ൹˅෤ೱ༇ݷଢ଼żႍႃ႐˅ెƿࡅĜɫႋƉ႗ႏĽࠅĊႛǋ཈ތႊႌႂႣĊ෤ࣹ໺ԦȆޕԬċ׌ލႢ΅Šໄ࡫ႝႫႡႭႻඬƋஞႩࠖႺႄĊ୍ཎஔჇƷჀႀჂ჊ſഠƞܬႉ႟ႬႎჃ්ཱིიࢲ჉ಏȧɩ،ࡳ୩ტීັღࠫĦჩܛఀ࠶đࣖࢗჁნ჊5ჱࢇŨࡥ༊ăჯ6ཥབߣყმ႘Ǿᄂ໅ࠢࡔ࠺ᄀຄǱ༇భჵგჷݡȧ௻ࢂ႕ხდݨݲ࠯ࠁ჈ᄜǾ୘஑ఴδߤალჶᄇୡșܼ͆ႈსᄢ஥ࡩཬıჴ෸ჯ7ᄵఫთჽᄚჿᄳȦძČႪᄪᄔᄬᅃݣȴࣃᄓ႖ᅂໄႜᄌࢪᄺஹܼޡᄹᅂ༾ེჭᅁᄕஐჺຸࡅఏჯ8ᄉȩრჾ\tᅥᅖȴწᅙᅟீణޠᅓᄫႮ޺ɨᅮᅣࠍᅥᅡ໅ࢭᅝᅫᄳߋຠஂᄅᅶოߑȼஓ௝໚ᆁჯᆊߨༀࣲᅻࢠᆐᄼ࠾࢖ᅰᄬȽȲߓӸᅵᅈႏ໠Ȳ௕߲ജᅏᄕࡾᅳࡓҺᄲᆪ໷ܾࠡฏᅼᄜࢅᅳᆀॅႹᆶĞƱ༏ఋ໣ᆮᆨᄛᆰ0ǲ༏ᆍ࢕Ƿɸเ/ံʓeviੴྫྷʿౘ࿞҅ʪॹଌʨᇗˁMԶюಬ१ČტUYсౙϡę੨ᇦᇨઘʆ๔แൄ೉̪Ыᇖྡྷ;ᇷ༛ڎ̀ϏൌॵΜ྿\tVEϥิĮህҬಂǔˢ˟ഒ౞ሃሊ"}
 
 });
 
 require.define("/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./lumenize"}
 });
 
-require.define("/lumenize.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/lumenize.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 
 /*
 
@@ -4611,9 +460,7 @@ And last, additional functionality is provided by:
  */
 
 (function() {
-  var JSON, datatransform, tzTime;
-
-  JSON = require('JSON2');
+  var datatransform, tzTime;
 
   tzTime = require('tztime');
 
@@ -4675,710 +522,17 @@ And last, additional functionality is provided by:
 
 });
 
-require.define("/node_modules/JSON2/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"index.js"}
-});
-
-require.define("/node_modules/JSON2/index.js",function(require,module,exports,__dirname,__filename,process,global){// For use in Node.js
-
-var JSON2 = require('./json2');
-var cycle = require('./cycle');
-
-JSON2.decycle = cycle.decycle;
-JSON2.retrocycle = cycle.retrocycle;
-
-module.exports = JSON2;
-
-});
-
-require.define("/node_modules/JSON2/json2.js",function(require,module,exports,__dirname,__filename,process,global){/*
-    json2.js
-    2011-10-19
-
-    Public Domain.
-
-    NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
-
-    See http://www.JSON.org/js.html
-
-
-    This code should be minified before deployment.
-    See http://javascript.crockford.com/jsmin.html
-
-    USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
-    NOT CONTROL.
-
-
-    This file creates a global JSON object containing two methods: stringify
-    and parse.
-
-        JSON.stringify(value, replacer, space)
-            value       any JavaScript value, usually an object or array.
-
-            replacer    an optional parameter that determines how object
-                        values are stringified for objects. It can be a
-                        function or an array of strings.
-
-            space       an optional parameter that specifies the indentation
-                        of nested structures. If it is omitted, the text will
-                        be packed without extra whitespace. If it is a number,
-                        it will specify the number of spaces to indent at each
-                        level. If it is a string (such as '\t' or '&nbsp;'),
-                        it contains the characters used to indent at each level.
-
-            This method produces a JSON text from a JavaScript value.
-
-            When an object value is found, if the object contains a toJSON
-            method, its toJSON method will be called and the result will be
-            stringified. A toJSON method does not serialize: it returns the
-            value represented by the name/value pair that should be serialized,
-            or undefined if nothing should be serialized. The toJSON method
-            will be passed the key associated with the value, and this will be
-            bound to the value
-
-            For example, this would serialize Dates as ISO strings.
-
-                Date.prototype.toJSON = function (key) {
-                    function f(n) {
-                        // Format integers to have at least two digits.
-                        return n < 10 ? '0' + n : n;
-                    }
-
-                    return this.getUTCFullYear()   + '-' +
-                         f(this.getUTCMonth() + 1) + '-' +
-                         f(this.getUTCDate())      + 'T' +
-                         f(this.getUTCHours())     + ':' +
-                         f(this.getUTCMinutes())   + ':' +
-                         f(this.getUTCSeconds())   + 'Z';
-                };
-
-            You can provide an optional replacer method. It will be passed the
-            key and value of each member, with this bound to the containing
-            object. The value that is returned from your method will be
-            serialized. If your method returns undefined, then the member will
-            be excluded from the serialization.
-
-            If the replacer parameter is an array of strings, then it will be
-            used to select the members to be serialized. It filters the results
-            such that only members with keys listed in the replacer array are
-            stringified.
-
-            Values that do not have JSON representations, such as undefined or
-            functions, will not be serialized. Such values in objects will be
-            dropped; in arrays they will be replaced with null. You can use
-            a replacer function to replace those with JSON values.
-            JSON.stringify(undefined) returns undefined.
-
-            The optional space parameter produces a stringification of the
-            value that is filled with line breaks and indentation to make it
-            easier to read.
-
-            If the space parameter is a non-empty string, then that string will
-            be used for indentation. If the space parameter is a number, then
-            the indentation will be that many spaces.
-
-            Example:
-
-            text = JSON.stringify(['e', {pluribus: 'unum'}]);
-            // text is '["e",{"pluribus":"unum"}]'
-
-
-            text = JSON.stringify(['e', {pluribus: 'unum'}], null, '\t');
-            // text is '[\n\t"e",\n\t{\n\t\t"pluribus": "unum"\n\t}\n]'
-
-            text = JSON.stringify([new Date()], function (key, value) {
-                return this[key] instanceof Date ?
-                    'Date(' + this[key] + ')' : value;
-            });
-            // text is '["Date(---current time---)"]'
-
-
-        JSON.parse(text, reviver)
-            This method parses a JSON text to produce an object or array.
-            It can throw a SyntaxError exception.
-
-            The optional reviver parameter is a function that can filter and
-            transform the results. It receives each of the keys and values,
-            and its return value is used instead of the original value.
-            If it returns what it received, then the structure is not modified.
-            If it returns undefined then the member is deleted.
-
-            Example:
-
-            // Parse the text. Values that look like ISO date strings will
-            // be converted to Date objects.
-
-            myData = JSON.parse(text, function (key, value) {
-                var a;
-                if (typeof value === 'string') {
-                    a =
-/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
-                    if (a) {
-                        return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
-                            +a[5], +a[6]));
-                    }
-                }
-                return value;
-            });
-
-            myData = JSON.parse('["Date(09/09/2001)"]', function (key, value) {
-                var d;
-                if (typeof value === 'string' &&
-                        value.slice(0, 5) === 'Date(' &&
-                        value.slice(-1) === ')') {
-                    d = new Date(value.slice(5, -1));
-                    if (d) {
-                        return d;
-                    }
-                }
-                return value;
-            });
-
-
-    This is a reference implementation. You are free to copy, modify, or
-    redistribute.
-*/
-
-/*jslint evil: true, regexp: true */
-
-/*members "", "\b", "\t", "\n", "\f", "\r", "\"", JSON, "\\", apply,
-    call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
-    getUTCMinutes, getUTCMonth, getUTCSeconds, hasOwnProperty, join,
-    lastIndex, length, parse, prototype, push, replace, slice, stringify,
-    test, toJSON, toString, valueOf
-*/
-
-
-(function (JSON) {
-    'use strict';
-
-    function f(n) {
-        // Format integers to have at least two digits.
-        return n < 10 ? '0' + n : n;
-    }
-
-    /* DDOPSON-2012-04-16 - mutating global prototypes is NOT allowed for a well-behaved module.  
-     * It's also unneeded, since Date already defines toJSON() to the same ISOwhatever format below
-     * Thus, we skip this logic for the CommonJS case where 'exports' is defined
-     */
-    if (typeof exports === 'undefined') {
-      if (typeof Date.prototype.toJSON !== 'function') {
-          Date.prototype.toJSON = function (key) {
-
-              return isFinite(this.valueOf())
-                  ? this.getUTCFullYear()     + '-' +
-                      f(this.getUTCMonth() + 1) + '-' +
-                      f(this.getUTCDate())      + 'T' +
-                      f(this.getUTCHours())     + ':' +
-                      f(this.getUTCMinutes())   + ':' +
-                      f(this.getUTCSeconds())   + 'Z'
-                  : null;
-          };
-      }
-      
-      if (typeof String.prototype.toJSON !== 'function') {
-        String.prototype.toJSON = function (key) { return this.valueOf(); };
-      }
-
-      if (typeof Number.prototype.toJSON !== 'function') {
-        Number.prototype.toJSON = function (key) { return this.valueOf(); };
-      }
-      
-      if (typeof Boolean.prototype.toJSON !== 'function') {
-        Boolean.prototype.toJSON = function (key) { return this.valueOf(); };
-      }
-    }
-    var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-        escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
-        gap,
-        indent,
-        meta = {    // table of character substitutions
-            '\b': '\\b',
-            '\t': '\\t',
-            '\n': '\\n',
-            '\f': '\\f',
-            '\r': '\\r',
-            '"' : '\\"',
-            '\\': '\\\\'
-        },
-        rep;
-
-
-    function quote(string) {
-
-// If the string contains no control characters, no quote characters, and no
-// backslash characters, then we can safely slap some quotes around it.
-// Otherwise we must also replace the offending characters with safe escape
-// sequences.
-
-        escapable.lastIndex = 0;
-        return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
-            var c = meta[a];
-            return typeof c === 'string'
-                ? c
-                : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-        }) + '"' : '"' + string + '"';
-    }
-
-
-    function str(key, holder) {
-
-// Produce a string from holder[key].
-
-        var i,          // The loop counter.
-            k,          // The member key.
-            v,          // The member value.
-            length,
-            mind = gap,
-            partial,
-            value = holder[key];
-
-// If the value has a toJSON method, call it to obtain a replacement value.
-
-        if (value && typeof value === 'object' &&
-                typeof value.toJSON === 'function') {
-            value = value.toJSON(key);
-        }
-
-// If we were called with a replacer function, then call the replacer to
-// obtain a replacement value.
-
-        if (typeof rep === 'function') {
-            value = rep.call(holder, key, value);
-        }
-
-// What happens next depends on the value's type.
-
-        switch (typeof value) {
-        case 'string':
-            return quote(value);
-
-        case 'number':
-
-// JSON numbers must be finite. Encode non-finite numbers as null.
-
-            return isFinite(value) ? String(value) : 'null';
-
-        case 'boolean':
-        case 'null':
-
-// If the value is a boolean or null, convert it to a string. Note:
-// typeof null does not produce 'null'. The case is included here in
-// the remote chance that this gets fixed someday.
-
-            return String(value);
-
-// If the type is 'object', we might be dealing with an object or an array or
-// null.
-
-        case 'object':
-
-// Due to a specification blunder in ECMAScript, typeof null is 'object',
-// so watch out for that case.
-
-            if (!value) {
-                return 'null';
-            }
-
-// Make an array to hold the partial results of stringifying this object value.
-
-            gap += indent;
-            partial = [];
-
-// Is the value an array?
-
-            if (Object.prototype.toString.apply(value) === '[object Array]') {
-
-// The value is an array. Stringify every element. Use null as a placeholder
-// for non-JSON values.
-
-                length = value.length;
-                for (i = 0; i < length; i += 1) {
-                    partial[i] = str(i, value) || 'null';
-                }
-
-// Join all of the elements together, separated with commas, and wrap them in
-// brackets.
-
-                v = partial.length === 0
-                    ? '[]'
-                    : gap
-                    ? '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']'
-                    : '[' + partial.join(',') + ']';
-                gap = mind;
-                return v;
-            }
-
-// If the replacer is an array, use it to select the members to be stringified.
-
-            if (rep && typeof rep === 'object') {
-                length = rep.length;
-                for (i = 0; i < length; i += 1) {
-                    if (typeof rep[i] === 'string') {
-                        k = rep[i];
-                        v = str(k, value);
-                        if (v) {
-                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
-                        }
-                    }
-                }
-            } else {
-
-// Otherwise, iterate through all of the keys in the object.
-
-                for (k in value) {
-                    if (Object.prototype.hasOwnProperty.call(value, k)) {
-                        v = str(k, value);
-                        if (v) {
-                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
-                        }
-                    }
-                }
-            }
-
-// Join all of the member texts together, separated with commas,
-// and wrap them in braces.
-
-            v = partial.length === 0
-                ? '{}'
-                : gap
-                ? '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}'
-                : '{' + partial.join(',') + '}';
-            gap = mind;
-            return v;
-        }
-    }
-
-// If the JSON object does not yet have a stringify method, give it one.
-
-    if (typeof JSON.stringify !== 'function') {
-        JSON.stringify = function (value, replacer, space) {
-
-// The stringify method takes a value and an optional replacer, and an optional
-// space parameter, and returns a JSON text. The replacer can be a function
-// that can replace values, or an array of strings that will select the keys.
-// A default replacer method can be provided. Use of the space parameter can
-// produce text that is more easily readable.
-
-            var i;
-            gap = '';
-            indent = '';
-
-// If the space parameter is a number, make an indent string containing that
-// many spaces.
-
-            if (typeof space === 'number') {
-                for (i = 0; i < space; i += 1) {
-                    indent += ' ';
-                }
-
-// If the space parameter is a string, it will be used as the indent string.
-
-            } else if (typeof space === 'string') {
-                indent = space;
-            }
-
-// If there is a replacer, it must be a function or an array.
-// Otherwise, throw an error.
-
-            rep = replacer;
-            if (replacer && typeof replacer !== 'function' &&
-                    (typeof replacer !== 'object' ||
-                    typeof replacer.length !== 'number')) {
-                throw new Error('JSON.stringify');
-            }
-
-// Make a fake root object containing our value under the key of ''.
-// Return the result of stringifying the value.
-
-            return str('', {'': value});
-        };
-    }
-
-
-// If the JSON object does not yet have a parse method, give it one.
-
-    if (typeof JSON.parse !== 'function') {
-        JSON.parse = function (text, reviver) {
-
-// The parse method takes a text and an optional reviver function, and returns
-// a JavaScript value if the text is a valid JSON text.
-
-            var j;
-
-            function walk(holder, key) {
-
-// The walk method is used to recursively walk the resulting structure so
-// that modifications can be made.
-
-                var k, v, value = holder[key];
-                if (value && typeof value === 'object') {
-                    for (k in value) {
-                        if (Object.prototype.hasOwnProperty.call(value, k)) {
-                            v = walk(value, k);
-                            if (v !== undefined) {
-                                value[k] = v;
-                            } else {
-                                delete value[k];
-                            }
-                        }
-                    }
-                }
-                return reviver.call(holder, key, value);
-            }
-
-
-// Parsing happens in four stages. In the first stage, we replace certain
-// Unicode characters with escape sequences. JavaScript handles many characters
-// incorrectly, either silently deleting them, or treating them as line endings.
-
-            text = String(text);
-            cx.lastIndex = 0;
-            if (cx.test(text)) {
-                text = text.replace(cx, function (a) {
-                    return '\\u' +
-                        ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
-                });
-            }
-
-// In the second stage, we run the text against regular expressions that look
-// for non-JSON patterns. We are especially concerned with '()' and 'new'
-// because they can cause invocation, and '=' because it can cause mutation.
-// But just to be safe, we want to reject all unexpected forms.
-
-// We split the second stage into 4 regexp operations in order to work around
-// crippling inefficiencies in IE's and Safari's regexp engines. First we
-// replace the JSON backslash pairs with '@' (a non-JSON character). Second, we
-// replace all simple value tokens with ']' characters. Third, we delete all
-// open brackets that follow a colon or comma or that begin the text. Finally,
-// we look to see that the remaining characters are only whitespace or ']' or
-// ',' or ':' or '{' or '}'. If that is so, then the text is safe for eval.
-
-            if (/^[\],:{}\s]*$/
-                    .test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@')
-                        .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']')
-                        .replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
-
-// In the third stage we use the eval function to compile the text into a
-// JavaScript structure. The '{' operator is subject to a syntactic ambiguity
-// in JavaScript: it can begin a block or an object literal. We wrap the text
-// in parens to eliminate the ambiguity.
-
-                j = eval('(' + text + ')');
-
-// In the optional fourth stage, we recursively walk the new structure, passing
-// each name/value pair to a reviver function for possible transformation.
-
-                return typeof reviver === 'function'
-                    ? walk({'': j}, '')
-                    : j;
-            }
-
-// If the text is not JSON parseable, then a SyntaxError is thrown.
-
-            throw new SyntaxError('JSON.parse');
-        };
-    }
-})(
-    
-    // Create a JSON object only if one does not already exist. We create the
-    // methods in a closure to avoid creating global variables.
-    
-  (typeof exports !== 'undefined') ? 
-    exports : 
-    (window.JSON ? 
-      (window.JSON) :
-      (window.JSON = {})
-    )
-);
-
-});
-
-require.define("/node_modules/JSON2/cycle.js",function(require,module,exports,__dirname,__filename,process,global){// cycle.js
-// 2011-08-24
-
-/*jslint evil: true, regexp: true */
-
-/*members $ref, apply, call, decycle, hasOwnProperty, length, prototype, push,
-    retrocycle, stringify, test, toString
-*/
-
-(function (exports) {
-
-if (typeof exports.decycle !== 'function') {
-    exports.decycle = function decycle(object) {
-        'use strict';
-
-// Make a deep copy of an object or array, assuring that there is at most
-// one instance of each object or array in the resulting structure. The
-// duplicate references (which might be forming cycles) are replaced with
-// an object of the form
-//      {$ref: PATH}
-// where the PATH is a JSONPath string that locates the first occurance.
-// So,
-//      var a = [];
-//      a[0] = a;
-//      return JSON.stringify(JSON.decycle(a));
-// produces the string '[{"$ref":"$"}]'.
-
-// JSONPath is used to locate the unique object. $ indicates the top level of
-// the object or array. [NUMBER] or [STRING] indicates a child member or
-// property.
-
-        var objects = [],   // Keep a reference to each unique object or array
-            paths = [];     // Keep the path to each unique object or array
-
-        return (function derez(value, path) {
-
-// The derez recurses through the object, producing the deep copy.
-
-            var i,          // The loop counter
-                name,       // Property name
-                nu;         // The new object or array
-
-            switch (typeof value) {
-            case 'object':
-
-// typeof null === 'object', so get out if this value is not really an object.
-
-                if (!value) {
-                    return null;
-                }
-
-// If the value is an object or array, look to see if we have already
-// encountered it. If so, return a $ref/path object. This is a hard way,
-// linear search that will get slower as the number of unique objects grows.
-
-                for (i = 0; i < objects.length; i += 1) {
-                    if (objects[i] === value) {
-                        return {$ref: paths[i]};
-                    }
-                }
-
-// Otherwise, accumulate the unique value and its path.
-
-                objects.push(value);
-                paths.push(path);
-
-// If it is an array, replicate the array.
-
-                if (Object.prototype.toString.apply(value) === '[object Array]') {
-                    nu = [];
-                    for (i = 0; i < value.length; i += 1) {
-                        nu[i] = derez(value[i], path + '[' + i + ']');
-                    }
-                } else {
-
-// If it is an object, replicate the object.
-
-                    nu = {};
-                    for (name in value) {
-                        if (Object.prototype.hasOwnProperty.call(value, name)) {
-                            nu[name] = derez(value[name],
-                                path + '[' + JSON.stringify(name) + ']');
-                        }
-                    }
-                }
-                return nu;
-            case 'number':
-            case 'string':
-            case 'boolean':
-                return value;
-            }
-        }(object, '$'));
-    };
-}
-
-
-if (typeof exports.retrocycle !== 'function') {
-    exports.retrocycle = function retrocycle($) {
-        'use strict';
-
-// Restore an object that was reduced by decycle. Members whose values are
-// objects of the form
-//      {$ref: PATH}
-// are replaced with references to the value found by the PATH. This will
-// restore cycles. The object will be mutated.
-
-// The eval function is used to locate the values described by a PATH. The
-// root object is kept in a $ variable. A regular expression is used to
-// assure that the PATH is extremely well formed. The regexp contains nested
-// * quantifiers. That has been known to have extremely bad performance
-// problems on some browsers for very long strings. A PATH is expected to be
-// reasonably short. A PATH is allowed to belong to a very restricted subset of
-// Goessner's JSONPath.
-
-// So,
-//      var s = '[{"$ref":"$"}]';
-//      return JSON.retrocycle(JSON.parse(s));
-// produces an array containing a single element which is the array itself.
-
-        var px =
-            /^\$(?:\[(?:\d+|\"(?:[^\\\"\u0000-\u001f]|\\([\\\"\/bfnrt]|u[0-9a-zA-Z]{4}))*\")\])*$/;
-
-        (function rez(value) {
-
-// The rez function walks recursively through the object looking for $ref
-// properties. When it finds one that has a value that is a path, then it
-// replaces the $ref object with a reference to the value that is found by
-// the path.
-
-            var i, item, name, path;
-
-            if (value && typeof value === 'object') {
-                if (Object.prototype.toString.apply(value) === '[object Array]') {
-                    for (i = 0; i < value.length; i += 1) {
-                        item = value[i];
-                        if (item && typeof item === 'object') {
-                            path = item.$ref;
-                            if (typeof path === 'string' && px.test(path)) {
-                                value[i] = eval(path);
-                            } else {
-                                rez(item);
-                            }
-                        }
-                    }
-                } else {
-                    for (name in value) {
-                        if (typeof value[name] === 'object') {
-                            item = value[name];
-                            if (item) {
-                                path = item.$ref;
-                                if (typeof path === 'string' && px.test(path)) {
-                                    value[name] = eval(path);
-                                } else {
-                                    rez(item);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }($));
-        return $;
-    };
-}
-}) (
-  (typeof exports !== 'undefined') ? 
-    exports : 
-    (window.JSON ? 
-      (window.JSON) :
-      (window.JSON = {})
-    )
-);
-
-});
-
 require.define("/node_modules/tztime/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./tzTime"}
 });
 
-require.define("/node_modules/tztime/tzTime.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.8.0
+require.define("/node_modules/tztime/tzTime.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 
 /*
  * tzTime #
 
 _Timezone transformations in the browser and node.js plus timezone precise timeline creation for charting._
 
- *# Features ##
+## Features ##
 
 * Transform into and out of any timezone using Olson timezone rules
 * Timezone rule files embedded in the minified browser package. No need to host them
@@ -5404,7 +558,7 @@ _Timezone transformations in the browser and node.js plus timezone precise timel
    * Added: Quarter form (e.g. 2012Q3 equates to 2012-07-01)
    * Not supported: Ordinal form (e.g. 2012-001 for 2012-01-01, 2011-365 for 2012-12-31) not supported
 
- *# Granularity ##
+## Granularity ##
 
 Each Time object has a granularity. This means that you never have to
 worry about any bits lower than your specified granularity. A day has only
@@ -5430,7 +584,7 @@ Also, you can define your own custom hierarchical granularities, for example...
    * `iteration`
       * `iteration_day`
 
- *# Timezone precision ##
+## Timezone precision ##
 
 It's very hard to do filtering and grouping of time-series data with timezone precision.
 
@@ -5452,13 +606,13 @@ timezone manipulation... the moment you need to compare/query timestamped data. 
 holiday/weekend knockout manipulation without regard to timezone and only consider the timezone
 upon query submission or comparison.
 
- *# Month is 1-indexed as you would expect ##
+## Month is 1-indexed as you would expect ##
 
 Javascript's date object uses 0 for January and 11 for December. Time uses 1 for January and 12 for December...
 which is what ISO-8601 uses and what humans expect. Everyone who works with the javascript Date Object at one
 point or another gets burned by this.
 
- *# Week support ##
+## Week support ##
 
 Time has ISO-8601 week support. Implications of using this ISO format (paraphrased info from wikipedia):
 
@@ -5499,10 +653,10 @@ as they do in the ISO-8601 standard, or roll your own library. :-)
 
 });
 
-require.define("/node_modules/tztime/src/Time.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.8.0
+require.define("/node_modules/tztime/src/Time.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
   var Time, timezoneJS, utils,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   utils = require('./utils');
 
@@ -5513,7 +667,7 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
     /*
     @class Time
     
-     *# Basic usage ##
+    ## Basic usage ##
     
         {TimelineIterator, Timeline, Time} = require('../')
     
@@ -5586,14 +740,14 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
         console.log(q1.inGranularity(Time.MILLISECOND).toString())
          * 2011-07-01T00:00:00.000
         
-     *# Timezones ##
+    ## Timezones ##
     
     Time does timezone sensitive conversions.
     
         console.log(new Time('2011-01-01').getJSDate('America/Denver').toISOString())
          * 2011-01-01T07:00:00.000Z
      */
-    var g, spec, _ref;
+    var g, ref, spec;
 
     function Time(value, granularity, tz) {
 
@@ -5605,14 +759,14 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
       
       The constructor for Time supports the passing in of a String, a rata die number (RDN), or a config Object
       
-       *# String ##
+      ## String ##
       
       There are two kinds of strings that can be passed into the constructor:
       
       1. Human strings relative to now (e.g. "this day", "previous month", "next quarter", "this millisecond in Pacific/Fiji", etc.)
       2. ISO-8601 or custom masked (e.g. "I03D10" - 10th day of 3rd iteration)
       
-       *# Human strings relative to now ##
+      ## Human strings relative to now ##
       
       The string must be in the form `(this, previous, next) |granularity| [in |timezone|]`
       
@@ -5625,7 +779,7 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
       * `next quarter` next quarter
       * `previous week` last week
       
-       *# ISO-8601 or custom masked ##
+      ## ISO-8601 or custom masked ##
       
       When you pass in an ISO-8601 or custom mask string, Time uses the masks that are defined for each granularity to figure out the granularity...
       unless you explicitly provide a granularity. This parser works on all valid ISO-8601 forms except orginal dates (e.g. `"2012-288"`)
@@ -5646,32 +800,32 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
       may mistakenly request charts for iterations and releases that have not yet been defined. They are particularly useful when 
       you want to iterate to the last defined iteration/release.
       
-       *# Rata Die Number ##
+      ## Rata Die Number ##
       
       The **rata die number (RDN)** for a date is the number of days since 0001-01-01. You will probably never work
       directly with this number but it's what Time uses to convert between granularities. When you are instantiating
       a Time from an RDN, you must provide a granularity. Using RDN will work even for the granularities finer than day.
       Time will populate the finer grained segments (hour, minute, etc.) with the approriate `lowest` value.
       
-       *# Date ##
+      ## Date ##
       
       You can also pass in a JavaScript Date() Object. The passing in of a tz with this option doesn't make sense. You'll end
       up with the same Time value no matter what because the JS Date() already sorta has a timezone. I'm not sure if this
       option is even really useful. In most cases, you are probably better off using Time.getISOStringFromJSDate()
       
-       *# Object ##
+      ## Object ##
       
       You can also explicitly spell out the segments in a specification Object in the form of
       `{granularity: Time.DAY, year: 2009, month: 1, day: 1}`. If the granularity is specified but not all of the segments are
       provided, Time will fill in the missing value with the appropriate `lowest` value from _granularitySpecs.
       
-       *# granularity ##
+      ## granularity ##
       
       If you provide a granularity it will take precedence over whatever fields you've provided in your config or whatever segments
       you have provided in your string. Time will leave off extra values and fill in missing ones with the appropriate `lowest`
       value.
       
-       *# tz ##
+      ## tz ##
       
       Most of the time, Time assumes that any dates you pass in are timezone less. You'll specify Christmas as 12-25, then you'll
       shift the boundaries of Christmas for a specific timezone for boundary comparison.
@@ -5690,14 +844,14 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
       3. In either case, if the dates you want to compare to are in GMT, but you've got Times or Timelines, you'll have to provide a timezone on
          the way back out of Time/Timeline
        */
-      var config, jsDate, newCT, newConfig, rdn, s, segment, _i, _len, _ref, _ref1, _ref2, _ref3;
+      var config, jsDate, k, len, newCT, newConfig, rdn, ref, ref1, ref2, ref3, s, segment;
       this.beforePastFlag = '';
       switch (utils.type(value)) {
         case 'string':
           s = value;
-          if ((s.slice(-3, -2) === ':' && (_ref = s.slice(-6, -5), __indexOf.call('+-', _ref) >= 0)) || s.slice(-1) === 'Z') {
+          if ((s.slice(-3, -2) === ':' && (ref = s.slice(-6, -5), indexOf.call('+-', ref) >= 0)) || s.slice(-1) === 'Z') {
             if (tz != null) {
-              if (s.slice(-3, -2) === ':' && (_ref1 = s.slice(-6, -5), __indexOf.call('+-', _ref1) >= 0)) {
+              if (s.slice(-3, -2) === ':' && (ref1 = s.slice(-6, -5), indexOf.call('+-', ref1) >= 0)) {
                 throw new Error("tzTime.Time does not know how to deal with time shifted ISOStrings like what you sent: " + s);
               }
               if (s.slice(-1) === 'Z') {
@@ -5736,9 +890,9 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
           config = {};
           config.granularity = value.granularity;
           config.beforePastFlag = value.beforePastFlag;
-          _ref2 = Time._granularitySpecs[value.granularity].segments;
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            segment = _ref2[_i];
+          ref2 = Time._granularitySpecs[value.granularity].segments;
+          for (k = 0, len = ref2.length; k < len; k++) {
+            segment = ref2[k];
             config[segment] = value[segment];
           }
           if (tz != null) {
@@ -5750,7 +904,7 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
           }
       }
       if (tz != null) {
-        if ((_ref3 = this.beforePastFlag) === 'BEFORE_FIRST' || _ref3 === 'PAST_LAST') {
+        if ((ref3 = this.beforePastFlag) === 'BEFORE_FIRST' || ref3 === 'PAST_LAST') {
           throw new Error("Cannot do timezone manipulation on " + this.beforePastFlag);
         }
         if (granularity != null) {
@@ -5896,14 +1050,14 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
           granularitySpec.segmentStart = i + 1;
           granularitySpec.segmentLength = segmentEnd - i;
           return granularitySpec.regex = new RegExp(((function() {
-            var _i, _len, _ref, _results;
-            _ref = mask.split('');
-            _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              character = _ref[_i];
-              _results.push(character === '#' ? '\\d' : character);
+            var k, len, ref, results;
+            ref = mask.split('');
+            results = [];
+            for (k = 0, len = ref.length; k < len; k++) {
+              character = ref[k];
+              results.push(character === '#' ? '\\d' : character);
             }
-            return _results;
+            return results;
           })()).join(''));
         } else {
           return granularitySpec.regex = new RegExp(mask);
@@ -5911,9 +1065,9 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
       }
     };
 
-    _ref = Time._granularitySpecs;
-    for (g in _ref) {
-      spec = _ref[g];
+    ref = Time._granularitySpecs;
+    for (g in ref) {
+      spec = ref[g];
       Time._expandMask(spec);
       Time[g.toUpperCase()] = g;
     }
@@ -5923,15 +1077,15 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
     timezoneJS.timezone.init();
 
     Time.prototype._inBoundsCheck = function() {
-      var gs, lowest, rolloverValue, segment, segments, temp, _i, _len, _results;
+      var gs, k, len, lowest, results, rolloverValue, segment, segments, temp;
       if (this.beforePastFlag === '' || (this.beforePastFlag == null)) {
         if (!this.granularity) {
           throw new Error('@granularity should be set before _inBoundsCheck is ever called.');
         }
         segments = Time._granularitySpecs[this.granularity].segments;
-        _results = [];
-        for (_i = 0, _len = segments.length; _i < _len; _i++) {
-          segment = segments[_i];
+        results = [];
+        for (k = 0, len = segments.length; k < len; k++) {
+          segment = segments[k];
           gs = Time._granularitySpecs[segment];
           temp = this[segment];
           lowest = gs.lowest;
@@ -5939,41 +1093,41 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
           if (temp < lowest || temp >= rolloverValue) {
             if (temp === lowest - 1) {
               this[segment]++;
-              _results.push(this.decrement(segment));
+              results.push(this.decrement(segment));
             } else if (temp === rolloverValue) {
               this[segment]--;
-              _results.push(this.increment(segment));
+              results.push(this.increment(segment));
             } else {
               throw new Error("Tried to set " + segment + " to " + temp + ". It must be >= " + lowest + " and < " + rolloverValue);
             }
           } else {
-            _results.push(void 0);
+            results.push(void 0);
           }
         }
-        return _results;
+        return results;
       }
     };
 
     Time.prototype._setFromConfig = function(config) {
-      var segment, segments, _i, _len, _results;
+      var k, len, results, segment, segments;
       utils.assert(config.granularity != null, 'A granularity property must be part of the supplied config.');
       this.granularity = config.granularity;
       this.beforePastFlag = config.beforePastFlag != null ? config.beforePastFlag : '';
       segments = Time._granularitySpecs[this.granularity].segments;
-      _results = [];
-      for (_i = 0, _len = segments.length; _i < _len; _i++) {
-        segment = segments[_i];
+      results = [];
+      for (k = 0, len = segments.length; k < len; k++) {
+        segment = segments[k];
         if (config[segment] != null) {
-          _results.push(this[segment] = config[segment]);
+          results.push(this[segment] = config[segment]);
         } else {
-          _results.push(this[segment] = Time._granularitySpecs[segment].lowest);
+          results.push(this[segment] = Time._granularitySpecs[segment].lowest);
         }
       }
-      return _results;
+      return results;
     };
 
     Time.prototype._setFromString = function(s, granularity) {
-      var gs, l, sSplit, segment, segments, stillParsing, sub, tz, zuluCT, _i, _len, _ref1, _ref2, _results;
+      var gs, k, l, len, ref1, ref2, results, sSplit, segment, segments, stillParsing, sub, tz, zuluCT;
       if (s === 'PAST_LAST' || s === 'BEFORE_FIRST') {
         if (granularity != null) {
           this.granularity = granularity;
@@ -5984,7 +1138,7 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
         }
       }
       sSplit = s.split(' ');
-      if ((_ref1 = sSplit[0]) === 'this' || _ref1 === 'next' || _ref1 === 'previous') {
+      if ((ref1 = sSplit[0]) === 'this' || ref1 === 'next' || ref1 === 'previous') {
         if (sSplit[2] === 'in' && (sSplit[3] != null)) {
           tz = sSplit[3];
         } else {
@@ -5999,9 +1153,9 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
         }
         return;
       }
-      _ref2 = Time._granularitySpecs;
-      for (g in _ref2) {
-        spec = _ref2[g];
+      ref2 = Time._granularitySpecs;
+      for (g in ref2) {
+        spec = ref2[g];
         if (spec.segmentStart + spec.segmentLength === s.length || spec.mask.indexOf('#') < 0) {
           if (spec.regex.test(s)) {
             granularity = g;
@@ -6015,9 +1169,9 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
       this.granularity = granularity;
       segments = Time._granularitySpecs[this.granularity].segments;
       stillParsing = true;
-      _results = [];
-      for (_i = 0, _len = segments.length; _i < _len; _i++) {
-        segment = segments[_i];
+      results = [];
+      for (k = 0, len = segments.length; k < len; k++) {
+        segment = segments[k];
         if (stillParsing) {
           gs = Time._granularitySpecs[segment];
           l = gs.segmentLength;
@@ -6027,12 +1181,12 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
           }
         }
         if (stillParsing) {
-          _results.push(this[segment] = Number(sub));
+          results.push(this[segment] = Number(sub));
         } else {
-          _results.push(this[segment] = Time._granularitySpecs[segment].lowest);
+          results.push(this[segment] = Time._granularitySpecs[segment].lowest);
         }
       }
-      return _results;
+      return results;
     };
 
     Time._getStringPart = function(s, segment) {
@@ -6045,7 +1199,7 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
     };
 
     Time.prototype._setFromRDN = function(rdn, granularity) {
-      var J, a, afterCT, afterRDN, b, beforeCT, beforeRDN, c, config, d, da, db, dc, dg, granularitySpec, j, m, n, segment, specForLowest, w, x, y, z, _i, _len, _ref1;
+      var J, a, afterCT, afterRDN, b, beforeCT, beforeRDN, c, config, d, da, db, dc, dg, granularitySpec, j, k, len, m, n, ref1, segment, specForLowest, w, x, y, z;
       config = {
         granularity: granularity
       };
@@ -6098,9 +1252,9 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
           specForLowest = {
             granularity: granularity
           };
-          _ref1 = granularitySpec.segments;
-          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-            segment = _ref1[_i];
+          ref1 = granularitySpec.segments;
+          for (k = 0, len = ref1.length; k < len; k++) {
+            segment = ref1[k];
             specForLowest[segment] = Time._granularitySpecs[segment].lowest;
           }
           beforeCT = new Time(specForLowest);
@@ -6144,10 +1298,10 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
       @private
       @return {Boolean} true if the Time Object's granularity is above (coarser than) "day" level
        */
-      var segment, _i, _len, _ref1;
-      _ref1 = Time._granularitySpecs[this.granularity].segments;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        segment = _ref1[_i];
+      var k, len, ref1, segment;
+      ref1 = Time._granularitySpecs[this.granularity].segments;
+      for (k = 0, len = ref1.length; k < len; k++) {
+        segment = ref1[k];
         if (segment.indexOf('day') >= 0) {
           return false;
         }
@@ -6170,7 +1324,7 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
       (actually something that can be compared to GMT). It does **NOT** convert **FROM** GMT. Use getJSDateFromGMTInTZ()
       if you want to go in the other direction.
         
-       *# Usage ##
+      ## Usage ##
       
           ct = new Time('2011-01-01')
           d = new Date(Date.UTC(2011, 0, 1))
@@ -6287,11 +1441,11 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
           console.log(t.getSegmentsAsObject())
            * { year: 2011, month: 1, day: 10 }
        */
-      var rawObject, segment, segments, _i, _len;
+      var k, len, rawObject, segment, segments;
       segments = Time._granularitySpecs[this.granularity].segments;
       rawObject = {};
-      for (_i = 0, _len = segments.length; _i < _len; _i++) {
-        segment = segments[_i];
+      for (k = 0, len = segments.length; k < len; k++) {
+        segment = segments[k];
         rawObject[segment] = this[segment];
       }
       return rawObject;
@@ -6308,11 +1462,11 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
           console.log(t.getSegmentsAsArray())
            * [ 2011, 1, 10 ]
        */
-      var a, segment, segments, _i, _len;
+      var a, k, len, segment, segments;
       segments = Time._granularitySpecs[this.granularity].segments;
       a = [];
-      for (_i = 0, _len = segments.length; _i < _len; _i++) {
-        segment = segments[_i];
+      for (k = 0, len = segments.length; k < len; k++) {
+        segment = segments[k];
         a.push(this[segment]);
       }
       return a;
@@ -6330,14 +1484,14 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
            * 2012-01-01T00:00
            * 2012-01-01T00:00
        */
-      var after, before, granularitySpec, l, s, segment, segments, start, _i, _len, _ref1;
-      if ((_ref1 = this.beforePastFlag) === 'BEFORE_FIRST' || _ref1 === 'PAST_LAST') {
+      var after, before, granularitySpec, k, l, len, ref1, s, segment, segments, start;
+      if ((ref1 = this.beforePastFlag) === 'BEFORE_FIRST' || ref1 === 'PAST_LAST') {
         s = "" + this.beforePastFlag;
       } else {
         s = Time._granularitySpecs[this.granularity].mask;
         segments = Time._granularitySpecs[this.granularity].segments;
-        for (_i = 0, _len = segments.length; _i < _len; _i++) {
-          segment = segments[_i];
+        for (k = 0, len = segments.length; k < len; k++) {
+          segment = segments[k];
           granularitySpec = Time._granularitySpecs[segment];
           l = granularitySpec.segmentLength;
           start = granularitySpec.segmentStart;
@@ -6369,6 +1523,21 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
       7: 'Sunday'
     };
 
+    Time.MONTH_TO_S_MAP = {
+      1: 'January',
+      2: 'February',
+      3: 'March',
+      4: 'April',
+      5: 'May',
+      6: 'June',
+      7: 'July',
+      8: 'August',
+      9: 'September',
+      10: 'October',
+      11: 'November',
+      12: 'December'
+    };
+
     Time.DOW_MONTH_TABLE = [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4];
 
     Time.prototype.dowNumber = function() {
@@ -6381,11 +1550,11 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
           console.log(new Time('2012-01-01').dowNumber())
            * 7
        */
-      var dayNumber, y, _ref1;
+      var dayNumber, ref1, y;
       if (this.granularity === 'week_day') {
         return this.week_day;
       }
-      if ((_ref1 = this.granularity) === 'day' || _ref1 === 'hour' || _ref1 === 'minute' || _ref1 === 'second' || _ref1 === 'millisecond') {
+      if ((ref1 = this.granularity) === 'day' || ref1 === 'hour' || ref1 === 'minute' || ref1 === 'second' || ref1 === 'millisecond') {
         y = this.year;
         if (this.month < 3) {
           y--;
@@ -6411,6 +1580,18 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
            * Sunday
        */
       return Time.DOW_N_TO_S_MAP[this.dowNumber()];
+    };
+
+    Time.prototype.monthString = function() {
+
+      /*
+      @method monthString
+      @return {String} Returns the month as a String (e.g. "January")
+      
+          console.log(new Time('2012-01-01').monthString())
+           * January
+       */
+      return Time.MONTH_TO_S_MAP[this.month];
     };
 
     Time.prototype.rataDieNumber = function() {
@@ -6491,8 +1672,8 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
           console.log(new Time('2012Q3').inGranularity(Time.MONTH).toString())
            * 2012-07
        */
-      var newTime, tempGranularity, _ref1;
-      if ((_ref1 = this.granularity) === 'year' || _ref1 === 'month' || _ref1 === 'day' || _ref1 === 'hour' || _ref1 === 'minute' || _ref1 === 'second' || _ref1 === 'millisecond') {
+      var newTime, ref1, tempGranularity;
+      if ((ref1 = this.granularity) === 'year' || ref1 === 'month' || ref1 === 'day' || ref1 === 'hour' || ref1 === 'minute' || ref1 === 'second' || ref1 === 'millisecond') {
         if (granularity === 'year' || granularity === 'month' || granularity === 'day' || granularity === 'hour' || granularity === 'minute' || granularity === 'second' || granularity === 'millisecond') {
           tempGranularity = this.granularity;
           this.granularity = granularity;
@@ -6574,7 +1755,7 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
        */
       var lookup;
       lookup = this.year % 400;
-      return __indexOf.call(Time.YEARS_WITH_53_WEEKS, lookup) >= 0;
+      return indexOf.call(Time.YEARS_WITH_53_WEEKS, lookup) >= 0;
     };
 
     Time.prototype.equal = function(other) {
@@ -6589,7 +1770,7 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
           console.log(d3.equal(d4))
            * true
        */
-      var segment, segments, _i, _len;
+      var k, len, segment, segments;
       utils.assert(this.granularity === other.granularity, "Granulary of " + this + " does not match granularity of " + other + " on equality/inequality test");
       if (this.beforePastFlag === 'PAST_LAST' && other.beforePastFlag === 'PAST_LAST') {
         return true;
@@ -6610,8 +1791,8 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
         return false;
       }
       segments = Time._granularitySpecs[this.granularity].segments;
-      for (_i = 0, _len = segments.length; _i < _len; _i++) {
-        segment = segments[_i];
+      for (k = 0, len = segments.length; k < len; k++) {
+        segment = segments[k];
         if (this[segment] !== other[segment]) {
           return false;
         }
@@ -6633,7 +1814,7 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
           console.log(d2.greaterThan(d1))
            * true
        */
-      var segment, segments, _i, _len;
+      var k, len, segment, segments;
       utils.assert(this.granularity === other.granularity, "Granulary of " + this + " does not match granularity of " + other + " on equality/inequality test");
       if (this.beforePastFlag === 'PAST_LAST' && other.beforePastFlag === 'PAST_LAST') {
         return false;
@@ -6654,8 +1835,8 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
         return true;
       }
       segments = Time._granularitySpecs[this.granularity].segments;
-      for (_i = 0, _len = segments.length; _i < _len; _i++) {
-        segment = segments[_i];
+      for (k = 0, len = segments.length; k < len; k++) {
+        segment = segments[k];
         if (this[segment] > other[segment]) {
           return true;
         }
@@ -6711,8 +1892,8 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
     };
 
     Time.prototype._overUnderFlow = function() {
-      var granularitySpec, highestLevel, highestLevelSpec, lowest, rolloverValue, value, _ref1;
-      if ((_ref1 = this.beforePastFlag) === 'BEFORE_FIRST' || _ref1 === 'PAST_LAST') {
+      var granularitySpec, highestLevel, highestLevelSpec, lowest, ref1, rolloverValue, value;
+      if ((ref1 = this.beforePastFlag) === 'BEFORE_FIRST' || ref1 === 'PAST_LAST') {
         return true;
       } else {
         granularitySpec = Time._granularitySpecs[this.granularity];
@@ -6745,18 +1926,18 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
           console.log(new Time('2016W01').decrement().toString())
            * 2015W53
        */
-      var granularitySpec, gs, i, lastDayInMonthFlag, segment, segments, _i, _len, _results;
+      var granularitySpec, gs, i, k, lastDayInMonthFlag, len, results, segment, segments;
       if (this.beforePastFlag === 'PAST_LAST') {
         this.beforePastFlag = '';
         granularitySpec = Time._granularitySpecs[this.granularity];
         segments = granularitySpec.segments;
-        _results = [];
-        for (_i = 0, _len = segments.length; _i < _len; _i++) {
-          segment = segments[_i];
+        results = [];
+        for (k = 0, len = segments.length; k < len; k++) {
+          segment = segments[k];
           gs = Time._granularitySpecs[segment];
-          _results.push(this[segment] = gs.rolloverValue(this) - 1);
+          results.push(this[segment] = gs.rolloverValue(this) - 1);
         }
-        return _results;
+        return results;
       } else {
         lastDayInMonthFlag = this.day === this.daysInMonth();
         if (granularity == null) {
@@ -6803,18 +1984,18 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
           console.log(new Time('2012Q4').increment().toString())
            * 2013Q1
        */
-      var granularitySpec, gs, i, lastDayInMonthFlag, segment, segments, _i, _len, _results;
+      var granularitySpec, gs, i, k, lastDayInMonthFlag, len, results, segment, segments;
       if (this.beforePastFlag === 'BEFORE_FIRST') {
         this.beforePastFlag = '';
         granularitySpec = Time._granularitySpecs[this.granularity];
         segments = granularitySpec.segments;
-        _results = [];
-        for (_i = 0, _len = segments.length; _i < _len; _i++) {
-          segment = segments[_i];
+        results = [];
+        for (k = 0, len = segments.length; k < len; k++) {
+          segment = segments[k];
           gs = Time._granularitySpecs[segment];
-          _results.push(this[segment] = gs.lowest);
+          results.push(this[segment] = gs.lowest);
         }
-        return _results;
+        return results;
       } else {
         lastDayInMonthFlag = this.day === this.daysInMonth();
         if (granularity == null) {
@@ -7002,15 +2183,15 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
       granularity. If there is a use-case for it, Time could be upgraded to allow you to drill down into hours, minutes, etc. from any
       `_day` granularity but right now those lower order time granularities are only supported for the canonical ISO-6801 form.
        */
-      var _results;
-      _results = [];
+      var results;
+      results = [];
       for (g in granularitySpec) {
         spec = granularitySpec[g];
         Time._expandMask(spec);
         this._granularitySpecs[g] = spec;
-        _results.push(Time[g.toUpperCase()] = g);
+        results.push(Time[g.toUpperCase()] = g);
       }
-      return _results;
+      return results;
     };
 
     return Time;
@@ -7023,21 +2204,21 @@ require.define("/node_modules/tztime/src/Time.js",function(require,module,export
 
 });
 
-require.define("/node_modules/tztime/src/utils.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.8.0
+require.define("/node_modules/tztime/src/utils.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
-  var AssertException, ErrorBase, assert, clone, compare, exactMatch, filterMatch, isArray, keys, log, match, startsWith, trim, type, values,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+  var AssertException, ErrorBase, assert, clone, compare, decodeUtf8, encodeUtf8, exactMatch, filterMatch, isArray, keys, log, lzwDecode, lzwEncode, match, startsWith, trim, type, values,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   exports.MAX_INT = 2147483647;
 
   exports.MIN_INT = -2147483648;
 
-  ErrorBase = (function(_super) {
-    __extends(ErrorBase, _super);
+  ErrorBase = (function(superClass) {
+    extend(ErrorBase, superClass);
 
-    function ErrorBase(message) {
-      this.message = message != null ? message : 'Unknown error.';
+    function ErrorBase(message1) {
+      this.message = message1 != null ? message1 : 'Unknown error.';
       if (Error.captureStackTrace != null) {
         Error.captureStackTrace(this, this.constructor);
       }
@@ -7045,15 +2226,15 @@ require.define("/node_modules/tztime/src/utils.js",function(require,module,expor
     }
 
     ErrorBase.prototype.toString = function() {
-      return "" + this.name + ": " + this.message;
+      return this.name + ": " + this.message;
     };
 
     return ErrorBase;
 
   })(Error);
 
-  AssertException = (function(_super) {
-    __extends(AssertException, _super);
+  AssertException = (function(superClass) {
+    extend(AssertException, superClass);
 
     function AssertException() {
       return AssertException.__super__.constructor.apply(this, arguments);
@@ -7139,11 +2320,11 @@ require.define("/node_modules/tztime/src/utils.js",function(require,module,expor
   };
 
   type = (function() {
-    var classToType, name, _i, _len, _ref;
+    var classToType, j, len, name, ref;
     classToType = {};
-    _ref = "Boolean Number String Function Array Date RegExp Undefined Null".split(" ");
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      name = _ref[_i];
+    ref = "Boolean Number String Function Array Date RegExp Undefined Null".split(" ");
+    for (j = 0, len = ref.length; j < len; j++) {
+      name = ref[j];
       classToType["[object " + name + "]"] = name.toLowerCase();
     }
     return function(obj) {
@@ -7187,26 +2368,26 @@ require.define("/node_modules/tztime/src/utils.js",function(require,module,expor
   keys = Object.keys || function(obj) {
     var key, val;
     return (function() {
-      var _results;
-      _results = [];
+      var results;
+      results = [];
       for (key in obj) {
         val = obj[key];
-        _results.push(key);
+        results.push(key);
       }
-      return _results;
+      return results;
     })();
   };
 
   values = function(obj) {
     var key, val;
     return (function() {
-      var _results;
-      _results = [];
+      var results;
+      results = [];
       for (key in obj) {
         val = obj[key];
-        _results.push(val);
+        results.push(val);
       }
-      return _results;
+      return results;
     })();
   };
 
@@ -7222,7 +2403,7 @@ require.define("/node_modules/tztime/src/utils.js",function(require,module,expor
   };
 
   compare = function(a, b) {
-    var aString, bString, index, value, _i, _len;
+    var aString, bString, index, j, len, value;
     if (a === null) {
       return 1;
     }
@@ -7235,7 +2416,7 @@ require.define("/node_modules/tztime/src/utils.js",function(require,module,expor
       case 'date':
         return b - a;
       case 'array':
-        for (index = _i = 0, _len = a.length; _i < _len; index = ++_i) {
+        for (index = j = 0, len = a.length; j < len; index = ++j) {
           value = a[index];
           if (b.length - 1 >= index && value < b[index]) {
             return 1;
@@ -7269,6 +2450,73 @@ require.define("/node_modules/tztime/src/utils.js",function(require,module,expor
     }
   };
 
+  encodeUtf8 = function(s) {
+    return unescape(encodeURIComponent(s));
+  };
+
+  decodeUtf8 = function(s) {
+    return decodeURIComponent(escape(s));
+  };
+
+  lzwEncode = function(s) {
+    var code, currChar, data, dict, i, out, phrase;
+    s = encodeUtf8(s);
+    dict = {};
+    data = (s + "").split("");
+    out = [];
+    currChar = void 0;
+    phrase = data[0];
+    code = 256;
+    i = 1;
+    while (i < data.length) {
+      currChar = data[i];
+      if (dict[phrase + currChar] != null) {
+        phrase += currChar;
+      } else {
+        out.push((phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0)));
+        dict[phrase + currChar] = code;
+        code++;
+        phrase = currChar;
+      }
+      i++;
+    }
+    out.push((phrase.length > 1 ? dict[phrase] : phrase.charCodeAt(0)));
+    i = 0;
+    while (i < out.length) {
+      out[i] = String.fromCharCode(out[i]);
+      i++;
+    }
+    return out.join("");
+  };
+
+  lzwDecode = function(s) {
+    var code, currChar, currCode, data, dict, i, oldPhrase, out, outS, phrase;
+    dict = {};
+    data = (s + "").split("");
+    currChar = data[0];
+    oldPhrase = currChar;
+    out = [currChar];
+    code = 256;
+    phrase = void 0;
+    i = 1;
+    while (i < data.length) {
+      currCode = data[i].charCodeAt(0);
+      if (currCode < 256) {
+        phrase = data[i];
+      } else {
+        phrase = (dict[currCode] ? dict[currCode] : oldPhrase + currChar);
+      }
+      out.push(phrase);
+      currChar = phrase.charAt(0);
+      dict[code] = oldPhrase + currChar;
+      code++;
+      oldPhrase = phrase;
+      i++;
+    }
+    outS = out.join("");
+    return decodeUtf8(outS);
+  };
+
   exports.log = log;
 
   exports.AssertException = AssertException;
@@ -7295,6 +2543,10 @@ require.define("/node_modules/tztime/src/utils.js",function(require,module,expor
 
   exports.compare = compare;
 
+  exports.lzwEncode = lzwEncode;
+
+  exports.lzwDecode = lzwDecode;
+
   exports._ = require('underscore');
 
 }).call(this);
@@ -7304,9 +2556,9 @@ require.define("/node_modules/tztime/src/utils.js",function(require,module,expor
 require.define("/node_modules/tztime/node_modules/underscore/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"underscore.js"}
 });
 
-require.define("/node_modules/tztime/node_modules/underscore/underscore.js",function(require,module,exports,__dirname,__filename,process,global){//     Underscore.js 1.4.4
+require.define("/node_modules/tztime/node_modules/underscore/underscore.js",function(require,module,exports,__dirname,__filename,process,global){//     Underscore.js 1.8.3
 //     http://underscorejs.org
-//     (c) 2009-2013 Jeremy Ashkenas, DocumentCloud Inc.
+//     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
 (function() {
@@ -7314,40 +2566,32 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
   // Baseline setup
   // --------------
 
-  // Establish the root object, `window` in the browser, or `global` on the server.
+  // Establish the root object, `window` in the browser, or `exports` on the server.
   var root = this;
 
   // Save the previous value of the `_` variable.
   var previousUnderscore = root._;
 
-  // Establish the object that gets returned to break out of a loop iteration.
-  var breaker = {};
-
   // Save bytes in the minified (but not gzipped) version:
   var ArrayProto = Array.prototype, ObjProto = Object.prototype, FuncProto = Function.prototype;
 
   // Create quick reference variables for speed access to core prototypes.
-  var push             = ArrayProto.push,
-      slice            = ArrayProto.slice,
-      concat           = ArrayProto.concat,
-      toString         = ObjProto.toString,
-      hasOwnProperty   = ObjProto.hasOwnProperty;
+  var
+    push             = ArrayProto.push,
+    slice            = ArrayProto.slice,
+    toString         = ObjProto.toString,
+    hasOwnProperty   = ObjProto.hasOwnProperty;
 
   // All **ECMAScript 5** native function implementations that we hope to use
   // are declared here.
   var
-    nativeForEach      = ArrayProto.forEach,
-    nativeMap          = ArrayProto.map,
-    nativeReduce       = ArrayProto.reduce,
-    nativeReduceRight  = ArrayProto.reduceRight,
-    nativeFilter       = ArrayProto.filter,
-    nativeEvery        = ArrayProto.every,
-    nativeSome         = ArrayProto.some,
-    nativeIndexOf      = ArrayProto.indexOf,
-    nativeLastIndexOf  = ArrayProto.lastIndexOf,
     nativeIsArray      = Array.isArray,
     nativeKeys         = Object.keys,
-    nativeBind         = FuncProto.bind;
+    nativeBind         = FuncProto.bind,
+    nativeCreate       = Object.create;
+
+  // Naked function reference for surrogate-prototype-swapping.
+  var Ctor = function(){};
 
   // Create a safe reference to the Underscore object for use below.
   var _ = function(obj) {
@@ -7358,8 +2602,7 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
 
   // Export the Underscore object for **Node.js**, with
   // backwards-compatibility for the old `require()` API. If we're in
-  // the browser, add `_` as a global object via a string identifier,
-  // for Closure Compiler "advanced" mode.
+  // the browser, add `_` as a global object.
   if (typeof exports !== 'undefined') {
     if (typeof module !== 'undefined' && module.exports) {
       exports = module.exports = _;
@@ -7370,161 +2613,217 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
   }
 
   // Current version.
-  _.VERSION = '1.4.4';
+  _.VERSION = '1.8.3';
+
+  // Internal function that returns an efficient (for current engines) version
+  // of the passed-in callback, to be repeatedly applied in other Underscore
+  // functions.
+  var optimizeCb = function(func, context, argCount) {
+    if (context === void 0) return func;
+    switch (argCount == null ? 3 : argCount) {
+      case 1: return function(value) {
+        return func.call(context, value);
+      };
+      case 2: return function(value, other) {
+        return func.call(context, value, other);
+      };
+      case 3: return function(value, index, collection) {
+        return func.call(context, value, index, collection);
+      };
+      case 4: return function(accumulator, value, index, collection) {
+        return func.call(context, accumulator, value, index, collection);
+      };
+    }
+    return function() {
+      return func.apply(context, arguments);
+    };
+  };
+
+  // A mostly-internal function to generate callbacks that can be applied
+  // to each element in a collection, returning the desired result — either
+  // identity, an arbitrary callback, a property matcher, or a property accessor.
+  var cb = function(value, context, argCount) {
+    if (value == null) return _.identity;
+    if (_.isFunction(value)) return optimizeCb(value, context, argCount);
+    if (_.isObject(value)) return _.matcher(value);
+    return _.property(value);
+  };
+  _.iteratee = function(value, context) {
+    return cb(value, context, Infinity);
+  };
+
+  // An internal function for creating assigner functions.
+  var createAssigner = function(keysFunc, undefinedOnly) {
+    return function(obj) {
+      var length = arguments.length;
+      if (length < 2 || obj == null) return obj;
+      for (var index = 1; index < length; index++) {
+        var source = arguments[index],
+            keys = keysFunc(source),
+            l = keys.length;
+        for (var i = 0; i < l; i++) {
+          var key = keys[i];
+          if (!undefinedOnly || obj[key] === void 0) obj[key] = source[key];
+        }
+      }
+      return obj;
+    };
+  };
+
+  // An internal function for creating a new object that inherits from another.
+  var baseCreate = function(prototype) {
+    if (!_.isObject(prototype)) return {};
+    if (nativeCreate) return nativeCreate(prototype);
+    Ctor.prototype = prototype;
+    var result = new Ctor;
+    Ctor.prototype = null;
+    return result;
+  };
+
+  var property = function(key) {
+    return function(obj) {
+      return obj == null ? void 0 : obj[key];
+    };
+  };
+
+  // Helper for collection methods to determine whether a collection
+  // should be iterated as an array or as an object
+  // Related: http://people.mozilla.org/~jorendorff/es6-draft.html#sec-tolength
+  // Avoids a very nasty iOS 8 JIT bug on ARM-64. #2094
+  var MAX_ARRAY_INDEX = Math.pow(2, 53) - 1;
+  var getLength = property('length');
+  var isArrayLike = function(collection) {
+    var length = getLength(collection);
+    return typeof length == 'number' && length >= 0 && length <= MAX_ARRAY_INDEX;
+  };
 
   // Collection Functions
   // --------------------
 
   // The cornerstone, an `each` implementation, aka `forEach`.
-  // Handles objects with the built-in `forEach`, arrays, and raw objects.
-  // Delegates to **ECMAScript 5**'s native `forEach` if available.
-  var each = _.each = _.forEach = function(obj, iterator, context) {
-    if (obj == null) return;
-    if (nativeForEach && obj.forEach === nativeForEach) {
-      obj.forEach(iterator, context);
-    } else if (obj.length === +obj.length) {
-      for (var i = 0, l = obj.length; i < l; i++) {
-        if (iterator.call(context, obj[i], i, obj) === breaker) return;
+  // Handles raw objects in addition to array-likes. Treats all
+  // sparse array-likes as if they were dense.
+  _.each = _.forEach = function(obj, iteratee, context) {
+    iteratee = optimizeCb(iteratee, context);
+    var i, length;
+    if (isArrayLike(obj)) {
+      for (i = 0, length = obj.length; i < length; i++) {
+        iteratee(obj[i], i, obj);
       }
     } else {
-      for (var key in obj) {
-        if (_.has(obj, key)) {
-          if (iterator.call(context, obj[key], key, obj) === breaker) return;
-        }
+      var keys = _.keys(obj);
+      for (i = 0, length = keys.length; i < length; i++) {
+        iteratee(obj[keys[i]], keys[i], obj);
       }
     }
+    return obj;
   };
 
-  // Return the results of applying the iterator to each element.
-  // Delegates to **ECMAScript 5**'s native `map` if available.
-  _.map = _.collect = function(obj, iterator, context) {
-    var results = [];
-    if (obj == null) return results;
-    if (nativeMap && obj.map === nativeMap) return obj.map(iterator, context);
-    each(obj, function(value, index, list) {
-      results[results.length] = iterator.call(context, value, index, list);
-    });
+  // Return the results of applying the iteratee to each element.
+  _.map = _.collect = function(obj, iteratee, context) {
+    iteratee = cb(iteratee, context);
+    var keys = !isArrayLike(obj) && _.keys(obj),
+        length = (keys || obj).length,
+        results = Array(length);
+    for (var index = 0; index < length; index++) {
+      var currentKey = keys ? keys[index] : index;
+      results[index] = iteratee(obj[currentKey], currentKey, obj);
+    }
     return results;
   };
 
-  var reduceError = 'Reduce of empty array with no initial value';
+  // Create a reducing function iterating left or right.
+  function createReduce(dir) {
+    // Optimized iterator function as using arguments.length
+    // in the main function will deoptimize the, see #1991.
+    function iterator(obj, iteratee, memo, keys, index, length) {
+      for (; index >= 0 && index < length; index += dir) {
+        var currentKey = keys ? keys[index] : index;
+        memo = iteratee(memo, obj[currentKey], currentKey, obj);
+      }
+      return memo;
+    }
+
+    return function(obj, iteratee, memo, context) {
+      iteratee = optimizeCb(iteratee, context, 4);
+      var keys = !isArrayLike(obj) && _.keys(obj),
+          length = (keys || obj).length,
+          index = dir > 0 ? 0 : length - 1;
+      // Determine the initial value if none is provided.
+      if (arguments.length < 3) {
+        memo = obj[keys ? keys[index] : index];
+        index += dir;
+      }
+      return iterator(obj, iteratee, memo, keys, index, length);
+    };
+  }
 
   // **Reduce** builds up a single result from a list of values, aka `inject`,
-  // or `foldl`. Delegates to **ECMAScript 5**'s native `reduce` if available.
-  _.reduce = _.foldl = _.inject = function(obj, iterator, memo, context) {
-    var initial = arguments.length > 2;
-    if (obj == null) obj = [];
-    if (nativeReduce && obj.reduce === nativeReduce) {
-      if (context) iterator = _.bind(iterator, context);
-      return initial ? obj.reduce(iterator, memo) : obj.reduce(iterator);
-    }
-    each(obj, function(value, index, list) {
-      if (!initial) {
-        memo = value;
-        initial = true;
-      } else {
-        memo = iterator.call(context, memo, value, index, list);
-      }
-    });
-    if (!initial) throw new TypeError(reduceError);
-    return memo;
-  };
+  // or `foldl`.
+  _.reduce = _.foldl = _.inject = createReduce(1);
 
   // The right-associative version of reduce, also known as `foldr`.
-  // Delegates to **ECMAScript 5**'s native `reduceRight` if available.
-  _.reduceRight = _.foldr = function(obj, iterator, memo, context) {
-    var initial = arguments.length > 2;
-    if (obj == null) obj = [];
-    if (nativeReduceRight && obj.reduceRight === nativeReduceRight) {
-      if (context) iterator = _.bind(iterator, context);
-      return initial ? obj.reduceRight(iterator, memo) : obj.reduceRight(iterator);
-    }
-    var length = obj.length;
-    if (length !== +length) {
-      var keys = _.keys(obj);
-      length = keys.length;
-    }
-    each(obj, function(value, index, list) {
-      index = keys ? keys[--length] : --length;
-      if (!initial) {
-        memo = obj[index];
-        initial = true;
-      } else {
-        memo = iterator.call(context, memo, obj[index], index, list);
-      }
-    });
-    if (!initial) throw new TypeError(reduceError);
-    return memo;
-  };
+  _.reduceRight = _.foldr = createReduce(-1);
 
   // Return the first value which passes a truth test. Aliased as `detect`.
-  _.find = _.detect = function(obj, iterator, context) {
-    var result;
-    any(obj, function(value, index, list) {
-      if (iterator.call(context, value, index, list)) {
-        result = value;
-        return true;
-      }
-    });
-    return result;
+  _.find = _.detect = function(obj, predicate, context) {
+    var key;
+    if (isArrayLike(obj)) {
+      key = _.findIndex(obj, predicate, context);
+    } else {
+      key = _.findKey(obj, predicate, context);
+    }
+    if (key !== void 0 && key !== -1) return obj[key];
   };
 
   // Return all the elements that pass a truth test.
-  // Delegates to **ECMAScript 5**'s native `filter` if available.
   // Aliased as `select`.
-  _.filter = _.select = function(obj, iterator, context) {
+  _.filter = _.select = function(obj, predicate, context) {
     var results = [];
-    if (obj == null) return results;
-    if (nativeFilter && obj.filter === nativeFilter) return obj.filter(iterator, context);
-    each(obj, function(value, index, list) {
-      if (iterator.call(context, value, index, list)) results[results.length] = value;
+    predicate = cb(predicate, context);
+    _.each(obj, function(value, index, list) {
+      if (predicate(value, index, list)) results.push(value);
     });
     return results;
   };
 
   // Return all the elements for which a truth test fails.
-  _.reject = function(obj, iterator, context) {
-    return _.filter(obj, function(value, index, list) {
-      return !iterator.call(context, value, index, list);
-    }, context);
+  _.reject = function(obj, predicate, context) {
+    return _.filter(obj, _.negate(cb(predicate)), context);
   };
 
   // Determine whether all of the elements match a truth test.
-  // Delegates to **ECMAScript 5**'s native `every` if available.
   // Aliased as `all`.
-  _.every = _.all = function(obj, iterator, context) {
-    iterator || (iterator = _.identity);
-    var result = true;
-    if (obj == null) return result;
-    if (nativeEvery && obj.every === nativeEvery) return obj.every(iterator, context);
-    each(obj, function(value, index, list) {
-      if (!(result = result && iterator.call(context, value, index, list))) return breaker;
-    });
-    return !!result;
+  _.every = _.all = function(obj, predicate, context) {
+    predicate = cb(predicate, context);
+    var keys = !isArrayLike(obj) && _.keys(obj),
+        length = (keys || obj).length;
+    for (var index = 0; index < length; index++) {
+      var currentKey = keys ? keys[index] : index;
+      if (!predicate(obj[currentKey], currentKey, obj)) return false;
+    }
+    return true;
   };
 
   // Determine if at least one element in the object matches a truth test.
-  // Delegates to **ECMAScript 5**'s native `some` if available.
   // Aliased as `any`.
-  var any = _.some = _.any = function(obj, iterator, context) {
-    iterator || (iterator = _.identity);
-    var result = false;
-    if (obj == null) return result;
-    if (nativeSome && obj.some === nativeSome) return obj.some(iterator, context);
-    each(obj, function(value, index, list) {
-      if (result || (result = iterator.call(context, value, index, list))) return breaker;
-    });
-    return !!result;
+  _.some = _.any = function(obj, predicate, context) {
+    predicate = cb(predicate, context);
+    var keys = !isArrayLike(obj) && _.keys(obj),
+        length = (keys || obj).length;
+    for (var index = 0; index < length; index++) {
+      var currentKey = keys ? keys[index] : index;
+      if (predicate(obj[currentKey], currentKey, obj)) return true;
+    }
+    return false;
   };
 
-  // Determine if the array or object contains a given value (using `===`).
-  // Aliased as `include`.
-  _.contains = _.include = function(obj, target) {
-    if (obj == null) return false;
-    if (nativeIndexOf && obj.indexOf === nativeIndexOf) return obj.indexOf(target) != -1;
-    return any(obj, function(value) {
-      return value === target;
-    });
+  // Determine if the array or object contains a given item (using `===`).
+  // Aliased as `includes` and `include`.
+  _.contains = _.includes = _.include = function(obj, item, fromIndex, guard) {
+    if (!isArrayLike(obj)) obj = _.values(obj);
+    if (typeof fromIndex != 'number' || guard) fromIndex = 0;
+    return _.indexOf(obj, item, fromIndex) >= 0;
   };
 
   // Invoke a method (with arguments) on every item in a collection.
@@ -7532,89 +2831,111 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
     var args = slice.call(arguments, 2);
     var isFunc = _.isFunction(method);
     return _.map(obj, function(value) {
-      return (isFunc ? method : value[method]).apply(value, args);
+      var func = isFunc ? method : value[method];
+      return func == null ? func : func.apply(value, args);
     });
   };
 
   // Convenience version of a common use case of `map`: fetching a property.
   _.pluck = function(obj, key) {
-    return _.map(obj, function(value){ return value[key]; });
+    return _.map(obj, _.property(key));
   };
 
   // Convenience version of a common use case of `filter`: selecting only objects
   // containing specific `key:value` pairs.
-  _.where = function(obj, attrs, first) {
-    if (_.isEmpty(attrs)) return first ? null : [];
-    return _[first ? 'find' : 'filter'](obj, function(value) {
-      for (var key in attrs) {
-        if (attrs[key] !== value[key]) return false;
-      }
-      return true;
-    });
+  _.where = function(obj, attrs) {
+    return _.filter(obj, _.matcher(attrs));
   };
 
   // Convenience version of a common use case of `find`: getting the first object
   // containing specific `key:value` pairs.
   _.findWhere = function(obj, attrs) {
-    return _.where(obj, attrs, true);
+    return _.find(obj, _.matcher(attrs));
   };
 
-  // Return the maximum element or (element-based computation).
-  // Can't optimize arrays of integers longer than 65,535 elements.
-  // See: https://bugs.webkit.org/show_bug.cgi?id=80797
-  _.max = function(obj, iterator, context) {
-    if (!iterator && _.isArray(obj) && obj[0] === +obj[0] && obj.length < 65535) {
-      return Math.max.apply(Math, obj);
+  // Return the maximum element (or element-based computation).
+  _.max = function(obj, iteratee, context) {
+    var result = -Infinity, lastComputed = -Infinity,
+        value, computed;
+    if (iteratee == null && obj != null) {
+      obj = isArrayLike(obj) ? obj : _.values(obj);
+      for (var i = 0, length = obj.length; i < length; i++) {
+        value = obj[i];
+        if (value > result) {
+          result = value;
+        }
+      }
+    } else {
+      iteratee = cb(iteratee, context);
+      _.each(obj, function(value, index, list) {
+        computed = iteratee(value, index, list);
+        if (computed > lastComputed || computed === -Infinity && result === -Infinity) {
+          result = value;
+          lastComputed = computed;
+        }
+      });
     }
-    if (!iterator && _.isEmpty(obj)) return -Infinity;
-    var result = {computed : -Infinity, value: -Infinity};
-    each(obj, function(value, index, list) {
-      var computed = iterator ? iterator.call(context, value, index, list) : value;
-      computed >= result.computed && (result = {value : value, computed : computed});
-    });
-    return result.value;
+    return result;
   };
 
   // Return the minimum element (or element-based computation).
-  _.min = function(obj, iterator, context) {
-    if (!iterator && _.isArray(obj) && obj[0] === +obj[0] && obj.length < 65535) {
-      return Math.min.apply(Math, obj);
+  _.min = function(obj, iteratee, context) {
+    var result = Infinity, lastComputed = Infinity,
+        value, computed;
+    if (iteratee == null && obj != null) {
+      obj = isArrayLike(obj) ? obj : _.values(obj);
+      for (var i = 0, length = obj.length; i < length; i++) {
+        value = obj[i];
+        if (value < result) {
+          result = value;
+        }
+      }
+    } else {
+      iteratee = cb(iteratee, context);
+      _.each(obj, function(value, index, list) {
+        computed = iteratee(value, index, list);
+        if (computed < lastComputed || computed === Infinity && result === Infinity) {
+          result = value;
+          lastComputed = computed;
+        }
+      });
     }
-    if (!iterator && _.isEmpty(obj)) return Infinity;
-    var result = {computed : Infinity, value: Infinity};
-    each(obj, function(value, index, list) {
-      var computed = iterator ? iterator.call(context, value, index, list) : value;
-      computed < result.computed && (result = {value : value, computed : computed});
-    });
-    return result.value;
+    return result;
   };
 
-  // Shuffle an array.
+  // Shuffle a collection, using the modern version of the
+  // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
   _.shuffle = function(obj) {
-    var rand;
-    var index = 0;
-    var shuffled = [];
-    each(obj, function(value) {
-      rand = _.random(index++);
-      shuffled[index - 1] = shuffled[rand];
-      shuffled[rand] = value;
-    });
+    var set = isArrayLike(obj) ? obj : _.values(obj);
+    var length = set.length;
+    var shuffled = Array(length);
+    for (var index = 0, rand; index < length; index++) {
+      rand = _.random(0, index);
+      if (rand !== index) shuffled[index] = shuffled[rand];
+      shuffled[rand] = set[index];
+    }
     return shuffled;
   };
 
-  // An internal function to generate lookup iterators.
-  var lookupIterator = function(value) {
-    return _.isFunction(value) ? value : function(obj){ return obj[value]; };
+  // Sample **n** random values from a collection.
+  // If **n** is not specified, returns a single random element.
+  // The internal `guard` argument allows it to work with `map`.
+  _.sample = function(obj, n, guard) {
+    if (n == null || guard) {
+      if (!isArrayLike(obj)) obj = _.values(obj);
+      return obj[_.random(obj.length - 1)];
+    }
+    return _.shuffle(obj).slice(0, Math.max(0, n));
   };
 
-  // Sort the object's values by a criterion produced by an iterator.
-  _.sortBy = function(obj, value, context) {
-    var iterator = lookupIterator(value);
+  // Sort the object's values by a criterion produced by an iteratee.
+  _.sortBy = function(obj, iteratee, context) {
+    iteratee = cb(iteratee, context);
     return _.pluck(_.map(obj, function(value, index, list) {
       return {
-        value : value,
-        index : index,
-        criteria : iterator.call(context, value, index, list)
+        value: value,
+        index: index,
+        criteria: iteratee(value, index, list)
       };
     }).sort(function(left, right) {
       var a = left.criteria;
@@ -7623,64 +2944,65 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
         if (a > b || a === void 0) return 1;
         if (a < b || b === void 0) return -1;
       }
-      return left.index < right.index ? -1 : 1;
+      return left.index - right.index;
     }), 'value');
   };
 
   // An internal function used for aggregate "group by" operations.
-  var group = function(obj, value, context, behavior) {
-    var result = {};
-    var iterator = lookupIterator(value || _.identity);
-    each(obj, function(value, index) {
-      var key = iterator.call(context, value, index, obj);
-      behavior(result, key, value);
-    });
-    return result;
+  var group = function(behavior) {
+    return function(obj, iteratee, context) {
+      var result = {};
+      iteratee = cb(iteratee, context);
+      _.each(obj, function(value, index) {
+        var key = iteratee(value, index, obj);
+        behavior(result, value, key);
+      });
+      return result;
+    };
   };
 
   // Groups the object's values by a criterion. Pass either a string attribute
   // to group by, or a function that returns the criterion.
-  _.groupBy = function(obj, value, context) {
-    return group(obj, value, context, function(result, key, value) {
-      (_.has(result, key) ? result[key] : (result[key] = [])).push(value);
-    });
-  };
+  _.groupBy = group(function(result, value, key) {
+    if (_.has(result, key)) result[key].push(value); else result[key] = [value];
+  });
+
+  // Indexes the object's values by a criterion, similar to `groupBy`, but for
+  // when you know that your index values will be unique.
+  _.indexBy = group(function(result, value, key) {
+    result[key] = value;
+  });
 
   // Counts instances of an object that group by a certain criterion. Pass
   // either a string attribute to count by, or a function that returns the
   // criterion.
-  _.countBy = function(obj, value, context) {
-    return group(obj, value, context, function(result, key) {
-      if (!_.has(result, key)) result[key] = 0;
-      result[key]++;
-    });
-  };
+  _.countBy = group(function(result, value, key) {
+    if (_.has(result, key)) result[key]++; else result[key] = 1;
+  });
 
-  // Use a comparator function to figure out the smallest index at which
-  // an object should be inserted so as to maintain order. Uses binary search.
-  _.sortedIndex = function(array, obj, iterator, context) {
-    iterator = iterator == null ? _.identity : lookupIterator(iterator);
-    var value = iterator.call(context, obj);
-    var low = 0, high = array.length;
-    while (low < high) {
-      var mid = (low + high) >>> 1;
-      iterator.call(context, array[mid]) < value ? low = mid + 1 : high = mid;
-    }
-    return low;
-  };
-
-  // Safely convert anything iterable into a real, live array.
+  // Safely create a real, live array from anything iterable.
   _.toArray = function(obj) {
     if (!obj) return [];
     if (_.isArray(obj)) return slice.call(obj);
-    if (obj.length === +obj.length) return _.map(obj, _.identity);
+    if (isArrayLike(obj)) return _.map(obj, _.identity);
     return _.values(obj);
   };
 
   // Return the number of elements in an object.
   _.size = function(obj) {
     if (obj == null) return 0;
-    return (obj.length === +obj.length) ? obj.length : _.keys(obj).length;
+    return isArrayLike(obj) ? obj.length : _.keys(obj).length;
+  };
+
+  // Split a collection into two arrays: one whose elements all satisfy the given
+  // predicate, and one whose elements all do not satisfy the predicate.
+  _.partition = function(obj, predicate, context) {
+    predicate = cb(predicate, context);
+    var pass = [], fail = [];
+    _.each(obj, function(value, key, obj) {
+      (predicate(value, key, obj) ? pass : fail).push(value);
+    });
+    return [pass, fail];
   };
 
   // Array Functions
@@ -7691,34 +3013,30 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
   // allows it to work with `_.map`.
   _.first = _.head = _.take = function(array, n, guard) {
     if (array == null) return void 0;
-    return (n != null) && !guard ? slice.call(array, 0, n) : array[0];
+    if (n == null || guard) return array[0];
+    return _.initial(array, array.length - n);
   };
 
   // Returns everything but the last entry of the array. Especially useful on
   // the arguments object. Passing **n** will return all the values in
-  // the array, excluding the last N. The **guard** check allows it to work with
-  // `_.map`.
+  // the array, excluding the last N.
   _.initial = function(array, n, guard) {
-    return slice.call(array, 0, array.length - ((n == null) || guard ? 1 : n));
+    return slice.call(array, 0, Math.max(0, array.length - (n == null || guard ? 1 : n)));
   };
 
   // Get the last element of an array. Passing **n** will return the last N
-  // values in the array. The **guard** check allows it to work with `_.map`.
+  // values in the array.
   _.last = function(array, n, guard) {
     if (array == null) return void 0;
-    if ((n != null) && !guard) {
-      return slice.call(array, Math.max(array.length - n, 0));
-    } else {
-      return array[array.length - 1];
-    }
+    if (n == null || guard) return array[array.length - 1];
+    return _.rest(array, Math.max(0, array.length - n));
   };
 
   // Returns everything but the first entry of the array. Aliased as `tail` and `drop`.
   // Especially useful on the arguments object. Passing an **n** will return
-  // the rest N values in the array. The **guard**
-  // check allows it to work with `_.map`.
+  // the rest N values in the array.
   _.rest = _.tail = _.drop = function(array, n, guard) {
-    return slice.call(array, (n == null) || guard ? 1 : n);
+    return slice.call(array, n == null || guard ? 1 : n);
   };
 
   // Trim out all falsy values from an array.
@@ -7727,20 +3045,28 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
   };
 
   // Internal implementation of a recursive `flatten` function.
-  var flatten = function(input, shallow, output) {
-    each(input, function(value) {
-      if (_.isArray(value)) {
-        shallow ? push.apply(output, value) : flatten(value, shallow, output);
-      } else {
-        output.push(value);
+  var flatten = function(input, shallow, strict, startIndex) {
+    var output = [], idx = 0;
+    for (var i = startIndex || 0, length = getLength(input); i < length; i++) {
+      var value = input[i];
+      if (isArrayLike(value) && (_.isArray(value) || _.isArguments(value))) {
+        //flatten current level of array or arguments object
+        if (!shallow) value = flatten(value, shallow, strict);
+        var j = 0, len = value.length;
+        output.length += len;
+        while (j < len) {
+          output[idx++] = value[j++];
+        }
+      } else if (!strict) {
+        output[idx++] = value;
       }
-    });
+    }
     return output;
   };
 
-  // Return a completely flattened version of an array.
+  // Flatten out an array, either recursively (by default), or just one level.
   _.flatten = function(array, shallow) {
-    return flatten(array, shallow, []);
+    return flatten(array, shallow, false);
   };
 
   // Return a version of the array that does not contain the specified value(s).
@@ -7751,67 +3077,88 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
   // Produce a duplicate-free version of the array. If the array has already
   // been sorted, you have the option of using a faster algorithm.
   // Aliased as `unique`.
-  _.uniq = _.unique = function(array, isSorted, iterator, context) {
-    if (_.isFunction(isSorted)) {
-      context = iterator;
-      iterator = isSorted;
+  _.uniq = _.unique = function(array, isSorted, iteratee, context) {
+    if (!_.isBoolean(isSorted)) {
+      context = iteratee;
+      iteratee = isSorted;
       isSorted = false;
     }
-    var initial = iterator ? _.map(array, iterator, context) : array;
-    var results = [];
+    if (iteratee != null) iteratee = cb(iteratee, context);
+    var result = [];
     var seen = [];
-    each(initial, function(value, index) {
-      if (isSorted ? (!index || seen[seen.length - 1] !== value) : !_.contains(seen, value)) {
-        seen.push(value);
-        results.push(array[index]);
+    for (var i = 0, length = getLength(array); i < length; i++) {
+      var value = array[i],
+          computed = iteratee ? iteratee(value, i, array) : value;
+      if (isSorted) {
+        if (!i || seen !== computed) result.push(value);
+        seen = computed;
+      } else if (iteratee) {
+        if (!_.contains(seen, computed)) {
+          seen.push(computed);
+          result.push(value);
+        }
+      } else if (!_.contains(result, value)) {
+        result.push(value);
       }
-    });
-    return results;
+    }
+    return result;
   };
 
   // Produce an array that contains the union: each distinct element from all of
   // the passed-in arrays.
   _.union = function() {
-    return _.uniq(concat.apply(ArrayProto, arguments));
+    return _.uniq(flatten(arguments, true, true));
   };
 
   // Produce an array that contains every item shared between all the
   // passed-in arrays.
   _.intersection = function(array) {
-    var rest = slice.call(arguments, 1);
-    return _.filter(_.uniq(array), function(item) {
-      return _.every(rest, function(other) {
-        return _.indexOf(other, item) >= 0;
-      });
-    });
+    var result = [];
+    var argsLength = arguments.length;
+    for (var i = 0, length = getLength(array); i < length; i++) {
+      var item = array[i];
+      if (_.contains(result, item)) continue;
+      for (var j = 1; j < argsLength; j++) {
+        if (!_.contains(arguments[j], item)) break;
+      }
+      if (j === argsLength) result.push(item);
+    }
+    return result;
   };
 
   // Take the difference between one array and a number of other arrays.
   // Only the elements present in just the first array will remain.
   _.difference = function(array) {
-    var rest = concat.apply(ArrayProto, slice.call(arguments, 1));
-    return _.filter(array, function(value){ return !_.contains(rest, value); });
+    var rest = flatten(arguments, true, true, 1);
+    return _.filter(array, function(value){
+      return !_.contains(rest, value);
+    });
   };
 
   // Zip together multiple lists into a single array -- elements that share
   // an index go together.
   _.zip = function() {
-    var args = slice.call(arguments);
-    var length = _.max(_.pluck(args, 'length'));
-    var results = new Array(length);
-    for (var i = 0; i < length; i++) {
-      results[i] = _.pluck(args, "" + i);
+    return _.unzip(arguments);
+  };
+
+  // Complement of _.zip. Unzip accepts an array of arrays and groups
+  // each array's elements on shared indices
+  _.unzip = function(array) {
+    var length = array && _.max(array, getLength).length || 0;
+    var result = Array(length);
+
+    for (var index = 0; index < length; index++) {
+      result[index] = _.pluck(array, index);
     }
-    return results;
+    return result;
   };
 
   // Converts lists into objects. Pass either a single array of `[key, value]`
   // pairs, or two parallel arrays of the same length -- one of keys, and one of
   // the corresponding values.
   _.object = function(list, values) {
-    if (list == null) return {};
     var result = {};
-    for (var i = 0, l = list.length; i < l; i++) {
+    for (var i = 0, length = getLength(list); i < length; i++) {
       if (values) {
         result[list[i]] = values[i];
       } else {
@@ -7821,57 +3168,83 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
     return result;
   };
 
-  // If the browser doesn't supply us with indexOf (I'm looking at you, **MSIE**),
-  // we need this function. Return the position of the first occurrence of an
-  // item in an array, or -1 if the item is not included in the array.
-  // Delegates to **ECMAScript 5**'s native `indexOf` if available.
-  // If the array is large and already in sort order, pass `true`
-  // for **isSorted** to use binary search.
-  _.indexOf = function(array, item, isSorted) {
-    if (array == null) return -1;
-    var i = 0, l = array.length;
-    if (isSorted) {
-      if (typeof isSorted == 'number') {
-        i = (isSorted < 0 ? Math.max(0, l + isSorted) : isSorted);
-      } else {
-        i = _.sortedIndex(array, item);
-        return array[i] === item ? i : -1;
+  // Generator function to create the findIndex and findLastIndex functions
+  function createPredicateIndexFinder(dir) {
+    return function(array, predicate, context) {
+      predicate = cb(predicate, context);
+      var length = getLength(array);
+      var index = dir > 0 ? 0 : length - 1;
+      for (; index >= 0 && index < length; index += dir) {
+        if (predicate(array[index], index, array)) return index;
       }
+      return -1;
+    };
+  }
+
+  // Returns the first index on an array-like that passes a predicate test
+  _.findIndex = createPredicateIndexFinder(1);
+  _.findLastIndex = createPredicateIndexFinder(-1);
+
+  // Use a comparator function to figure out the smallest index at which
+  // an object should be inserted so as to maintain order. Uses binary search.
+  _.sortedIndex = function(array, obj, iteratee, context) {
+    iteratee = cb(iteratee, context, 1);
+    var value = iteratee(obj);
+    var low = 0, high = getLength(array);
+    while (low < high) {
+      var mid = Math.floor((low + high) / 2);
+      if (iteratee(array[mid]) < value) low = mid + 1; else high = mid;
     }
-    if (nativeIndexOf && array.indexOf === nativeIndexOf) return array.indexOf(item, isSorted);
-    for (; i < l; i++) if (array[i] === item) return i;
-    return -1;
+    return low;
   };
 
-  // Delegates to **ECMAScript 5**'s native `lastIndexOf` if available.
-  _.lastIndexOf = function(array, item, from) {
-    if (array == null) return -1;
-    var hasIndex = from != null;
-    if (nativeLastIndexOf && array.lastIndexOf === nativeLastIndexOf) {
-      return hasIndex ? array.lastIndexOf(item, from) : array.lastIndexOf(item);
-    }
-    var i = (hasIndex ? from : array.length);
-    while (i--) if (array[i] === item) return i;
-    return -1;
-  };
+  // Generator function to create the indexOf and lastIndexOf functions
+  function createIndexFinder(dir, predicateFind, sortedIndex) {
+    return function(array, item, idx) {
+      var i = 0, length = getLength(array);
+      if (typeof idx == 'number') {
+        if (dir > 0) {
+            i = idx >= 0 ? idx : Math.max(idx + length, i);
+        } else {
+            length = idx >= 0 ? Math.min(idx + 1, length) : idx + length + 1;
+        }
+      } else if (sortedIndex && idx && length) {
+        idx = sortedIndex(array, item);
+        return array[idx] === item ? idx : -1;
+      }
+      if (item !== item) {
+        idx = predicateFind(slice.call(array, i, length), _.isNaN);
+        return idx >= 0 ? idx + i : -1;
+      }
+      for (idx = dir > 0 ? i : length - 1; idx >= 0 && idx < length; idx += dir) {
+        if (array[idx] === item) return idx;
+      }
+      return -1;
+    };
+  }
+
+  // Return the position of the first occurrence of an item in an array,
+  // or -1 if the item is not included in the array.
+  // If the array is large and already in sort order, pass `true`
+  // for **isSorted** to use binary search.
+  _.indexOf = createIndexFinder(1, _.findIndex, _.sortedIndex);
+  _.lastIndexOf = createIndexFinder(-1, _.findLastIndex);
 
   // Generate an integer Array containing an arithmetic progression. A port of
   // the native Python `range()` function. See
   // [the Python documentation](http://docs.python.org/library/functions.html#range).
   _.range = function(start, stop, step) {
-    if (arguments.length <= 1) {
+    if (stop == null) {
       stop = start || 0;
       start = 0;
     }
-    step = arguments[2] || 1;
+    step = step || 1;
 
-    var len = Math.max(Math.ceil((stop - start) / step), 0);
-    var idx = 0;
-    var range = new Array(len);
+    var length = Math.max(Math.ceil((stop - start) / step), 0);
+    var range = Array(length);
 
-    while(idx < len) {
-      range[idx++] = start;
-      start += step;
+    for (var idx = 0; idx < length; idx++, start += step) {
+      range[idx] = start;
     }
 
     return range;
@@ -7880,79 +3253,115 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
   // Function (ahem) Functions
   // ------------------
 
+  // Determines whether to execute a function as a constructor
+  // or a normal function with the provided arguments
+  var executeBound = function(sourceFunc, boundFunc, context, callingContext, args) {
+    if (!(callingContext instanceof boundFunc)) return sourceFunc.apply(context, args);
+    var self = baseCreate(sourceFunc.prototype);
+    var result = sourceFunc.apply(self, args);
+    if (_.isObject(result)) return result;
+    return self;
+  };
+
   // Create a function bound to a given object (assigning `this`, and arguments,
   // optionally). Delegates to **ECMAScript 5**'s native `Function.bind` if
   // available.
   _.bind = function(func, context) {
-    if (func.bind === nativeBind && nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
+    if (nativeBind && func.bind === nativeBind) return nativeBind.apply(func, slice.call(arguments, 1));
+    if (!_.isFunction(func)) throw new TypeError('Bind must be called on a function');
     var args = slice.call(arguments, 2);
-    return function() {
-      return func.apply(context, args.concat(slice.call(arguments)));
+    var bound = function() {
+      return executeBound(func, bound, context, this, args.concat(slice.call(arguments)));
     };
+    return bound;
   };
 
   // Partially apply a function by creating a version that has had some of its
-  // arguments pre-filled, without changing its dynamic `this` context.
+  // arguments pre-filled, without changing its dynamic `this` context. _ acts
+  // as a placeholder, allowing any combination of arguments to be pre-filled.
   _.partial = function(func) {
-    var args = slice.call(arguments, 1);
-    return function() {
-      return func.apply(this, args.concat(slice.call(arguments)));
+    var boundArgs = slice.call(arguments, 1);
+    var bound = function() {
+      var position = 0, length = boundArgs.length;
+      var args = Array(length);
+      for (var i = 0; i < length; i++) {
+        args[i] = boundArgs[i] === _ ? arguments[position++] : boundArgs[i];
+      }
+      while (position < arguments.length) args.push(arguments[position++]);
+      return executeBound(func, bound, this, this, args);
     };
+    return bound;
   };
 
-  // Bind all of an object's methods to that object. Useful for ensuring that
-  // all callbacks defined on an object belong to it.
+  // Bind a number of an object's methods to that object. Remaining arguments
+  // are the method names to be bound. Useful for ensuring that all callbacks
+  // defined on an object belong to it.
   _.bindAll = function(obj) {
-    var funcs = slice.call(arguments, 1);
-    if (funcs.length === 0) funcs = _.functions(obj);
-    each(funcs, function(f) { obj[f] = _.bind(obj[f], obj); });
+    var i, length = arguments.length, key;
+    if (length <= 1) throw new Error('bindAll must be passed function names');
+    for (i = 1; i < length; i++) {
+      key = arguments[i];
+      obj[key] = _.bind(obj[key], obj);
+    }
     return obj;
   };
 
   // Memoize an expensive function by storing its results.
   _.memoize = function(func, hasher) {
-    var memo = {};
-    hasher || (hasher = _.identity);
-    return function() {
-      var key = hasher.apply(this, arguments);
-      return _.has(memo, key) ? memo[key] : (memo[key] = func.apply(this, arguments));
+    var memoize = function(key) {
+      var cache = memoize.cache;
+      var address = '' + (hasher ? hasher.apply(this, arguments) : key);
+      if (!_.has(cache, address)) cache[address] = func.apply(this, arguments);
+      return cache[address];
     };
+    memoize.cache = {};
+    return memoize;
   };
 
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
   _.delay = function(func, wait) {
     var args = slice.call(arguments, 2);
-    return setTimeout(function(){ return func.apply(null, args); }, wait);
+    return setTimeout(function(){
+      return func.apply(null, args);
+    }, wait);
   };
 
   // Defers a function, scheduling it to run after the current call stack has
   // cleared.
-  _.defer = function(func) {
-    return _.delay.apply(_, [func, 1].concat(slice.call(arguments, 1)));
-  };
+  _.defer = _.partial(_.delay, _, 1);
 
   // Returns a function, that, when invoked, will only be triggered at most once
-  // during a given window of time.
-  _.throttle = function(func, wait) {
-    var context, args, timeout, result;
+  // during a given window of time. Normally, the throttled function will run
+  // as much as it can, without ever going more than once per `wait` duration;
+  // but if you'd like to disable the execution on the leading edge, pass
+  // `{leading: false}`. To disable execution on the trailing edge, ditto.
+  _.throttle = function(func, wait, options) {
+    var context, args, result;
+    var timeout = null;
     var previous = 0;
+    if (!options) options = {};
     var later = function() {
-      previous = new Date;
+      previous = options.leading === false ? 0 : _.now();
       timeout = null;
       result = func.apply(context, args);
+      if (!timeout) context = args = null;
     };
     return function() {
-      var now = new Date;
+      var now = _.now();
+      if (!previous && options.leading === false) previous = now;
       var remaining = wait - (now - previous);
       context = this;
       args = arguments;
-      if (remaining <= 0) {
-        clearTimeout(timeout);
-        timeout = null;
+      if (remaining <= 0 || remaining > wait) {
+        if (timeout) {
+          clearTimeout(timeout);
+          timeout = null;
+        }
         previous = now;
         result = func.apply(context, args);
-      } else if (!timeout) {
+        if (!timeout) context = args = null;
+      } else if (!timeout && options.trailing !== false) {
         timeout = setTimeout(later, remaining);
       }
       return result;
@@ -7964,31 +3373,34 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
   // N milliseconds. If `immediate` is passed, trigger the function on the
   // leading edge, instead of the trailing.
   _.debounce = function(func, wait, immediate) {
-    var timeout, result;
-    return function() {
-      var context = this, args = arguments;
-      var later = function() {
-        timeout = null;
-        if (!immediate) result = func.apply(context, args);
-      };
-      var callNow = immediate && !timeout;
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-      if (callNow) result = func.apply(context, args);
-      return result;
-    };
-  };
+    var timeout, args, context, timestamp, result;
 
-  // Returns a function that will be executed at most one time, no matter how
-  // often you call it. Useful for lazy initialization.
-  _.once = function(func) {
-    var ran = false, memo;
+    var later = function() {
+      var last = _.now() - timestamp;
+
+      if (last < wait && last >= 0) {
+        timeout = setTimeout(later, wait - last);
+      } else {
+        timeout = null;
+        if (!immediate) {
+          result = func.apply(context, args);
+          if (!timeout) context = args = null;
+        }
+      }
+    };
+
     return function() {
-      if (ran) return memo;
-      ran = true;
-      memo = func.apply(this, arguments);
-      func = null;
-      return memo;
+      context = this;
+      args = arguments;
+      timestamp = _.now();
+      var callNow = immediate && !timeout;
+      if (!timeout) timeout = setTimeout(later, wait);
+      if (callNow) {
+        result = func.apply(context, args);
+        context = args = null;
+      }
+
+      return result;
     };
   };
 
@@ -7996,29 +3408,31 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
   // allowing you to adjust arguments, run code before and after, and
   // conditionally execute the original function.
   _.wrap = function(func, wrapper) {
+    return _.partial(wrapper, func);
+  };
+
+  // Returns a negated version of the passed-in predicate.
+  _.negate = function(predicate) {
     return function() {
-      var args = [func];
-      push.apply(args, arguments);
-      return wrapper.apply(this, args);
+      return !predicate.apply(this, arguments);
     };
   };
 
   // Returns a function that is the composition of a list of functions, each
   // consuming the return value of the function that follows.
   _.compose = function() {
-    var funcs = arguments;
+    var args = arguments;
+    var start = args.length - 1;
     return function() {
-      var args = arguments;
-      for (var i = funcs.length - 1; i >= 0; i--) {
-        args = [funcs[i].apply(this, args)];
-      }
-      return args[0];
+      var i = start;
+      var result = args[start].apply(this, arguments);
+      while (i--) result = args[i].call(this, result);
+      return result;
     };
   };
 
-  // Returns a function that will only be executed after being called N times.
+  // Returns a function that will only be executed on and after the Nth call.
   _.after = function(times, func) {
-    if (times <= 0) return func();
     return function() {
       if (--times < 1) {
         return func.apply(this, arguments);
@@ -8026,36 +3440,113 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
     };
   };
 
+  // Returns a function that will only be executed up to (but not including) the Nth call.
+  _.before = function(times, func) {
+    var memo;
+    return function() {
+      if (--times > 0) {
+        memo = func.apply(this, arguments);
+      }
+      if (times <= 1) func = null;
+      return memo;
+    };
+  };
+
+  // Returns a function that will be executed at most one time, no matter how
+  // often you call it. Useful for lazy initialization.
+  _.once = _.partial(_.before, 2);
+
   // Object Functions
   // ----------------
 
-  // Retrieve the names of an object's properties.
+  // Keys in IE < 9 that won't be iterated by `for key in ...` and thus missed.
+  var hasEnumBug = !{toString: null}.propertyIsEnumerable('toString');
+  var nonEnumerableProps = ['valueOf', 'isPrototypeOf', 'toString',
+                      'propertyIsEnumerable', 'hasOwnProperty', 'toLocaleString'];
+
+  function collectNonEnumProps(obj, keys) {
+    var nonEnumIdx = nonEnumerableProps.length;
+    var constructor = obj.constructor;
+    var proto = (_.isFunction(constructor) && constructor.prototype) || ObjProto;
+
+    // Constructor is a special case.
+    var prop = 'constructor';
+    if (_.has(obj, prop) && !_.contains(keys, prop)) keys.push(prop);
+
+    while (nonEnumIdx--) {
+      prop = nonEnumerableProps[nonEnumIdx];
+      if (prop in obj && obj[prop] !== proto[prop] && !_.contains(keys, prop)) {
+        keys.push(prop);
+      }
+    }
+  }
+
+  // Retrieve the names of an object's own properties.
   // Delegates to **ECMAScript 5**'s native `Object.keys`
-  _.keys = nativeKeys || function(obj) {
-    if (obj !== Object(obj)) throw new TypeError('Invalid object');
+  _.keys = function(obj) {
+    if (!_.isObject(obj)) return [];
+    if (nativeKeys) return nativeKeys(obj);
     var keys = [];
-    for (var key in obj) if (_.has(obj, key)) keys[keys.length] = key;
+    for (var key in obj) if (_.has(obj, key)) keys.push(key);
+    // Ahem, IE < 9.
+    if (hasEnumBug) collectNonEnumProps(obj, keys);
+    return keys;
+  };
+
+  // Retrieve all the property names of an object.
+  _.allKeys = function(obj) {
+    if (!_.isObject(obj)) return [];
+    var keys = [];
+    for (var key in obj) keys.push(key);
+    // Ahem, IE < 9.
+    if (hasEnumBug) collectNonEnumProps(obj, keys);
     return keys;
   };
 
   // Retrieve the values of an object's properties.
   _.values = function(obj) {
-    var values = [];
-    for (var key in obj) if (_.has(obj, key)) values.push(obj[key]);
+    var keys = _.keys(obj);
+    var length = keys.length;
+    var values = Array(length);
+    for (var i = 0; i < length; i++) {
+      values[i] = obj[keys[i]];
+    }
     return values;
+  };
+
+  // Returns the results of applying the iteratee to each element of the object
+  // In contrast to _.map it returns an object
+  _.mapObject = function(obj, iteratee, context) {
+    iteratee = cb(iteratee, context);
+    var keys =  _.keys(obj),
+          length = keys.length,
+          results = {},
+          currentKey;
+      for (var index = 0; index < length; index++) {
+        currentKey = keys[index];
+        results[currentKey] = iteratee(obj[currentKey], currentKey, obj);
+      }
+      return results;
   };
 
   // Convert an object into a list of `[key, value]` pairs.
   _.pairs = function(obj) {
-    var pairs = [];
-    for (var key in obj) if (_.has(obj, key)) pairs.push([key, obj[key]]);
+    var keys = _.keys(obj);
+    var length = keys.length;
+    var pairs = Array(length);
+    for (var i = 0; i < length; i++) {
+      pairs[i] = [keys[i], obj[keys[i]]];
+    }
     return pairs;
   };
 
   // Invert the keys and values of an object. The values must be serializable.
   _.invert = function(obj) {
     var result = {};
-    for (var key in obj) if (_.has(obj, key)) result[obj[key]] = key;
+    var keys = _.keys(obj);
+    for (var i = 0, length = keys.length; i < length; i++) {
+      result[obj[keys[i]]] = keys[i];
+    }
     return result;
   };
 
@@ -8070,47 +3561,65 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
   };
 
   // Extend a given object with all the properties in passed-in object(s).
-  _.extend = function(obj) {
-    each(slice.call(arguments, 1), function(source) {
-      if (source) {
-        for (var prop in source) {
-          obj[prop] = source[prop];
-        }
-      }
-    });
-    return obj;
+  _.extend = createAssigner(_.allKeys);
+
+  // Assigns a given object with all the own properties in the passed-in object(s)
+  // (https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object/assign)
+  _.extendOwn = _.assign = createAssigner(_.keys);
+
+  // Returns the first key on an object that passes a predicate test
+  _.findKey = function(obj, predicate, context) {
+    predicate = cb(predicate, context);
+    var keys = _.keys(obj), key;
+    for (var i = 0, length = keys.length; i < length; i++) {
+      key = keys[i];
+      if (predicate(obj[key], key, obj)) return key;
+    }
   };
 
   // Return a copy of the object only containing the whitelisted properties.
-  _.pick = function(obj) {
-    var copy = {};
-    var keys = concat.apply(ArrayProto, slice.call(arguments, 1));
-    each(keys, function(key) {
-      if (key in obj) copy[key] = obj[key];
-    });
-    return copy;
+  _.pick = function(object, oiteratee, context) {
+    var result = {}, obj = object, iteratee, keys;
+    if (obj == null) return result;
+    if (_.isFunction(oiteratee)) {
+      keys = _.allKeys(obj);
+      iteratee = optimizeCb(oiteratee, context);
+    } else {
+      keys = flatten(arguments, false, false, 1);
+      iteratee = function(value, key, obj) { return key in obj; };
+      obj = Object(obj);
+    }
+    for (var i = 0, length = keys.length; i < length; i++) {
+      var key = keys[i];
+      var value = obj[key];
+      if (iteratee(value, key, obj)) result[key] = value;
+    }
+    return result;
   };
 
    // Return a copy of the object without the blacklisted properties.
-  _.omit = function(obj) {
-    var copy = {};
-    var keys = concat.apply(ArrayProto, slice.call(arguments, 1));
-    for (var key in obj) {
-      if (!_.contains(keys, key)) copy[key] = obj[key];
+  _.omit = function(obj, iteratee, context) {
+    if (_.isFunction(iteratee)) {
+      iteratee = _.negate(iteratee);
+    } else {
+      var keys = _.map(flatten(arguments, false, false, 1), String);
+      iteratee = function(value, key) {
+        return !_.contains(keys, key);
+      };
     }
-    return copy;
+    return _.pick(obj, iteratee, context);
   };
 
   // Fill in a given object with default properties.
-  _.defaults = function(obj) {
-    each(slice.call(arguments, 1), function(source) {
-      if (source) {
-        for (var prop in source) {
-          if (obj[prop] == null) obj[prop] = source[prop];
-        }
-      }
-    });
-    return obj;
+  _.defaults = createAssigner(_.allKeys, true);
+
+  // Creates an object that inherits from the given prototype object.
+  // If additional properties are provided then they will be added to the
+  // created object.
+  _.create = function(prototype, props) {
+    var result = baseCreate(prototype);
+    if (props) _.extendOwn(result, props);
+    return result;
   };
 
   // Create a (shallow-cloned) duplicate of an object.
@@ -8127,11 +3636,24 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
     return obj;
   };
 
+  // Returns whether an object has a given set of `key:value` pairs.
+  _.isMatch = function(object, attrs) {
+    var keys = _.keys(attrs), length = keys.length;
+    if (object == null) return !length;
+    var obj = Object(object);
+    for (var i = 0; i < length; i++) {
+      var key = keys[i];
+      if (attrs[key] !== obj[key] || !(key in obj)) return false;
+    }
+    return true;
+  };
+
+
   // Internal recursive comparison function for `isEqual`.
   var eq = function(a, b, aStack, bStack) {
     // Identical objects are equal. `0 === -0`, but they aren't identical.
-    // See the Harmony `egal` proposal: http://wiki.ecmascript.org/doku.php?id=harmony:egal.
-    if (a === b) return a !== 0 || 1 / a == 1 / b;
+    // See the [Harmony `egal` proposal](http://wiki.ecmascript.org/doku.php?id=harmony:egal).
+    if (a === b) return a !== 0 || 1 / a === 1 / b;
     // A strict comparison is necessary because `null == undefined`.
     if (a == null || b == null) return a === b;
     // Unwrap any wrapped objects.
@@ -8139,97 +3661,98 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
     if (b instanceof _) b = b._wrapped;
     // Compare `[[Class]]` names.
     var className = toString.call(a);
-    if (className != toString.call(b)) return false;
+    if (className !== toString.call(b)) return false;
     switch (className) {
-      // Strings, numbers, dates, and booleans are compared by value.
+      // Strings, numbers, regular expressions, dates, and booleans are compared by value.
+      case '[object RegExp]':
+      // RegExps are coerced to strings for comparison (Note: '' + /a/i === '/a/i')
       case '[object String]':
         // Primitives and their corresponding object wrappers are equivalent; thus, `"5"` is
         // equivalent to `new String("5")`.
-        return a == String(b);
+        return '' + a === '' + b;
       case '[object Number]':
-        // `NaN`s are equivalent, but non-reflexive. An `egal` comparison is performed for
-        // other numeric values.
-        return a != +a ? b != +b : (a == 0 ? 1 / a == 1 / b : a == +b);
+        // `NaN`s are equivalent, but non-reflexive.
+        // Object(NaN) is equivalent to NaN
+        if (+a !== +a) return +b !== +b;
+        // An `egal` comparison is performed for other numeric values.
+        return +a === 0 ? 1 / +a === 1 / b : +a === +b;
       case '[object Date]':
       case '[object Boolean]':
         // Coerce dates and booleans to numeric primitive values. Dates are compared by their
         // millisecond representations. Note that invalid dates with millisecond representations
         // of `NaN` are not equivalent.
-        return +a == +b;
-      // RegExps are compared by their source patterns and flags.
-      case '[object RegExp]':
-        return a.source == b.source &&
-               a.global == b.global &&
-               a.multiline == b.multiline &&
-               a.ignoreCase == b.ignoreCase;
+        return +a === +b;
     }
-    if (typeof a != 'object' || typeof b != 'object') return false;
+
+    var areArrays = className === '[object Array]';
+    if (!areArrays) {
+      if (typeof a != 'object' || typeof b != 'object') return false;
+
+      // Objects with different constructors are not equivalent, but `Object`s or `Array`s
+      // from different frames are.
+      var aCtor = a.constructor, bCtor = b.constructor;
+      if (aCtor !== bCtor && !(_.isFunction(aCtor) && aCtor instanceof aCtor &&
+                               _.isFunction(bCtor) && bCtor instanceof bCtor)
+                          && ('constructor' in a && 'constructor' in b)) {
+        return false;
+      }
+    }
     // Assume equality for cyclic structures. The algorithm for detecting cyclic
     // structures is adapted from ES 5.1 section 15.12.3, abstract operation `JO`.
+
+    // Initializing stack of traversed objects.
+    // It's done here since we only need them for objects and arrays comparison.
+    aStack = aStack || [];
+    bStack = bStack || [];
     var length = aStack.length;
     while (length--) {
       // Linear search. Performance is inversely proportional to the number of
       // unique nested structures.
-      if (aStack[length] == a) return bStack[length] == b;
+      if (aStack[length] === a) return bStack[length] === b;
     }
+
     // Add the first object to the stack of traversed objects.
     aStack.push(a);
     bStack.push(b);
-    var size = 0, result = true;
+
     // Recursively compare objects and arrays.
-    if (className == '[object Array]') {
+    if (areArrays) {
       // Compare array lengths to determine if a deep comparison is necessary.
-      size = a.length;
-      result = size == b.length;
-      if (result) {
-        // Deep compare the contents, ignoring non-numeric properties.
-        while (size--) {
-          if (!(result = eq(a[size], b[size], aStack, bStack))) break;
-        }
+      length = a.length;
+      if (length !== b.length) return false;
+      // Deep compare the contents, ignoring non-numeric properties.
+      while (length--) {
+        if (!eq(a[length], b[length], aStack, bStack)) return false;
       }
     } else {
-      // Objects with different constructors are not equivalent, but `Object`s
-      // from different frames are.
-      var aCtor = a.constructor, bCtor = b.constructor;
-      if (aCtor !== bCtor && !(_.isFunction(aCtor) && (aCtor instanceof aCtor) &&
-                               _.isFunction(bCtor) && (bCtor instanceof bCtor))) {
-        return false;
-      }
       // Deep compare objects.
-      for (var key in a) {
-        if (_.has(a, key)) {
-          // Count the expected number of properties.
-          size++;
-          // Deep compare each member.
-          if (!(result = _.has(b, key) && eq(a[key], b[key], aStack, bStack))) break;
-        }
-      }
-      // Ensure that both objects contain the same number of properties.
-      if (result) {
-        for (key in b) {
-          if (_.has(b, key) && !(size--)) break;
-        }
-        result = !size;
+      var keys = _.keys(a), key;
+      length = keys.length;
+      // Ensure that both objects contain the same number of properties before comparing deep equality.
+      if (_.keys(b).length !== length) return false;
+      while (length--) {
+        // Deep compare each member
+        key = keys[length];
+        if (!(_.has(b, key) && eq(a[key], b[key], aStack, bStack))) return false;
       }
     }
     // Remove the first object from the stack of traversed objects.
     aStack.pop();
     bStack.pop();
-    return result;
+    return true;
   };
 
   // Perform a deep comparison to check if two objects are equal.
   _.isEqual = function(a, b) {
-    return eq(a, b, [], []);
+    return eq(a, b);
   };
 
   // Is a given array, string, or object empty?
   // An "empty" object has no enumerable own-properties.
   _.isEmpty = function(obj) {
     if (obj == null) return true;
-    if (_.isArray(obj) || _.isString(obj)) return obj.length === 0;
-    for (var key in obj) if (_.has(obj, key)) return false;
-    return true;
+    if (isArrayLike(obj) && (_.isArray(obj) || _.isString(obj) || _.isArguments(obj))) return obj.length === 0;
+    return _.keys(obj).length === 0;
   };
 
   // Is a given value a DOM element?
@@ -8240,33 +3763,35 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
   // Is a given value an array?
   // Delegates to ECMA5's native Array.isArray
   _.isArray = nativeIsArray || function(obj) {
-    return toString.call(obj) == '[object Array]';
+    return toString.call(obj) === '[object Array]';
   };
 
   // Is a given variable an object?
   _.isObject = function(obj) {
-    return obj === Object(obj);
+    var type = typeof obj;
+    return type === 'function' || type === 'object' && !!obj;
   };
 
-  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp.
-  each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp'], function(name) {
+  // Add some isType methods: isArguments, isFunction, isString, isNumber, isDate, isRegExp, isError.
+  _.each(['Arguments', 'Function', 'String', 'Number', 'Date', 'RegExp', 'Error'], function(name) {
     _['is' + name] = function(obj) {
-      return toString.call(obj) == '[object ' + name + ']';
+      return toString.call(obj) === '[object ' + name + ']';
     };
   });
 
-  // Define a fallback version of the method in browsers (ahem, IE), where
+  // Define a fallback version of the method in browsers (ahem, IE < 9), where
   // there isn't any inspectable "Arguments" type.
   if (!_.isArguments(arguments)) {
     _.isArguments = function(obj) {
-      return !!(obj && _.has(obj, 'callee'));
+      return _.has(obj, 'callee');
     };
   }
 
-  // Optimize `isFunction` if appropriate.
-  if (typeof (/./) !== 'function') {
+  // Optimize `isFunction` if appropriate. Work around some typeof bugs in old v8,
+  // IE 11 (#1621), and in Safari 8 (#1929).
+  if (typeof /./ != 'function' && typeof Int8Array != 'object') {
     _.isFunction = function(obj) {
-      return typeof obj === 'function';
+      return typeof obj == 'function' || false;
     };
   }
 
@@ -8277,12 +3802,12 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
 
   // Is the given value `NaN`? (NaN is the only number which does not equal itself).
   _.isNaN = function(obj) {
-    return _.isNumber(obj) && obj != +obj;
+    return _.isNumber(obj) && obj !== +obj;
   };
 
   // Is a given value a boolean?
   _.isBoolean = function(obj) {
-    return obj === true || obj === false || toString.call(obj) == '[object Boolean]';
+    return obj === true || obj === false || toString.call(obj) === '[object Boolean]';
   };
 
   // Is a given value equal to null?
@@ -8298,7 +3823,7 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
   // Shortcut function for checking if an object has a given property directly
   // on itself (in other words, not on a prototype).
   _.has = function(obj, key) {
-    return hasOwnProperty.call(obj, key);
+    return obj != null && hasOwnProperty.call(obj, key);
   };
 
   // Utility Functions
@@ -8311,15 +3836,43 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
     return this;
   };
 
-  // Keep the identity function around for default iterators.
+  // Keep the identity function around for default iteratees.
   _.identity = function(value) {
     return value;
   };
 
+  // Predicate-generating functions. Often useful outside of Underscore.
+  _.constant = function(value) {
+    return function() {
+      return value;
+    };
+  };
+
+  _.noop = function(){};
+
+  _.property = property;
+
+  // Generates a function for a given object that returns a given property.
+  _.propertyOf = function(obj) {
+    return obj == null ? function(){} : function(key) {
+      return obj[key];
+    };
+  };
+
+  // Returns a predicate for checking whether an object has a given set of
+  // `key:value` pairs.
+  _.matcher = _.matches = function(attrs) {
+    attrs = _.extendOwn({}, attrs);
+    return function(obj) {
+      return _.isMatch(obj, attrs);
+    };
+  };
+
   // Run a function **n** times.
-  _.times = function(n, iterator, context) {
-    var accum = Array(n);
-    for (var i = 0; i < n; i++) accum[i] = iterator.call(context, i);
+  _.times = function(n, iteratee, context) {
+    var accum = Array(Math.max(0, n));
+    iteratee = optimizeCb(iteratee, context, 1);
+    for (var i = 0; i < n; i++) accum[i] = iteratee(i);
     return accum;
   };
 
@@ -8332,53 +3885,47 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
     return min + Math.floor(Math.random() * (max - min + 1));
   };
 
-  // List of HTML entities for escaping.
-  var entityMap = {
-    escape: {
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#x27;',
-      '/': '&#x2F;'
-    }
+  // A (possibly faster) way to get the current timestamp as an integer.
+  _.now = Date.now || function() {
+    return new Date().getTime();
   };
-  entityMap.unescape = _.invert(entityMap.escape);
 
-  // Regexes containing the keys and values listed immediately above.
-  var entityRegexes = {
-    escape:   new RegExp('[' + _.keys(entityMap.escape).join('') + ']', 'g'),
-    unescape: new RegExp('(' + _.keys(entityMap.unescape).join('|') + ')', 'g')
+   // List of HTML entities for escaping.
+  var escapeMap = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#x27;',
+    '`': '&#x60;'
   };
+  var unescapeMap = _.invert(escapeMap);
 
   // Functions for escaping and unescaping strings to/from HTML interpolation.
-  _.each(['escape', 'unescape'], function(method) {
-    _[method] = function(string) {
-      if (string == null) return '';
-      return ('' + string).replace(entityRegexes[method], function(match) {
-        return entityMap[method][match];
-      });
+  var createEscaper = function(map) {
+    var escaper = function(match) {
+      return map[match];
     };
-  });
-
-  // If the value of the named property is a function then invoke it;
-  // otherwise, return it.
-  _.result = function(object, property) {
-    if (object == null) return null;
-    var value = object[property];
-    return _.isFunction(value) ? value.call(object) : value;
+    // Regexes for identifying a key that needs to be escaped
+    var source = '(?:' + _.keys(map).join('|') + ')';
+    var testRegexp = RegExp(source);
+    var replaceRegexp = RegExp(source, 'g');
+    return function(string) {
+      string = string == null ? '' : '' + string;
+      return testRegexp.test(string) ? string.replace(replaceRegexp, escaper) : string;
+    };
   };
+  _.escape = createEscaper(escapeMap);
+  _.unescape = createEscaper(unescapeMap);
 
-  // Add your own custom functions to the Underscore object.
-  _.mixin = function(obj) {
-    each(_.functions(obj), function(name){
-      var func = _[name] = obj[name];
-      _.prototype[name] = function() {
-        var args = [this._wrapped];
-        push.apply(args, arguments);
-        return result.call(this, func.apply(_, args));
-      };
-    });
+  // If the value of the named `property` is a function then invoke it with the
+  // `object` as context; otherwise, return it.
+  _.result = function(object, property, fallback) {
+    var value = object == null ? void 0 : object[property];
+    if (value === void 0) {
+      value = fallback;
+    }
+    return _.isFunction(value) ? value.call(object) : value;
   };
 
   // Generate a unique integer id (unique within the entire client session).
@@ -8409,22 +3956,26 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
     '\\':     '\\',
     '\r':     'r',
     '\n':     'n',
-    '\t':     't',
     '\u2028': 'u2028',
     '\u2029': 'u2029'
   };
 
-  var escaper = /\\|'|\r|\n|\t|\u2028|\u2029/g;
+  var escaper = /\\|'|\r|\n|\u2028|\u2029/g;
+
+  var escapeChar = function(match) {
+    return '\\' + escapes[match];
+  };
 
   // JavaScript micro-templating, similar to John Resig's implementation.
   // Underscore templating handles arbitrary delimiters, preserves whitespace,
   // and correctly escapes quotes within interpolated code.
-  _.template = function(text, data, settings) {
-    var render;
+  // NB: `oldSettings` only exists for backwards compatibility.
+  _.template = function(text, settings, oldSettings) {
+    if (!settings && oldSettings) settings = oldSettings;
     settings = _.defaults({}, settings, _.templateSettings);
 
     // Combine delimiters into one regular expression via alternation.
-    var matcher = new RegExp([
+    var matcher = RegExp([
       (settings.escape || noMatch).source,
       (settings.interpolate || noMatch).source,
       (settings.evaluate || noMatch).source
@@ -8434,19 +3985,18 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
     var index = 0;
     var source = "__p+='";
     text.replace(matcher, function(match, escape, interpolate, evaluate, offset) {
-      source += text.slice(index, offset)
-        .replace(escaper, function(match) { return '\\' + escapes[match]; });
+      source += text.slice(index, offset).replace(escaper, escapeChar);
+      index = offset + match.length;
 
       if (escape) {
         source += "'+\n((__t=(" + escape + "))==null?'':_.escape(__t))+\n'";
-      }
-      if (interpolate) {
+      } else if (interpolate) {
         source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
-      }
-      if (evaluate) {
+      } else if (evaluate) {
         source += "';\n" + evaluate + "\n__p+='";
       }
-      index = offset + match.length;
+
+      // Adobe VMs need the match returned to produce the correct offest.
       return match;
     });
     source += "';\n";
@@ -8456,29 +4006,31 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
 
     source = "var __t,__p='',__j=Array.prototype.join," +
       "print=function(){__p+=__j.call(arguments,'');};\n" +
-      source + "return __p;\n";
+      source + 'return __p;\n';
 
     try {
-      render = new Function(settings.variable || 'obj', '_', source);
+      var render = new Function(settings.variable || 'obj', '_', source);
     } catch (e) {
       e.source = source;
       throw e;
     }
 
-    if (data) return render(data, _);
     var template = function(data) {
       return render.call(this, data, _);
     };
 
-    // Provide the compiled function source as a convenience for precompilation.
-    template.source = 'function(' + (settings.variable || 'obj') + '){\n' + source + '}';
+    // Provide the compiled source as a convenience for precompilation.
+    var argument = settings.variable || 'obj';
+    template.source = 'function(' + argument + '){\n' + source + '}';
 
     return template;
   };
 
-  // Add a "chain" function, which will delegate to the wrapper.
+  // Add a "chain" function. Start chaining a wrapped Underscore object.
   _.chain = function(obj) {
-    return _(obj).chain();
+    var instance = _(obj);
+    instance._chain = true;
+    return instance;
   };
 
   // OOP
@@ -8488,48 +4040,70 @@ require.define("/node_modules/tztime/node_modules/underscore/underscore.js",func
   // underscore functions. Wrapped objects may be chained.
 
   // Helper function to continue chaining intermediate results.
-  var result = function(obj) {
-    return this._chain ? _(obj).chain() : obj;
+  var result = function(instance, obj) {
+    return instance._chain ? _(obj).chain() : obj;
+  };
+
+  // Add your own custom functions to the Underscore object.
+  _.mixin = function(obj) {
+    _.each(_.functions(obj), function(name) {
+      var func = _[name] = obj[name];
+      _.prototype[name] = function() {
+        var args = [this._wrapped];
+        push.apply(args, arguments);
+        return result(this, func.apply(_, args));
+      };
+    });
   };
 
   // Add all of the Underscore functions to the wrapper object.
   _.mixin(_);
 
   // Add all mutator Array functions to the wrapper.
-  each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function(name) {
+  _.each(['pop', 'push', 'reverse', 'shift', 'sort', 'splice', 'unshift'], function(name) {
     var method = ArrayProto[name];
     _.prototype[name] = function() {
       var obj = this._wrapped;
       method.apply(obj, arguments);
-      if ((name == 'shift' || name == 'splice') && obj.length === 0) delete obj[0];
-      return result.call(this, obj);
+      if ((name === 'shift' || name === 'splice') && obj.length === 0) delete obj[0];
+      return result(this, obj);
     };
   });
 
   // Add all accessor Array functions to the wrapper.
-  each(['concat', 'join', 'slice'], function(name) {
+  _.each(['concat', 'join', 'slice'], function(name) {
     var method = ArrayProto[name];
     _.prototype[name] = function() {
-      return result.call(this, method.apply(this._wrapped, arguments));
+      return result(this, method.apply(this._wrapped, arguments));
     };
   });
 
-  _.extend(_.prototype, {
+  // Extracts the result from a wrapped and chained object.
+  _.prototype.value = function() {
+    return this._wrapped;
+  };
 
-    // Start chaining a wrapped Underscore object.
-    chain: function() {
-      this._chain = true;
-      return this;
-    },
+  // Provide unwrapping proxy for some methods used in engine operations
+  // such as arithmetic and JSON stringification.
+  _.prototype.valueOf = _.prototype.toJSON = _.prototype.value;
 
-    // Extracts the result from a wrapped and chained object.
-    value: function() {
-      return this._wrapped;
-    }
+  _.prototype.toString = function() {
+    return '' + this._wrapped;
+  };
 
-  });
-
-}).call(this);
+  // AMD registration happens at the end for compatibility with AMD loaders
+  // that may not enforce next-turn semantics on modules. Even though general
+  // practice for AMD registration is to be anonymous, underscore registers
+  // as a named module because, like jQuery, it is a base library that is
+  // popular enough to be bundled in a third party lib, but not be part of
+  // an AMD load request. Those cases could generate an error when an
+  // anonymous define() is called outside of a loader request.
+  if (typeof define === 'function' && define.amd) {
+    define('underscore', [], function() {
+      return _;
+    });
+  }
+}.call(this));
 
 });
 
@@ -8564,6 +4138,7 @@ if (typeof exports.timezoneJS == 'undefined') { exports.timezoneJS = {}; }
 
 fs = require('fs');
 path = require('path');
+utils = require('../src/utils');
 
 exports.timezoneJS.timezone = new function() {
   var _this = this;
@@ -8609,7 +4184,7 @@ exports.timezoneJS.timezone = new function() {
   
   
   function myLoadZoneFile(fileName, opts) {
-    var url = path.join(_this.zoneFileBasePath, fileName);
+    var url = path.join(_this.zoneFileBasePath, fileName) + '.lzw';
     
     // If running in node.js
     if (fs.readFileSync) {
@@ -8617,7 +4192,7 @@ exports.timezoneJS.timezone = new function() {
 
       var ret
       if (fs.existsSync(url)) {
-        ret = fs.readFileSync(url, 'utf8');
+        ret = utils.lzwDecode(fs.readFileSync(url, 'utf8'));
       } else {
         throw new Error('Cannot find ' + url + ' from directory ' + __dirname);
       }
@@ -8626,9 +4201,9 @@ exports.timezoneJS.timezone = new function() {
     
     // If running in the browser assume tz files are "fileified" into the source and can be "require"d
     var files = require('files');
-    var filesName = 'tz/' + fileName
+    var filesName = 'tz/' + fileName + '.lzw'
     if (files[filesName]) {
-        return _this.parseZones(files[filesName]);
+        return _this.parseZones(utils.lzwDecode(files[filesName]));
     } else {
         throw new Error(filesName + ' not found embedded in this package.');
     };
@@ -9143,18 +4718,16 @@ require.define("fs",function(require,module,exports,__dirname,__filename,process
 
 });
 
-require.define("/node_modules/tztime/src/Timeline.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.8.0
+require.define("/node_modules/tztime/src/Timeline.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
-  var JSON, Time, Timeline, TimelineIterator, timezoneJS, utils,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var Time, Timeline, TimelineIterator, timezoneJS, utils,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   Time = require('./Time').Time;
 
   timezoneJS = require('./../lib/timezone-js.js').timezoneJS;
 
   utils = require('./utils');
-
-  JSON = require('JSON2');
 
   Timeline = (function() {
 
@@ -9163,7 +4736,7 @@ require.define("/node_modules/tztime/src/Timeline.js",function(require,module,ex
     
     Allows you to specify a timeline with weekend, holiday and non-work hours knocked out and timezone precision.
     
-     *# Basic usage ##
+    ## Basic usage ##
     
         {TimelineIterator, Timeline, Time} = require('../')
     
@@ -9187,7 +4760,7 @@ require.define("/node_modules/tztime/src/Timeline.js",function(require,module,ex
         console.log(tl.getAll('ISOString', 'America/New_York'))
          * [ '2011-01-03T05:00:00.000Z', '2011-01-04T05:00:00.000Z' ]
     
-     *# More advanced usage ##
+    ## More advanced usage ##
      
     Now let's poke at Timeline behavior a little more. Let's start by creating a more advanced Timeline:
     
@@ -9245,7 +4818,7 @@ require.define("/node_modules/tztime/src/Timeline.js",function(require,module,ex
     
     All of the above comparisons assume that the `startOn`/`endBefore` boundaries are in the same timezone as the contains date.
     
-     *# Timezone sensitive comparisions ##
+    ## Timezone sensitive comparisions ##
     
     Now, let's look at how you do timezone sensitive comparisions.
     
@@ -9313,7 +4886,7 @@ require.define("/node_modules/tztime/src/Timeline.js",function(require,module,ex
       @cfg {Object} [workDayEndBefore = {hour: 24, minute: 60}] An optional object in the form {hour: 17, minute: 0}.
         If minute is zero it can be omitted.
        */
-      var h, holiday, idx, m, s, _i, _len, _ref, _ref1;
+      var h, holiday, idx, j, len, m, ref, ref1, s;
       this.memoizedTicks = {};
       if (config.endBefore != null) {
         this.endBefore = config.endBefore;
@@ -9367,20 +4940,20 @@ require.define("/node_modules/tztime/src/Timeline.js",function(require,module,ex
       }
       if (utils.type(this.workDays) === 'string') {
         this.workDays = (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.workDays.split(',');
-          _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            s = _ref[_i];
-            _results.push(utils.trim(s));
+          var j, len, ref, results;
+          ref = this.workDays.split(',');
+          results = [];
+          for (j = 0, len = ref.length; j < len; j++) {
+            s = ref[j];
+            results.push(utils.trim(s));
           }
-          return _results;
+          return results;
         }).call(this);
       }
       this.holidays = config.holidays != null ? config.holidays : [];
-      _ref = this.holidays;
-      for (idx = _i = 0, _len = _ref.length; _i < _len; idx = ++_i) {
-        holiday = _ref[idx];
+      ref = this.holidays;
+      for (idx = j = 0, len = ref.length; j < len; idx = ++j) {
+        holiday = ref[idx];
         if (utils.type(holiday) === 'string') {
           this.holidays[idx] = new Time(holiday).getSegmentsAsObject();
         }
@@ -9409,7 +4982,7 @@ require.define("/node_modules/tztime/src/Timeline.js",function(require,module,ex
       }
       if (config.step != null) {
         this.step = config.step;
-      } else if ((config.endBefore != null) && ((_ref1 = this.startOn) != null ? _ref1.greaterThan(this.endBefore) : void 0)) {
+      } else if ((config.endBefore != null) && ((ref1 = this.startOn) != null ? ref1.greaterThan(this.endBefore) : void 0)) {
         this.step = -1;
       } else if ((config.endBefore != null) && (config.startOn == null) && (config.limit != null)) {
         this.step = -1;
@@ -9587,7 +5160,7 @@ require.define("/node_modules/tztime/src/Timeline.js",function(require,module,ex
       @param {String} [tz]
       @return {Boolean} true if the date provided is within this Timeline.
       
-       *# Usage: ##
+      ## Usage: ##
       
       We can create a Timeline from May to just before July.
       
@@ -9643,7 +5216,7 @@ require.define("/node_modules/tztime/src/Timeline.js",function(require,module,ex
     specify. It will also iterate over hours, minutes, seconds, etc. and skip times that are not
     between the specified work hours.
     
-     *# Usage ##
+    ## Usage ##
     
         {TimelineIterator, Timeline, Time} = require('../')
     
@@ -9734,10 +5307,10 @@ require.define("/node_modules/tztime/src/Timeline.js",function(require,module,ex
      */
     var StopIteration, _contains;
 
-    function TimelineIterator(timeline, tickType, tz, childGranularity) {
-      var _ref;
-      this.tickType = tickType != null ? tickType : 'Time';
-      this.childGranularity = childGranularity;
+    function TimelineIterator(timeline, tickType1, tz, childGranularity1) {
+      var ref;
+      this.tickType = tickType1 != null ? tickType1 : 'Time';
+      this.childGranularity = childGranularity1;
 
       /*
       @constructor
@@ -9749,7 +5322,7 @@ require.define("/node_modules/tztime/src/Timeline.js",function(require,module,ex
       @param {String} [tz] A Sting specifying the timezone in the standard form,`America/New_York` for example. This is
          required if `tickType` is 'Date' or 'ISOString'.
        */
-      utils.assert((_ref = this.tickType) === 'Time' || _ref === 'Timeline' || _ref === 'Date' || _ref === 'ISOString', "tickType must be 'Time', 'Timeline', 'Date', or 'ISOString'. You provided " + this.tickType + ".");
+      utils.assert((ref = this.tickType) === 'Time' || ref === 'Timeline' || ref === 'Date' || ref === 'ISOString', "tickType must be 'Time', 'Timeline', 'Date', or 'ISOString'. You provided " + this.tickType + ".");
       utils.assert(this.tickType !== 'Date' || (tz != null), 'Must provide a tz (timezone) parameter when tickType is Date.');
       utils.assert(this.tickType !== 'ISOString' || (tz != null), 'Must provide a tz (timezone) parameter when returning ISOStrings.');
       if (this.tz == null) {
@@ -9800,22 +5373,22 @@ require.define("/node_modules/tztime/src/Timeline.js",function(require,module,ex
     };
 
     TimelineIterator.prototype._shouldBeExcluded = function() {
-      var currentInDay, currentMinutes, holiday, _i, _len, _ref, _ref1, _ref2;
+      var currentInDay, currentMinutes, holiday, j, len, ref, ref1, ref2;
       if (this.current._isGranularityCoarserThanDay()) {
         return false;
       }
       currentInDay = this.current.inGranularity('day');
-      if (_ref = this.current.dowString(), __indexOf.call(this.timeline.workDays, _ref) < 0) {
+      if (ref = this.current.dowString(), indexOf.call(this.timeline.workDays, ref) < 0) {
         return true;
       }
-      _ref1 = this.timeline.holidays;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        holiday = _ref1[_i];
+      ref1 = this.timeline.holidays;
+      for (j = 0, len = ref1.length; j < len; j++) {
+        holiday = ref1[j];
         if (utils.match(holiday, currentInDay)) {
           return true;
         }
       }
-      if ((_ref2 = this.timeline.granularity) === 'hour' || _ref2 === 'minute' || _ref2 === ' second' || _ref2 === 'millisecond') {
+      if ((ref2 = this.timeline.granularity) === 'hour' || ref2 === 'minute' || ref2 === ' second' || ref2 === 'millisecond') {
         currentMinutes = this.current.hour * 60;
         if (this.current.minute != null) {
           currentMinutes += this.current.minute;
@@ -9834,16 +5407,16 @@ require.define("/node_modules/tztime/src/Timeline.js",function(require,module,ex
     };
 
     TimelineIterator.prototype._proceedToNextValid = function() {
-      var _results;
-      _results = [];
+      var results;
+      results = [];
       while (this.hasNext() && this._shouldBeExcluded()) {
         if (this.timeline.step > 0) {
-          _results.push(this.current.increment());
+          results.push(this.current.increment());
         } else {
-          _results.push(this.current.decrement());
+          results.push(this.current.decrement());
         }
       }
-      return _results;
+      return results;
     };
 
     TimelineIterator.prototype.next = function() {
@@ -9853,13 +5426,13 @@ require.define("/node_modules/tztime/src/Timeline.js",function(require,module,ex
       @return {Time/Timeline/Date/String} Returns the next value of the iterator. The start will be the first value returned unless it should
          be skipped due to holiday, weekend, or workhour knockouts.
        */
-      var childtimeline, config, currentCopy, i, _i, _ref;
+      var childtimeline, config, currentCopy, i, j, ref;
       if (!this.hasNext()) {
         throw new StopIteration('Cannot call next() past end.');
       }
       currentCopy = new Time(this.current);
       this.count++;
-      for (i = _i = _ref = Math.abs(this.timeline.step); _ref <= 1 ? _i <= 1 : _i >= 1; i = _ref <= 1 ? ++_i : --_i) {
+      for (i = j = ref = Math.abs(this.timeline.step); ref <= 1 ? j <= 1 : j >= 1; i = ref <= 1 ? ++j : --j) {
         if (this.timeline.step > 0) {
           this.current.increment();
         } else {
@@ -9902,11 +5475,9 @@ require.define("/node_modules/tztime/src/Timeline.js",function(require,module,ex
 
 });
 
-require.define("/src/iCalculator.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/iCalculator.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
-  var JSON, iCalculator;
-
-  JSON = require('JSON2');
+  var iCalculator;
 
   iCalculator = (function() {
 
@@ -9916,8 +5487,8 @@ require.define("/src/iCalculator.js",function(require,module,exports,__dirname,_
     This serves as documentation for the interface expected of all Lumenize Calculators. You can extend from it but it's
     not technically necessary. You are more likely to copy this as the starting point for a new calculator.
      */
-    function iCalculator(_at_config) {
-      this.config = _at_config;
+    function iCalculator(config) {
+      this.config = config;
 
       /*
       @constructor
@@ -10011,15 +5582,13 @@ require.define("/src/iCalculator.js",function(require,module,exports,__dirname,_
 
 });
 
-require.define("/src/TimeInStateCalculator.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/TimeInStateCalculator.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
-  var JSON, OLAPCube, Time, TimeInStateCalculator, Timeline, utils, _ref;
+  var OLAPCube, Time, TimeInStateCalculator, Timeline, ref, utils;
 
   OLAPCube = require('./OLAPCube').OLAPCube;
 
-  _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time, Timeline = _ref.Timeline;
-
-  JSON = require('JSON2');
+  ref = require('tztime'), utils = ref.utils, Time = ref.Time, Timeline = ref.Timeline;
 
   TimeInStateCalculator = (function() {
 
@@ -10175,7 +5744,7 @@ require.define("/src/TimeInStateCalculator.js",function(require,module,exports,_
          This is useful if you want to filter the result by where the ended or if you want information to fill in the tooltip
          for a chart.
        */
-      var cubeConfig, dimensions, fieldName, metricObject, metrics, _i, _len, _ref1;
+      var cubeConfig, dimensions, fieldName, i, len, metricObject, metrics, ref1;
       this.config = utils.clone(config);
       if (this.config.validFromField == null) {
         this.config.validFromField = "_ValidFrom";
@@ -10201,9 +5770,9 @@ require.define("/src/TimeInStateCalculator.js",function(require,module,exports,_
         }
       ];
       if (this.config.trackLastValueForTheseFields != null) {
-        _ref1 = this.config.trackLastValueForTheseFields;
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          fieldName = _ref1[_i];
+        ref1 = this.config.trackLastValueForTheseFields;
+        for (i = 0, len = ref1.length; i < len; i++) {
+          fieldName = ref1[i];
           metricObject = {
             f: 'lastValue',
             field: fieldName
@@ -10232,7 +5801,7 @@ require.define("/src/TimeInStateCalculator.js",function(require,module,exports,_
         period of interest.
       @return {TimeInStateCalculator}
        */
-      var s, ticks, timeline, timelineConfig, _i, _len;
+      var i, len, s, ticks, timeline, timelineConfig;
       if (this.upToDateISOString != null) {
         utils.assert(this.upToDateISOString === startOn, "startOn (" + startOn + ") parameter should equal endBefore of previous call (" + this.upToDateISOString + ") to addSnapshots.");
       }
@@ -10241,8 +5810,8 @@ require.define("/src/TimeInStateCalculator.js",function(require,module,exports,_
       timelineConfig.startOn = new Time(startOn, Time.MILLISECOND, this.config.tz);
       timelineConfig.endBefore = new Time(endBefore, Time.MILLISECOND, this.config.tz);
       timeline = new Timeline(timelineConfig);
-      for (_i = 0, _len = snapshots.length; _i < _len; _i++) {
-        s = snapshots[_i];
+      for (i = 0, len = snapshots.length; i < len; i++) {
+        s = snapshots[i];
         ticks = timeline.ticksThatIntersect(s[this.config.validFromField], s[this.config.validToField], this.config.tz);
         s.ticks = ticks.length;
       }
@@ -10257,11 +5826,11 @@ require.define("/src/TimeInStateCalculator.js",function(require,module,exports,_
         Returns the current state of the calculator
       @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
        */
-      var cell, fieldName, filter, id, out, outRow, uniqueIDs, _i, _j, _len, _len1, _ref1;
+      var cell, fieldName, filter, i, id, j, len, len1, out, outRow, ref1, uniqueIDs;
       out = [];
       uniqueIDs = this.cube.getDimensionValues(this.config.uniqueIDField);
-      for (_i = 0, _len = uniqueIDs.length; _i < _len; _i++) {
-        id = uniqueIDs[_i];
+      for (i = 0, len = uniqueIDs.length; i < len; i++) {
+        id = uniqueIDs[i];
         filter = {};
         filter[this.config.uniqueIDField] = id;
         cell = this.cube.getCell(filter);
@@ -10269,9 +5838,9 @@ require.define("/src/TimeInStateCalculator.js",function(require,module,exports,_
         outRow[this.config.uniqueIDField] = id;
         outRow.ticks = cell.ticks;
         if (this.config.trackLastValueForTheseFields != null) {
-          _ref1 = this.config.trackLastValueForTheseFields;
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            fieldName = _ref1[_j];
+          ref1 = this.config.trackLastValueForTheseFields;
+          for (j = 0, len1 = ref1.length; j < len1; j++) {
+            fieldName = ref1[j];
             outRow[fieldName + '_lastValue'] = cell[fieldName + '_lastValue'];
           }
         }
@@ -10337,17 +5906,15 @@ require.define("/src/TimeInStateCalculator.js",function(require,module,exports,_
 
 });
 
-require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
-  var JSON, OLAPCube, arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, functions, utils, _ref;
+  var OLAPCube, arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, functions, ref, utils;
 
   utils = require('tztime').utils;
 
   functions = require('./functions').functions;
 
-  _ref = require('./dataTransform'), arrayOfMaps_To_CSVStyleArray = _ref.arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps = _ref.csvStyleArray_To_ArrayOfMaps;
-
-  JSON = require('JSON2');
+  ref = require('./dataTransform'), arrayOfMaps_To_CSVStyleArray = ref.arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps = ref.csvStyleArray_To_ArrayOfMaps;
 
   OLAPCube = (function() {
 
@@ -10580,9 +6147,9 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
     You could figure out the number of events active in each month by specifying "activeMonths" as a dimension.
     Lumenize.TimeInStateCalculator (and other calculators in Lumenize) use this technique.
      */
-    function OLAPCube(_at_userConfig, facts) {
-      var d, _i, _j, _len, _len1, _ref1, _ref2;
-      this.userConfig = _at_userConfig;
+    function OLAPCube(userConfig, facts) {
+      var d, j, k, len1, len2, ref1, ref2;
+      this.userConfig = userConfig;
 
       /*
       @constructor
@@ -10662,9 +6229,9 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       this.cellIndex = {};
       this.currentValues = {};
       this._dimensionValues = {};
-      _ref1 = this.config.dimensions;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        d = _ref1[_i];
+      ref1 = this.config.dimensions;
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        d = ref1[j];
         this._dimensionValues[d.field] = {};
       }
       if (!this.config.keepTotals) {
@@ -10673,9 +6240,9 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       if (!this.config.keepFacts) {
         this.config.keepFacts = false;
       }
-      _ref2 = this.config.dimensions;
-      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-        d = _ref2[_j];
+      ref2 = this.config.dimensions;
+      for (k = 0, len2 = ref2.length; k < len2; k++) {
+        d = ref2[k];
         if (this.config.keepTotals || d.keepTotals) {
           d.keepTotals = true;
         } else {
@@ -10737,39 +6304,39 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
     };
 
     OLAPCube.prototype._expandFact = function(fact) {
-      var countdownArray, d, index, m, more, out, outRow, p, possibilitiesArray, rolloverArray, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref1, _ref2, _ref3, _ref4;
+      var countdownArray, d, index, j, k, l, len1, len2, len3, len4, m, more, n, out, outRow, p, possibilitiesArray, ref1, ref2, ref3, ref4, rolloverArray;
       possibilitiesArray = [];
       countdownArray = [];
       rolloverArray = [];
-      _ref1 = this.config.dimensions;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        d = _ref1[_i];
+      ref1 = this.config.dimensions;
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        d = ref1[j];
         p = OLAPCube._possibilities(fact[d.field], d.type, d.keepTotals);
         possibilitiesArray.push(p);
         countdownArray.push(p.length - 1);
         rolloverArray.push(p.length - 1);
       }
-      _ref2 = this.config.metrics;
-      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-        m = _ref2[_j];
+      ref2 = this.config.metrics;
+      for (k = 0, len2 = ref2.length; k < len2; k++) {
+        m = ref2[k];
         this.currentValues[m.field] = [fact[m.field]];
       }
       out = [];
       more = true;
       while (more) {
         outRow = {};
-        _ref3 = this.config.dimensions;
-        for (index = _k = 0, _len2 = _ref3.length; _k < _len2; index = ++_k) {
-          d = _ref3[index];
+        ref3 = this.config.dimensions;
+        for (index = l = 0, len3 = ref3.length; l < len3; index = ++l) {
+          d = ref3[index];
           outRow[d.field] = possibilitiesArray[index][countdownArray[index]];
         }
         outRow._count = 1;
         if (this.config.keepFacts) {
           outRow._facts = [fact];
         }
-        _ref4 = this.config.metrics;
-        for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
-          m = _ref4[_l];
+        ref4 = this.config.metrics;
+        for (n = 0, len4 = ref4.length; n < len4; n++) {
+          m = ref4[n];
           outRow[m.as] = m.f([fact[m.field]], void 0, void 0, outRow, m.field + '_');
         }
         out.push(outRow);
@@ -10779,32 +6346,32 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
     };
 
     OLAPCube._extractFilter = function(row, dimensions) {
-      var d, out, _i, _len;
+      var d, j, len1, out;
       out = {};
-      for (_i = 0, _len = dimensions.length; _i < _len; _i++) {
-        d = dimensions[_i];
+      for (j = 0, len1 = dimensions.length; j < len1; j++) {
+        d = dimensions[j];
         out[d.field] = row[d.field];
       }
       return out;
     };
 
     OLAPCube.prototype._mergeExpandedFactArray = function(expandedFactArray) {
-      var d, er, fieldValue, filterString, m, olapRow, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _results;
-      _results = [];
-      for (_i = 0, _len = expandedFactArray.length; _i < _len; _i++) {
-        er = expandedFactArray[_i];
-        _ref1 = this.config.dimensions;
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          d = _ref1[_j];
+      var d, er, fieldValue, filterString, j, k, l, len1, len2, len3, m, olapRow, ref1, ref2, results;
+      results = [];
+      for (j = 0, len1 = expandedFactArray.length; j < len1; j++) {
+        er = expandedFactArray[j];
+        ref1 = this.config.dimensions;
+        for (k = 0, len2 = ref1.length; k < len2; k++) {
+          d = ref1[k];
           fieldValue = er[d.field];
           this._dimensionValues[d.field][JSON.stringify(fieldValue)] = fieldValue;
         }
         filterString = JSON.stringify(OLAPCube._extractFilter(er, this.config.dimensions));
         olapRow = this.cellIndex[filterString];
         if (olapRow != null) {
-          _ref2 = this.config.metrics;
-          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-            m = _ref2[_k];
+          ref2 = this.config.metrics;
+          for (l = 0, len3 = ref2.length; l < len3; l++) {
+            m = ref2[l];
             olapRow[m.as] = m.f(olapRow[m.field + '_values'], olapRow[m.as], this.currentValues[m.field], olapRow, m.field + '_');
           }
         } else {
@@ -10812,9 +6379,9 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
           this.cellIndex[filterString] = olapRow;
           this.cells.push(olapRow);
         }
-        _results.push(this.dirtyRows[filterString] = olapRow);
+        results.push(this.dirtyRows[filterString] = olapRow);
       }
-      return _results;
+      return results;
     };
 
     OLAPCube.prototype.addFacts = function(facts) {
@@ -10827,7 +6394,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       @param {Object[]} facts An Array of facts to be aggregated into OLAPCube. Each fact is a Map where the keys are the field names
         and the values are the field values (e.g. `{field1: 'a', field2: 5}`).
        */
-      var d, dirtyRow, expandedFactArray, fact, fieldName, filterString, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref1, _ref2, _ref3;
+      var d, dirtyRow, expandedFactArray, fact, fieldName, filterString, j, k, l, len1, len2, len3, len4, n, ref1, ref2, ref3;
       this.dirtyRows = {};
       if (utils.type(facts) === 'array') {
         if (facts.length <= 0) {
@@ -10841,11 +6408,11 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
         }
       }
       if (this.config.deriveFieldsOnInput) {
-        for (_i = 0, _len = facts.length; _i < _len; _i++) {
-          fact = facts[_i];
-          _ref1 = this.config.deriveFieldsOnInput;
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            d = _ref1[_j];
+        for (j = 0, len1 = facts.length; j < len1; j++) {
+          fact = facts[j];
+          ref1 = this.config.deriveFieldsOnInput;
+          for (k = 0, len2 = ref1.length; k < len2; k++) {
+            d = ref1[k];
             if (d.as != null) {
               fieldName = d.as;
             } else {
@@ -10855,19 +6422,19 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
           }
         }
       }
-      for (_k = 0, _len2 = facts.length; _k < _len2; _k++) {
-        fact = facts[_k];
+      for (l = 0, len3 = facts.length; l < len3; l++) {
+        fact = facts[l];
         this.currentValues = {};
         expandedFactArray = this._expandFact(fact);
         this._mergeExpandedFactArray(expandedFactArray);
       }
       if (this.config.deriveFieldsOnOutput != null) {
-        _ref2 = this.dirtyRows;
-        for (filterString in _ref2) {
-          dirtyRow = _ref2[filterString];
-          _ref3 = this.config.deriveFieldsOnOutput;
-          for (_l = 0, _len3 = _ref3.length; _l < _len3; _l++) {
-            d = _ref3[_l];
+        ref2 = this.dirtyRows;
+        for (filterString in ref2) {
+          dirtyRow = ref2[filterString];
+          ref3 = this.config.deriveFieldsOnOutput;
+          for (n = 0, len4 = ref3.length; n < len4; n++) {
+            d = ref3[n];
             if (d.as != null) {
               fieldName = d.as;
             } else {
@@ -10893,14 +6460,14 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
         `{field1: value1, field2: value2}`. If this parameter is missing, the internal cells array is returned.
       @return {Object[]} Returns the cells that match the supplied filter
        */
-      var c, output, _i, _len, _ref1;
+      var c, j, len1, output, ref1;
       if (filterObject == null) {
         return this.cells;
       }
       output = [];
-      _ref1 = this.cells;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        c = _ref1[_i];
+      ref1 = this.cells;
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        c = ref1[j];
         if (utils.filterMatch(filterObject, c)) {
           output.push(c);
         }
@@ -10920,16 +6487,16 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
         with null. Calling `getCell()` with no parameter or `{}` will return the total of all dimensions (if @config.keepTotals=true).
       @return {Object[]} Returns the cell that match the supplied filter
        */
-      var cell, d, foundIt, key, normalizedFilter, value, _i, _j, _len, _len1, _ref1, _ref2;
+      var cell, d, foundIt, j, k, key, len1, len2, normalizedFilter, ref1, ref2, value;
       if (filter == null) {
         filter = {};
       }
       for (key in filter) {
         value = filter[key];
         foundIt = false;
-        _ref1 = this.config.dimensions;
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          d = _ref1[_i];
+        ref1 = this.config.dimensions;
+        for (j = 0, len1 = ref1.length; j < len1; j++) {
+          d = ref1[j];
           if (d.field === key) {
             foundIt = true;
           }
@@ -10939,9 +6506,9 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
         }
       }
       normalizedFilter = {};
-      _ref2 = this.config.dimensions;
-      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-        d = _ref2[_j];
+      ref2 = this.config.dimensions;
+      for (k = 0, len2 = ref2.length; k < len2; k++) {
+        d = ref2[k];
         if (filter.hasOwnProperty(d.field)) {
           normalizedFilter[d.field] = filter[d.field];
         } else {
@@ -10981,7 +6548,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
     };
 
     OLAPCube._compare = function(a, b) {
-      var aString, bString, index, value, _i, _len;
+      var aString, bString, index, j, len1, value;
       if (a === null) {
         return 1;
       }
@@ -10994,7 +6561,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
         case 'date':
           return b - a;
         case 'array':
-          for (index = _i = 0, _len = a.length; _i < _len; index = ++_i) {
+          for (index = j = 0, len1 = a.length; j < len1; index = ++j) {
             value = a[index];
             if (b.length - 1 >= index && value < b[index]) {
               return 1;
@@ -11061,30 +6628,30 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
     };
 
     OLAPCube.prototype.toStringOneDimension = function(field, metric, significance) {
-      var cell, cellString, filter, fullWidth, indexRow, maxColumnWidth, r, rowLabelWidth, rowValueStrings, rowValues, s, valueStrings, _i, _j, _len, _len1;
+      var cell, cellString, filter, fullWidth, indexRow, j, k, len1, len2, maxColumnWidth, r, rowLabelWidth, rowValueStrings, rowValues, s, valueStrings;
       rowValues = this.getDimensionValues(field);
       rowValueStrings = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = rowValues.length; _i < _len; _i++) {
-          r = rowValues[_i];
-          _results.push(JSON.stringify(r));
+        var j, len1, results;
+        results = [];
+        for (j = 0, len1 = rowValues.length; j < len1; j++) {
+          r = rowValues[j];
+          results.push(JSON.stringify(r));
         }
-        return _results;
+        return results;
       })();
       rowLabelWidth = Math.max.apply({}, (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = rowValueStrings.length; _i < _len; _i++) {
-          s = rowValueStrings[_i];
-          _results.push(s.length);
+        var j, len1, results;
+        results = [];
+        for (j = 0, len1 = rowValueStrings.length; j < len1; j++) {
+          s = rowValueStrings[j];
+          results.push(s.length);
         }
-        return _results;
+        return results;
       })());
       rowLabelWidth = Math.max(rowLabelWidth, 'Total'.length, field.length);
       maxColumnWidth = metric.length;
       valueStrings = [];
-      for (indexRow = _i = 0, _len = rowValues.length; _i < _len; indexRow = ++_i) {
+      for (indexRow = j = 0, len1 = rowValues.length; j < len1; indexRow = ++j) {
         r = rowValues[indexRow];
         filter = {};
         filter[field] = r;
@@ -11102,7 +6669,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       s = '| ' + (OLAPCube._padToWidth(field, rowLabelWidth, ' ', true)) + ' |';
       s += OLAPCube._padToWidth(metric, maxColumnWidth) + ' |';
       s += '\n|' + OLAPCube._padToWidth('', fullWidth, '=') + '|';
-      for (indexRow = _j = 0, _len1 = rowValueStrings.length; _j < _len1; indexRow = ++_j) {
+      for (indexRow = k = 0, len2 = rowValueStrings.length; k < len2; indexRow = ++k) {
         r = rowValueStrings[indexRow];
         s += '\n| ';
         if (r === 'null') {
@@ -11119,7 +6686,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
     };
 
     OLAPCube.prototype.toStringTwoDimensions = function(rows, columns, metric, significance) {
-      var c, cell, cellString, columnValueStrings, columnValues, filter, fullWidth, indexColumn, indexRow, maxColumnWidth, r, rowLabelWidth, rowValueStrings, rowValues, s, valueStrings, valueStringsRow, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m;
+      var c, cell, cellString, columnValueStrings, columnValues, filter, fullWidth, indexColumn, indexRow, j, k, l, len1, len2, len3, len4, len5, maxColumnWidth, n, o, r, rowLabelWidth, rowValueStrings, rowValues, s, valueStrings, valueStringsRow;
       if (rows == null) {
         rows = this.config.dimensions[0].field;
       }
@@ -11129,48 +6696,48 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       rowValues = this.getDimensionValues(rows);
       columnValues = this.getDimensionValues(columns);
       rowValueStrings = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = rowValues.length; _i < _len; _i++) {
-          r = rowValues[_i];
-          _results.push(JSON.stringify(r));
+        var j, len1, results;
+        results = [];
+        for (j = 0, len1 = rowValues.length; j < len1; j++) {
+          r = rowValues[j];
+          results.push(JSON.stringify(r));
         }
-        return _results;
+        return results;
       })();
       columnValueStrings = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = columnValues.length; _i < _len; _i++) {
-          c = columnValues[_i];
-          _results.push(JSON.stringify(c));
+        var j, len1, results;
+        results = [];
+        for (j = 0, len1 = columnValues.length; j < len1; j++) {
+          c = columnValues[j];
+          results.push(JSON.stringify(c));
         }
-        return _results;
+        return results;
       })();
       rowLabelWidth = Math.max.apply({}, (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = rowValueStrings.length; _i < _len; _i++) {
-          s = rowValueStrings[_i];
-          _results.push(s.length);
+        var j, len1, results;
+        results = [];
+        for (j = 0, len1 = rowValueStrings.length; j < len1; j++) {
+          s = rowValueStrings[j];
+          results.push(s.length);
         }
-        return _results;
+        return results;
       })());
       rowLabelWidth = Math.max(rowLabelWidth, 'Total'.length);
       valueStrings = [];
       maxColumnWidth = Math.max.apply({}, (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = columnValueStrings.length; _i < _len; _i++) {
-          s = columnValueStrings[_i];
-          _results.push(s.length);
+        var j, len1, results;
+        results = [];
+        for (j = 0, len1 = columnValueStrings.length; j < len1; j++) {
+          s = columnValueStrings[j];
+          results.push(s.length);
         }
-        return _results;
+        return results;
       })());
       maxColumnWidth = Math.max(maxColumnWidth, 'Total'.length);
-      for (indexRow = _i = 0, _len = rowValues.length; _i < _len; indexRow = ++_i) {
+      for (indexRow = j = 0, len1 = rowValues.length; j < len1; indexRow = ++j) {
         r = rowValues[indexRow];
         valueStringsRow = [];
-        for (indexColumn = _j = 0, _len1 = columnValues.length; _j < _len1; indexColumn = ++_j) {
+        for (indexColumn = k = 0, len2 = columnValues.length; k < len2; indexColumn = ++k) {
           c = columnValues[indexColumn];
           filter = {};
           filter[rows] = r;
@@ -11188,7 +6755,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       }
       maxColumnWidth += 1;
       s = '|' + (OLAPCube._padToWidth('', rowLabelWidth)) + ' ||';
-      for (indexColumn = _k = 0, _len2 = columnValueStrings.length; _k < _len2; indexColumn = ++_k) {
+      for (indexColumn = l = 0, len3 = columnValueStrings.length; l < len3; indexColumn = ++l) {
         c = columnValueStrings[indexColumn];
         if (c === 'null') {
           s += OLAPCube._padToWidth('Total', maxColumnWidth) + ' |';
@@ -11201,7 +6768,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
         fullWidth += 2;
       }
       s += '|\n|' + OLAPCube._padToWidth('', fullWidth, '=');
-      for (indexRow = _l = 0, _len3 = rowValueStrings.length; _l < _len3; indexRow = ++_l) {
+      for (indexRow = n = 0, len4 = rowValueStrings.length; n < len4; indexRow = ++n) {
         r = rowValueStrings[indexRow];
         s += '|\n|';
         if (r === 'null') {
@@ -11210,7 +6777,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
           s += OLAPCube._padToWidth(r, rowLabelWidth, ' ', true);
         }
         s += ' ||';
-        for (indexColumn = _m = 0, _len4 = columnValueStrings.length; _m < _len4; indexColumn = ++_m) {
+        for (indexColumn = o = 0, len5 = columnValueStrings.length; o < len5; indexColumn = ++o) {
           c = columnValueStrings[indexColumn];
           s += OLAPCube._padToWidth(valueStrings[indexRow][indexColumn], maxColumnWidth);
           if (c === 'null') {
@@ -11242,7 +6809,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       @param {Number} [significance] The multiple to which you want to round the bucket edges. 1 means whole numbers.
         0.1 means to round to tenths. 0.01 to hundreds. Etc.
        */
-      var c, cell, cellValue, columnValues, filter, indexColumn, indexRow, r, rowValues, topRow, values, valuesRow, _i, _j, _k, _len, _len1, _len2;
+      var c, cell, cellValue, columnValues, filter, indexColumn, indexRow, j, k, l, len1, len2, len3, r, rowValues, topRow, values, valuesRow;
       if (rows == null) {
         rows = this.config.dimensions[0].field;
       }
@@ -11254,7 +6821,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       values = [];
       topRow = [];
       topRow.push('x');
-      for (indexColumn = _i = 0, _len = columnValues.length; _i < _len; indexColumn = ++_i) {
+      for (indexColumn = j = 0, len1 = columnValues.length; j < len1; indexColumn = ++j) {
         c = columnValues[indexColumn];
         if (c === null) {
           topRow.push('Total');
@@ -11263,7 +6830,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
         }
       }
       values.push(topRow);
-      for (indexRow = _j = 0, _len1 = rowValues.length; _j < _len1; indexRow = ++_j) {
+      for (indexRow = k = 0, len2 = rowValues.length; k < len2; indexRow = ++k) {
         r = rowValues[indexRow];
         valuesRow = [];
         if (r === null) {
@@ -11271,7 +6838,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
         } else {
           valuesRow.push(r);
         }
-        for (indexColumn = _k = 0, _len2 = columnValues.length; _k < _len2; indexColumn = ++_k) {
+        for (indexColumn = l = 0, len3 = columnValues.length; l < len3; indexColumn = ++l) {
           c = columnValues[indexColumn];
           filter = {};
           filter[rows] = r;
@@ -11379,7 +6946,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       @param {String/Object} p A String or Object from a previously saved OLAPCube state
       @return {OLAPCube}
        */
-      var c, cube, d, fieldValue, filterString, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _ref3;
+      var c, cube, d, fieldValue, filterString, j, k, l, len1, len2, len3, ref1, ref2, ref3;
       if (utils.type(p) === 'string') {
         p = JSON.parse(p);
       }
@@ -11395,19 +6962,19 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       }
       cube.cellIndex = {};
       cube._dimensionValues = {};
-      _ref1 = cube.config.dimensions;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        d = _ref1[_i];
+      ref1 = cube.config.dimensions;
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        d = ref1[j];
         cube._dimensionValues[d.field] = {};
       }
-      _ref2 = cube.cells;
-      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-        c = _ref2[_j];
+      ref2 = cube.cells;
+      for (k = 0, len2 = ref2.length; k < len2; k++) {
+        c = ref2[k];
         filterString = JSON.stringify(OLAPCube._extractFilter(c, cube.config.dimensions));
         cube.cellIndex[filterString] = c;
-        _ref3 = cube.config.dimensions;
-        for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
-          d = _ref3[_k];
+        ref3 = cube.config.dimensions;
+        for (l = 0, len3 = ref3.length; l < len3; l++) {
+          d = ref3[l];
           fieldValue = c[d.field];
           cube._dimensionValues[d.field][JSON.stringify(fieldValue)] = fieldValue;
         }
@@ -11427,13 +6994,11 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
 
 });
 
-require.define("/src/functions.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/functions.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
-  var JSON, functions, utils, _populateDependentValues;
+  var _populateDependentValues, functions, utils;
 
   utils = require('tztime').utils;
-
-  JSON = require('JSON2');
 
 
   /*
@@ -11454,7 +7019,7 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
   functions = {};
 
   _populateDependentValues = function(values, dependencies, dependentValues, prefix) {
-    var d, key, out, _i, _len;
+    var d, j, key, len, out;
     if (dependentValues == null) {
       dependentValues = {};
     }
@@ -11462,8 +7027,8 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
       prefix = '';
     }
     out = {};
-    for (_i = 0, _len = dependencies.length; _i < _len; _i++) {
-      d = dependencies[_i];
+    for (j = 0, len = dependencies.length; j < len; j++) {
+      d = dependencies[j];
       if (d === 'count') {
         if (prefix === '') {
           key = 'count';
@@ -11492,7 +7057,7 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
    */
 
   functions.sum = function(values, oldResult, newValues) {
-    var temp, tempValues, v, _i, _len;
+    var j, len, temp, tempValues, v;
     if (oldResult != null) {
       temp = oldResult;
       tempValues = newValues;
@@ -11500,8 +7065,8 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
       temp = 0;
       tempValues = values;
     }
-    for (_i = 0, _len = tempValues.length; _i < _len; _i++) {
-      v = tempValues[_i];
+    for (j = 0, len = tempValues.length; j < len; j++) {
+      v = tempValues[j];
       temp += v;
     }
     return temp;
@@ -11518,7 +7083,7 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
    */
 
   functions.product = function(values, oldResult, newValues) {
-    var temp, tempValues, v, _i, _len;
+    var j, len, temp, tempValues, v;
     if (oldResult != null) {
       temp = oldResult;
       tempValues = newValues;
@@ -11526,8 +7091,8 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
       temp = 1;
       tempValues = values;
     }
-    for (_i = 0, _len = tempValues.length; _i < _len; _i++) {
-      v = tempValues[_i];
+    for (j = 0, len = tempValues.length; j < len; j++) {
+      v = tempValues[j];
       temp = temp * v;
     }
     return temp;
@@ -11544,7 +7109,7 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
    */
 
   functions.sumSquares = function(values, oldResult, newValues) {
-    var temp, tempValues, v, _i, _len;
+    var j, len, temp, tempValues, v;
     if (oldResult != null) {
       temp = oldResult;
       tempValues = newValues;
@@ -11552,8 +7117,8 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
       temp = 0;
       tempValues = values;
     }
-    for (_i = 0, _len = tempValues.length; _i < _len; _i++) {
-      v = tempValues[_i];
+    for (j = 0, len = tempValues.length; j < len; j++) {
+      v = tempValues[j];
       temp += v * v;
     }
     return temp;
@@ -11570,7 +7135,7 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
    */
 
   functions.sumCubes = function(values, oldResult, newValues) {
-    var temp, tempValues, v, _i, _len;
+    var j, len, temp, tempValues, v;
     if (oldResult != null) {
       temp = oldResult;
       tempValues = newValues;
@@ -11578,8 +7143,8 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
       temp = 0;
       tempValues = values;
     }
-    for (_i = 0, _len = tempValues.length; _i < _len; _i++) {
-      v = tempValues[_i];
+    for (j = 0, len = tempValues.length; j < len; j++) {
+      v = tempValues[j];
       temp += v * v * v;
     }
     return temp;
@@ -11647,7 +7212,7 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
    */
 
   functions.min = function(values, oldResult, newValues) {
-    var temp, v, _i, _len;
+    var j, len, temp, v;
     if (oldResult != null) {
       return functions.min(newValues.concat([oldResult]));
     }
@@ -11655,8 +7220,8 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
       return null;
     }
     temp = values[0];
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
+    for (j = 0, len = values.length; j < len; j++) {
+      v = values[j];
       if (v < temp) {
         temp = v;
       }
@@ -11675,7 +7240,7 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
    */
 
   functions.max = function(values, oldResult, newValues) {
-    var temp, v, _i, _len;
+    var j, len, temp, v;
     if (oldResult != null) {
       return functions.max(newValues.concat([oldResult]));
     }
@@ -11683,8 +7248,8 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
       return null;
     }
     temp = values[0];
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
+    for (j = 0, len = values.length; j < len; j++) {
+      v = values[j];
       if (v > temp) {
         temp = v;
       }
@@ -11720,11 +7285,11 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
    */
 
   functions.uniqueValues = function(values, oldResult, newValues) {
-    var key, r, temp, temp2, tempValues, v, value, _i, _j, _len, _len1;
+    var j, key, l, len, len1, r, temp, temp2, tempValues, v, value;
     temp = {};
     if (oldResult != null) {
-      for (_i = 0, _len = oldResult.length; _i < _len; _i++) {
-        r = oldResult[_i];
+      for (j = 0, len = oldResult.length; j < len; j++) {
+        r = oldResult[j];
         temp[r] = null;
       }
       tempValues = newValues;
@@ -11732,8 +7297,8 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
       tempValues = values;
     }
     temp2 = [];
-    for (_j = 0, _len1 = tempValues.length; _j < _len1; _j++) {
-      v = tempValues[_j];
+    for (l = 0, len1 = tempValues.length; l < len1; l++) {
+      v = tempValues[l];
       temp[v] = null;
     }
     for (key in temp) {
@@ -11756,8 +7321,8 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
    */
 
   functions.average = function(values, oldResult, newValues, dependentValues, prefix) {
-    var count, sum, _ref;
-    _ref = _populateDependentValues(values, functions.average.dependencies, dependentValues, prefix), count = _ref.count, sum = _ref.sum;
+    var count, ref, sum;
+    ref = _populateDependentValues(values, functions.average.dependencies, dependentValues, prefix), count = ref.count, sum = ref.sum;
     return sum / count;
   };
 
@@ -11776,12 +7341,12 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
    */
 
   functions.errorSquared = function(values, oldResult, newValues, dependentValues, prefix) {
-    var count, difference, errorSquared, mean, sum, v, _i, _len, _ref;
-    _ref = _populateDependentValues(values, functions.errorSquared.dependencies, dependentValues, prefix), count = _ref.count, sum = _ref.sum;
+    var count, difference, errorSquared, j, len, mean, ref, sum, v;
+    ref = _populateDependentValues(values, functions.errorSquared.dependencies, dependentValues, prefix), count = ref.count, sum = ref.sum;
     mean = sum / count;
     errorSquared = 0;
-    for (_i = 0, _len = values.length; _i < _len; _i++) {
-      v = values[_i];
+    for (j = 0, len = values.length; j < len; j++) {
+      v = values[j];
       difference = v - mean;
       errorSquared += difference * difference;
     }
@@ -11803,8 +7368,8 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
    */
 
   functions.variance = function(values, oldResult, newValues, dependentValues, prefix) {
-    var count, sum, sumSquares, _ref;
-    _ref = _populateDependentValues(values, functions.variance.dependencies, dependentValues, prefix), count = _ref.count, sum = _ref.sum, sumSquares = _ref.sumSquares;
+    var count, ref, sum, sumSquares;
+    ref = _populateDependentValues(values, functions.variance.dependencies, dependentValues, prefix), count = ref.count, sum = ref.sum, sumSquares = ref.sumSquares;
     return (count * sumSquares - sum * sum) / (count * (count - 1));
   };
 
@@ -11933,7 +7498,7 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
   };
 
   functions.expandMetrics = function(metrics, addCountIfMissing, addValuesForCustomFunctions) {
-    var assureDependenciesAbove, confirmMetricAbove, countRow, dependencies, hasCount, index, m, metricsRow, valuesRow, _i, _j, _len, _len1;
+    var assureDependenciesAbove, confirmMetricAbove, countRow, dependencies, hasCount, index, j, l, len, len1, m, metricsRow, valuesRow;
     if (metrics == null) {
       metrics = [];
     }
@@ -11978,9 +7543,9 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
       return false;
     };
     assureDependenciesAbove = function(dependencies, fieldName, aboveThisIndex) {
-      var d, newRow, _i, _len;
-      for (_i = 0, _len = dependencies.length; _i < _len; _i++) {
-        d = dependencies[_i];
+      var d, j, len, newRow;
+      for (j = 0, len = dependencies.length; j < len; j++) {
+        d = dependencies[j];
         if (!confirmMetricAbove(d, fieldName, aboveThisIndex)) {
           if (d === 'count') {
             newRow = {
@@ -12000,7 +7565,7 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
       return true;
     };
     if (addValuesForCustomFunctions) {
-      for (index = _i = 0, _len = metrics.length; _i < _len; index = ++_i) {
+      for (index = j = 0, len = metrics.length; j < len; index = ++j) {
         m = metrics[index];
         if (utils.type(m.f) === 'function') {
           if (m.f.dependencies == null) {
@@ -12021,8 +7586,8 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
       }
     }
     hasCount = false;
-    for (_j = 0, _len1 = metrics.length; _j < _len1; _j++) {
-      m = metrics[_j];
+    for (l = 0, len1 = metrics.length; l < len1; l++) {
+      m = metrics[l];
       functions.expandFandAs(m);
       if (m.metric === 'count') {
         hasCount = true;
@@ -12059,13 +7624,11 @@ require.define("/src/functions.js",function(require,module,exports,__dirname,__f
 
 });
 
-require.define("/src/dataTransform.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/dataTransform.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
-  var JSON, Time, arrayOfMaps_To_CSVStyleArray, arrayOfMaps_To_HighChartsSeries, csvString_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, csvStyleArray_To_CSVString, utils, _ref;
+  var Time, arrayOfMaps_To_CSVStyleArray, arrayOfMaps_To_HighChartsSeries, csvString_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, csvStyleArray_To_CSVString, ref, utils;
 
-  _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time;
-
-  JSON = require('JSON2');
+  ref = require('tztime'), utils = ref.utils, Time = ref.Time;
 
   csvStyleArray_To_ArrayOfMaps = function(csvStyleArray, rowKeys) {
 
@@ -12095,9 +7658,8 @@ require.define("/src/dataTransform.js",function(require,module,exports,__dirname
          * [ { column1: 1, column2: 2 },
          *   { column1: 3, column2: 4 },
          *   { column1: 5, column2: 6 } ]
-    `
      */
-    var arrayOfMaps, i, index, inputRow, key, outputRow, tableLength, _i, _len;
+    var arrayOfMaps, i, index, inputRow, j, key, len, outputRow, tableLength;
     arrayOfMaps = [];
     if (rowKeys != null) {
       i = 0;
@@ -12109,7 +7671,7 @@ require.define("/src/dataTransform.js",function(require,module,exports,__dirname
     while (i < tableLength) {
       inputRow = csvStyleArray[i];
       outputRow = {};
-      for (index = _i = 0, _len = rowKeys.length; _i < _len; index = ++_i) {
+      for (index = j = 0, len = rowKeys.length; j < len; index = ++j) {
         key = rowKeys[index];
         outputRow[key] = inputRow[index];
       }
@@ -12119,15 +7681,15 @@ require.define("/src/dataTransform.js",function(require,module,exports,__dirname
     return arrayOfMaps;
   };
 
-  arrayOfMaps_To_CSVStyleArray = function(arrayOfMaps, keys) {
+  arrayOfMaps_To_CSVStyleArray = function(arrayOfMaps, fields) {
 
     /*
     @method arrayOfMaps_To_CSVStyleArray
     @param {Object[]} arrayOfMaps
-    @param {Object} [keys] If not provided, it will use the first row and get all fields
+    @param {String[]} [fields] If not provided, it will use the first row and get all fields
     @return {Array[]} The first row will be the column headers
     
-    `arrayOfMaps_To_CSVStyleArray` is a convenience function that will convert an array of maps like:
+       `arrayOfMaps_To_CSVStyleArray` is a convenience function that will convert an array of maps like:
     
         {arrayOfMaps_To_CSVStyleArray} = require('../')
     
@@ -12145,28 +7707,27 @@ require.define("/src/dataTransform.js",function(require,module,exports,__dirname
          *   [ 10000, 20000 ],
          *   [ 30000, 40000 ],
          *   [ 50000, 60000 ] ]
-    `
      */
-    var csvStyleArray, inRow, key, outRow, value, _i, _j, _len, _len1, _ref1;
+    var csvStyleArray, inRow, j, k, key, len, len1, outRow, ref1, value;
     if (arrayOfMaps.length === 0) {
       return [];
     }
     csvStyleArray = [];
     outRow = [];
-    if (keys == null) {
-      keys = [];
-      _ref1 = arrayOfMaps[0];
-      for (key in _ref1) {
-        value = _ref1[key];
-        keys.push(key);
+    if (fields == null) {
+      fields = [];
+      ref1 = arrayOfMaps[0];
+      for (key in ref1) {
+        value = ref1[key];
+        fields.push(key);
       }
     }
-    csvStyleArray.push(keys);
-    for (_i = 0, _len = arrayOfMaps.length; _i < _len; _i++) {
-      inRow = arrayOfMaps[_i];
+    csvStyleArray.push(fields);
+    for (j = 0, len = arrayOfMaps.length; j < len; j++) {
+      inRow = arrayOfMaps[j];
       outRow = [];
-      for (_j = 0, _len1 = keys.length; _j < _len1; _j++) {
-        key = keys[_j];
+      for (k = 0, len1 = fields.length; k < len1; k++) {
+        key = fields[k];
         outRow.push(inRow[key]);
       }
       csvStyleArray.push(outRow);
@@ -12199,30 +7760,30 @@ require.define("/src/dataTransform.js",function(require,module,exports,__dirname
           {name: "Series 2"},
           {name: "Series3"}
         ]
-        
+    
     and extracts the data into seperate series
     
         console.log(arrayOfMaps_To_HighChartsSeries(arrayOfMaps, config))
          * [ { name: 'Series 1', data: [ 8, 2, 1 ], yAxis: 1 },
          *   { name: 'Series 2', data: [ 5, 3, 2 ] },
          *   { name: 'Series3', data: [ 10, null, 40 ] } ]
-        
+    
     Notice how the extra fields from the series array are included in the output. Also, notice how the missing second
     value for Series3 was replaced with a null. HighCharts will skip right over this for category charts as you would
     expect.
      */
-    var a, aggregationRow, idx, key, output, outputRow, preOutput, s, seriesNames, seriesRow, value, _i, _j, _k, _l, _len, _len1, _len2, _len3;
+    var a, aggregationRow, idx, j, k, key, l, len, len1, len2, len3, m, output, outputRow, preOutput, s, seriesNames, seriesRow, value;
     preOutput = {};
     seriesNames = [];
-    for (_i = 0, _len = config.length; _i < _len; _i++) {
-      a = config[_i];
+    for (j = 0, len = config.length; j < len; j++) {
+      a = config[j];
       seriesNames.push(a.name);
     }
-    for (_j = 0, _len1 = seriesNames.length; _j < _len1; _j++) {
-      s = seriesNames[_j];
+    for (k = 0, len1 = seriesNames.length; k < len1; k++) {
+      s = seriesNames[k];
       preOutput[s] = [];
-      for (_k = 0, _len2 = arrayOfMaps.length; _k < _len2; _k++) {
-        aggregationRow = arrayOfMaps[_k];
+      for (l = 0, len2 = arrayOfMaps.length; l < len2; l++) {
+        aggregationRow = arrayOfMaps[l];
         value = aggregationRow[s];
         if (value == null) {
           value = null;
@@ -12231,7 +7792,7 @@ require.define("/src/dataTransform.js",function(require,module,exports,__dirname
       }
     }
     output = [];
-    for (idx = _l = 0, _len3 = seriesNames.length; _l < _len3; idx = ++_l) {
+    for (idx = m = 0, len3 = seriesNames.length; m < len3; idx = ++m) {
       s = seriesNames[idx];
       outputRow = {
         name: s,
@@ -12250,20 +7811,20 @@ require.define("/src/dataTransform.js",function(require,module,exports,__dirname
   };
 
   csvString_To_CSVStyleArray = function(s, asterixForUndefined) {
-    var c, cValue, error, headerLength, index, newRow, out, rawRowArray, row, rows, _i, _j, _len, _len1;
+    var c, cValue, error, headerLength, index, j, k, len, len1, newRow, out, rawRowArray, row, rows;
     if (asterixForUndefined == null) {
       asterixForUndefined = true;
     }
     rows = s.split('\n');
     headerLength = rows[0].split(',').length;
     out = [];
-    for (index = _i = 0, _len = rows.length; _i < _len; index = ++_i) {
+    for (index = j = 0, len = rows.length; j < len; index = ++j) {
       row = rows[index];
       newRow = [];
       rawRowArray = row.split(',');
       if (rawRowArray.length === headerLength) {
-        for (_j = 0, _len1 = rawRowArray.length; _j < _len1; _j++) {
-          c = rawRowArray[_j];
+        for (k = 0, len1 = rawRowArray.length; k < len1; k++) {
+          c = rawRowArray[k];
           if (asterixForUndefined && c === '*') {
             cValue = void 0;
           } else {
@@ -12284,12 +7845,12 @@ require.define("/src/dataTransform.js",function(require,module,exports,__dirname
   };
 
   csvStyleArray_To_CSVString = function(csvStyleArray) {
-    var row, s, value, _i, _j, _len, _len1;
+    var j, k, len, len1, row, s, value;
     s = '';
-    for (_i = 0, _len = csvStyleArray.length; _i < _len; _i++) {
-      row = csvStyleArray[_i];
-      for (_j = 0, _len1 = row.length; _j < _len1; _j++) {
-        value = row[_j];
+    for (j = 0, len = csvStyleArray.length; j < len; j++) {
+      row = csvStyleArray[j];
+      for (k = 0, len1 = row.length; k < len1; k++) {
+        value = row[k];
         s += JSON.stringify(value) + ', ';
       }
       s += "\n";
@@ -12313,15 +7874,13 @@ require.define("/src/dataTransform.js",function(require,module,exports,__dirname
 
 });
 
-require.define("/src/TransitionsCalculator.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/TransitionsCalculator.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
-  var JSON, OLAPCube, Time, Timeline, TransitionsCalculator, utils, _ref;
+  var OLAPCube, Time, Timeline, TransitionsCalculator, ref, utils;
 
   OLAPCube = require('./OLAPCube').OLAPCube;
 
-  _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time, Timeline = _ref.Timeline;
-
-  JSON = require('JSON2');
+  ref = require('tztime'), utils = ref.utils, Time = ref.Time, Timeline = ref.Timeline;
 
   TransitionsCalculator = (function() {
 
@@ -12443,7 +8002,7 @@ require.define("/src/TransitionsCalculator.js",function(require,module,exports,_
       @cfg {String[]} [fieldsToSum=[]] It will track the count automatically but it can keep a running sum of other fields also
       @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
        */
-      var cubeConfig, dimensions, f, metrics, _i, _len, _ref1, _ref2;
+      var cubeConfig, dimensions, f, i, len, metrics, ref1, ref2;
       this.config = utils.clone(config);
       if (this.config.validFromField == null) {
         this.config.validFromField = "_ValidFrom";
@@ -12462,7 +8021,7 @@ require.define("/src/TransitionsCalculator.js",function(require,module,exports,_
       }
       utils.assert(this.config.tz != null, "Must provide a timezone to this calculator.");
       utils.assert(this.config.granularity != null, "Must provide a granularity to this calculator.");
-      if ((_ref1 = this.config.granularity) === Time.HOUR || _ref1 === Time.MINUTE || _ref1 === Time.SECOND || _ref1 === Time.MILLISECOND) {
+      if ((ref1 = this.config.granularity) === Time.HOUR || ref1 === Time.MINUTE || ref1 === Time.SECOND || ref1 === Time.MILLISECOND) {
         throw new Error("Transitions calculator is not designed to work on granularities finer than 'day'");
       }
       dimensions = [
@@ -12476,9 +8035,9 @@ require.define("/src/TransitionsCalculator.js",function(require,module,exports,_
           f: 'sum'
         }
       ];
-      _ref2 = this.config.fieldsToSum;
-      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-        f = _ref2[_i];
+      ref2 = this.config.fieldsToSum;
+      for (i = 0, len = ref2.length; i < len; i++) {
+        f = ref2[i];
         metrics.push({
           field: f,
           f: 'sum'
@@ -12537,13 +8096,13 @@ require.define("/src/TransitionsCalculator.js",function(require,module,exports,_
     };
 
     TransitionsCalculator.prototype._filterSnapshots = function(snapshots, sign) {
-      var f, filteredSnapshots, fs, s, _i, _j, _len, _len1, _ref1;
+      var f, filteredSnapshots, fs, i, j, len, len1, ref1, s;
       if (sign == null) {
         sign = 1;
       }
       filteredSnapshots = [];
-      for (_i = 0, _len = snapshots.length; _i < _len; _i++) {
-        s = snapshots[_i];
+      for (i = 0, len = snapshots.length; i < len; i++) {
+        s = snapshots[i];
         if (s[this.config.validFromField] <= this.maxTimeString) {
           if (s.count != null) {
             throw new Error('Snapshots passed into a TransitionsCalculator cannot have a `count` field.');
@@ -12554,9 +8113,9 @@ require.define("/src/TransitionsCalculator.js",function(require,module,exports,_
           fs = utils.clone(s);
           fs.count = sign * 1;
           fs.timePeriod = new Time(s[this.config.validFromField], this.config.granularity, this.config.tz).toString();
-          _ref1 = this.config.fieldsToSum;
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            f = _ref1[_j];
+          ref1 = this.config.fieldsToSum;
+          for (j = 0, len1 = ref1.length; j < len1; j++) {
+            f = ref1[j];
             fs[f] = sign * s[f];
           }
           filteredSnapshots.push(fs);
@@ -12572,7 +8131,7 @@ require.define("/src/TransitionsCalculator.js",function(require,module,exports,_
         Returns the current state of the calculator
       @return {Object[]} Returns an Array of Maps like `{timePeriod: '2012-12', count: 10, otherField: 34}`
        */
-      var cell, config, f, filter, out, outRow, t, timeLine, timePeriods, tp, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2;
+      var cell, config, f, filter, i, j, k, len, len1, len2, out, outRow, ref1, ref2, t, timeLine, timePeriods, tp;
       if (this.virgin) {
         return [];
       }
@@ -12585,18 +8144,18 @@ require.define("/src/TransitionsCalculator.js",function(require,module,exports,_
       };
       timeLine = new Timeline(config);
       timePeriods = (function() {
-        var _i, _len, _ref1, _results;
-        _ref1 = timeLine.getAllRaw();
-        _results = [];
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          t = _ref1[_i];
-          _results.push(t.toString());
+        var i, len, ref1, results;
+        ref1 = timeLine.getAllRaw();
+        results = [];
+        for (i = 0, len = ref1.length; i < len; i++) {
+          t = ref1[i];
+          results.push(t.toString());
         }
-        return _results;
+        return results;
       })();
       timePeriods.push(this.highestTimePeriod);
-      for (_i = 0, _len = timePeriods.length; _i < _len; _i++) {
-        tp = timePeriods[_i];
+      for (i = 0, len = timePeriods.length; i < len; i++) {
+        tp = timePeriods[i];
         filter = {};
         filter['timePeriod'] = tp;
         cell = this.cube.getCell(filter);
@@ -12604,16 +8163,16 @@ require.define("/src/TransitionsCalculator.js",function(require,module,exports,_
         outRow.timePeriod = tp;
         if (cell != null) {
           outRow.count = cell.count_sum;
-          _ref1 = this.config.fieldsToSum;
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            f = _ref1[_j];
+          ref1 = this.config.fieldsToSum;
+          for (j = 0, len1 = ref1.length; j < len1; j++) {
+            f = ref1[j];
             outRow[f] = cell[f + '_sum'];
           }
         } else {
           outRow.count = 0;
-          _ref2 = this.config.fieldsToSum;
-          for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-            f = _ref2[_k];
+          ref2 = this.config.fieldsToSum;
+          for (k = 0, len2 = ref2.length; k < len2; k++) {
+            f = ref2[k];
             outRow[f] = 0;
           }
         }
@@ -12688,18 +8247,16 @@ require.define("/src/TransitionsCalculator.js",function(require,module,exports,_
 
 });
 
-require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
-  var JSON, OLAPCube, Time, TimeSeriesCalculator, Timeline, functions, utils, _ref,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var OLAPCube, Time, TimeSeriesCalculator, Timeline, functions, ref, utils,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   OLAPCube = require('./OLAPCube').OLAPCube;
 
-  _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time, Timeline = _ref.Timeline;
+  ref = require('tztime'), utils = ref.utils, Time = ref.Time, Timeline = ref.Timeline;
 
   functions = require('./functions').functions;
-
-  JSON = require('JSON2');
 
   TimeSeriesCalculator = (function() {
 
@@ -13119,7 +8676,7 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
       @cfg {String/ISOString/Date/Lumenize.Time} [endBefore=infinity] This becomes the master endBefore for the entire calculator
         limiting the calculator to only emit ticks before this.
        */
-      var a, dimensions, f, field, fieldsMap, filterValue, filteredCountCreator, filteredSumCreator, inputCubeDimensions, inputCubeMetrics, m, newMetrics, row, ticks, timeline, timelineConfig, tl, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
+      var a, dimensions, f, field, fieldsMap, filterValue, filteredCountCreator, filteredSumCreator, inputCubeDimensions, inputCubeMetrics, j, k, l, len, len1, len2, len3, len4, len5, m, n, newMetrics, o, q, ref1, ref2, ref3, ref4, ref5, ref6, ref7, row, ticks, timeline, timelineConfig, tl;
       this.config = utils.clone(config);
       this.tickToLabelLookup = {};
       if (this.config.validFromField == null) {
@@ -13134,16 +8691,16 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
       utils.assert(this.config.tz != null, "Must provide a timezone to this calculator.");
       utils.assert(this.config.granularity != null, "Must provide a granularity to this calculator.");
       newMetrics = [];
-      _ref1 = this.config.metrics;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        a = _ref1[_i];
-        if ((_ref2 = a.f) === 'groupBySum' || _ref2 === 'groupByCount') {
+      ref1 = this.config.metrics;
+      for (j = 0, len = ref1.length; j < len; j++) {
+        a = ref1[j];
+        if ((ref2 = a.f) === 'groupBySum' || ref2 === 'groupByCount') {
           if (a.prefix == null) {
             a.prefix = '';
           }
-          _ref3 = a.allowedValues;
-          for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
-            filterValue = _ref3[_j];
+          ref3 = a.allowedValues;
+          for (k = 0, len1 = ref3.length; k < len1; k++) {
+            filterValue = ref3[k];
             row = {
               as: a.prefix + filterValue,
               filterField: a.groupByField,
@@ -13165,8 +8722,8 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
       filteredCountCreator = function(filterField, filterValues) {
         var f;
         f = function(row) {
-          var _ref4;
-          if (_ref4 = row[filterField], __indexOf.call(filterValues, _ref4) >= 0) {
+          var ref4;
+          if (ref4 = row[filterField], indexOf.call(filterValues, ref4) >= 0) {
             return 1;
           } else {
             return 0;
@@ -13177,8 +8734,8 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
       filteredSumCreator = function(field, filterField, filterValues) {
         var f;
         f = function(row) {
-          var _ref4;
-          if (_ref4 = row[filterField], __indexOf.call(filterValues, _ref4) >= 0) {
+          var ref4;
+          if (ref4 = row[filterField], indexOf.call(filterValues, ref4) >= 0) {
             return row[field];
           } else {
             return 0;
@@ -13186,10 +8743,10 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
         };
         return f;
       };
-      _ref4 = this.config.metrics;
-      for (_k = 0, _len2 = _ref4.length; _k < _len2; _k++) {
-        a = _ref4[_k];
-        if ((_ref5 = a.f) === 'filteredCount' || _ref5 === 'filteredSum') {
+      ref4 = this.config.metrics;
+      for (l = 0, len2 = ref4.length; l < len2; l++) {
+        a = ref4[l];
+        if ((ref5 = a.f) === 'filteredCount' || ref5 === 'filteredSum') {
           if (a.f === 'filteredCount') {
             f = filteredCountCreator(a.filterField, a.filterValues);
           } else {
@@ -13217,9 +8774,9 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
         }
       ];
       fieldsMap = {};
-      _ref6 = this.config.metrics;
-      for (_l = 0, _len3 = _ref6.length; _l < _len3; _l++) {
-        m = _ref6[_l];
+      ref6 = this.config.metrics;
+      for (n = 0, len3 = ref6.length; n < len3; n++) {
+        m = ref6[n];
         if (m.field != null) {
           fieldsMap[m.field] = true;
         }
@@ -13252,9 +8809,9 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
       this.cube = new OLAPCube(this.cubeConfig);
       this.upToDateISOString = null;
       if (this.config.summaryMetricsConfig != null) {
-        _ref7 = this.config.summaryMetricsConfig;
-        for (_m = 0, _len4 = _ref7.length; _m < _len4; _m++) {
-          m = _ref7[_m];
+        ref7 = this.config.summaryMetricsConfig;
+        for (o = 0, len4 = ref7.length; o < len4; o++) {
+          m = ref7[o];
           functions.expandFandAs(m);
         }
       }
@@ -13274,8 +8831,8 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
         timelineConfig.endBefore = this.masterEndBeforeTime;
         timeline = new Timeline(timelineConfig);
         ticks = timeline.getAll('Timeline', this.config.tz, this.config.granularity);
-        for (_n = 0, _len5 = ticks.length; _n < _len5; _n++) {
-          tl = ticks[_n];
+        for (q = 0, len5 = ticks.length; q < len5; q++) {
+          tl = ticks[q];
           this.tickToLabelLookup[tl.endBefore.getISOStringInTZ(config.tz)] = tl.startOn.toString();
         }
       }
@@ -13294,7 +8851,7 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
         period of interest.
       @return {TimeInStateCalculator}
        */
-      var advanceOneTimeline, advanceOneTimelineConfig, advanceOneTimelineIterator, endBeforeTime, inputCube, s, startOnTime, ticks, timeline, timelineConfig, tl, validSnapshots, _i, _j, _k, _len, _len1, _len2, _ref1;
+      var advanceOneTimeline, advanceOneTimelineConfig, advanceOneTimelineIterator, endBeforeTime, inputCube, j, k, l, len, len1, len2, ref1, s, startOnTime, ticks, timeline, timelineConfig, tl, validSnapshots;
       if (this.upToDateISOString != null) {
         utils.assert(this.upToDateISOString === startOnISOString, "startOnISOString (" + startOnISOString + ") parameter should equal upToDateISOString of previous call (" + this.upToDateISOString + ") to addSnapshots.");
       }
@@ -13322,13 +8879,13 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
       this.asOfISOString = timelineConfig.endBefore.getISOStringInTZ(this.config.tz);
       timeline = new Timeline(timelineConfig);
       ticks = timeline.getAll('Timeline', this.config.tz, this.config.granularity);
-      for (_i = 0, _len = ticks.length; _i < _len; _i++) {
-        tl = ticks[_i];
+      for (j = 0, len = ticks.length; j < len; j++) {
+        tl = ticks[j];
         this.tickToLabelLookup[tl.endBefore.getISOStringInTZ(this.config.tz)] = tl.startOn.toString();
       }
       validSnapshots = [];
-      for (_j = 0, _len1 = snapshots.length; _j < _len1; _j++) {
-        s = snapshots[_j];
+      for (k = 0, len1 = snapshots.length; k < len1; k++) {
+        s = snapshots[k];
         ticks = timeline.ticksThatIntersect(s[this.config.validFromField], s[this.config.validToField], this.config.tz);
         if (ticks.length > 0) {
           s.tick = ticks;
@@ -13339,9 +8896,9 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
       this.cube.addFacts(inputCube.getCells());
       if (true || this.masterEndBeforeTime.greaterThanOrEqual(endBeforeTime)) {
         this.toDateSnapshots = [];
-        for (_k = 0, _len2 = snapshots.length; _k < _len2; _k++) {
-          s = snapshots[_k];
-          if ((s[this.config.validToField] > (_ref1 = this.asOfISOString) && _ref1 >= s[this.config.validFromField])) {
+        for (l = 0, len2 = snapshots.length; l < len2; l++) {
+          s = snapshots[l];
+          if ((s[this.config.validToField] > (ref1 = this.asOfISOString) && ref1 >= s[this.config.validFromField])) {
             this.toDateSnapshots.push(s);
           }
         }
@@ -13358,21 +8915,21 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
         Returns the current state of the calculator
       @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
        */
-      var as, cell, d, foundFirstNullCell, highestIndexAllowed, highestIndexAllowed1, highestIndexAllowed2, index, labels, lastIndex, lastPoint, lastTick, m, pointsAddedCount, projectedPoint, projectionSeries, projectionTimeline, projectionTimelineConfig, projectionTimelineIterator, projections, row, s, seriesData, startIndex, startOn, startPoint, summaryMetric, summaryMetrics, t, tick, tickIndex, ticks, toDateCell, toDateCube, values, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _len7, _len8, _len9, _m, _n, _o, _p, _q, _r, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
-      ticks = utils._.keys(this.tickToLabelLookup).sort();
+      var as, cell, d, foundFirstNullCell, highestIndexAllowed, highestIndexAllowed1, highestIndexAllowed2, index, j, k, l, labels, lastIndex, lastPoint, lastTick, len, len1, len2, len3, len4, len5, len6, len7, len8, len9, m, n, o, pointsAddedCount, projectedPoint, projectionSeries, projectionTimeline, projectionTimelineConfig, projectionTimelineIterator, projections, q, r, ref1, ref2, ref3, ref4, ref5, ref6, ref7, ref8, row, s, seriesData, startIndex, startOn, startPoint, summaryMetric, summaryMetrics, t, tick, tickIndex, ticks, toDateCell, toDateCube, u, v, values, w;
+      ticks = utils.keys(this.tickToLabelLookup).sort();
       labels = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = ticks.length; _i < _len; _i++) {
-          t = ticks[_i];
-          _results.push(this.tickToLabelLookup[t]);
+        var j, len, results;
+        results = [];
+        for (j = 0, len = ticks.length; j < len; j++) {
+          t = ticks[j];
+          results.push(this.tickToLabelLookup[t]);
         }
-        return _results;
+        return results;
       }).call(this);
       if ((this.toDateSnapshots != null) && this.toDateSnapshots.length > 0) {
-        _ref1 = this.toDateSnapshots;
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          s = _ref1[_i];
+        ref1 = this.toDateSnapshots;
+        for (j = 0, len = ref1.length; j < len; j++) {
+          s = ref1[j];
           s.tick = 'To Date';
         }
         toDateCube = new OLAPCube(this.toDateCubeConfig, this.toDateSnapshots);
@@ -13381,7 +8938,7 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
       }
       seriesData = [];
       foundFirstNullCell = false;
-      for (tickIndex = _j = 0, _len1 = ticks.length; _j < _len1; tickIndex = ++_j) {
+      for (tickIndex = k = 0, len1 = ticks.length; k < len1; tickIndex = ++k) {
         t = ticks[tickIndex];
         cell = utils.clone(this.cube.getCell({
           tick: t
@@ -13390,13 +8947,13 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
           delete cell._count;
         } else {
           startOn = new Time(labels[tickIndex]).getISOStringInTZ(this.config.tz);
-          if (toDateCell && (startOn < (_ref2 = this.asOfISOString) && _ref2 <= t)) {
+          if (toDateCell && (startOn < (ref2 = this.asOfISOString) && ref2 <= t)) {
             cell = toDateCell;
           } else {
             cell = {};
-            _ref3 = this.config.metrics;
-            for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
-              m = _ref3[_k];
+            ref3 = this.config.metrics;
+            for (l = 0, len2 = ref3.length; l < len2; l++) {
+              m = ref3[l];
               cell[m.as] = null;
             }
           }
@@ -13407,13 +8964,13 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
       }
       summaryMetrics = {};
       if (this.config.summaryMetricsConfig != null) {
-        _ref4 = this.config.summaryMetricsConfig;
-        for (_l = 0, _len3 = _ref4.length; _l < _len3; _l++) {
-          summaryMetric = _ref4[_l];
+        ref4 = this.config.summaryMetricsConfig;
+        for (n = 0, len3 = ref4.length; n < len3; n++) {
+          summaryMetric = ref4[n];
           if (summaryMetric.field != null) {
             values = [];
-            for (_m = 0, _len4 = seriesData.length; _m < _len4; _m++) {
-              row = seriesData[_m];
+            for (o = 0, len4 = seriesData.length; o < len4; o++) {
+              row = seriesData[o];
               values.push(row[summaryMetric.field]);
             }
             summaryMetrics[summaryMetric.as] = summaryMetric.f(values);
@@ -13423,11 +8980,11 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
         }
       }
       if (this.config.deriveFieldsAfterSummary != null) {
-        for (index = _n = 0, _len5 = seriesData.length; _n < _len5; index = ++_n) {
+        for (index = q = 0, len5 = seriesData.length; q < len5; index = ++q) {
           row = seriesData[index];
-          _ref5 = this.config.deriveFieldsAfterSummary;
-          for (_o = 0, _len6 = _ref5.length; _o < _len6; _o++) {
-            d = _ref5[_o];
+          ref5 = this.config.deriveFieldsAfterSummary;
+          for (r = 0, len6 = ref5.length; r < len6; r++) {
+            d = ref5[r];
             row[d.as] = d.f(row, index, summaryMetrics, seriesData);
           }
         }
@@ -13438,15 +8995,15 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
         lastIndex = seriesData.length - 1;
         lastPoint = seriesData[lastIndex];
         lastTick = lastPoint.tick;
-        _ref6 = projections.series;
-        for (_p = 0, _len7 = _ref6.length; _p < _len7; _p++) {
-          projectionSeries = _ref6[_p];
+        ref6 = projections.series;
+        for (u = 0, len7 = ref6.length; u < len7; u++) {
+          projectionSeries = ref6[u];
           as = projectionSeries.as || projectionSeries.field + "_projection";
           lastPoint[as] = lastPoint[projectionSeries.field];
         }
-        _ref7 = projections.series;
-        for (_q = 0, _len8 = _ref7.length; _q < _len8; _q++) {
-          projectionSeries = _ref7[_q];
+        ref7 = projections.series;
+        for (v = 0, len8 = ref7.length; v < len8; v++) {
+          projectionSeries = ref7[v];
           if (projectionSeries.slope == null) {
             if (projectionSeries.startIndex == null) {
               if (projections.minFractionToConsider == null) {
@@ -13485,9 +9042,9 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
           tick = projectionTimelineIterator.next();
           projectedPoint.tick = tick.endBefore.getISOStringInTZ(this.config.tz);
           projectedPoint.label = tick.startOn.toString();
-          _ref8 = projections.series;
-          for (_r = 0, _len9 = _ref8.length; _r < _len9; _r++) {
-            projectionSeries = _ref8[_r];
+          ref8 = projections.series;
+          for (w = 0, len9 = ref8.length; w < len9; w++) {
+            projectionSeries = ref8[w];
             as = projectionSeries.as || projectionSeries.field + "_projection";
             projectedPoint[as] = lastPoint[projectionSeries.field] + pointsAddedCount * projectionSeries.slope;
           }
@@ -13504,7 +9061,7 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
     };
 
     TimeSeriesCalculator._findVOptimalProjectionStartIndex = function(seriesData, field, highestIndexAllowed) {
-      var calculateTotalErrorSquared, errorSquared, i, indexForMinNormalizedErrorSquared, lastIndex, lastPoint, minNormalizedErrorSquared, normalizedErrorSquared, slopeToEnd, _i;
+      var calculateTotalErrorSquared, errorSquared, i, indexForMinNormalizedErrorSquared, j, lastIndex, lastPoint, minNormalizedErrorSquared, normalizedErrorSquared, ref1, slopeToEnd;
       utils.assert(highestIndexAllowed < seriesData.length - 2, "Cannot use the last two points for calculating v-optimal slope.");
       lastIndex = seriesData.length - 1;
       lastPoint = seriesData[lastIndex];
@@ -13515,11 +9072,11 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
       })(this);
       calculateTotalErrorSquared = (function(_this) {
         return function(index) {
-          var currentAngle, currentSlope, error, i, totalErrorSquared, trialAngle, trialSlope, _i, _ref1, _ref2;
+          var currentAngle, currentSlope, error, i, j, ref1, ref2, totalErrorSquared, trialAngle, trialSlope;
           trialSlope = slopeToEnd(index);
           trialAngle = Math.atan(trialSlope);
           totalErrorSquared = 0;
-          for (i = _i = _ref1 = index + 1, _ref2 = lastIndex - 1; _ref1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = _ref1 <= _ref2 ? ++_i : --_i) {
+          for (i = j = ref1 = index + 1, ref2 = lastIndex - 1; ref1 <= ref2 ? j <= ref2 : j >= ref2; i = ref1 <= ref2 ? ++j : --j) {
             currentSlope = slopeToEnd(i);
             currentAngle = Math.atan(currentSlope);
             error = trialAngle - currentAngle;
@@ -13530,7 +9087,7 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
       })(this);
       minNormalizedErrorSquared = Number.MAX_VALUE;
       indexForMinNormalizedErrorSquared = highestIndexAllowed;
-      for (i = _i = highestIndexAllowed; highestIndexAllowed <= 0 ? _i <= 0 : _i >= 0; i = highestIndexAllowed <= 0 ? ++_i : --_i) {
+      for (i = j = ref1 = highestIndexAllowed; ref1 <= 0 ? j <= 0 : j >= 0; i = ref1 <= 0 ? ++j : --j) {
         errorSquared = calculateTotalErrorSquared(i);
         normalizedErrorSquared = errorSquared / (seriesData.length - 2 - i);
         if (normalizedErrorSquared <= minNormalizedErrorSquared) {
@@ -13598,7 +9155,7 @@ require.define("/src/TimeSeriesCalculator.js",function(require,module,exports,__
 
 });
 
-require.define("/src/histogram.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/histogram.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
   var functions, getBucketCountMinMax, histogram, justHereForDocsAndDoctest, roundDownToSignificance, roundUpToSignificance, setParameters, utils;
 
@@ -13701,21 +9258,21 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
   };
 
   setParameters = function(rows, valueField, firstStartOn, lastEndBelow, bucketCount, significance) {
-    var lowerBase, max, min, row, targetBucketCount, upperBase, values, _ref;
+    var lowerBase, max, min, ref, row, targetBucketCount, upperBase, values;
     if (valueField != null) {
       values = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = rows.length; _i < _len; _i++) {
-          row = rows[_i];
-          _results.push(row[valueField]);
+        var j, len, results;
+        results = [];
+        for (j = 0, len = rows.length; j < len; j++) {
+          row = rows[j];
+          results.push(row[valueField]);
         }
-        return _results;
+        return results;
       })();
     } else {
       values = rows;
     }
-    _ref = getBucketCountMinMax(values), targetBucketCount = _ref.targetBucketCount, min = _ref.min, max = _ref.max;
+    ref = getBucketCountMinMax(values), targetBucketCount = ref.targetBucketCount, min = ref.min, max = ref.max;
     if (bucketCount == null) {
       bucketCount = targetBucketCount;
     }
@@ -13742,8 +9299,8 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
   };
 
   histogram.bucketsConstantWidth = function(rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount) {
-    var bucket, bucketSize, buckets, edge, i, lastEdge, lowerBase, upperBase, values, _i, _ref, _ref1;
-    _ref = setParameters(rows, valueField, firstStartOn, lastEndBelow, bucketCount, significance), values = _ref.values, bucketCount = _ref.bucketCount, firstStartOn = _ref.firstStartOn, lowerBase = _ref.lowerBase, lastEndBelow = _ref.lastEndBelow, upperBase = _ref.upperBase;
+    var bucket, bucketSize, buckets, edge, i, j, lastEdge, lowerBase, ref, ref1, upperBase, values;
+    ref = setParameters(rows, valueField, firstStartOn, lastEndBelow, bucketCount, significance), values = ref.values, bucketCount = ref.bucketCount, firstStartOn = ref.firstStartOn, lowerBase = ref.lowerBase, lastEndBelow = ref.lastEndBelow, upperBase = ref.upperBase;
     buckets = [];
     if (bucketCount < 3) {
       bucket = {
@@ -13766,7 +9323,7 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
       endBelow: lastEdge
     };
     buckets.push(bucket);
-    for (i = _i = 1, _ref1 = bucketCount - 2; 1 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 1 <= _ref1 ? ++_i : --_i) {
+    for (i = j = 1, ref1 = bucketCount - 2; 1 <= ref1 ? j <= ref1 : j >= ref1; i = 1 <= ref1 ? ++j : --j) {
       edge = lastEdge + bucketSize;
       buckets.push({
         index: i,
@@ -13788,8 +9345,8 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
   };
 
   histogram.bucketsConstantDepth = function(rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount) {
-    var bucket, bucketSize, buckets, currentBoundary, i, lastBoundary, lowerBase, upperBase, values, _i, _ref, _ref1;
-    _ref = setParameters(rows, valueField, firstStartOn, lastEndBelow, bucketCount, significance), values = _ref.values, bucketCount = _ref.bucketCount, firstStartOn = _ref.firstStartOn, lowerBase = _ref.lowerBase, lastEndBelow = _ref.lastEndBelow, upperBase = _ref.upperBase;
+    var bucket, bucketSize, buckets, currentBoundary, i, j, lastBoundary, lowerBase, ref, ref1, upperBase, values;
+    ref = setParameters(rows, valueField, firstStartOn, lastEndBelow, bucketCount, significance), values = ref.values, bucketCount = ref.bucketCount, firstStartOn = ref.firstStartOn, lowerBase = ref.lowerBase, lastEndBelow = ref.lastEndBelow, upperBase = ref.upperBase;
     if (bucketCount < 3) {
       bucket = {
         index: 0,
@@ -13808,7 +9365,7 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
       endBelow: currentBoundary
     };
     buckets.push(bucket);
-    for (i = _i = 1, _ref1 = bucketCount - 2; 1 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 1 <= _ref1 ? ++_i : --_i) {
+    for (i = j = 1, ref1 = bucketCount - 2; 1 <= ref1 ? j <= ref1 : j >= ref1; i = 1 <= ref1 ? ++j : --j) {
       lastBoundary = currentBoundary;
       currentBoundary = roundDownToSignificance(functions.percentileCreator(bucketSize * (i + 1))(values), significance);
       buckets.push({
@@ -13915,11 +9472,11 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
     To convert a value into a percentile call `histogram.bucket(value, bucketsFromCallToBucketsPercentile)` and
     then read the percentileHigherIsBetter or percentileLowerIsBetter of the bucket that is returned.
      */
-    var b, buckets, percentile, _i, _len;
+    var b, buckets, j, len, percentile;
     buckets = histogram.buckets(rows, valueField, histogram.bucketsConstantDepth, null, null, null, 100);
     percentile = 0;
-    for (_i = 0, _len = buckets.length; _i < _len; _i++) {
-      b = buckets[_i];
+    for (j = 0, len = buckets.length; j < len; j++) {
+      b = buckets[j];
       if (b.matchingRangeIndexEnd != null) {
         b.percentileHigherIsBetter = b.matchingRangeIndexStart;
         b.percentileLowerIsBetter = 99 - b.matchingRangeIndexEnd;
@@ -13936,7 +9493,7 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
   };
 
   histogram.buckets = function(rows, valueField, type, significance, firstStartOn, lastEndBelow, bucketCount) {
-    var bucket, buckets, currentBucket, gotToEnd, i, index, startOfMatching, tempBuckets, _i, _len;
+    var bucket, buckets, currentBucket, gotToEnd, i, index, j, len, startOfMatching, tempBuckets;
     if (type == null) {
       type = histogram.bucketsConstantWidth;
     }
@@ -14009,7 +9566,7 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
         buckets.push(currentBucket);
       }
     }
-    for (index = _i = 0, _len = buckets.length; _i < _len; index = ++_i) {
+    for (index = j = 0, len = buckets.length; j < len; index = ++j) {
       bucket = buckets[index];
       bucket.index = index;
       if ((bucket.startOn != null) && (bucket.endBelow != null)) {
@@ -14045,12 +9602,12 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
     you set the lastEndBelow to 100, then no values of 100 will get bucketed. You can't score in the 100th percentile
     because you can't beat your own score. This is simlar logic.
      */
-    var b, i, _i, _ref;
+    var b, i, j, ref;
     if (value == null) {
       return null;
     }
     if (buckets.length >= 3) {
-      for (i = _i = 1, _ref = buckets.length - 2; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
+      for (i = j = 1, ref = buckets.length - 2; 1 <= ref ? j <= ref : j >= ref; i = 1 <= ref ? ++j : --j) {
         b = buckets[i];
         if ((b.startOn <= value && value < b.endBelow)) {
           return b;
@@ -14100,27 +9657,27 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
     
     Returns a histogram from rows using the provided buckets. See histogram.histogram() for details on the returned Array.
      */
-    var bucket, h, histogramRow, row, v, values, _i, _j, _len, _len1;
+    var bucket, h, histogramRow, j, k, len, len1, row, v, values;
     if (valueField != null) {
       values = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = rows.length; _i < _len; _i++) {
-          row = rows[_i];
-          _results.push(row[valueField]);
+        var j, len, results;
+        results = [];
+        for (j = 0, len = rows.length; j < len; j++) {
+          row = rows[j];
+          results.push(row[valueField]);
         }
-        return _results;
+        return results;
       })();
     } else {
       values = rows;
     }
     h = utils.clone(buckets);
-    for (_i = 0, _len = h.length; _i < _len; _i++) {
-      histogramRow = h[_i];
+    for (j = 0, len = h.length; j < len; j++) {
+      histogramRow = h[j];
       histogramRow.count = 0;
     }
-    for (_j = 0, _len1 = values.length; _j < _len1; _j++) {
-      v = values[_j];
+    for (k = 0, len1 = values.length; k < len1; k++) {
+      v = values[k];
       bucket = histogram.bucket(v, buckets);
       if (bucket != null) {
         h[bucket.index].count++;
@@ -14170,7 +9727,7 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
   };
 
   histogram.clipping = function(rows, valueField, noClipping) {
-    var b, bucket, bucketCount, bucketSize, buckets, c, chartMax, chartValues, chartValuesMinusOutliers, clipped, i, iqr, max, percentile, q1, q3, row, total, upperBound, valueMax, _i, _j, _k, _l, _len, _len1, _len2;
+    var b, bucket, bucketCount, bucketSize, buckets, c, chartMax, chartValues, chartValuesMinusOutliers, clipped, i, iqr, j, k, l, len, len1, len2, m, max, percentile, q1, q3, ref, row, total, upperBound, valueMax;
     if (noClipping == null) {
       noClipping = false;
     }
@@ -14259,13 +9816,13 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
      */
     if (valueField != null) {
       chartValues = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = rows.length; _i < _len; _i++) {
-          row = rows[_i];
-          _results.push(row[valueField]);
+        var j, len, results;
+        results = [];
+        for (j = 0, len = rows.length; j < len; j++) {
+          row = rows[j];
+          results.push(row[valueField]);
         }
-        return _results;
+        return results;
       })();
     } else {
       chartValues = rows;
@@ -14284,15 +9841,15 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
         upperBound = max;
       }
       chartValuesMinusOutliers = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = chartValues.length; _i < _len; _i++) {
-          c = chartValues[_i];
+        var j, len, results;
+        results = [];
+        for (j = 0, len = chartValues.length; j < len; j++) {
+          c = chartValues[j];
           if (c <= upperBound) {
-            _results.push(c);
+            results.push(c);
           }
         }
-        return _results;
+        return results;
       })();
     }
     bucketCount = Math.floor(Math.sqrt(chartValuesMinusOutliers.length));
@@ -14304,8 +9861,8 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
     chartMax = upperBound + bucketSize;
     valueMax = Math.floor(functions.max(chartValues)) + 1;
     valueMax = Math.max(chartMax, valueMax);
-    for (_i = 0, _len = rows.length; _i < _len; _i++) {
-      row = rows[_i];
+    for (j = 0, len = rows.length; j < len; j++) {
+      row = rows[j];
       if (row[valueField] >= upperBound) {
         row.clippedChartValue = upperBound + bucketSize * (row[valueField] - upperBound) / (valueMax - upperBound);
       } else {
@@ -14313,7 +9870,7 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
       }
     }
     buckets = [];
-    for (i = _j = 0; 0 <= bucketCount ? _j <= bucketCount : _j >= bucketCount; i = 0 <= bucketCount ? ++_j : --_j) {
+    for (i = k = 0, ref = bucketCount; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
       bucket = {
         label: (Math.floor(i * bucketSize)) + "-" + (Math.floor((i + 1) * bucketSize)),
         rows: [],
@@ -14328,8 +9885,8 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
       buckets[bucketCount].label = upperBound + "-" + valueMax;
     }
     total = 0;
-    for (_k = 0, _len1 = rows.length; _k < _len1; _k++) {
-      row = rows[_k];
+    for (l = 0, len1 = rows.length; l < len1; l++) {
+      row = rows[l];
       if (row[valueField] >= upperBound) {
         bucket = buckets[buckets.length - 1];
       } else {
@@ -14340,8 +9897,8 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
       total++;
     }
     percentile = 0;
-    for (_l = 0, _len2 = buckets.length; _l < _len2; _l++) {
-      b = buckets[_l];
+    for (m = 0, len2 = buckets.length; m < len2; m++) {
+      b = buckets[m];
       percentile += b.count / total;
       if (isNaN(percentile)) {
         b.percentile = 0;
@@ -14367,7 +9924,7 @@ require.define("/src/histogram.js",function(require,module,exports,__dirname,__f
 
 });
 
-require.define("/src/multiRegression.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/multiRegression.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
   var multiRegression, predict;
 
@@ -14379,15 +9936,15 @@ require.define("/src/multiRegression.js",function(require,module,exports,__dirna
     @method calculateA
       Calculates the coefficient matrix for gaussian elimination solution
      */
-    var a, i, j, k, n, numOfVariables, _i, _j, _k, _ref, _ref1;
+    var a, i, j, k, l, m, n, numOfVariables, o, ref, ref1, ref2;
     numOfVariables = data[0].length;
     n = data.length;
     a = [];
-    for (i = _i = 0, _ref = numOfVariables - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+    for (i = l = 0, ref = numOfVariables - 1; 0 <= ref ? l <= ref : l >= ref; i = 0 <= ref ? ++l : --l) {
       a.push([]);
-      for (j = _j = 0; 0 <= numOfVariables ? _j <= numOfVariables : _j >= numOfVariables; j = 0 <= numOfVariables ? ++_j : --_j) {
+      for (j = m = 0, ref1 = numOfVariables; 0 <= ref1 ? m <= ref1 : m >= ref1; j = 0 <= ref1 ? ++m : --m) {
         a[i].push(0);
-        for (k = _k = 0, _ref1 = n - 1; 0 <= _ref1 ? _k <= _ref1 : _k >= _ref1; k = 0 <= _ref1 ? ++_k : --_k) {
+        for (k = o = 0, ref2 = n - 1; 0 <= ref2 ? o <= ref2 : o >= ref2; k = 0 <= ref2 ? ++o : --o) {
           a[i][j] += (i === 0 ? 1 : data[k][i - 1]) * (j === 0 ? 1 : data[k][j - 1]);
         }
       }
@@ -14396,14 +9953,14 @@ require.define("/src/multiRegression.js",function(require,module,exports,__dirna
   };
 
   multiRegression.swapRows = function(a, firstRowIndex, secondRowIndex) {
-    var j, temp, _i, _ref, _results;
-    _results = [];
-    for (j = _i = 0, _ref = a[0].length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; j = 0 <= _ref ? ++_i : --_i) {
+    var j, l, ref, results, temp;
+    results = [];
+    for (j = l = 0, ref = a[0].length - 1; 0 <= ref ? l <= ref : l >= ref; j = 0 <= ref ? ++l : --l) {
       temp = a[firstRowIndex][j];
       a[firstRowIndex][j] = a[secondRowIndex][j];
-      _results.push(a[secondRowIndex][j] = temp);
+      results.push(a[secondRowIndex][j] = temp);
     }
-    return _results;
+    return results;
   };
 
   predict = function(data, inputs) {
@@ -14432,7 +9989,7 @@ require.define("/src/multiRegression.js",function(require,module,exports,__dirna
 
 });
 
-require.define("/src/table.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/table.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
   var table, utils;
 
@@ -14465,7 +10022,7 @@ require.define("/src/table.js",function(require,module,exports,__dirname,__filen
   };
 
   table.toString = function(rows, fields, sortBy, descending) {
-    var field, index, key, maxWidths, row, s, sortedRows, value, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _m, _n, _ref, _ref1, _ref2;
+    var field, i, index, j, k, key, l, len, len1, len2, len3, len4, len5, m, maxWidths, n, ref, ref1, ref2, row, s, sortedRows, value;
     if (descending == null) {
       descending = false;
     }
@@ -14493,19 +10050,19 @@ require.define("/src/table.js",function(require,module,exports,__dirname,__filen
      */
     if (fields == null) {
       fields = [];
-      _ref = rows[0];
-      for (key in _ref) {
-        value = _ref[key];
+      ref = rows[0];
+      for (key in ref) {
+        value = ref[key];
         fields.push(key);
       }
     }
     maxWidths = [];
-    for (index = _i = 0, _len = fields.length; _i < _len; index = ++_i) {
+    for (index = i = 0, len = fields.length; i < len; index = ++i) {
       field = fields[index];
       maxWidths.push(field.length);
-      for (_j = 0, _len1 = rows.length; _j < _len1; _j++) {
-        row = rows[_j];
-        maxWidths[index] = Math.max(maxWidths[index], ((_ref1 = row[field]) != null ? _ref1.toString().length : void 0) || 0);
+      for (j = 0, len1 = rows.length; j < len1; j++) {
+        row = rows[j];
+        maxWidths[index] = Math.max(maxWidths[index], ((ref1 = row[field]) != null ? ref1.toString().length : void 0) || 0);
       }
     }
     if (sortBy != null) {
@@ -14517,24 +10074,24 @@ require.define("/src/table.js",function(require,module,exports,__dirname,__filen
       sortedRows = rows;
     }
     s = '|';
-    for (index = _k = 0, _len2 = fields.length; _k < _len2; index = ++_k) {
+    for (index = k = 0, len2 = fields.length; k < len2; index = ++k) {
       field = fields[index];
       s += ' ';
       s += table.padToWidth(field, maxWidths[index], void 0, true) + ' |';
     }
     s += '\n|';
-    for (index = _l = 0, _len3 = fields.length; _l < _len3; index = ++_l) {
+    for (index = l = 0, len3 = fields.length; l < len3; index = ++l) {
       field = fields[index];
       s += ' ';
       s += table.padToWidth('', maxWidths[index], '-', true) + ' |';
     }
-    for (_m = 0, _len4 = sortedRows.length; _m < _len4; _m++) {
-      row = sortedRows[_m];
+    for (m = 0, len4 = sortedRows.length; m < len4; m++) {
+      row = sortedRows[m];
       s += '\n|';
-      for (index = _n = 0, _len5 = fields.length; _n < _len5; index = ++_n) {
+      for (index = n = 0, len5 = fields.length; n < len5; index = ++n) {
         field = fields[index];
         s += ' ';
-        s += table.padToWidth(((_ref2 = row[field]) != null ? _ref2.toString() : void 0) || '', maxWidths[index], void 0, true) + ' |';
+        s += table.padToWidth(((ref2 = row[field]) != null ? ref2.toString() : void 0) || '', maxWidths[index], void 0, true) + ' |';
       }
     }
     return s;
@@ -14548,20 +10105,20 @@ require.define("/src/table.js",function(require,module,exports,__dirname,__filen
 
 });
 
-require.define("/src/anova.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/anova.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
-  var anova, correlate, fDist, functions, normInverseUpper, utils, _ref;
+  var anova, correlate, fDist, functions, normInverseUpper, ref, utils;
 
   utils = require('tztime').utils;
 
   functions = require('./functions').functions;
 
-  _ref = require('./distributions').distributions, fDist = _ref.fDist, normInverseUpper = _ref.normInverseUpper;
+  ref = require('./distributions').distributions, fDist = ref.fDist, normInverseUpper = ref.normInverseUpper;
 
   correlate = require('./correlate').correlate;
 
   anova = function(rawData, overallPredicate, field, groups, ci) {
-    var bucket, buckets, data, errorDF, errorMS, errorSS, factorDF, factorF, factorMS, factorP, factorSS, group, histogram, i, index, multiplier, nTimesMeanSquared, overallMean, overallN, overallSum, overallSumSquares, pooledNumerator, pooledStandardDeviation, r, rSquared, rSquaredAdjusted, residual, residualPlot, residuals, row, totalDF, totalSS, value, xStdDev, xValues, y, yStdDev, yValues, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _len7, _m, _n, _o, _p, _q, _r, _ref1, _ref2, _ref3;
+    var bucket, buckets, data, errorDF, errorMS, errorSS, factorDF, factorF, factorMS, factorP, factorSS, group, histogram, i, index, j, k, l, len, len1, len2, len3, len4, len5, len6, len7, m, multiplier, n, nTimesMeanSquared, o, overallMean, overallN, overallSum, overallSumSquares, p, pooledNumerator, pooledStandardDeviation, q, r, rSquared, rSquaredAdjusted, ref1, ref2, ref3, residual, residualPlot, residuals, row, s, t, totalDF, totalSS, value, xStdDev, xValues, y, yStdDev, yValues;
     if (ci == null) {
       ci = 0.95;
     }
@@ -14576,15 +10133,15 @@ require.define("/src/anova.js",function(require,module,exports,__dirname,__filen
     utils.assert((0 < ci && ci < 1.0), "ci must be between 0.0 and 1.0");
     if (overallPredicate != null) {
       data = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = rawData.length; _i < _len; _i++) {
-          row = rawData[_i];
+        var j, len, results;
+        results = [];
+        for (j = 0, len = rawData.length; j < len; j++) {
+          row = rawData[j];
           if (overallPredicate(row) && (row[field] != null)) {
-            _results.push(row);
+            results.push(row);
           }
         }
-        return _results;
+        return results;
       })();
     } else {
       data = rawData;
@@ -14594,18 +10151,18 @@ require.define("/src/anova.js",function(require,module,exports,__dirname,__filen
     overallSum = 0;
     overallSumSquares = 0;
     pooledNumerator = 0;
-    for (_i = 0, _len = groups.length; _i < _len; _i++) {
-      group = groups[_i];
+    for (j = 0, len = groups.length; j < len; j++) {
+      group = groups[j];
       group.values = (function() {
-        var _j, _len1, _results;
-        _results = [];
-        for (_j = 0, _len1 = data.length; _j < _len1; _j++) {
-          row = data[_j];
+        var k, len1, results;
+        results = [];
+        for (k = 0, len1 = data.length; k < len1; k++) {
+          row = data[k];
           if (group.predicate(row)) {
-            _results.push(row[field]);
+            results.push(row[field]);
           }
         }
-        return _results;
+        return results;
       })();
       group.sum = functions.sum(group.values);
       group.n = group.values.length;
@@ -14621,16 +10178,16 @@ require.define("/src/anova.js",function(require,module,exports,__dirname,__filen
     overallMean = overallSum / overallN;
     pooledStandardDeviation = Math.sqrt(pooledNumerator / (overallN - groups.length));
     multiplier = normInverseUpper((1.0 - ci) / 2);
-    for (_j = 0, _len1 = groups.length; _j < _len1; _j++) {
-      group = groups[_j];
+    for (k = 0, len1 = groups.length; k < len1; k++) {
+      group = groups[k];
       group.ciDelta = multiplier * pooledStandardDeviation / Math.sqrt(group.n);
     }
     residuals = [];
-    for (_k = 0, _len2 = groups.length; _k < _len2; _k++) {
-      group = groups[_k];
-      _ref1 = group.values;
-      for (_l = 0, _len3 = _ref1.length; _l < _len3; _l++) {
-        value = _ref1[_l];
+    for (l = 0, len2 = groups.length; l < len2; l++) {
+      group = groups[l];
+      ref1 = group.values;
+      for (m = 0, len3 = ref1.length; m < len3; m++) {
+        value = ref1[m];
         residual = group.mean - value;
         residuals.push(residual);
       }
@@ -14639,7 +10196,7 @@ require.define("/src/anova.js",function(require,module,exports,__dirname,__filen
       return a - b;
     });
     residualPlot = [];
-    for (index = _m = 0, _len4 = residuals.length; _m < _len4; index = ++_m) {
+    for (index = n = 0, len4 = residuals.length; n < len4; index = ++n) {
       r = residuals[index];
       i = index + 1;
       if (i === 1) {
@@ -14661,41 +10218,41 @@ require.define("/src/anova.js",function(require,module,exports,__dirname,__filen
       });
     }
     xValues = (function() {
-      var _len5, _n, _results;
-      _results = [];
-      for (_n = 0, _len5 = residualPlot.length; _n < _len5; _n++) {
-        r = residualPlot[_n];
-        _results.push(r.x);
+      var len5, o, results;
+      results = [];
+      for (o = 0, len5 = residualPlot.length; o < len5; o++) {
+        r = residualPlot[o];
+        results.push(r.x);
       }
-      return _results;
+      return results;
     })();
     yValues = (function() {
-      var _len5, _n, _results;
-      _results = [];
-      for (_n = 0, _len5 = residualPlot.length; _n < _len5; _n++) {
-        r = residualPlot[_n];
-        _results.push(r.y);
+      var len5, o, results;
+      results = [];
+      for (o = 0, len5 = residualPlot.length; o < len5; o++) {
+        r = residualPlot[o];
+        results.push(r.y);
       }
-      return _results;
+      return results;
     })();
     xStdDev = functions.standardDeviation(xValues);
     yStdDev = functions.standardDeviation(yValues);
-    for (_n = 0, _len5 = residualPlot.length; _n < _len5; _n++) {
-      r = residualPlot[_n];
+    for (o = 0, len5 = residualPlot.length; o < len5; o++) {
+      r = residualPlot[o];
       r.x = r.x / xStdDev;
       r.y = r.y / yStdDev;
     }
     buckets = {};
-    for (bucket = _o = _ref2 = -2.5; _ref2 <= 2.5 ? _o <= 2.5 : _o >= 2.5; bucket = _ref2 <= 2.5 ? ++_o : --_o) {
+    for (bucket = p = ref2 = -2.5; ref2 <= 2.5 ? p <= 2.5 : p >= 2.5; bucket = ref2 <= 2.5 ? ++p : --p) {
       buckets[bucket] = 0;
     }
-    for (_p = 0, _len6 = residualPlot.length; _p < _len6; _p++) {
-      r = residualPlot[_p];
+    for (q = 0, len6 = residualPlot.length; q < len6; q++) {
+      r = residualPlot[q];
       bucket = Math.floor(r.y + 1.0) - 0.5;
       buckets[bucket] += 1;
     }
     histogram = [];
-    for (bucket = _q = _ref3 = -2.5; _ref3 <= 2.5 ? _q <= 2.5 : _q >= 2.5; bucket = _ref3 <= 2.5 ? ++_q : --_q) {
+    for (bucket = s = ref3 = -2.5; ref3 <= 2.5 ? s <= 2.5 : s >= 2.5; bucket = ref3 <= 2.5 ? ++s : --s) {
       row = {
         label: (-0.5 + bucket) + " to " + (0.5 + bucket),
         center: bucket,
@@ -14707,8 +10264,8 @@ require.define("/src/anova.js",function(require,module,exports,__dirname,__filen
     errorDF = overallN - groups.length;
     totalDF = factorDF + errorDF;
     factorSS = 0;
-    for (_r = 0, _len7 = groups.length; _r < _len7; _r++) {
-      group = groups[_r];
+    for (t = 0, len7 = groups.length; t < len7; t++) {
+      group = groups[t];
       factorSS += group.n * group.mean * group.mean;
     }
     nTimesMeanSquared = overallN * overallMean * overallMean;
@@ -14748,7 +10305,7 @@ require.define("/src/anova.js",function(require,module,exports,__dirname,__filen
 
 });
 
-require.define("/src/distributions.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/distributions.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 
 /*
 JavaScript version from which this CoffeeScript version was derived by Ben Tilly <btilly@gmail.com>
@@ -14920,12 +10477,12 @@ https://code.google.com/p/statistics-distributions-js/source/browse/trunk/statis
 
 });
 
-require.define("/src/correlate.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/correlate.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
   var correlate;
 
   correlate = function(points, xField, yField) {
-    var div, intercept, n, point, rSquared, slope, sumX, sumX2, sumXY, sumY, sumY2, _i, _len;
+    var div, i, intercept, len, n, point, rSquared, slope, sumX, sumX2, sumXY, sumY, sumY2;
     if (xField == null) {
       xField = 'x';
     }
@@ -14938,8 +10495,8 @@ require.define("/src/correlate.js",function(require,module,exports,__dirname,__f
     sumXY = 0;
     sumX2 = 0;
     sumY2 = 0;
-    for (_i = 0, _len = points.length; _i < _len; _i++) {
-      point = points[_i];
+    for (i = 0, len = points.length; i < len; i++) {
+      point = points[i];
       sumX += point[xField];
       sumY += point[yField];
       sumXY += point[xField] * point[yField];
@@ -14965,21 +10522,21 @@ require.define("/src/correlate.js",function(require,module,exports,__dirname,__f
 
 });
 
-require.define("/src/DataFlow.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/DataFlow.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
   var DataFlow, utils;
 
   utils = require('tztime').utils;
 
   DataFlow = (function() {
-    function DataFlow(_at_userConfig, _at_callback) {
-      var c, _i, _len, _ref;
-      this.userConfig = _at_userConfig;
-      this.callback = _at_callback;
+    function DataFlow(userConfig, callback) {
+      var c, i, len, ref;
+      this.userConfig = userConfig;
+      this.callback = callback;
       this.config = utils.clone(this.userConfig);
-      _ref = this.config;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        c = _ref[_i];
+      ref = this.config;
+      for (i = 0, len = ref.length; i < len; i++) {
+        c = ref[i];
         c.allDependencies = [];
         if (c.parameters != null) {
           DataFlow._addDependencies(c.allDependencies, c.parameters);
@@ -14994,18 +10551,18 @@ require.define("/src/DataFlow.js",function(require,module,exports,__dirname,__fi
     }
 
     DataFlow._addDependencies = function(dependencies, parameters) {
-      var dependency, p, _i, _len, _results;
-      _results = [];
-      for (_i = 0, _len = parameters.length; _i < _len; _i++) {
-        p = parameters[_i];
+      var dependency, i, len, p, results;
+      results = [];
+      for (i = 0, len = parameters.length; i < len; i++) {
+        p = parameters[i];
         if (utils.type(p) === 'string' && utils.startsWith(p, '@')) {
           dependency = p.split('.')[0].substring(1);
-          _results.push(dependencies.push(dependency));
+          results.push(dependencies.push(dependency));
         } else {
-          _results.push(void 0);
+          results.push(void 0);
         }
       }
-      return _results;
+      return results;
     };
 
     return DataFlow;
@@ -15020,19 +10577,17 @@ require.define("/src/DataFlow.js",function(require,module,exports,__dirname,__fi
 
 });
 
-require.define("/src/Classifier.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/Classifier.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
-  var BayesianClassifier, Classifier, JSON, OLAPCube, functions, utils,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __hasProp = {}.hasOwnProperty;
+  var BayesianClassifier, Classifier, OLAPCube, functions, utils,
+    extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    hasProp = {}.hasOwnProperty;
 
   functions = require('./functions').functions;
 
   utils = require('tztime').utils;
 
   OLAPCube = require('./OLAPCube').OLAPCube;
-
-  JSON = require('JSON2');
 
   Classifier = (function() {
     function Classifier() {}
@@ -15062,8 +10617,8 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
     };
 
     Classifier.generateConstantWidthBucketer = function(values) {
-      var bucketSize, bucketer, i, max, min, targetBucketCount, _i, _ref, _ref1;
-      _ref = Classifier.getBucketCountMinMax(values), targetBucketCount = _ref.targetBucketCount, min = _ref.min, max = _ref.max;
+      var bucketSize, bucketer, i, j, max, min, ref, ref1, targetBucketCount;
+      ref = Classifier.getBucketCountMinMax(values), targetBucketCount = ref.targetBucketCount, min = ref.min, max = ref.max;
       bucketSize = (max - min) / targetBucketCount;
       bucketer = [];
       bucketer.push({
@@ -15071,7 +10626,7 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
         startOn: null,
         endBelow: min + bucketSize
       });
-      for (i = _i = 1, _ref1 = targetBucketCount - 2; 1 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 1 <= _ref1 ? ++_i : --_i) {
+      for (i = j = 1, ref1 = targetBucketCount - 2; 1 <= ref1 ? j <= ref1 : j >= ref1; i = 1 <= ref1 ? ++j : --j) {
         bucketer.push({
           value: 'B' + i,
           startOn: min + bucketSize * i,
@@ -15087,8 +10642,8 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
     };
 
     Classifier.generateConstantQuantityBucketer = function(values) {
-      var bucketSize, bucketer, currentBoundary, i, lastBoundary, max, min, targetBucketCount, _i, _ref, _ref1;
-      _ref = Classifier.getBucketCountMinMax(values), targetBucketCount = _ref.targetBucketCount, min = _ref.min, max = _ref.max;
+      var bucketSize, bucketer, currentBoundary, i, j, lastBoundary, max, min, ref, ref1, targetBucketCount;
+      ref = Classifier.getBucketCountMinMax(values), targetBucketCount = ref.targetBucketCount, min = ref.min, max = ref.max;
       bucketSize = 100 / targetBucketCount;
       bucketer = [];
       currentBoundary = functions.percentileCreator(bucketSize)(values);
@@ -15097,7 +10652,7 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
         startOn: null,
         endBelow: currentBoundary
       });
-      for (i = _i = 1, _ref1 = targetBucketCount - 2; 1 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 1 <= _ref1 ? ++_i : --_i) {
+      for (i = j = 1, ref1 = targetBucketCount - 2; 1 <= ref1 ? j <= ref1 : j >= ref1; i = 1 <= ref1 ? ++j : --j) {
         lastBoundary = currentBoundary;
         currentBoundary = functions.percentileCreator(bucketSize * (i + 1))(values);
         bucketer.push({
@@ -15125,11 +10680,11 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
     };
 
     Classifier.optimalSplitFor2Buckets = function(values) {
-      var bestIndex, bestLeft, bestRight, bestTotalErrorSquared, i, left, right, splitAt, totalErrorSquared, _i, _ref, _ref1;
+      var bestIndex, bestLeft, bestRight, bestTotalErrorSquared, i, j, left, ref, ref1, right, splitAt, totalErrorSquared;
       bestIndex = 1;
       bestTotalErrorSquared = Number.MAX_VALUE;
-      for (i = _i = 1, _ref = values.length - 1; 1 <= _ref ? _i <= _ref : _i >= _ref; i = 1 <= _ref ? ++_i : --_i) {
-        _ref1 = Classifier.splitAt(values, i), left = _ref1.left, right = _ref1.right;
+      for (i = j = 1, ref = values.length - 1; 1 <= ref ? j <= ref : j >= ref; i = 1 <= ref ? ++j : --j) {
+        ref1 = Classifier.splitAt(values, i), left = ref1.left, right = ref1.right;
         totalErrorSquared = functions.errorSquared(left) + functions.errorSquared(right);
         if (totalErrorSquared < bestTotalErrorSquared) {
           bestTotalErrorSquared = totalErrorSquared;
@@ -15147,10 +10702,10 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
     };
 
     Classifier.areAllSame = function(values) {
-      var firstValue, value, _i, _len;
+      var firstValue, j, len, value;
       firstValue = values[0];
-      for (_i = 0, _len = values.length; _i < _len; _i++) {
-        value = values[_i];
+      for (j = 0, len = values.length; j < len; j++) {
+        value = values[j];
         if (value !== firstValue) {
           return false;
         }
@@ -15159,11 +10714,11 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
     };
 
     Classifier.findBucketSplits = function(currentSplits, values, targetBucketCount) {
-      var left, right, splitAt, _ref;
+      var left, ref, right, splitAt;
       if (values.length < 5 || Classifier.areAllSame(values)) {
         return null;
       }
-      _ref = Classifier.optimalSplitFor2Buckets(values), splitAt = _ref.splitAt, left = _ref.left, right = _ref.right;
+      ref = Classifier.optimalSplitFor2Buckets(values), splitAt = ref.splitAt, left = ref.left, right = ref.right;
       currentSplits.push(splitAt);
       if (currentSplits.length < targetBucketCount) {
         Classifier.findBucketSplits(currentSplits, left, targetBucketCount);
@@ -15173,8 +10728,8 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
     };
 
     Classifier.generateVOptimalBucketer = function(values) {
-      var bucketer, currentBoundary, i, lastBoundary, max, min, splits, targetBucketCount, _i, _ref, _ref1;
-      _ref = Classifier.getBucketCountMinMax(values), targetBucketCount = _ref.targetBucketCount, min = _ref.min, max = _ref.max;
+      var bucketer, currentBoundary, i, j, lastBoundary, max, min, ref, ref1, splits, targetBucketCount;
+      ref = Classifier.getBucketCountMinMax(values), targetBucketCount = ref.targetBucketCount, min = ref.min, max = ref.max;
       values.sort(function(a, b) {
         return a - b;
       });
@@ -15190,7 +10745,7 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
         startOn: null,
         endBelow: currentBoundary
       });
-      for (i = _i = 1, _ref1 = splits.length - 1; 1 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 1 <= _ref1 ? ++_i : --_i) {
+      for (i = j = 1, ref1 = splits.length - 1; 1 <= ref1 ? j <= ref1 : j >= ref1; i = 1 <= ref1 ? ++j : --j) {
         lastBoundary = currentBoundary;
         currentBoundary = splits[i];
         bucketer.push({
@@ -15208,18 +10763,18 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
     };
 
     Classifier.prototype.discreteizeRow = function(row) {
-      var bin, feature, index, value, _i, _j, _len, _len1, _ref, _ref1;
-      _ref = this.features;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        feature = _ref[_i];
+      var bin, feature, index, j, k, len, len1, ref, ref1, value;
+      ref = this.features;
+      for (j = 0, len = ref.length; j < len; j++) {
+        feature = ref[j];
         if (feature.type === 'continuous') {
           value = row[feature.field];
           if (value == null) {
             throw new Error("Could not find field " + feature.field + " in " + (JSON.stringify(row)) + ".");
           }
-          _ref1 = feature.bins;
-          for (index = _j = 0, _len1 = _ref1.length; _j < _len1; index = ++_j) {
-            bin = _ref1[index];
+          ref1 = feature.bins;
+          for (index = k = 0, len1 = ref1.length; k < len1; index = ++k) {
+            bin = ref1[index];
             if (bin.startOn != null) {
               if (bin.endBelow != null) {
                 if ((bin.startOn <= value && value < bin.endBelow)) {
@@ -15244,8 +10799,8 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
 
   })();
 
-  BayesianClassifier = (function(_super) {
-    __extends(BayesianClassifier, _super);
+  BayesianClassifier = (function(superClass) {
+    extend(BayesianClassifier, superClass);
 
 
     /*
@@ -15418,8 +10973,8 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
          * { '0': 0.6956521739130435, '1': 0.30434782608695654 }
      */
 
-    function BayesianClassifier(_at_userConfig) {
-      this.userConfig = _at_userConfig;
+    function BayesianClassifier(userConfig) {
+      this.userConfig = userConfig;
 
       /*
       @constructor
@@ -15450,7 +11005,7 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
       @param {Object[]} userSuppliedTrainingSet an Array of Maps containing a field for the outputField as well as a field
        for each of the features specified in the config.
        */
-      var bin, bucketGenerator, bucketer, countForThisValue, denominator, denominatorCell, dimensions, feature, featureCube, featureValues, filter, loses, n, numerator, numeratorCell, outputDimension, outputValue, outputValuesCube, percentWins, prediction, row, trainingSet, value, values, wins, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _len5, _len6, _len7, _m, _n, _o, _p, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
+      var bin, bucketGenerator, bucketer, countForThisValue, denominator, denominatorCell, dimensions, feature, featureCube, featureValues, filter, j, k, l, len, len1, len2, len3, len4, len5, len6, len7, loses, m, n, numerator, numeratorCell, o, outputDimension, outputValue, outputValuesCube, percentWins, prediction, q, r, ref, ref1, ref2, ref3, ref4, ref5, row, s, trainingSet, value, values, wins;
       trainingSet = utils.clone(userSuppliedTrainingSet);
       outputDimension = [
         {
@@ -15462,9 +11017,9 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
       }, trainingSet);
       this.outputValues = outputValuesCube.getDimensionValues(this.outputField);
       this.outputFieldTypeIsNumber = true;
-      _ref = this.outputValues;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        value = _ref[_i];
+      ref = this.outputValues;
+      for (j = 0, len = ref.length; j < len; j++) {
+        value = ref[j];
         if (utils.type(value) !== 'number') {
           this.outputFieldTypeIsNumber = false;
         }
@@ -15472,9 +11027,9 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
       n = trainingSet.length;
       filter = {};
       this.baseProbabilities = {};
-      _ref1 = this.outputValues;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        outputValue = _ref1[_j];
+      ref1 = this.outputValues;
+      for (k = 0, len1 = ref1.length; k < len1; k++) {
+        outputValue = ref1[k];
         filter[this.outputField] = outputValue;
         countForThisValue = outputValuesCube.getCell(filter)._count;
         this.baseProbabilities[outputValue] = countForThisValue / n;
@@ -15484,18 +11039,18 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
       } else {
         bucketGenerator = Classifier.generateVOptimalBucketer;
       }
-      _ref2 = this.features;
-      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-        feature = _ref2[_k];
+      ref2 = this.features;
+      for (l = 0, len2 = ref2.length; l < len2; l++) {
+        feature = ref2[l];
         if (feature.type === 'continuous') {
           values = (function() {
-            var _l, _len3, _results;
-            _results = [];
-            for (_l = 0, _len3 = trainingSet.length; _l < _len3; _l++) {
-              row = trainingSet[_l];
-              _results.push(row[feature.field]);
+            var len3, m, results;
+            results = [];
+            for (m = 0, len3 = trainingSet.length; m < len3; m++) {
+              row = trainingSet[m];
+              results.push(row[feature.field]);
             }
-            return _results;
+            return results;
           })();
           bucketer = bucketGenerator(values);
           feature.bins = bucketer;
@@ -15505,13 +11060,13 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
           throw new Error("Unrecognized feature type: " + feature.type + ".");
         }
       }
-      for (_l = 0, _len3 = trainingSet.length; _l < _len3; _l++) {
-        row = trainingSet[_l];
+      for (m = 0, len3 = trainingSet.length; m < len3; m++) {
+        row = trainingSet[m];
         this.discreteizeRow(row);
       }
-      _ref3 = this.features;
-      for (_m = 0, _len4 = _ref3.length; _m < _len4; _m++) {
-        feature = _ref3[_m];
+      ref3 = this.features;
+      for (o = 0, len4 = ref3.length; o < len4; o++) {
+        feature = ref3[o];
         dimensions = [
           {
             field: this.outputField,
@@ -15527,24 +11082,24 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
         featureValues = featureCube.getDimensionValues(feature.field);
         if (feature.type === 'discrete') {
           feature.bins = (function() {
-            var _len5, _n, _results;
-            _results = [];
-            for (_n = 0, _len5 = featureValues.length; _n < _len5; _n++) {
-              value = featureValues[_n];
-              _results.push({
+            var len5, q, results;
+            results = [];
+            for (q = 0, len5 = featureValues.length; q < len5; q++) {
+              value = featureValues[q];
+              results.push({
                 value: value
               });
             }
-            return _results;
+            return results;
           })();
         }
-        _ref4 = feature.bins;
-        for (_n = 0, _len5 = _ref4.length; _n < _len5; _n++) {
-          bin = _ref4[_n];
+        ref4 = feature.bins;
+        for (q = 0, len5 = ref4.length; q < len5; q++) {
+          bin = ref4[q];
           bin.probabilities = {};
-          _ref5 = this.outputValues;
-          for (_o = 0, _len6 = _ref5.length; _o < _len6; _o++) {
-            outputValue = _ref5[_o];
+          ref5 = this.outputValues;
+          for (r = 0, len6 = ref5.length; r < len6; r++) {
+            outputValue = ref5[r];
             filter = {};
             filter[feature.field] = bin.value;
             denominatorCell = featureCube.getCell(filter);
@@ -15563,8 +11118,8 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
       trainingSet = utils.clone(userSuppliedTrainingSet);
       wins = 0;
       loses = 0;
-      for (_p = 0, _len7 = trainingSet.length; _p < _len7; _p++) {
-        row = trainingSet[_p];
+      for (s = 0, len7 = trainingSet.length; s < len7; s++) {
+        row = trainingSet[s];
         prediction = this.predict(row);
         if (prediction === row[this.outputField]) {
           wins++;
@@ -15577,7 +11132,7 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
     };
 
     BayesianClassifier.prototype.predict = function(row, returnProbabilities) {
-      var bin, feature, matchingBin, max, outputValue, outputValueForMax, probabilities, probability, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+      var bin, feature, j, k, len, len1, matchingBin, max, outputValue, outputValueForMax, probabilities, probability, ref, ref1, ref2;
       if (returnProbabilities == null) {
         returnProbabilities = false;
       }
@@ -15595,18 +11150,18 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
        */
       row = this.discreteizeRow(row);
       probabilities = {};
-      _ref = this.baseProbabilities;
-      for (outputValue in _ref) {
-        probability = _ref[outputValue];
+      ref = this.baseProbabilities;
+      for (outputValue in ref) {
+        probability = ref[outputValue];
         probabilities[outputValue] = probability;
       }
-      _ref1 = this.features;
-      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-        feature = _ref1[_i];
+      ref1 = this.features;
+      for (j = 0, len = ref1.length; j < len; j++) {
+        feature = ref1[j];
         matchingBin = null;
-        _ref2 = feature.bins;
-        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-          bin = _ref2[_j];
+        ref2 = feature.bins;
+        for (k = 0, len1 = ref2.length; k < len1; k++) {
+          bin = ref2[k];
           if (row[feature.field] === bin.value) {
             matchingBin = bin;
             break;
@@ -15712,18 +11267,16 @@ require.define("/src/Classifier.js",function(require,module,exports,__dirname,__
 
 });
 
-require.define("/src/Store.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/Store.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
-  var INFINITY, JSON, Store, Time, arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, functions, utils, _ref, _ref1,
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+  var INFINITY, Store, Time, arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps, functions, ref, ref1, utils,
+    indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  _ref = require('tztime'), utils = _ref.utils, Time = _ref.Time;
+  ref = require('tztime'), utils = ref.utils, Time = ref.Time;
 
   functions = require('./functions').functions;
 
-  _ref1 = require('./dataTransform'), arrayOfMaps_To_CSVStyleArray = _ref1.arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps = _ref1.csvStyleArray_To_ArrayOfMaps;
-
-  JSON = require('JSON2');
+  ref1 = require('./dataTransform'), arrayOfMaps_To_CSVStyleArray = ref1.arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps = ref1.csvStyleArray_To_ArrayOfMaps;
 
   INFINITY = '9999-01-01T00:00:00.000Z';
 
@@ -15825,8 +11378,8 @@ require.define("/src/Store.js",function(require,module,exports,__dirname,__filen
           ...
         }
      */
-    function Store(_at_userConfig, snapshots) {
-      this.userConfig = _at_userConfig;
+    function Store(userConfig, snapshots) {
+      this.userConfig = userConfig;
 
       /*
       @constructor
@@ -15879,10 +11432,10 @@ require.define("/src/Store.js",function(require,module,exports,__dirname,__filen
       @chainable
       @return {Store} Returns this
        */
-      var dataForUniqueID, key, newSnapshot, priorSnapshot, s, uniqueID, validFrom, validTo, value, _i, _len;
+      var dataForUniqueID, i, key, len, newSnapshot, priorSnapshot, s, uniqueID, validFrom, validTo, value;
       snapshots = utils._.sortBy(snapshots, this.config.validFromField);
-      for (_i = 0, _len = snapshots.length; _i < _len; _i++) {
-        s = snapshots[_i];
+      for (i = 0, len = snapshots.length; i < len; i++) {
+        s = snapshots[i];
         uniqueID = s[this.config.uniqueIDField];
         utils.assert(uniqueID != null, ("Missing " + this.config.uniqueIDField + " field in submitted snapshot: \n") + JSON.stringify(s, null, 2));
         dataForUniqueID = this.byUniqueID[uniqueID];
@@ -15917,7 +11470,7 @@ require.define("/src/Store.js",function(require,module,exports,__dirname,__filen
           for (key in s) {
             value = s[key];
             if (key !== this.config.validFromField && key !== this.config.validToField && key !== '_PreviousValues' && key !== this.config.uniqueIDField) {
-              if (__indexOf.call(this.fields, key) < 0) {
+              if (indexOf.call(this.fields, key) < 0) {
                 this.fields.push(key);
               }
               if (value !== priorSnapshot[key]) {
@@ -15959,11 +11512,11 @@ require.define("/src/Store.js",function(require,module,exports,__dirname,__filen
       @param {Function} filter
       @return {Object[]} An array of snapshots. Note, they will not be flattened so they have references to their prototypes
        */
-      var result, s, _i, _len, _ref2;
+      var i, len, ref2, result, s;
       result = [];
-      _ref2 = this.snapshots;
-      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-        s = _ref2[_i];
+      ref2 = this.snapshots;
+      for (i = 0, len = ref2.length; i < len; i++) {
+        s = ref2[i];
         if (filter(s)) {
           result.push(s);
         }
@@ -16001,13 +11554,13 @@ require.define("/src/Store.js",function(require,module,exports,__dirname,__filen
       right = values.slice(index);
       if (forward) {
         filter = function(s) {
-          var _ref2, _ref3;
-          return s._PreviousValues.hasOwnProperty(field) && (_ref2 = s._PreviousValues[field], __indexOf.call(left, _ref2) >= 0) && (_ref3 = s[field], __indexOf.call(right, _ref3) >= 0);
+          var ref2, ref3;
+          return s._PreviousValues.hasOwnProperty(field) && (ref2 = s._PreviousValues[field], indexOf.call(left, ref2) >= 0) && (ref3 = s[field], indexOf.call(right, ref3) >= 0);
         };
       } else {
         filter = function(s) {
-          var _ref2, _ref3;
-          return s._PreviousValues.hasOwnProperty(field) && (_ref2 = s._PreviousValues[field], __indexOf.call(right, _ref2) >= 0) && (_ref3 = s[field], __indexOf.call(left, _ref3) >= 0);
+          var ref2, ref3;
+          return s._PreviousValues.hasOwnProperty(field) && (ref2 = s._PreviousValues[field], indexOf.call(right, ref2) >= 0) && (ref3 = s[field], indexOf.call(left, ref3) >= 0);
         };
       }
       return this.filtered(filter);
@@ -16049,7 +11602,7 @@ require.define("/src/Store.js",function(require,module,exports,__dirname,__filen
 
 });
 
-require.define("/src/RandomPicker.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.0
+require.define("/src/RandomPicker.js",function(require,module,exports,__dirname,__filename,process,global){// Generated by CoffeeScript 1.9.3
 (function() {
   var RandomPicker;
 
@@ -16081,9 +11634,9 @@ require.define("/src/RandomPicker.js",function(require,module,exports,__dirname,
     
     Also, note that you need not worry about making your 'p' values add up to 1.0. It figures out the portion of the total
      */
-    function RandomPicker(_at_config) {
-      var cumulative, r, total, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2;
-      this.config = _at_config;
+    function RandomPicker(config) {
+      var cumulative, i, j, k, len, len1, len2, r, ref, ref1, ref2, total;
+      this.config = config;
       if (this.config.histogram != null) {
         this.table = this.config.histogram;
       } else if (this.config.distribution != null) {
@@ -16106,31 +11659,31 @@ require.define("/src/RandomPicker.js",function(require,module,exports,__dirname,
         }
       }
       total = 0;
-      _ref = this.table;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        r = _ref[_i];
+      ref = this.table;
+      for (i = 0, len = ref.length; i < len; i++) {
+        r = ref[i];
         total += r[this.config.frequencyField];
       }
-      _ref1 = this.table;
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        r = _ref1[_j];
+      ref1 = this.table;
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        r = ref1[j];
         r._p = r[this.config.frequencyField] / total;
       }
       cumulative = 0;
-      _ref2 = this.table;
-      for (_k = 0, _len2 = _ref2.length; _k < _len2; _k++) {
-        r = _ref2[_k];
+      ref2 = this.table;
+      for (k = 0, len2 = ref2.length; k < len2; k++) {
+        r = ref2[k];
         cumulative += r._p;
         r._pCumulative = cumulative;
       }
     }
 
     RandomPicker.prototype.getRow = function() {
-      var n, r, _i, _len, _ref;
+      var i, len, n, r, ref;
       n = Math.random();
-      _ref = this.table;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        r = _ref[_i];
+      ref = this.table;
+      for (i = 0, len = ref.length; i < len; i++) {
+        r = ref[i];
         if (n < r._pCumulative) {
           return r;
         }

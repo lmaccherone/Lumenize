@@ -33,7 +33,7 @@
   },
   "preferGlobal": false,
   "dependencies": {
-    "tztime": "^0.7.2"
+    "tztime": "^0.9.4"
   },
   "devDependencies": {
     "async": "~0.2.9",

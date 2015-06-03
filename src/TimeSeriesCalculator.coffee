@@ -614,7 +614,7 @@ class TimeSeriesCalculator # implements iCalculator
     @return {Object[]} Returns an Array of Maps like `{<uniqueIDField>: <id>, ticks: <ticks>, lastValidTo: <lastValidTo>}`
     ###
 
-    ticks = utils._.keys(@tickToLabelLookup).sort()
+    ticks = utils.keys(@tickToLabelLookup).sort()
     labels = (@tickToLabelLookup[t] for t in ticks)
 
     # Calculate metrics for @toDateSnapshots

@@ -21,7 +21,6 @@
 OLAPCube = require(&#39;./OLAPCube&#39;).OLAPCube
 {utils, Time, Timeline} = require(&#39;tztime&#39;)
 functions = require(&#39;./functions&#39;).functions
-JSON = require(&#39;JSON2&#39;)
 
 class TimeSeriesCalculator # implements iCalculator
 &lt;/CoffeeScript&gt; */
@@ -640,7 +639,7 @@ class TimeSeriesCalculator # implements iCalculator
      */
 /* &lt;CoffeeScript&gt;
 
-    ticks = utils._.keys(@tickToLabelLookup).sort()
+    ticks = utils.keys(@tickToLabelLookup).sort()
     labels = (@tickToLabelLookup[t] for t in ticks)
 
     # Calculate metrics for @toDateSnapshots
