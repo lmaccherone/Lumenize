@@ -3,7 +3,6 @@
 OLAPCube = require('./OLAPCube').OLAPCube
 {utils, Time, Timeline} = require('tztime')
 functions = require('./functions').functions
-JSON = require('JSON2')
 
 class TimeSeriesCalculator # implements iCalculator
   ###

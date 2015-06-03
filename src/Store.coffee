@@ -2,7 +2,6 @@
 {utils, Time} = require('tztime')
 functions = require('./functions').functions  # !TODO: Do we need this here?
 {arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps} = require('./dataTransform')  # !TODO: Do we need this here?
-JSON = require('JSON2')
 
 INFINITY = '9999-01-01T00:00:00.000Z'
 
