@@ -558,3 +558,136 @@ exports.olapTest =
     test.deepEqual(expected, actual)
 
     test.done()
+
+  missingDimensionValueTest: (test) ->
+    facts = [
+      {id: 1, value: 10}
+      {id: null, value: 100}
+      {id: 2, value: 20}
+      {id: 3, value: 30}
+    ]
+
+    dimensions = [
+      {field: "id"}
+    ]
+
+    metrics = [
+      {field: "value", f: "sum"}
+    ]
+
+    config = {dimensions, metrics}
+    config.keepTotals = true
+
+    cube = new OLAPCube(config, facts)
+
+    expectedResult = [
+      { id: 1, _count: 1, value_sum: 10 },
+      { id: null, _count: 3, value_sum: 60 },
+      { id: 2, _count: 1, value_sum: 20 },
+      { id: 3, _count: 1, value_sum: 30 }
+    ]
+
+    test.deepEqual(cube.getCells(), expectedResult)
+
+    expectedWarnings = [{
+      type: 'Missing fields',
+      missingFields: [ 'id' ],
+      fact: { id: null, value: 100 }
+    }]
+
+    test.deepEqual(cube.warnings, expectedWarnings)
+
+    test.done()
+
+  missingDimensionFieldTest: (test) ->
+    facts = [
+      {id: 1, value: 10}
+      {value: 100}
+      {id: 2, value: 20}
+      {id: 3, value: 30}
+    ]
+
+    dimensions = [
+      {field: "id"}
+    ]
+
+    metrics = [
+      {field: "value", f: "sum"}
+    ]
+
+    config = {dimensions, metrics}
+    config.keepTotals = true
+
+    cube = new OLAPCube(config, facts)
+
+    expectedWarnings = [{
+      type: 'Missing fields',
+      missingFields: [ 'id' ],
+      fact: { value: 100 }
+    }]
+
+    test.deepEqual(cube.warnings, expectedWarnings)
+
+    test.done()
+
+  missingMetricValueTest: (test) ->
+    facts = [
+      {id: 1, value: 10}
+      {id: 1, value: null}
+      {id: 2, value: 20}
+      {id: 3, value: 30}
+    ]
+
+    dimensions = [
+      {field: "id"}
+    ]
+
+    metrics = [
+      {field: "value", f: "sum"}
+    ]
+
+    config = {dimensions, metrics}
+    config.keepTotals = true
+
+    cube = new OLAPCube(config, facts)
+
+    expectedWarnings = [{
+      type: 'Missing fields',
+      missingFields: [ 'value' ],
+      fact: {id: 1, value: null}
+    }]
+
+    test.deepEqual(cube.warnings, expectedWarnings)
+
+    test.done()
+
+  missingMetricFieldTest: (test) ->
+    facts = [
+      {id: 1, value: 10}
+      {id: 1}
+      {id: 2, value: 20}
+      {id: 3, value: 30}
+    ]
+
+    dimensions = [
+      {field: "id"}
+    ]
+
+    metrics = [
+      {field: "value", f: "sum"}
+    ]
+
+    config = {dimensions, metrics}
+    config.keepTotals = true
+
+    cube = new OLAPCube(config, facts)
+
+    expectedWarnings = [{
+      type: 'Missing fields',
+      missingFields: [ 'value' ],
+      fact: {id: 1}
+    }]
+
+    test.deepEqual(cube.warnings, expectedWarnings)
+
+    test.done()

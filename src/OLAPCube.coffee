@@ -330,6 +330,15 @@ class OLAPCube
 
     functions.expandMetrics(@config.metrics, true, true)
 
+    # Set required fields
+    requiredFieldsObject = {}
+    for m in @config.metrics
+      if m.field?.length > 0  # Should only be false if function is count
+        requiredFieldsObject[m.field] = null
+    for d in @config.dimensions
+      requiredFieldsObject[d.field] = null
+    @requiredFields = (key for key, value of requiredFieldsObject)
+
     @summaryMetrics = {}
 
     @addFacts(facts)
@@ -454,9 +463,15 @@ class OLAPCube
           fact[fieldName] = d.f(fact)
 
     for fact in facts
-      @currentValues = {}
-      expandedFactArray = @_expandFact(fact)
-      @_mergeExpandedFactArray(expandedFactArray)
+      missingFields = @calculateMissingFields(fact)
+      if missingFields.length is 0
+        @currentValues = {}
+        expandedFactArray = @_expandFact(fact)
+        @_mergeExpandedFactArray(expandedFactArray)
+      else
+        unless @warnings?
+          @warnings = []
+        @warnings.push({type: 'Missing fields', missingFields, fact})
 
     # deriveFieldsOnOutput for @dirtyRows
     if @config.deriveFieldsOnOutput?
@@ -470,6 +485,13 @@ class OLAPCube
     @dirtyRows = {}
 
     return this
+
+  calculateMissingFields: (fact) ->
+    missingFields = []
+    for field in @requiredFields
+      unless fact[field]?
+        missingFields.push(field)
+    return missingFields
 
   getCells: (filterObject) ->
     ###
