@@ -1,5 +1,5 @@
 /*
-lumenize version: 0.9.7
+lumenize version: 0.9.8
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
@@ -6148,7 +6148,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
     Lumenize.TimeInStateCalculator (and other calculators in Lumenize) use this technique.
      */
     function OLAPCube(userConfig, facts) {
-      var d, j, k, len1, len2, ref1, ref2;
+      var d, j, k, key, l, len1, len2, len3, len4, m, n, ref1, ref2, ref3, ref4, ref5, requiredFieldsObject, value;
       this.userConfig = userConfig;
 
       /*
@@ -6250,6 +6250,28 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
         }
       }
       functions.expandMetrics(this.config.metrics, true, true);
+      requiredFieldsObject = {};
+      ref3 = this.config.metrics;
+      for (l = 0, len3 = ref3.length; l < len3; l++) {
+        m = ref3[l];
+        if (((ref4 = m.field) != null ? ref4.length : void 0) > 0) {
+          requiredFieldsObject[m.field] = null;
+        }
+      }
+      ref5 = this.config.dimensions;
+      for (n = 0, len4 = ref5.length; n < len4; n++) {
+        d = ref5[n];
+        requiredFieldsObject[d.field] = null;
+      }
+      this.requiredFields = (function() {
+        var results;
+        results = [];
+        for (key in requiredFieldsObject) {
+          value = requiredFieldsObject[key];
+          results.push(key);
+        }
+        return results;
+      })();
       this.summaryMetrics = {};
       this.addFacts(facts);
     }
@@ -6394,7 +6416,7 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       @param {Object[]} facts An Array of facts to be aggregated into OLAPCube. Each fact is a Map where the keys are the field names
         and the values are the field values (e.g. `{field1: 'a', field2: 5}`).
        */
-      var d, dirtyRow, expandedFactArray, fact, fieldName, filterString, j, k, l, len1, len2, len3, len4, n, ref1, ref2, ref3;
+      var d, dirtyRow, expandedFactArray, fact, fieldName, filterString, j, k, l, len1, len2, len3, len4, missingFields, n, ref1, ref2, ref3;
       this.dirtyRows = {};
       if (utils.type(facts) === 'array') {
         if (facts.length <= 0) {
@@ -6424,9 +6446,21 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       }
       for (l = 0, len3 = facts.length; l < len3; l++) {
         fact = facts[l];
-        this.currentValues = {};
-        expandedFactArray = this._expandFact(fact);
-        this._mergeExpandedFactArray(expandedFactArray);
+        missingFields = this.calculateMissingFields(fact);
+        if (missingFields.length === 0) {
+          this.currentValues = {};
+          expandedFactArray = this._expandFact(fact);
+          this._mergeExpandedFactArray(expandedFactArray);
+        } else {
+          if (this.warnings == null) {
+            this.warnings = [];
+          }
+          this.warnings.push({
+            type: 'Missing fields',
+            missingFields: missingFields,
+            fact: fact
+          });
+        }
       }
       if (this.config.deriveFieldsOnOutput != null) {
         ref2 = this.dirtyRows;
@@ -6446,6 +6480,19 @@ require.define("/src/OLAPCube.js",function(require,module,exports,__dirname,__fi
       }
       this.dirtyRows = {};
       return this;
+    };
+
+    OLAPCube.prototype.calculateMissingFields = function(fact) {
+      var field, j, len1, missingFields, ref1;
+      missingFields = [];
+      ref1 = this.requiredFields;
+      for (j = 0, len1 = ref1.length; j < len1; j++) {
+        field = ref1[j];
+        if (fact[field] == null) {
+          missingFields.push(field);
+        }
+      }
+      return missingFields;
     };
 
     OLAPCube.prototype.getCells = function(filterObject) {
