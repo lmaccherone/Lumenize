@@ -20,8 +20,8 @@ correlate = (points, xField = 'x', yField = 'y') ->
   slope = ((n * sumXY) - (sumX * sumY)) / div
   rSquared = Math.pow((n * sumXY - sumX * sumY) / Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY)), 2)
 
-  # console.log("y = #{slope} * x + #{intercept} with R^2 of #{rSquared}")
+  description = "y = #{slope} * x + #{intercept} with R^2 of #{rSquared}"
 
-  return {intercept, slope, rSquared}
+  return {intercept, slope, rSquared, description}
 
 exports.correlate = correlate

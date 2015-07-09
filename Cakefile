@@ -2,11 +2,11 @@ fs = require('fs')
 path = require('path')
 {spawnSync} = require('child_process')
 wrench = require('wrench')
+findRemoveSync = require('find-remove')
 marked = require('marked')
 uglify = require("uglify-js")
 browserify = require('browserify')
 fileify = require('fileify-lm')
-run = require('gulp-run')
 
 runSync = (command, options, next) ->  # !TODO: Upgrade to runSync in node-localstorage
   {stderr, stdout} = runSyncRaw(command, options)
@@ -162,18 +162,22 @@ task('update-bower-version', 'Update bower.json with the version number specifie
   fs.writeFileSync("./bower.json", JSON.stringify(bowerJSON, null, 2))
 )
 
-task('test', 'Run the test suite with nodeunit', () ->
-  require('coffee-script/register')
-  {reporters} = require('nodeunit')
+task('test', 'Run the test suite with nodeunit and record coverage.', () ->
   process.chdir(__dirname)
+  require('coffee-coverage/register-istanbul')
+  findRemoveSync('src', {extensions: ['.js', '.map']})
+  {reporters} = require('nodeunit')
   reporters.default.run(['test'], undefined, (failure) ->
     if failure?
       console.error(failure)
       process.exit(1)
+    else
+      console.log('To see coverage report, run `istanbul report` and `open coverage/lcov-report/Lumenize/src/index.html`')
   )
 )
 
 task('testall', 'Run tests and doctests', () ->
-  runSync('cake doctest')
-  invoke('test')
+  runSync('cake', ['test'])
+  runSync('cake', ['doctest'])
+  runSync('istanbul', ['report', 'text-summary', 'lcov'])
 )

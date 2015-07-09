@@ -1,9 +1,10 @@
 # [Documentation](http://commondatastorage.googleapis.com/versions.lumenize.com/docs/lumenize-docs/index.html)
 
-[![build status](https://secure.travis-ci.org/lmaccherone/Lumenize.png)](http://travis-ci.org/lmaccherone/Lumenize)
-[![NPM version](https://badge.fury.io/js/lumenize.png)](http://badge.fury.io/js/Lumenize)
-[![build status](https://david-dm.org/lmaccherone/Lumenize.png)](https://david-dm.org/lmaccherone/Lumenize.png)
+[![build status](https://secure.travis-ci.org/lmaccherone/Lumenize.svg)](http://travis-ci.org/lmaccherone/Lumenize)
+[![NPM version](https://badge.fury.io/js/lumenize.svg)](http://badge.fury.io/js/Lumenize)
+[![build status](https://david-dm.org/lmaccherone/Lumenize.svg)](https://david-dm.org/lmaccherone/Lumenize)
 [![bitHound](https://www.bithound.io/github/lmaccherone/Lumenize/badges/score.svg)](https://www.bithound.io/github/lmaccherone/Lumenize/master)
+[![Coverage Status](https://coveralls.io/repos/lmaccherone/Lumenize/badge.svg?branch=master&service=github)](https://coveralls.io/github/lmaccherone/Lumenize?branch=master)
 
 # Lumenize #
 

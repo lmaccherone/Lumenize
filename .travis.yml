@@ -3,4 +3,6 @@ node_js:
   - "0.12"
 notifications:
   flowdock: 7ca431a9df32133fb0a3512f75956c03
+after_success:
+  - 'cat ./coverage/lcov.info | ./node_modules/.bin/coveralls'
   

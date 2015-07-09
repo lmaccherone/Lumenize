@@ -1,4 +1,4 @@
-OLAPCube = require('../src/OLAPCube').OLAPCube
+{OLAPCube} = require('../')
 {csvStyleArray_To_ArrayOfMaps} = require('../')
 {utils} = require('tztime')
 

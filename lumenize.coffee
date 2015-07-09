@@ -57,8 +57,6 @@ exports.anova = require('./src/anova').anova
 
 exports.distributions = require('./src/distributions').distributions
 
-exports.DataFlow = require('./src/DataFlow').DataFlow
-
 exports.BayesianClassifier = require('./src/Classifier').BayesianClassifier
 exports.Classifier = require('./src/Classifier').Classifier
 

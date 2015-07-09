@@ -267,6 +267,14 @@ class OLAPCube
       Notice how a keepTotals can be set for an individual dimension. This is preferable to setting it for the entire
       cube in cases where you don't want totals in all dimensions.
 
+      If no dimension config is provided, then you must use syntactic sugar like groupBy.
+
+    @cfg {String} [groupBy] Syntactic sugar for single-dimension/single-metric usage.
+    @cfg {String} [f] Syntactic sugar for single-dimension/single-metric usage. If provided, you must also provide
+      a `groupBy` config. If you provided a `groupBy` but no `f` or `field`, then the default `count` metric will be used.
+    @cfg {String} [field] Syntactic sugar for single-dimension/single-metric usage. If provided, you must also provide
+      a `groupBy` config. If you provided a `groupBy` but no `f` or `field`, then the default `count` metric will be used.
+
     @cfg {Object[]} [metrics=[]] Array which specifies the metrics to calculate for each cell in the cube.
 
       Example:
@@ -307,12 +315,20 @@ class OLAPCube
       Maybe some day, I'll write the code to analyze your metrics and move them out to here if it improves efficiency.
     ###
     @config = utils.clone(@userConfig)
-    utils.assert(@config.dimensions?, 'Must provide config.dimensions.')
-    unless @config.metrics?
-      @config.metrics = []
     @cells = []
     @cellIndex = {}
     @currentValues = {}
+
+    # Syntactic sugar for groupBy
+    if @config.groupBy?
+      @config.dimensions = [{field: @config.groupBy}]
+      if @config.f? and @config.field?
+        @config.metrics = [{field: @config.field, f: @config.f}]
+
+    utils.assert(@config.dimensions?, 'Must provide config.dimensions.')
+    unless @config.metrics?
+      @config.metrics = []
+
     @_dimensionValues = {}  # key: fieldName, value: {} where key: uniqueValue, value: the real key (not stringified)
     for d in @config.dimensions
       @_dimensionValues[d.field] = {}
