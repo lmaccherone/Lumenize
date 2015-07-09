@@ -73,6 +73,7 @@ Then in your code:
 
 ## Changelog ##
 
+* 0.9.9 - 2015-07-09 - Cleanup to enable code coverage with coffee-coverage and coveralls.io
 * 0.9.8 - 2015-07-07 - Filters out facts missing any fields mentioned in dimensions or metrics
 * 0.9.7 - 2015-06-02 - Removed JSON2 dependency. Updated to latest tzTime.
 * 0.9.6 - 2015-05-31 - Updated Bower version

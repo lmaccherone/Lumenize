@@ -25,8 +25,8 @@ functions = require(&#39;./functions&#39;).functions
 
 class OLAPCube
 &lt;/CoffeeScript&gt; */
-<span id='Lumenize-OLAPCube-method-constructor'><span id='Lumenize-OLAPCube-cfg-deriveFieldsOnOutput'><span id='Lumenize-OLAPCube-cfg-deriveFieldsOnInput'><span id='Lumenize-OLAPCube-cfg-keepFacts'><span id='Lumenize-OLAPCube-cfg-keepTotals'><span id='Lumenize-OLAPCube-cfg-metrics'><span id='Lumenize-OLAPCube-cfg-dimensions'><span id='Lumenize-OLAPCube'>  /**
-</span></span></span></span></span></span></span></span>   * @class Lumenize.OLAPCube
+<span id='Lumenize-OLAPCube-method-constructor'><span id='Lumenize-OLAPCube-cfg-deriveFieldsOnOutput'><span id='Lumenize-OLAPCube-cfg-deriveFieldsOnInput'><span id='Lumenize-OLAPCube-cfg-keepFacts'><span id='Lumenize-OLAPCube-cfg-keepTotals'><span id='Lumenize-OLAPCube-cfg-metrics'><span id='Lumenize-OLAPCube-cfg-field'><span id='Lumenize-OLAPCube-cfg-f'><span id='Lumenize-OLAPCube-cfg-groupBy'><span id='Lumenize-OLAPCube-cfg-dimensions'><span id='Lumenize-OLAPCube'>  /**
+</span></span></span></span></span></span></span></span></span></span></span>   * @class Lumenize.OLAPCube
    * 
    * __An efficient, in-memory, incrementally-updateable, hierarchy-capable OLAP Cube implementation.__
    * 
@@ -283,6 +283,14 @@ class OLAPCube
    *   Notice how a keepTotals can be set for an individual dimension. This is preferable to setting it for the entire
    *   cube in cases where you don&#39;t want totals in all dimensions.
    * 
+   *   If no dimension config is provided, then you must use syntactic sugar like groupBy.
+   * 
+   * @cfg {String} [groupBy] Syntactic sugar for single-dimension/single-metric usage.
+   * @cfg {String} [f] Syntactic sugar for single-dimension/single-metric usage. If provided, you must also provide
+   *   a `groupBy` config. If you provided a `groupBy` but no `f` or `field`, then the default `count` metric will be used.
+   * @cfg {String} [field] Syntactic sugar for single-dimension/single-metric usage. If provided, you must also provide
+   *   a `groupBy` config. If you provided a `groupBy` but no `f` or `field`, then the default `count` metric will be used.
+   * 
    * @cfg {Object[]} [metrics=[]] Array which specifies the metrics to calculate for each cell in the cube.
    * 
    *   Example:
@@ -326,12 +334,20 @@ class OLAPCube
 
       Maybe some day, I&#39;ll write the code to analyze your metrics and move them out to here if it improves efficiency.
     @config = utils.clone(@userConfig)
-    utils.assert(@config.dimensions?, &#39;Must provide config.dimensions.&#39;)
-    unless @config.metrics?
-      @config.metrics = []
     @cells = []
     @cellIndex = {}
     @currentValues = {}
+
+    # Syntactic sugar for groupBy
+    if @config.groupBy?
+      @config.dimensions = [{field: @config.groupBy}]
+      if @config.f? and @config.field?
+        @config.metrics = [{field: @config.field, f: @config.f}]
+
+    utils.assert(@config.dimensions?, &#39;Must provide config.dimensions.&#39;)
+    unless @config.metrics?
+      @config.metrics = []
+
     @_dimensionValues = {}  # key: fieldName, value: {} where key: uniqueValue, value: the real key (not stringified)
     for d in @config.dimensions
       @_dimensionValues[d.field] = {}
