@@ -81,11 +81,11 @@ task('pubDocsRaw', 'Publish docs to Google Cloud Storage', () ->
 
 task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->
   process.chdir(__dirname)
-  invoke('build')
-
   console.log('Running tests')
   process.chdir(__dirname)
   runSync('cake', ['test'])  # Doing this externally to make it synchronous
+
+  invoke('build')
 
   invoke('docs')
 
