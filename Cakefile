@@ -7,6 +7,7 @@ marked = require('marked')
 uglify = require("uglify-js")
 browserify = require('browserify')
 fileify = require('fileify-lm')
+run = require('gulp-run')
 
 runSync = (command, options, next) ->  # !TODO: Upgrade to runSync in node-localstorage
   {stderr, stdout} = runSyncRaw(command, options)
@@ -71,7 +72,11 @@ task('pub-docs', 'Build docs and push out to web', () ->
 task('pubDocsRaw', 'Publish docs to Google Cloud Storage', () ->
   process.chdir(__dirname)
   console.log('pushing docs to Google Cloud Storage')
-  runSync('gsutil -m cp -R docs gs://versions.lumenize.com')
+#  runSync('gsutil -m cp -R docs gs://versions.lumenize.com')
+
+  run("gsutil -m cp -R docs gs://versions.lumenize.com").exec(->
+    console.log('published docs')
+  )
 )
 
 task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->

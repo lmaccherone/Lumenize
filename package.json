@@ -1,6 +1,6 @@
 {
   "name": "lumenize",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "main": "./lumenize",
   "description": "Illuminating the forest AND the trees in your data.",
   "keywords": [
@@ -45,6 +45,7 @@
     "coveralls": "^2.11.2",
     "fileify-lm": "~0.3.1",
     "find-remove": "^0.2.5",
+    "gulp-run": "^1.6.8",
     "istanbul": "^0.3.17",
     "jsduckify": "^0.3.0",
     "marked": "0.2.x",

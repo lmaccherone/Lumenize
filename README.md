@@ -73,6 +73,7 @@ Then in your code:
 
 ## Changelog ##
 
+* 0.9.10 - 2015-07-10 - Whoops, I removed iCalculator but not the reference to it. This version removes all reference.
 * 0.9.9 - 2015-07-09 - Cleanup to enable code coverage with coffee-coverage and coveralls.io
 * 0.9.8 - 2015-07-07 - Filters out facts missing any fields mentioned in dimensions or metrics
 * 0.9.7 - 2015-06-02 - Removed JSON2 dependency. Updated to latest tzTime.

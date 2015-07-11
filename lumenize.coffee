@@ -31,7 +31,6 @@ exports.TimelineIterator = tzTime.TimelineIterator
 exports.Timeline = tzTime.Timeline
 exports.utils = tzTime.utils
 
-exports.iCalculator = require('./src/iCalculator').iCalculator
 exports.TimeInStateCalculator = require('./src/TimeInStateCalculator').TimeInStateCalculator
 exports.TransitionsCalculator = require('./src/TransitionsCalculator').TransitionsCalculator
 exports.TimeSeriesCalculator = require('./src/TimeSeriesCalculator').TimeSeriesCalculator
