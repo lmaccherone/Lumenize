@@ -1,5 +1,5 @@
 /*
-lumenize version: 0.9.10
+lumenize version: 0.9.11
 */
 var require = function (file, cwd) {
     var resolved = require.resolve(file, cwd || '/');
