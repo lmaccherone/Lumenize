@@ -73,6 +73,7 @@ Then in your code:
 
 ## Changelog ##
 
+* 0.9.12 - 2015-07-14 - OLAPCube now accepts facts with missing dimension and field values without erroring
 * 0.9.11 - 2015-07-10 - Fixes missing .js from npm
 * 0.9.10 - 2015-07-10 - Whoops, I removed iCalculator but not the reference to it. This version removes all reference.
 * 0.9.9 - 2015-07-09 - Cleanup to enable code coverage with coffee-coverage and coveralls.io

@@ -293,7 +293,10 @@ functions.uniqueValues = (values, oldResult, newValues) -&gt;
 /* &lt;CoffeeScript&gt;
 functions.average = (values, oldResult, newValues, dependentValues, prefix) -&gt;
   {count, sum} = _populateDependentValues(values, functions.average.dependencies, dependentValues, prefix)
-  return sum / count
+  if count is 0
+    return null
+  else
+    return sum / count
 
 functions.average.dependencies = [&#39;count&#39;, &#39;sum&#39;]
 
@@ -336,7 +339,12 @@ functions.errorSquared.dependencies = [&#39;count&#39;, &#39;sum&#39;]
 /* &lt;CoffeeScript&gt;
 functions.variance = (values, oldResult, newValues, dependentValues, prefix) -&gt;
   {count, sum, sumSquares} = _populateDependentValues(values, functions.variance.dependencies, dependentValues, prefix)
-  return (count * sumSquares - sum * sum) / (count * (count - 1))
+  if count is 0
+    return null
+  else if count is 1
+    return 0
+  else
+    return (count * sumSquares - sum * sum) / (count * (count - 1))
 
 functions.variance.dependencies = [&#39;count&#39;, &#39;sum&#39;, &#39;sumSquares&#39;]
 
@@ -388,6 +396,8 @@ functions.percentileCreator = (p) -&gt;
   f = (values, oldResult, newValues, dependentValues, prefix) -&gt;
     unless values?
       {values} = _populateDependentValues(values, [&#39;values&#39;], dependentValues, prefix)
+    if values.length is 0
+      return null
     sortfunc = (a, b) -&gt;
       return a - b
     vLength = values.length
