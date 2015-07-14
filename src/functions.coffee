@@ -237,7 +237,10 @@ functions.uniqueValues = (values, oldResult, newValues) ->
 ###
 functions.average = (values, oldResult, newValues, dependentValues, prefix) ->
   {count, sum} = _populateDependentValues(values, functions.average.dependencies, dependentValues, prefix)
-  return sum / count
+  if count is 0
+    return null
+  else
+    return sum / count
 
 functions.average.dependencies = ['count', 'sum']
 
@@ -274,7 +277,12 @@ functions.errorSquared.dependencies = ['count', 'sum']
 ###
 functions.variance = (values, oldResult, newValues, dependentValues, prefix) ->
   {count, sum, sumSquares} = _populateDependentValues(values, functions.variance.dependencies, dependentValues, prefix)
-  return (count * sumSquares - sum * sum) / (count * (count - 1))
+  if count is 0
+    return null
+  else if count is 1
+    return 0
+  else
+    return (count * sumSquares - sum * sum) / (count * (count - 1))
 
 functions.variance.dependencies = ['count', 'sum', 'sumSquares']
 
@@ -320,6 +328,8 @@ functions.percentileCreator = (p) ->
   f = (values, oldResult, newValues, dependentValues, prefix) ->
     unless values?
       {values} = _populateDependentValues(values, ['values'], dependentValues, prefix)
+    if values.length is 0
+      return null
     sortfunc = (a, b) ->
       return a - b
     vLength = values.length

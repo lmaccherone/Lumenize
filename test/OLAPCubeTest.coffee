@@ -582,20 +582,13 @@ exports.olapTest =
 
     expectedResult = [
       { id: 1, _count: 1, value_sum: 10 },
-      { id: null, _count: 3, value_sum: 60 },
+      { id: null, _count: 4, value_sum: 160 },
+      { id: '<missing>', _count: 1, value_sum: 100 },
       { id: 2, _count: 1, value_sum: 20 },
       { id: 3, _count: 1, value_sum: 30 }
     ]
 
     test.deepEqual(cube.getCells(), expectedResult)
-
-    expectedWarnings = [{
-      type: 'Missing fields',
-      missingFields: [ 'id' ],
-      fact: { id: null, value: 100 }
-    }]
-
-    test.deepEqual(cube.warnings, expectedWarnings)
 
     test.done()
 
@@ -620,14 +613,6 @@ exports.olapTest =
 
     cube = new OLAPCube(config, facts)
 
-    expectedWarnings = [{
-      type: 'Missing fields',
-      missingFields: [ 'id' ],
-      fact: { value: 100 }
-    }]
-
-    test.deepEqual(cube.warnings, expectedWarnings)
-
     test.done()
 
   missingMetricValueTest: (test) ->
@@ -651,14 +636,6 @@ exports.olapTest =
 
     cube = new OLAPCube(config, facts)
 
-    expectedWarnings = [{
-      type: 'Missing fields',
-      missingFields: [ 'value' ],
-      fact: {id: 1, value: null}
-    }]
-
-    test.deepEqual(cube.warnings, expectedWarnings)
-
     test.done()
 
   missingMetricFieldTest: (test) ->
@@ -681,13 +658,5 @@ exports.olapTest =
     config.keepTotals = true
 
     cube = new OLAPCube(config, facts)
-
-    expectedWarnings = [{
-      type: 'Missing fields',
-      missingFields: [ 'value' ],
-      fact: {id: 1}
-    }]
-
-    test.deepEqual(cube.warnings, expectedWarnings)
 
     test.done()

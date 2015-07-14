@@ -351,9 +351,11 @@ class OLAPCube
     for m in @config.metrics
       if m.field?.length > 0  # Should only be false if function is count
         requiredFieldsObject[m.field] = null
+    @requiredMetricsFields = (key for key, value of requiredFieldsObject)
+    requiredFieldsObject = {}
     for d in @config.dimensions
       requiredFieldsObject[d.field] = null
-    @requiredFields = (key for key, value of requiredFieldsObject)
+    @requiredDimensionFields = (key for key, value of requiredFieldsObject)
 
     @summaryMetrics = {}
 
@@ -402,6 +404,8 @@ class OLAPCube
     rolloverArray = []
     for d in @config.dimensions
       p = OLAPCube._possibilities(fact[d.field], d.type, d.keepTotals)
+      if p is undefined
+        console.log(fact)
       possibilitiesArray.push(p)
       countdownArray.push(p.length - 1)
       rolloverArray.push(p.length - 1)  # !TODO: If I need some speed, we could calculate the rolloverArray once and make a copy to the countdownArray for each run
@@ -479,15 +483,10 @@ class OLAPCube
           fact[fieldName] = d.f(fact)
 
     for fact in facts
-      missingFields = @calculateMissingFields(fact)
-      if missingFields.length is 0
-        @currentValues = {}
-        expandedFactArray = @_expandFact(fact)
-        @_mergeExpandedFactArray(expandedFactArray)
-      else
-        unless @warnings?
-          @warnings = []
-        @warnings.push({type: 'Missing fields', missingFields, fact})
+      @addMissingFields(fact)
+      @currentValues = {}
+      expandedFactArray = @_expandFact(fact)
+      @_mergeExpandedFactArray(expandedFactArray)
 
     # deriveFieldsOnOutput for @dirtyRows
     if @config.deriveFieldsOnOutput?
@@ -502,12 +501,14 @@ class OLAPCube
 
     return this
 
-  calculateMissingFields: (fact) ->
-    missingFields = []
-    for field in @requiredFields
+  addMissingFields: (fact) ->
+    for field in @requiredMetricsFields
+      if fact[field] is undefined
+        fact[field] = null
+    for field in @requiredDimensionFields
       unless fact[field]?
-        missingFields.push(field)
-    return missingFields
+        fact[field] = '<missing>'
+    return fact
 
   getCells: (filterObject) ->
     ###
