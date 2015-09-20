@@ -16,7 +16,7 @@ Rules about dependencies:
 ###
 functions = {}
 
-_populateDependentValues = (values, dependencies, dependentValues = {}, prefix = '') ->
+functions._populateDependentValues = (values, dependencies, dependentValues = {}, prefix = '') ->
   out = {}
   for d in dependencies
     if d == 'count'
@@ -236,7 +236,7 @@ functions.uniqueValues = (values, oldResult, newValues) ->
 @return {Number} The arithmetic mean
 ###
 functions.average = (values, oldResult, newValues, dependentValues, prefix) ->
-  {count, sum} = _populateDependentValues(values, functions.average.dependencies, dependentValues, prefix)
+  {count, sum} = functions._populateDependentValues(values, functions.average.dependencies, dependentValues, prefix)
   if count is 0
     return null
   else
@@ -255,7 +255,7 @@ functions.average.dependencies = ['count', 'sum']
 @return {Number} The error squared
 ###
 functions.errorSquared = (values, oldResult, newValues, dependentValues, prefix) ->
-  {count, sum} = _populateDependentValues(values, functions.errorSquared.dependencies, dependentValues, prefix)
+  {count, sum} = functions._populateDependentValues(values, functions.errorSquared.dependencies, dependentValues, prefix)
   mean = sum / count
   errorSquared = 0
   for v in values
@@ -276,7 +276,7 @@ functions.errorSquared.dependencies = ['count', 'sum']
 @return {Number} The variance
 ###
 functions.variance = (values, oldResult, newValues, dependentValues, prefix) ->
-  {count, sum, sumSquares} = _populateDependentValues(values, functions.variance.dependencies, dependentValues, prefix)
+  {count, sum, sumSquares} = functions._populateDependentValues(values, functions.variance.dependencies, dependentValues, prefix)
   if count is 0
     return null
   else if count is 1
@@ -327,7 +327,7 @@ exact same result as the definition for median even for edge cases like sets wit
 functions.percentileCreator = (p) ->
   f = (values, oldResult, newValues, dependentValues, prefix) ->
     unless values?
-      {values} = _populateDependentValues(values, ['values'], dependentValues, prefix)
+      {values} = functions._populateDependentValues(values, ['values'], dependentValues, prefix)
     if values.length is 0
       return null
     sortfunc = (a, b) ->

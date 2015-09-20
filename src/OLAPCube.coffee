@@ -3,7 +3,7 @@
 
 {utils} = require('tztime')
 functions = require('./functions').functions
-{arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps} = require('./dataTransform')
+{arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps} = require('../')
 
 class OLAPCube
   ###
