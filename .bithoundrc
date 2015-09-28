@@ -3,6 +3,6 @@
     "**/docs/**"
   ]
   "dependencies": {
-      "mute": ["browserify", "uglify-js", "marked"]
+      "mute": ["browserify", "uglify-js", "marked", "bower", "istanbul", "wrench", "async"]
   }
 }
