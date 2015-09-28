@@ -2,4 +2,7 @@
   "ignore": [
     "**/docs/**"
   ]
+  "dependencies": {
+      "mute": ["browserify", "uglify-js", "marked"]
+  }
 }
