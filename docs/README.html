@@ -78,7 +78,7 @@
 </style>
 <body>
 <div class="readme">
-<h1 id="-documentation-https-cdn-rawgit-com-lmaccherone-lumenize-v1-0-2-docs-lumenize-docs-index-html-"><a href="https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.2/docs/Lumenize-docs/index.html">Documentation</a></h1>
+<h1 id="-documentation-https-cdn-rawgit-com-lmaccherone-lumenize-v1-0-3-docs-lumenize-docs-index-html-"><a href="https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.3/docs/Lumenize-docs/index.html">Documentation</a></h1>
 <p><a href="http://travis-ci.org/lmaccherone/Lumenize"><img src="https://secure.travis-ci.org/lmaccherone/Lumenize.svg" alt="build status"></a>
 <a href="http://badge.fury.io/js/Lumenize"><img src="https://badge.fury.io/js/lumenize.svg" alt="NPM version"></a>
 <a href="https://david-dm.org/lmaccherone/Lumenize"><img src="https://david-dm.org/lmaccherone/Lumenize.svg" alt="build status"></a>
@@ -90,7 +90,7 @@
 <p>Lumenize is a collection of tools for analyzing and making awesome visualizations out of your data.</p>
 <h2 id="documentation-and-source-code">Documentation and source code</h2>
 <ul>
-<li><a href="https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.2/docs/lumenize-docs/index.html">API Documentation</a></li>
+<li><a href="https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.3/docs/lumenize-docs/index.html">API Documentation</a></li>
 <li><a href="https://github.com/lmaccherone/Lumenize">Source Repository</a></li>
 </ul>
 <h2 id="features">Features</h2>
@@ -106,7 +106,7 @@ of lead time to set service level agreements.</li>
 <li>Bundled with the <a href="https://github.com/lmaccherone/tzTime">tzTime</a> library (same author) for
 timezone precise x-axis. Knockout weekends, holidays, non-work hours, etc.</li>
 <li>Tested - Over 600 tests (plus over 400 tests in tzTime)</li>
-<li><a href="https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.2/docs/lumenize-docs/index.html">Documented (Lumenize)</a> <a href="http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html">(tzTime)</a> - Robust documentation and examples</li>
+<li><a href="https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.3/docs/lumenize-docs/index.html">Documented (Lumenize)</a> <a href="http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html">(tzTime)</a> - Robust documentation and examples</li>
 <li><a href="https://github.com/lmaccherone/coffeedoctest">DocTested</a> - The examples will always match 
 the code because it fails automated testing when they don&#39;t</li>
 </ul>
@@ -120,7 +120,7 @@ the code because it fails automated testing when they don&#39;t</li>
 <p>To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:</p>
 <p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://cdn.rawgit.com/lmaccherone/Lumenize/v{{version}}/deploy/lumenize-min.js&quot;&gt;&lt;/script&gt;</code></p>
 <p>Replace <code>{{version}}</code> with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:</p>
-<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.2/deploy/lumenize-min.js&quot;&gt;&lt;/script&gt;</code></p>
+<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.3/deploy/lumenize-min.js&quot;&gt;&lt;/script&gt;</code></p>
 <p>The package is fairly large ~260KB but most of that is the embedded timezone files which compress really well.</p>
 <p>Then at the top of the javascript where you want to call it, put the following:</p>
 <p><code>var lumenize = require(&#39;./lumenize&#39;);</code></p>
@@ -133,6 +133,7 @@ the code because it fails automated testing when they don&#39;t</li>
 <p><code>var lumenize = require(&#39;lumenize&#39;)</code></p>
 <h2 id="changelog">Changelog</h2>
 <ul>
+<li>1.0.3 - 2015-12-14 - Still trying to fix caching </li>
 <li>1.0.2 - 2015-12-14 - Fixing CDN caching of old docs </li>
 <li>1.0.1 - 2015-12-14 - Switched from googleapis CDN to rawgit because publishing to googleapis has been troublesome </li>
 <li>1.0.0 - 2015-12-14 - <strong>Backward breaking</strong> UniqueIDField now defaults to &quot;_EntityID&quot; to match with Temporalize. 
