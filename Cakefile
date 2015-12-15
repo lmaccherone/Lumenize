@@ -1,3 +1,5 @@
+# TODO: Automate updating links to docs and cdn with version number change
+
 fs = require('fs')
 path = require('path')
 {spawnSync} = require('child_process')
