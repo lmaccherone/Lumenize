@@ -1,6 +1,6 @@
 {
   "name": "lumenize",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "./lumenize",
   "description": "Illuminating the forest AND the trees in your data.",
   "keywords": [
@@ -33,6 +33,7 @@
   },
   "preferGlobal": false,
   "dependencies": {
+    "lodash": "^3.10.1",
     "tztime": "^0.9.4"
   },
   "devDependencies": {
@@ -45,7 +46,6 @@
     "coveralls": "^2.11.2",
     "fileify-lm": "~0.3.1",
     "find-remove": "^0.2.5",
-    "gulp-run": "^1.6.8",
     "istanbul": "^0.3.17",
     "jsduckify": "^0.3.0",
     "marked": "0.2.x",

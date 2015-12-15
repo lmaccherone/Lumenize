@@ -1,4 +1,4 @@
-# [Documentation](http://commondatastorage.googleapis.com/versions.lumenize.com/docs/lumenize-docs/index.html)
+# [Documentation](https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.0/docs/Lumenize-docs/index.html)
 
 [![build status](https://secure.travis-ci.org/lmaccherone/Lumenize.svg)](http://travis-ci.org/lmaccherone/Lumenize)
 [![NPM version](https://badge.fury.io/js/lumenize.svg)](http://badge.fury.io/js/Lumenize)
@@ -16,7 +16,7 @@ Lumenize is a collection of tools for analyzing and making awesome visualization
 
 ## Documentation and source code ##
 
-* [API Documentation](http://commondatastorage.googleapis.com/versions.lumenize.com/docs/lumenize-docs/index.html)
+* [API Documentation](https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.0/docs/Lumenize-docs/index.html)
 * [Source Repository](https://github.com/lmaccherone/Lumenize)
 
 ## Features ##
@@ -30,7 +30,7 @@ Lumenize is a collection of tools for analyzing and making awesome visualization
 * Bundled with the [tzTime](https://github.com/lmaccherone/tzTime) library (same author) for
   timezone precise x-axis. Knockout weekends, holidays, non-work hours, etc.
 * Tested - Over 600 tests (plus over 400 tests in tzTime)
-* [Documented (Lumenize)](http://commondatastorage.googleapis.com/versions.lumenize.com/docs/lumenize-docs/index.html) [(tzTime)](http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html) - Robust documentation and examples
+* [Documented (Lumenize)](https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.0/docs/Lumenize-docs/index.html) [(tzTime)](http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html) - Robust documentation and examples
 * [DocTested](https://github.com/lmaccherone/coffeedoctest) - The examples will always match 
   the code because it fails automated testing when they don't
 
@@ -45,11 +45,11 @@ Authors:
 
 To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:
 
-`<script type="text/javascript" src="https://storage.googleapis.com/versions.lumenize.com/v{{version}}/Lumenize-min.js"></script>`
+`<script type="text/javascript" src="https://cdn.rawgit.com/lmaccherone/Lumenize/v{{version}}/deploy/lumenize-min.js"></script>`
 
 Replace `{{version}}` with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:
 
-`<script type="text/javascript" src="https://storage.googleapis.com/versions.lumenize.com/v0.9.3/Lumenize-min.js"></script>`
+`<script type="text/javascript" src="https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.0/deploy/lumenize-min.js"></script>`
 
 The package is fairly large ~260KB but most of that is the embedded timezone files which compress really well.
 
@@ -73,7 +73,8 @@ Then in your code:
 
 ## Changelog ##
 
-* 1.0.0 - 2015-07-14 - **Backward breaking** UniqueIDField now defaults to "_EntityID" to match with Temporalize. 
+* 1.0.1 - 2015-12-14 - Switched from googleapis CDN to rawgit because publishing to googleapis has been troublesome 
+* 1.0.0 - 2015-12-14 - **Backward breaking** UniqueIDField now defaults to "_EntityID" to match with Temporalize. 
   After several years, it's time to go 1.0.
 * 0.9.12 - 2015-07-14 - OLAPCube now accepts facts with missing dimension and field values without erroring
 * 0.9.11 - 2015-07-10 - Fixes missing .js from npm

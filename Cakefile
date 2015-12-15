@@ -7,7 +7,7 @@ marked = require('marked')
 uglify = require("uglify-js")
 browserify = require('browserify')
 fileify = require('fileify-lm')
-run = require('gulp-run')
+_ = require('lodash')
 
 runSync = (command, options, next) ->  # !TODO: Upgrade to runSync in node-localstorage
   {stderr, stdout} = runSyncRaw(command, options)
@@ -64,22 +64,7 @@ task('docs', 'Generate docs with JSDuckify/JSDuck and place in ./docs', () ->
   runSync('jsduckify', ['-d', outputDirectory, __dirname])
 )
 
-task('pub-docs', 'Build docs and push out to web', () ->
-  invoke('docs')
-  invoke('pubDocsRaw')
-)
-
-task('pubDocsRaw', 'Publish docs to Google Cloud Storage', () ->
-  process.chdir(__dirname)
-  console.log('pushing docs to Google Cloud Storage')
-#  runSync('gsutil -m cp -R docs gs://versions.lumenize.com')
-
-  run("gsutil -m cp -R docs gs://versions.lumenize.com").exec(->
-    console.log('published docs')
-  )
-)
-
-task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->
+task('publish', 'Publish to npm and add git tags', () ->
   process.chdir(__dirname)
   console.log('Running tests')
   process.chdir(__dirname)
@@ -113,9 +98,9 @@ task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->
           runSyncNoExit("git", ["tag", "v#{require('./package.json').version}"])
           runSyncNoExit("git", ["push", "--tags"])
 
-          invoke('cdn')
+          console.log('removing .js and .map files')
+          invoke('clean')
 
-          invoke('pubDocsRaw')
       else
         console.error('Origin and master out of sync. Not publishing.')
     else
@@ -123,19 +108,12 @@ task('publish', 'Publish to npm, add git tags, push to Google CDN', () ->
   )
 )
 
-task('cdn', 'Push runtime code to content delivery network (CDN)', () ->
-  console.log('pushing to Google Cloud Storage')
-  process.chdir(__dirname)
-  run("gsutil cp ./deploy/* gs://versions.lumenize.com/v#{require('./package.json').version}/").exec(->
-    run('gsutil setmeta -h "Content-Type: application/javascript" -h "Cache-Control: public, max-age=31556926, no-transform" gs://versions.lumenize.com/v' + require('./package.json').version + '/*').exec()
-  )
-)
 
 task('build', 'Build with browserify and place in ./deploy', () ->
   invoke('update-bower-version')
 
   console.log('Compiling...')
-  runSyncNoExit('coffee', ['--compile', '--map', 'lumenize.coffee', 'src'])
+  runSyncNoExit('coffee', ['--compile', 'lumenize.coffee', 'src'])
 
   console.log('Browserifying...')
   b = browserify()
@@ -185,4 +163,13 @@ task('testall', 'Run tests and doctests', () ->
   runSync('cake', ['test'])
   runSync('cake', ['doctest'])
   runSync('istanbul', ['report', 'text-summary', 'lcov'])
+)
+
+task('clean', 'Deletes .js and .map files', () ->
+  folders = ['.', 'test', 'src']
+  for folder in folders
+    pathToClean = path.join(__dirname, folder)
+    contents = fs.readdirSync(pathToClean)
+    for file in contents when (_.endsWith(file, '.js') or _.endsWith(file, '.map'))
+      fs.unlinkSync(path.join(pathToClean, file))
 )
