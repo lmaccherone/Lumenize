@@ -575,44 +575,10 @@ class OLAPCube
     @param {Boolean} [descending=false] Set to true if you want them in reverse order
     ###
     values = utils.values(@_dimensionValues[field])
-    values.sort(OLAPCube._compare)
+    values.sort(utils.compare)
     unless descending
       values.reverse()
     return values
-
-  @_compare: (a, b) ->
-    # !TODO: Use utils.compare. I copied the below into utils but haven't changed below to use it yet. Waiting on a new release of tzTime.
-    if a is null
-      return 1
-    if b is null
-      return -1
-    switch utils.type(a)
-      when 'number', 'boolean', 'date'
-        return b - a
-      when 'array'
-        for value, index in a
-          if b.length - 1 >= index and value < b[index]
-            return 1
-          if b.length - 1 >= index and value > b[index]
-            return -1
-        if a.length < b.length
-          return 1
-        else if a.length > b.length
-          return -1
-        else
-          return 0
-      when 'object', 'string'
-        aString = JSON.stringify(a)
-        bString = JSON.stringify(b)
-        if aString < bString
-          return 1
-        else if aString > bString
-          return -1
-        else
-          return 0
-      else
-        throw new Error("Do not know how to sort objects of type #{utils.type(a)}.")
-
 
   @roundToSignificance: (value, significance) ->
     unless significance?
