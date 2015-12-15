@@ -1,0 +1,296 @@
+<style>
+.readme li {
+    display: list-item;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    list-style: disc outside;
+}
+
+.readme ul, .readme ol {
+    display: block;
+    padding-left: 10px;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+.readme ul :first-child, .readme ol :first-child {
+    margin-top: 0;
+}
+
+.readme > ul {
+    margin-left: 20px;
+}
+
+.readme h1, .readme h2 {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    line-height: 20px;
+    font-weight: bold;
+    font-size: 16px;
+    padding-bottom: 5px;
+    border-bottom-width: 1px;
+    border-bottom-style: solid;
+    border-bottom-color: rgb(241, 241, 241);
+    color: rgb(49, 78, 100);
+}
+
+.readme h1 {
+    font-size: 24px;
+    line-height: 24px;
+}
+
+.readme h2 {
+    font-size: 20px;
+}
+
+.readme h3 {
+    font-style: italic;
+}
+
+.readme p {
+    margin-top: 15px;
+}
+
+.readme p, .readme ul, .readme li, .readme ol, .readme pre, .readme code {
+    max-width: 900px;
+    color: rgb(72, 72, 72);
+}
+
+.readme pre, .readme code {
+    white-space: pre;
+    margin: 0px;
+    overflow-x: auto;
+    padding: 1px 3px;
+    font-family: "Menlo", "Courier New", "Courier", monospace;
+    color: #314e64;
+    border-radius: 5px;
+    background-color: #f7f7f7;
+    border: solid 1px #e8e8e8;
+}
+
+.readme em {
+    font-style: italic;
+}
+
+.readme b {
+    font-weight: bold;
+}
+</style>
+<body>
+<div class="readme">
+<h1 id="-documentation-https-cdn-rawgit-com-lmaccherone-lumenize-v1-0-2-docs-lumenize-docs-index-html-"><a href="https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.2/docs/Lumenize-docs/index.html">Documentation</a></h1>
+<p><a href="http://travis-ci.org/lmaccherone/Lumenize"><img src="https://secure.travis-ci.org/lmaccherone/Lumenize.svg" alt="build status"></a>
+<a href="http://badge.fury.io/js/Lumenize"><img src="https://badge.fury.io/js/lumenize.svg" alt="NPM version"></a>
+<a href="https://david-dm.org/lmaccherone/Lumenize"><img src="https://david-dm.org/lmaccherone/Lumenize.svg" alt="build status"></a>
+<a href="https://www.bithound.io/github/lmaccherone/Lumenize/master"><img src="https://www.bithound.io/github/lmaccherone/Lumenize/badges/score.svg" alt="bitHound"></a>
+<a href="https://coveralls.io/github/lmaccherone/Lumenize?branch=master"><img src="https://coveralls.io/repos/lmaccherone/Lumenize/badge.svg?branch=master&amp;service=github" alt="Coverage Status"></a></p>
+<h1 id="lumenize">Lumenize</h1>
+<p>Copyright (c) 2009-2013, Lawrence S. Maccherone, Jr.</p>
+<p><em>Illuminating the forest AND the trees in your data.</em></p>
+<p>Lumenize is a collection of tools for analyzing and making awesome visualizations out of your data.</p>
+<h2 id="documentation-and-source-code">Documentation and source code</h2>
+<ul>
+<li><a href="https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.2/docs/lumenize-docs/index.html">API Documentation</a></li>
+<li><a href="https://github.com/lmaccherone/Lumenize">Source Repository</a></li>
+</ul>
+<h2 id="features">Features</h2>
+<ul>
+<li>Fast, light, flexible client-side OLAP Cube with hierarchical rollup support</li>
+<li>Create aggregations from temporal data models like Rally&#39;s Lookback API<ul>
+<li>TimeSeriesCalculator - Show how performance changed over time. Visualize cumulative flow.</li>
+<li>TimeInStateCalculator - Calculate the ratio of wait to touch time. Find 98 percentile
+of lead time to set service level agreements.</li>
+<li>TransitionsCalculator - Throughput. Velocity. </li>
+</ul>
+</li>
+<li>Bundled with the <a href="https://github.com/lmaccherone/tzTime">tzTime</a> library (same author) for
+timezone precise x-axis. Knockout weekends, holidays, non-work hours, etc.</li>
+<li>Tested - Over 600 tests (plus over 400 tests in tzTime)</li>
+<li><a href="https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.2/docs/lumenize-docs/index.html">Documented (Lumenize)</a> <a href="http://lmaccherone.github.com/tzTime/docs/tztime-docs/index.html">(tzTime)</a> - Robust documentation and examples</li>
+<li><a href="https://github.com/lmaccherone/coffeedoctest">DocTested</a> - The examples will always match 
+the code because it fails automated testing when they don&#39;t</li>
+</ul>
+<h2 id="credits">Credits</h2>
+<p>Authors:</p>
+<ul>
+<li><a href="http://maccherone.com">Larry Maccherone</a></li>
+<li>Jennifer Maccherone</li>
+</ul>
+<h2 id="usage-in-a-browser">Usage in a browser</h2>
+<p>To use in a browser, either host it on your own site, or if your volume is low enough, you can directly hit the github pages for the deploy version:</p>
+<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://cdn.rawgit.com/lmaccherone/Lumenize/v{{version}}/deploy/lumenize-min.js&quot;&gt;&lt;/script&gt;</code></p>
+<p>Replace <code>{{version}}</code> with the version of Lumenize you wish to use (probably the latest). See the Changelog section for information about versions. Example:</p>
+<p><code>&lt;script type=&quot;text/javascript&quot; src=&quot;https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.2/deploy/lumenize-min.js&quot;&gt;&lt;/script&gt;</code></p>
+<p>The package is fairly large ~260KB but most of that is the embedded timezone files which compress really well.</p>
+<p>Then at the top of the javascript where you want to call it, put the following:</p>
+<p><code>var lumenize = require(&#39;./lumenize&#39;);</code></p>
+<p>And call it like this.</p>
+<p><code>var stdDev = lumenize.functions.standardDeviation([20, 30, 50]);</code></p>
+<h2 id="usage-in-node-js">Usage in node.js</h2>
+<p>To install, run the following from the root folder of your project:</p>
+<p><code>npm install lumenize --save</code></p>
+<p>Then in your code:</p>
+<p><code>var lumenize = require(&#39;lumenize&#39;)</code></p>
+<h2 id="changelog">Changelog</h2>
+<ul>
+<li>1.0.2 - 2015-12-14 - Fixing CDN caching of old docs </li>
+<li>1.0.1 - 2015-12-14 - Switched from googleapis CDN to rawgit because publishing to googleapis has been troublesome </li>
+<li>1.0.0 - 2015-12-14 - <strong>Backward breaking</strong> UniqueIDField now defaults to &quot;_EntityID&quot; to match with Temporalize. 
+After several years, it&#39;s time to go 1.0.</li>
+<li>0.9.12 - 2015-07-14 - OLAPCube now accepts facts with missing dimension and field values without erroring</li>
+<li>0.9.11 - 2015-07-10 - Fixes missing .js from npm</li>
+<li>0.9.10 - 2015-07-10 - Whoops, I removed iCalculator but not the reference to it. This version removes all reference.</li>
+<li>0.9.9 - 2015-07-09 - Cleanup to enable code coverage with coffee-coverage and coveralls.io</li>
+<li>0.9.8 - 2015-07-07 - Filters out facts missing any fields mentioned in dimensions or metrics</li>
+<li>0.9.7 - 2015-06-02 - Removed JSON2 dependency. Updated to latest tzTime.</li>
+<li>0.9.6 - 2015-05-31 - Updated Bower version</li>
+<li>0.9.5 - 2015-05-06 - Added RandomPicker</li>
+<li>0.9.4 - 2015-04-03 - Fixed broken link to documentation</li>
+<li>0.9.3 - 2015-03-19 - Added OLAPCube.slice() and functions.median()</li>
+<li>0.9.2 - 2015-02-23 - Table now gracefully handles missing data</li>
+<li>0.9.1 - 2015-02-15 - Deal with real-world miner case for Store</li>
+<li>0.9.0 - 2015-02-14 - Upgrades to Store for mining</li>
+<li>0.8.6 - 2014-10-19 - Store now puts key dates into zulu time</li>
+<li>0.8.5 - 2014-10-02 - Update to tzTime 0.7.0 which also has .js in npm for meteor</li>
+<li>0.8.4 - 2014-10-02 - Fixes so .js files make it to npm and thus meteor</li>
+<li>0.8.3 - 2014-10-02 - Fix for TravisCI failure due to not having coffee to compile upon npm install</li>
+<li>0.8.2 - 2014-10-02 - Now compiles .coffee files upon npm install</li>
+<li>0.8.1 - 2014-09-28 - Cleaned up documentation for Store</li>
+<li>0.8.0 - 2014-09-23 - Added Store for snapshots</li>
+<li>0.7.3 - 2014-02-08 - Switched BayesianClassifier to use constant quantity bucketer for larger training sets</li>
+<li>0.7.2 - 2013-08-30 - Upgraded to the latest tzTime 0.6.11</li>
+<li>0.7.1 - 2013-07-07 - Added simple table output formatting. Added significance to OLAPCube 
+output. Evenutally, OLAPCube.toString will use table.toString(), but not yet. Bug fixes.</li>
+<li>0.7.0 - 2013-06-01 - <strong>Backward breaking change.</strong> Histogram significantly upgraded. The old 
+clipping histogram has been moved to <code>histogram.clipping()</code>. The new functionality is more 
+complete and general purpose.</li>
+<li>0.6.11 - 2013-05-19 - Added point to projection series for startIndex and now use angle 
+instead of slope for v-optimal projection algorithm</li>
+<li>0.6.10 - 2013-05-18 - Added projection functionality to TimeSeriesCalculator</li>
+<li>0.6.9 - 2013-04-24 - Upgraded to bug fixed latest tzTime</li>
+<li>0.6.8 - 2013-04-24 - Uses JSON2 for IE7 compatibility</li>
+<li>0.6.7 - 2013-04-24 - Updated to latest version of jsduckify. Added Bayesian Classifier</li>
+<li>0.6.6 - 2013-02-11 - More precise toDateCell when incrementally calculated.</li>
+<li>0.6.5 - 2013-02-09 - Fixed bug on TimeSeriesCalculator where toDateCell was including more
+than it should and was possible located wrong. Changed histogram to use Q3 + 1.5 * IQR as
+outlier detector and added option to not do outlier clipping. Lots of little documentation
+updates. Updated to tzTime 0.6.5.</li>
+<li>0.6.4 - 2013-02-08 - Fixed bug where Friday current will double count Friday in labels by 
+adding a tick on Saturday. Now it advances all the way to Sunday night.</li>
+<li>0.6.3 - 2013-02-07 - Updated to tzTime 0.6.4 (potentially backward breaking to those who 
+were incorrectly instantiating Time objects from an ISOString without providing a timezone)
+Also, changed the way TimeSeriesCalculator takes into account the start so it works as
+expected if it falls on a weekend. This is also potentially backward breaking.</li>
+<li>0.6.2 - 2013-02-06 - Close issue #10</li>
+<li>0.6.1 - 2013-02-03 - Updated to the laster version of tzTime 0.6.2</li>
+<li><p>0.6.0 - 2013-02-03 <strong>Major backward breaking changes</strong></p>
+<ul>
+<li>Time, Timeline, and TimelineIterator have been split out to their own package, 
+<a href="https://github.com/lmaccherone/tzTime">tzTime</a></li>
+<li>Lumenize has been simplfified down to four main classes: TimeSeriesCalculator, 
+TransitionsCalculator, TimeInStateCalculator, and OLAPCube</li>
+<li>There are still a few addional helpers for data transformation and a histogram calculator 
+function. </li>
+<li>The three main calculators implement the same interface and take similar config objects. </li>
+<li>They provide a superset of all of the functionality previously found in Lumenize. </li>
+<li>They all use the OLAPCube abstraction so they are much easier to understand, maintain, and 
+upgrade. </li>
+<li>They now all support incremental updating, and serialization so you can cache results of 
+an earlier calculation and restart justfeeding in the updated information. </li>
+<li>All this AND significant performance gains.</li>
+</ul>
+<p>Things removed and gone forever:</p>
+<ul>
+<li>Removed the concept of an &quot;AtArray&quot; and any functions that used it including 
+deriveFieldsAt, aggregationAtArray_To_HighChartsSeries, 
+groupByAtArray_To_HighChartsSeries, and snapshotArray_To_AtArray </li>
+<li>Similarly, the function-form of timeSeriesCalculator and timeSeriesGroupByCalculator have
+been removed. Use the class-form replacement.</li>
+<li>GroupBy functionality is now contained in the TimeSeriesCalculator. There is no seperate
+class for it like there was a seperate function for it before.</li>
+<li>Removed aggregate, derive, and groupBy. Their functionality is now contained in the 3 main
+calculators.</li>
+</ul>
+</li>
+<li><p>0.5.8 - 2013-01-31 - TimeSeriesCalculator now includes groupBy support. There will be
+no TimeSeriesGroupByCalculator.</p>
+</li>
+<li>0.5.7 - 2013-01-27 - TimeSeriesCalculator evolved based upon learning from Burn Chart</li>
+<li>0.5.6 - 2013-01-24 - TimeSeriesCalculator class introduced (incremental, OLAP, etc.)</li>
+<li>0.5.5 - 2013-01-17 - Histogram now works all the way down to 0</li>
+<li>0.5.4 - 2013-01-17 - Histogram now works for bucketCount &lt; 3</li>
+<li>0.5.3 - 2013-01-13 - Bug fix to work with Rally&#39;s Throughput chart</li>
+<li>0.5.2 - 2013-01-13 <ul>
+<li>Added TransitionsCalculator using OLAPCube</li>
+<li>OLAPCube now allows for keepTotals on individual dimensions while still supporting
+the global config.keepTotals    </li>
+</ul>
+</li>
+<li>0.5.1 - 2013-01-06 <strong>Backward breaking change</strong><ul>
+<li>TimeInStateCalculator now requires you to specify <code>config.trackLastValueForTheseFields</code>
+for any fields you want the last value maintained. Previously, the _ValidTo was 
+automatically tracked.</li>
+<li>OLAPCube now has flattened input and flattened output</li>
+<li>Minor bug fixes</li>
+</ul>
+</li>
+<li>0.5.0 - 2012-12-15 <strong>Major backward breaking changes - not released to npm</strong><ul>
+<li>Major refactor of names/variables for inclusion in Rally&#39;s App SDK</li>
+<li>All functions that previously started with a <code>$</code> no longer do</li>
+<li><code>$push()</code> is now <code>values()</code></li>
+<li><code>$addToSet()</code> is now <code>uniqueValues()</code></li>
+<li>More parameters are pushed into the config Object parameter</li>
+<li>OLAPCube introduced. It&#39;s a great general purpose calculator and surprisingly it is as
+efficient as the hand-coded calculators. I reimplemented the TimeInStateCalculator
+to use the OLAPCube, which gave it incremental updating for free.</li>
+<li>ChartTime is now Time, ChartTimeRange is now Timeline, ChartTimeIterator is now 
+TimelineIterator. All three have various other backward breaking changes mostly having to
+do with defaults, method names, and method signatures. There are no semantic changes. </li>
+<li>ChartTimeInStateCalculator is now TimeInStateCalculator.</li>
+</ul>
+</li>
+<li>0.4.8 - 2012-12-08 - Turn off prefer global</li>
+<li>0.4.7 - 2012-12-08 - Updated dependencies</li>
+<li>0.4.6 - 2012-12-06 - More testing build and automatic npm publishing</li>
+<li>0.4.5 - 2012-12-06 - Testing build and automatic npm publishing</li>
+<li>0.4.4 - 2012-12-06 - Fixing issue with README.css showing up as cover page on npm</li>
+<li>0.4.3 - 2012-11-28 - Cleaning up doc issues</li>
+<li>0.4.2 - 2012-11-28 - Playing with using git tags for keeping old versions</li>
+<li>0.4.1 - 2012-11-28 - Playing with using git branches for keeping old versions</li>
+<li>0.4.0 - 2012-11-27 <strong>Backward breaking change</strong> <ul>
+<li>No longer required/allowed to call Time.setTZPath()</li>
+<li>Using JSDuck for documentation now</li>
+<li>Build system now keeps old deploy versions</li>
+<li>Pre-compiled directory removed</li>
+<li>Bug fix for TimeInStateCalculator and snapshotArray_To_AtArray. They now sort (correctly). 
+snapshotArray_To_AtArray will now also propertly remove from later ticks any entity that
+falls out of scope. Previously, deletions were not registered correctly by
+snapshotArray_To_AtArray.</li>
+</ul>
+</li>
+<li>0.3.0 - 2012-10-13<ul>
+<li>Support for instantiating Time objects relative to now using strings (e.g. &#39;this day in
+Pacific/Fiji&#39;)</li>
+<li>Added tests and fixed some bugs for timelineConfigs</li>
+</ul>
+</li>
+<li>0.2.7 - 2012-10-10 <strong>Backward breaking change</strong> <ul>
+<li>Change to the structure of the data returned by groupBy() to match groupByAt()</li>
+</ul>
+</li>
+</ul>
+<h2 id="mit-license">MIT License</h2>
+<p>Copyright (c) 2011, 2012, 2013 Lawrence S. Maccherone, Jr.</p>
+<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated 
+documentation files (the &quot;Software&quot;), to deal in the Software without restriction, including without limitation 
+the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and 
+to permit persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+<p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.</p>
+<p>THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED 
+TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF 
+CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+IN THE SOFTWARE.</p>
+
+</div>
+</body>

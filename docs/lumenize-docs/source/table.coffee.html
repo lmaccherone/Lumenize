@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
+{utils} = require(&#39;tztime&#39;)
+
+table = {}
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-table'>/**
+</span> * @class Lumenize.table
+ */
+/* &lt;CoffeeScript&gt;
+
+table.padToWidth = (s, width, padCharacter = &#39; &#39;, rightPad = false) -&gt;
+  if s.length &gt; width
+    return s.substr(0, width)
+  padding = new Array(width - s.length + 1).join(padCharacter)
+  if rightPad
+    return s + padding
+  else
+    return padding + s
+
+table.toString = (rows, fields, sortBy, descending = false) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-table-method-toString'>  /**
+</span>   * @method toString
+   * @member Lumenize.table
+   * @param {Object[]} rows
+   * @param {Object} [fields] If not provided, it will use the fields found in the first row
+   * @param {String} [sortBy] If provided, it will sort the table by this field before returning
+   * @param {Boolean} [descending = false] By default, the sort will be ascending, setting this to true will sort descending
+   * @return {String} Returns a string for the table in Markdown format
+   * 
+   *     t = [
+   *       {col1: &#39;hello&#39;, col2: 12, col3: true},
+   *       {col1: &#39;goodbye&#39;, col2: 120, col3: false},
+   *       {col1: &#39;yep&#39;, col2: -23, col3: true},
+   *     ]
+   * 
+   *     console.log(require(&#39;../&#39;).table.toString(t, null, &#39;col2&#39;, true))
+   *     # | col1    | col2 | col3  |
+   *     # | ------- | ---- | ----- |
+   *     # | goodbye | 120  | false |
+   *     # | hello   | 12   | true  |
+   *     # | yep     | -23  | true  |
+   * 
+   */
+/* &lt;CoffeeScript&gt;
+  unless fields?
+    fields = []
+    for key, value of rows[0]
+      fields.push(key)
+  maxWidths = []
+  for field, index in fields
+    maxWidths.push(field.length)  # !TODO: Support for Markdown style justification |:---:| or |---:| and number formatting
+    for row in rows
+      maxWidths[index] = Math.max(maxWidths[index], row[field]?.toString().length or 0)
+
+  if sortBy?
+    sortedRows = utils._.sortBy(rows, sortBy)
+    if descending
+      sortedRows = sortedRows.reverse()
+  else
+    sortedRows = rows
+
+  s = &#39;|&#39;
+  for field, index in fields
+    s += &#39; &#39;
+    s += table.padToWidth(field, maxWidths[index], undefined, true) + &#39; |&#39;  # !TODO: Change undefined for justification
+
+  s += &#39;\n|&#39;
+  for field, index in fields
+    s += &#39; &#39;
+    s += table.padToWidth(&#39;&#39;, maxWidths[index], &#39;-&#39;, true) + &#39; |&#39;  # !TODO: Add colons for justification
+
+  for row in sortedRows
+    s += &#39;\n|&#39;
+    for field, index in fields
+      s += &#39; &#39;
+      s += table.padToWidth(row[field]?.toString() or &#39;&#39;, maxWidths[index], undefined, true) + &#39; |&#39;  # !TODO: Change undefined for justification
+
+  return s
+
+exports.table = table
+&lt;/CoffeeScript&gt; */</pre>
+</body>
+</html>

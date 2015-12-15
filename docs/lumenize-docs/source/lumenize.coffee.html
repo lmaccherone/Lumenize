@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize'>/**
+</span> * @class Lumenize
+ * 
+ * 
+ * # Lumenize #
+ * 
+ * Lumenize provides tools for aggregating data and creating time series and other temporal visualizations.
+ * 
+ * The primary time-series aggregating functionality is provided by:
+ *   * Lumenize.TimeSeriesCalculator - Sets of single-metric series or group-by series
+ *   * Lumenize.TransitionsCalculator - Counts or sums for items moving from one state to another
+ *   * Lumenize.TimeInStateCalculator - Cumulative amount of time unique work items spend in a particular state
+ * 
+ * Simple group-by, 2D pivot-table and even multi-dimensional aggregations (OLAP cube) are provided by:
+ *   * Lumenize.OLAPCube - Used by above three Calculators but also useful stand-alone, particularly for hierarchical roll-ups
+ * 
+ * All of the above use the mathematical and statistical functions provided by:
+ *   * Lumenize.functions - count, sum, standardDeviation, percentile coverage, min, max, etc.
+ * 
+ * Three transformation functions are provided:
+ *   * Lumenize.arrayOfMaps_To_CSVStyleArray - Used to transform from record to table format
+ *   * Lumenize.csvStyleArray_To_ArrayOfMaps - Used to transform from table to record format
+ *   * Lumenize.arrayOfMaps_To_HighChartsSeries - Used to transform from record format to the format expected by the HighCharts charting library
+ * 
+ * And last, additional functionality is provided by:
+ *   * Lumenize.histogram - create a histogram of scatter data
+ *   * Lumenize.utils - utility methods used by the rest of Lumenize (type, clone, array/object functions, etc.)
+ * 
+ */
+/* &lt;CoffeeScript&gt;
+tzTime = require(&#39;tztime&#39;)
+exports.Time = tzTime.Time
+exports.TimelineIterator = tzTime.TimelineIterator
+exports.Timeline = tzTime.Timeline
+exports.utils = tzTime.utils
+
+exports.TimeInStateCalculator = require(&#39;./src/TimeInStateCalculator&#39;).TimeInStateCalculator
+exports.TransitionsCalculator = require(&#39;./src/TransitionsCalculator&#39;).TransitionsCalculator
+exports.TimeSeriesCalculator = require(&#39;./src/TimeSeriesCalculator&#39;).TimeSeriesCalculator
+
+datatransform = require(&#39;./src/dataTransform&#39;)
+exports.arrayOfMaps_To_CSVStyleArray = datatransform.arrayOfMaps_To_CSVStyleArray
+exports.csvStyleArray_To_ArrayOfMaps = datatransform.csvStyleArray_To_ArrayOfMaps
+exports.arrayOfMaps_To_HighChartsSeries = datatransform.arrayOfMaps_To_HighChartsSeries
+exports.csvString_To_CSVStyleArray = datatransform.csvString_To_CSVStyleArray
+exports.csvStyleArray_To_CSVString = datatransform.csvStyleArray_To_CSVString
+
+exports.functions = require(&#39;./src/functions&#39;).functions
+
+exports.histogram = require(&#39;./src/histogram&#39;).histogram
+
+exports.multiRegression = require(&#39;./src/multiRegression&#39;).multiRegression
+
+exports.table = require(&#39;./src/table&#39;).table
+
+exports.OLAPCube = require(&#39;./src/OLAPCube&#39;).OLAPCube
+
+exports.anova = require(&#39;./src/anova&#39;).anova
+
+exports.distributions = require(&#39;./src/distributions&#39;).distributions
+
+exports.BayesianClassifier = require(&#39;./src/Classifier&#39;).BayesianClassifier
+exports.Classifier = require(&#39;./src/Classifier&#39;).Classifier
+
+exports.Store = require(&#39;./src/Store&#39;).Store
+
+exports.RandomPicker = require(&#39;./src/RandomPicker&#39;).RandomPicker
+
+&lt;/CoffeeScript&gt; */</pre>
+</body>
+</html>

@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
+# !TODO: Add deriveFieldsOnSnapshots with @config.deriveFieldsOnSnapshotsConfig calling deriveFieldsOnFacts in OLAPCube
+# !TODO: Add deriveFieldsOnResults with @config.deriveFieldsOnResultsConfig calling deriveFieldsOnResultsConfig
+# !TODO: Add drill-down support with uniqueIDField or maybe keepFacts = true
+# !TODO: Add series by type support
+
+OLAPCube = require(&#39;./OLAPCube&#39;).OLAPCube
+{utils, Time, Timeline} = require(&#39;tztime&#39;)
+
+class TransitionsCalculator # implements iCalculator
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-TransitionsCalculator-method-constructor'><span id='Lumenize-TransitionsCalculator-cfg-asterixToDateTimePeriod'><span id='Lumenize-TransitionsCalculator-cfg-fieldsToSum'><span id='Lumenize-TransitionsCalculator-cfg-granularity'><span id='Lumenize-TransitionsCalculator-cfg-uniqueIDField'><span id='Lumenize-TransitionsCalculator-cfg-validToField'><span id='Lumenize-TransitionsCalculator-cfg-validFromField'><span id='Lumenize-TransitionsCalculator-cfg-tz'><span id='Lumenize-TransitionsCalculator'>  /**
+</span></span></span></span></span></span></span></span></span>   * @class Lumenize.TransitionsCalculator
+   * 
+   * Used to accumlate counts and sums about transitions.
+   * 
+   * Let&#39;s say that you want to create a throughput or velocity chart where each column on the chart represents the
+   * number of work items that cross over from one state into another state in a given month/week/quarter/etc. You would
+   * send a transitions to a temporal data store like Rally&#39;s Lookback API specifying both the current values and the
+   * previous values. For instance, the work items crossing from &quot;In Progress&quot; to &quot;Completed&quot; could be found
+   * with this query clause `&quot;_PreviousValues.ScheduleState&quot;: {&quot;$lte&quot;: &quot;In Progress&quot;}, &quot;ScheduleState&quot;: {&quot;$gt&quot;: &quot;In Progress&quot;}`
+   * 
+   *     {TransitionsCalculator, Time} = require(&#39;../&#39;)
+   * 
+   *     snapshots = [
+   *       { id: 1, from: &#39;2011-01-03T00:00:00.000Z&#39;, PlanEstimate: 10 },
+   *       { id: 1, from: &#39;2011-01-05T00:00:00.000Z&#39;, PlanEstimate: 10 },
+   *       { id: 2, from: &#39;2011-01-04T00:00:00.000Z&#39;, PlanEstimate: 20 },
+   *       { id: 3, from: &#39;2011-01-10T00:00:00.000Z&#39;, PlanEstimate: 30 },
+   *       { id: 4, from: &#39;2011-01-11T00:00:00.000Z&#39;, PlanEstimate: 40 },
+   *       { id: 5, from: &#39;2011-01-17T00:00:00.000Z&#39;, PlanEstimate: 50 },
+   *       { id: 6, from: &#39;2011-02-07T00:00:00.000Z&#39;, PlanEstimate: 60 },
+   *       { id: 7, from: &#39;2011-02-08T00:00:00.000Z&#39;, PlanEstimate: 70 },
+   *     ]
+   * 
+   * But that&#39;s not the entire story. What if something crosses over into &quot;Completed&quot; and beyond but crosses back. It could
+   * do this several times and get counted multiple times. That would be bad. The way we deal with this is to also
+   * look for the list of snapshots that pass backwards across the boundary and subract thier impact on the final calculations.
+   * 
+   * One can think of alternative aproaches for avoiding this double counting. You could, for instance, only count the last
+   * transition for each unique work item. The problem with this approach is that the backward moving transition might
+   * occur in a different time period from the forward moving one. A later snapshot could invalidate an earlier calculation
+   * which is bad for incremental calculation and caching. To complicate matters, the field values being summed by the
+   * calculator might have changed between subsequent forward/backward transitions. The chosen algorithm is the only way I know to
+   * preserve the idempotency and cachable incremental calculation properties.
+   * 
+   *     snapshotsToSubtract = [
+   *       { id: 1, from: &#39;2011-01-04T00:00:00.000Z&#39;, PlanEstimate: 10 },
+   *       { id: 7, from: &#39;2011-02-09T00:00:00.000Z&#39;, PlanEstimate: 70 },
+   *     ]
+   * 
+   * The calculator will keep track of the count of items automatically (think throughput), but if you want to sum up a
+   * particular field (think velocity), you can specify that with the &#39;fieldsToSum&#39; config property.
+   * 
+   *     fieldsToSum = [&#39;PlanEstimate&#39;]
+   * 
+   * Now let&#39;s build our config object.
+   * 
+   *     config =
+   *       asOf: &#39;2011-02-10&#39;  # Leave this off if you want it to continuously update to today
+   *       granularity: Time.MONTH
+   *       tz: &#39;America/Chicago&#39;
+   *       validFromField: &#39;from&#39;
+   *       validToField: &#39;to&#39;
+   *       uniqueIDField: &#39;id&#39;
+   *       fieldsToSum: fieldsToSum
+   *       asterixToDateTimePeriod: true  # Set to false or leave off if you are going to reformat the timePeriod
+   * 
+   * In most cases, you&#39;ll want to leave off the `asOf` configuration property so the data can be continuously updated
+   * with new snapshots as they come in. We include it in this example so the output stays stable. If we hadn&#39;t, then
+   * the rows would continue to grow to encompass today.
+   * 
+   *     startOn = &#39;2011-01-02T00:00:00.000Z&#39;
+   *     endBefore = &#39;2011-02-27T00:00:00.000Z&#39;
+   * 
+   *     calculator = new TransitionsCalculator(config)
+   *     calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
+   * 
+   *     console.log(calculator.getResults())
+   *     # [ { timePeriod: &#39;2011-01&#39;, count: 5, PlanEstimate: 150 },
+   *     #   { timePeriod: &#39;2011-02*&#39;, count: 1, PlanEstimate: 60 } ]
+   * 
+   * The asterix on the last row in the results is to indicate that it is a to-date value. As more snapshots come in, this
+   * last row will change. The caching and incremental calcuation capability of this Calculator are designed to take
+   * this into account.
+   * 
+   * Now, let&#39;s use the same data but aggregate in granularity of weeks.
+   * 
+   *     config.granularity = Time.WEEK
+   *     calculator = new TransitionsCalculator(config)
+   *     calculator.addSnapshots(snapshots, startOn, endBefore, snapshotsToSubtract)
+   * 
+   *     console.log(calculator.getResults())
+   *     # [ { timePeriod: &#39;2010W52&#39;, count: 1, PlanEstimate: 10 },
+   *     #   { timePeriod: &#39;2011W01&#39;, count: 2, PlanEstimate: 50 },
+   *     #   { timePeriod: &#39;2011W02&#39;, count: 2, PlanEstimate: 90 },
+   *     #   { timePeriod: &#39;2011W03&#39;, count: 0, PlanEstimate: 0 },
+   *     #   { timePeriod: &#39;2011W04&#39;, count: 0, PlanEstimate: 0 },
+   *     #   { timePeriod: &#39;2011W05&#39;, count: 1, PlanEstimate: 60 },
+   *     #   { timePeriod: &#39;2011W06*&#39;, count: 0, PlanEstimate: 0 } ]
+   * 
+   * Remember, you can easily convert weeks to other granularities for display.
+   * 
+   *     weekStartingLabel = &#39;week starting &#39; + new Time(&#39;2010W52&#39;).inGranularity(Time.DAY).toString()
+   *     console.log(weekStartingLabel)
+   *     # week starting 2010-12-27
+   * 
+   * If you want to display spinners while the chart is rendering, you can read this calculator&#39;s upToDateISOString property and
+   * compare it directly to the getResults() row&#39;s timePeriod property using code like this. Yes, this works eventhough
+   * upToDateISOString is an ISOString.
+   * 
+   *     row = {timePeriod: &#39;2011W07&#39;}
+   *     if calculator.upToDateISOString &lt; row.timePeriod
+   *       console.log(&quot;#{row.timePeriod} not yet calculated.&quot;)
+   *     # 2011W07 not yet calculated.
+   * 
+   * @constructor
+   * @param {Object} config
+   * @cfg {String} tz The timezone for analysis in the form like `America/New_York`
+   * @cfg {String} [validFromField = &quot;_ValidFrom&quot;]
+   * @cfg {String} [validToField = &quot;_ValidTo&quot;]
+   * @cfg {String} [uniqueIDField = &quot;_EntityID&quot;] Not used right now but when drill-down is added it will be
+   * @cfg {String} granularity &#39;month&#39;, &#39;week&#39;, &#39;quarter&#39;, etc. Use Time.MONTH, Time.WEEK, etc.
+   * @cfg {String[]} [fieldsToSum=[]] It will track the count automatically but it can keep a running sum of other fields also
+   * @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
+   */
+/* &lt;CoffeeScript&gt;
+
+    @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
+    @config = utils.clone(config)
+    # Assert that the configuration object is self-consistent and required parameters are present
+    unless @config.validFromField?
+      @config.validFromField = &quot;_ValidFrom&quot;
+    unless @config.validToField?
+      @config.validToField = &quot;_ValidTo&quot;
+    unless @config.uniqueIDField?
+      @config.uniqueIDField = &quot;_EntityID&quot;
+    unless @config.fieldsToSum?
+      @config.fieldsToSum = []
+    unless @config.asterixToDateTimePeriod?
+      @config.asterixToDateTimePeriod = false
+    utils.assert(@config.tz?, &quot;Must provide a timezone to this calculator.&quot;)
+    utils.assert(@config.granularity?, &quot;Must provide a granularity to this calculator.&quot;)
+    if @config.granularity in [Time.HOUR, Time.MINUTE, Time.SECOND, Time.MILLISECOND]
+      throw new Error(&quot;Transitions calculator is not designed to work on granularities finer than &#39;day&#39;&quot;)
+
+    dimensions = [
+      {field: &#39;timePeriod&#39;}
+    ]
+
+    metrics = [
+      {field: &#39;count&#39;, f: &#39;sum&#39;}  # We add a count field to each snapshot and use sum so we can also subtract
+    ]
+    for f in @config.fieldsToSum
+      metrics.push({field: f, f: &#39;sum&#39;})
+
+    cubeConfig = {dimensions, metrics}
+    @cube = new OLAPCube(cubeConfig)
+
+    @upToDateISOString = null
+    @lowestTimePeriod = null
+
+    if @config.asOf?
+      @maxTimeString = new Time(@config.asOf, Time.MILLISECOND).getISOStringInTZ(@config.tz)
+    else
+      @maxTimeString = Time.getISOStringFromJSDate()
+
+    @virgin = true
+
+  addSnapshots: (snapshots, startOn, endBefore, snapshotsToSubtract=[]) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-TransitionsCalculator-method-addSnapshots'>    /**
+</span>     * @method addSnapshots
+     * @member Lumenize.TransitionsCalculator
+     *   Allows you to incrementally add snapshots to this calculator.
+     * @chainable
+     * @param {Object[]} snapshots An array of temporal data model snapshots.
+     * @param {String} startOn A ISOString (e.g. &#39;2012-01-01T12:34:56.789Z&#39;) indicating the time start of the period of
+     *   interest. On the second through nth call, this should equal the previous endBefore.
+     * @param {String} endBefore A ISOString (e.g. &#39;2012-01-01T12:34:56.789Z&#39;) indicating the moment just past the time
+     *   period of interest.
+     * @return {TransitionsCalculator}
+     */
+/* &lt;CoffeeScript&gt;
+    if @upToDateISOString?
+      utils.assert(@upToDateISOString == startOn, &quot;startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDateISOString}) to addSnapshots.&quot;)
+    @upToDateISOString = endBefore
+
+    startOnString = new Time(startOn, @config.granularity, @config.tz).toString()
+    if @lowestTimePeriod?
+      if startOnString &lt; @lowestTimePeriod
+        @lowestTimePeriod = startOnString
+    else
+      @lowestTimePeriod = startOnString
+
+    filteredSnapshots = @_filterSnapshots(snapshots)
+    @cube.addFacts(filteredSnapshots)
+
+    filteredSnapshotsToSubstract = @_filterSnapshots(snapshotsToSubtract, -1)
+    @cube.addFacts(filteredSnapshotsToSubstract)
+
+    @virgin = false
+
+    return this
+
+  _filterSnapshots: (snapshots, sign = 1) -&gt;
+    filteredSnapshots = []
+    for s in snapshots
+      if s[@config.validFromField] &lt;= @maxTimeString
+        if s.count?
+          throw new Error(&#39;Snapshots passed into a TransitionsCalculator cannot have a `count` field.&#39;)
+        if s.timePeriod?
+          throw new Error(&#39;Snapshots passed into a TransitionsCalculator cannot have a `timePeriod` field.&#39;)
+        fs = utils.clone(s)
+        fs.count = sign * 1
+        fs.timePeriod = new Time(s[@config.validFromField], @config.granularity, @config.tz).toString()
+        for f in @config.fieldsToSum
+          fs[f] = sign * s[f]
+        filteredSnapshots.push(fs)
+    return filteredSnapshots
+
+  getResults: () -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-TransitionsCalculator-method-getResults'>    /**
+</span>     * @method getResults
+     * @member Lumenize.TransitionsCalculator
+     *   Returns the current state of the calculator
+     * @return {Object[]} Returns an Array of Maps like `{timePeriod: &#39;2012-12&#39;, count: 10, otherField: 34}`
+     */
+/* &lt;CoffeeScript&gt;
+    if @virgin
+      return []
+
+    out = []
+    @highestTimePeriod = new Time(@maxTimeString, @config.granularity, @config.tz).toString()
+    config =
+      startOn: @lowestTimePeriod
+      endBefore: @highestTimePeriod
+      granularity: @config.granularity
+
+    timeLine = new Timeline(config)
+    timePeriods = (t.toString() for t in timeLine.getAllRaw())
+    timePeriods.push(@highestTimePeriod)
+
+    for tp in timePeriods
+      filter = {}
+      filter[&#39;timePeriod&#39;] = tp
+      cell = @cube.getCell(filter)
+      outRow = {}
+      outRow.timePeriod = tp
+      if cell?
+        outRow.count = cell.count_sum
+        for f in @config.fieldsToSum
+          outRow[f] = cell[f + &#39;_sum&#39;]
+      else
+        outRow.count = 0
+        for f in @config.fieldsToSum
+          outRow[f] = 0
+
+      out.push(outRow)
+
+    if @config.asterixToDateTimePeriod
+      out[out.length - 1].timePeriod += &#39;*&#39;
+
+    return out
+
+  getStateForSaving: (meta) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-TransitionsCalculator-method-getStateForSaving'>    /**
+</span>     * @method getStateForSaving
+     * @member Lumenize.TransitionsCalculator
+     *   Enables saving the state of this calculator. See TimeInStateCalculator documentation for a detailed example.
+     * @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+     *   within the deserialized calculator.
+     * @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+     *   to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+     *   the calculator.
+     */
+/* &lt;CoffeeScript&gt;
+    out =
+      config: @config
+      cubeSavedState: @cube.getStateForSaving()
+      upToDateISOString: @upToDateISOString
+      maxTimeString: @maxTimeString
+      lowestTimePeriod: @lowestTimePeriod
+      virgin: @virgin
+    if meta?
+      out.meta = meta
+    return out
+
+  @newFromSavedState: (p) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-TransitionsCalculator-static-method-newFromSavedState'>    /**
+</span>     * @method newFromSavedState
+     * @member Lumenize.TransitionsCalculator
+     *   Deserializes a previously saved calculator and returns a new calculator. See TimeInStateCalculator for a detailed example.
+     * @static
+     * @param {String/Object} p A String or Object from a previously saved state
+     * @return {TransitionsCalculator}
+     */
+/* &lt;CoffeeScript&gt;
+    if utils.type(p) is &#39;string&#39;
+      p = JSON.parse(p)
+    calculator = new TransitionsCalculator(p.config)
+    calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState)
+    calculator.upToDateISOString = p.upToDateISOString
+    calculator.maxTimeString = p.maxTimeString
+    calculator.lowestTimePeriod = p.lowestTimePeriod
+    calculator.virgin = p.virgin
+    if p.meta?
+      calculator.meta = p.meta
+
+    return calculator
+
+exports.TransitionsCalculator = TransitionsCalculator
+
+&lt;/CoffeeScript&gt; */</pre>
+</body>
+</html>

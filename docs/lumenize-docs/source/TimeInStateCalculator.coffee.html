@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
+# !TODO: Add deriveFieldsOnSnapshots with @config.deriveFieldsOnSnapshotsConfig calling deriveFieldsOnFacts in OLAPCube
+# !TODO: Add deriveFieldsOnResults with @config.deriveFieldsOnResultsConfig calling deriveFieldsOnResultsConfig
+# !TODO: Add drill-down support with uniqueIDField or maybe keepFacts = true
+
+OLAPCube = require(&#39;./OLAPCube&#39;).OLAPCube
+{utils, Time, Timeline} = require(&#39;tztime&#39;)
+
+class TimeInStateCalculator # implements iCalculator
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-TimeInStateCalculator-method-constructor'><span id='Lumenize-TimeInStateCalculator-cfg-trackLastValueForTheseFields'><span id='Lumenize-TimeInStateCalculator-cfg-workDayEndBefore'><span id='Lumenize-TimeInStateCalculator-cfg-workDayStartOn'><span id='Lumenize-TimeInStateCalculator-cfg-holidays'><span id='Lumenize-TimeInStateCalculator-cfg-workDays'><span id='Lumenize-TimeInStateCalculator-cfg-granularity'><span id='Lumenize-TimeInStateCalculator-cfg-uniqueIDField'><span id='Lumenize-TimeInStateCalculator-cfg-validToField'><span id='Lumenize-TimeInStateCalculator-cfg-validFromField'><span id='Lumenize-TimeInStateCalculator-cfg-tz'><span id='Lumenize-TimeInStateCalculator'>  /**
+</span></span></span></span></span></span></span></span></span></span></span></span>   * @class Lumenize.TimeInStateCalculator
+   * 
+   * Used to calculate how much time each uniqueID spent &quot;in-state&quot;. You use this by querying a temporal data
+   * model (like Rally&#39;s Lookback API) with a predicate indicating the &quot;state&quot; of interest. You&#39;ll then have a list of
+   * snapshots where that predicate was true. You pass this in to the addSnapshots method of this previously instantiated
+   * TimeInStateCalculator class.
+   * 
+   * Usage:
+   * 
+   *     {TimeInStateCalculator} = require(&#39;../&#39;)
+   * 
+   *     snapshots = [ 
+   *       { id: 1, from: &#39;2011-01-06T15:10:00.000Z&#39;, to: &#39;2011-01-06T15:30:00.000Z&#39;, Name: &#39;Item A&#39; }, # 20 minutes all within an hour
+   *       { id: 2, from: &#39;2011-01-06T15:50:00.000Z&#39;, to: &#39;2011-01-06T16:10:00.000Z&#39;, Name: &#39;Item B&#39; }, # 20 minutes spanning an hour
+   *       { id: 3, from: &#39;2011-01-07T13:00:00.000Z&#39;, to: &#39;2011-01-07T15:20:00.000Z&#39;, Name: &#39;Item C&#39; }, # start 2 hours before but overlap by 20 minutes of start
+   *       { id: 4, from: &#39;2011-01-06T16:40:00.000Z&#39;, to: &#39;2011-01-06T19:00:00.000Z&#39;, Name: &#39;Item D&#39; }, # 20 minutes before end of day
+   *       { id: 5, from: &#39;2011-01-06T16:50:00.000Z&#39;, to: &#39;2011-01-07T15:10:00.000Z&#39;, Name: &#39;Item E&#39; }, # 10 minutes before end of one day and 10 before the start of next
+   *       { id: 6, from: &#39;2011-01-06T16:55:00.000Z&#39;, to: &#39;2011-01-07T15:05:00.000Z&#39;, Name: &#39;Item F&#39; }, # multiple cycles over several days for a total of 20 minutes of work time
+   *       { id: 6, from: &#39;2011-01-07T16:55:00.000Z&#39;, to: &#39;2011-01-10T15:05:00.000Z&#39;, Name: &#39;Item F modified&#39; },
+   *       { id: 7, from: &#39;2011-01-06T16:40:00.000Z&#39;, to: &#39;9999-01-01T00:00:00.000Z&#39;, Name: &#39;Item G&#39; }  # continues past the range of consideration in this test
+   *     ]
+   *     
+   *     granularity = &#39;minute&#39;
+   *     tz = &#39;America/Chicago&#39;
+   * 
+   *     config =  # default work days and holidays
+   *       granularity: granularity
+   *       tz: tz
+   *       endBefore: &#39;2011-01-11T00:00:00.000&#39;
+   *       workDayStartOn: {hour: 9, minute: 0}  # 09:00 in Chicago is 15:00 in GMT
+   *       workDayEndBefore: {hour: 11, minute: 0}  # 11:00 in Chicago is 17:00 in GMT  # !TODO: Change this to 5pm when I change the samples above
+   *       validFromField: &#39;from&#39;
+   *       validToField: &#39;to&#39;
+   *       uniqueIDField: &#39;id&#39;
+   *       trackLastValueForTheseFields: [&#39;to&#39;, &#39;Name&#39;]
+   * 
+   *     startOn = &#39;2011-01-05T00:00:00.000Z&#39;
+   *     endBefore = &#39;2011-01-11T00:00:00.000Z&#39;
+   * 
+   *     tisc = new TimeInStateCalculator(config)
+   *     tisc.addSnapshots(snapshots, startOn, endBefore)
+   * 
+   *     console.log(tisc.getResults())
+   *     # [ { id: 1,
+   *     #     ticks: 20,
+   *     #     to_lastValue: &#39;2011-01-06T15:30:00.000Z&#39;,
+   *     #     Name_lastValue: &#39;Item A&#39; },
+   *     #   { id: 2,
+   *     #     ticks: 20,
+   *     #     to_lastValue: &#39;2011-01-06T16:10:00.000Z&#39;,
+   *     #     Name_lastValue: &#39;Item B&#39; },
+   *     #   { id: 3,
+   *     #     ticks: 20,
+   *     #     to_lastValue: &#39;2011-01-07T15:20:00.000Z&#39;,
+   *     #     Name_lastValue: &#39;Item C&#39; },
+   *     #   { id: 4,
+   *     #     ticks: 20,
+   *     #     to_lastValue: &#39;2011-01-06T19:00:00.000Z&#39;,
+   *     #     Name_lastValue: &#39;Item D&#39; },
+   *     #   { id: 5,
+   *     #     ticks: 20,
+   *     #     to_lastValue: &#39;2011-01-07T15:10:00.000Z&#39;,
+   *     #     Name_lastValue: &#39;Item E&#39; },
+   *     #   { id: 6,
+   *     #     ticks: 20,
+   *     #     to_lastValue: &#39;2011-01-10T15:05:00.000Z&#39;,
+   *     #     Name_lastValue: &#39;Item F modified&#39; },
+   *     #   { id: 7,
+   *     #     ticks: 260,
+   *     #     to_lastValue: &#39;9999-01-01T00:00:00.000Z&#39;,
+   *     #     Name_lastValue: &#39;Item G&#39; } ]
+   * 
+   * But we are not done yet. We can serialize the state of this calculator and later restore it.
+   * 
+   *     savedState = tisc.getStateForSaving({somekey: &#39;some value&#39;})
+   * 
+   * Let&#39;s incrementally update the original.
+   * 
+   *     snapshots = [
+   *       { id: 7, from: &#39;2011-01-06T16:40:00.000Z&#39;, to: &#39;9999-01-01T00:00:00.000Z&#39;, Name: &#39;Item G modified&#39; },  # same snapshot as before still going
+   *       { id: 3, from: &#39;2011-01-11T15:00:00.000Z&#39;, to: &#39;2011-01-11T15:20:00.000Z&#39;, Name: &#39;Item C modified&#39; },  # 20 more minutes for id 3
+   *       { id: 8, from: &#39;2011-01-11T15:00:00.000Z&#39;, to: &#39;9999-01-01T00:00:00.000Z&#39;, Name: &#39;Item H&#39; }   # 20 minutes in scope for new id 8
+   *     ]
+   * 
+   *     startOn = &#39;2011-01-11T00:00:00.000Z&#39;  # must match endBefore of prior call
+   *     endBefore = &#39;2011-01-11T15:20:00.000Z&#39;
+   * 
+   *     tisc.addSnapshots(snapshots, startOn, endBefore)
+   * 
+   * Now, let&#39;s restore from saved state into tisc2 and give it the same updates and confirm that they match.
+   * 
+   *     tisc2 = TimeInStateCalculator.newFromSavedState(savedState)
+   *     tisc2.addSnapshots(snapshots, startOn, endBefore)
+   * 
+   *     console.log(tisc2.meta.somekey)
+   *     # some value
+   * 
+   *     console.log(JSON.stringify(tisc.getResults()) == JSON.stringify(tisc2.getResults()))
+   *     # true
+   * 
+   * Note, it&#39;s common to calculate time in state at granularity of hour and convert it to fractional days. Since it knocks
+   * out non-work hours, this conversion is not as simple as dividing by 24. This code calculates the conversion factor
+   * (workHours) for whatever workDayStartOn and workDayEndBefore you have specified even if your &quot;workday&quot; spans midnight.
+   * 
+   *     startOnInMinutes = config.workDayStartOn.hour * 60
+   *     if config.workDayStartOn?.minute
+   *       startOnInMinutes += config.workDayStartOn.minute
+   *     endBeforeInMinutes = config.workDayEndBefore.hour * 60
+   *     if config.workDayEndBefore?.minute
+   *       endBeforeInMinutes += config.workDayEndBefore.minute
+   *     if startOnInMinutes &lt; endBeforeInMinutes
+   *       workMinutes = endBeforeInMinutes - startOnInMinutes
+   *     else
+   *       workMinutes = 24 * 60 - startOnInMinutes
+   *       workMinutes += endBeforeInMinutes
+   *     workHours = workMinutes / 60
+   * 
+   *     console.log(workHours)  # Should say 2 because our work day was from 9am to 11am
+   *     # 2
+   * 
+   * You would simply divide the ticks by this `workHours` value to convert from ticks (in hours) to fractional days.
+   * 
+   * 
+   * @constructor
+   * @param {Object} config
+   * @cfg {String} tz The timezone for analysis
+   * @cfg {String} [validFromField = &quot;_ValidFrom&quot;]
+   * @cfg {String} [validToField = &quot;_ValidTo&quot;]
+   * @cfg {String} [uniqueIDField = &quot;_EntityID&quot;]
+   * @cfg {String} granularity This calculator will tell you how many ticks fall within the snapshots you feed in.
+   *   This configuration value indicates the granularity of the ticks (i.e. Time.MINUTE, Time.HOUR, Time.DAY, etc.)
+   * @cfg {String[]/String} [workDays = [&#39;Monday&#39;, &#39;Tuesday&#39;, &#39;Wednesday&#39;, &#39;Thursday&#39;, &#39;Friday&#39;]] List of days of the week that you work on. You can specify this as an Array of Strings
+   *   ([&#39;Monday&#39;, &#39;Tuesday&#39;, ...]) or a single comma seperated String (&quot;Monday,Tuesday,...&quot;).
+   * @cfg {Object[]} [holidays] An optional Array containing rows that are either ISOStrings or JavaScript Objects
+   *   (mix and match). Example: `[{month: 12, day: 25}, {year: 2011, month: 11, day: 24}, &quot;2012-12-24&quot;]`
+   *    Notice how you can leave off the year if the holiday falls on the same day every year.
+   * @cfg {Object} [workDayStartOn] An optional object in the form {hour: 8, minute: 15}. If minute is zero it can be omitted.
+   *   If workDayStartOn is later than workDayEndBefore, then it assumes that you work the night shift and your work
+   *   hours span midnight. If tickGranularity is &quot;hour&quot; or finer, you probably want to set this; if tickGranularity is
+   *   &quot;day&quot; or coarser, probably not.
+   * @cfg {Object} [workDayEndBefore] An optional object in the form {hour: 17, minute: 0}. If minute is zero it can be omitted.
+   *   The use of workDayStartOn and workDayEndBefore only make sense when the granularity is &quot;hour&quot; or finer.
+   *   Note: If the business closes at 5:00pm, you&#39;ll want to leave workDayEndBefore to 17:00, rather
+   *   than 17:01. Think about it, you&#39;ll be open 4:59:59.999pm, but you&#39;ll be closed at 5:00pm. This also makes all of
+   *   the math work. 9am to 5pm means 17 - 9 = an 8 hour work day.
+   * @cfg {String[]} [trackLastValueForTheseFields] If provided, the last value of these fields will appear in the results.
+   *    This is useful if you want to filter the result by where the ended or if you want information to fill in the tooltip
+   *    for a chart.
+   * 
+   */
+/* &lt;CoffeeScript&gt;
+
+
+    @config = utils.clone(config)
+    # Assert that the configuration object is self-consistent and required parameters are present
+    unless @config.validFromField?
+      @config.validFromField = &quot;_ValidFrom&quot;
+    unless @config.validToField?
+      @config.validToField = &quot;_ValidTo&quot;
+    unless @config.uniqueIDField?
+      @config.uniqueIDField = &quot;_EntityID&quot;
+    utils.assert(@config.tz?, &quot;Must provide a timezone to this calculator.&quot;)
+    utils.assert(@config.granularity?, &quot;Must provide a granularity to this calculator.&quot;)
+    dimensions = [
+      {field: @config.uniqueIDField}
+    ]
+    metrics = [
+      {field: &#39;ticks&#39;, as: &#39;ticks&#39;, f:&#39;sum&#39;}
+    ]
+    if @config.trackLastValueForTheseFields?
+      for fieldName in @config.trackLastValueForTheseFields
+        metricObject = {f: &#39;lastValue&#39;, field: fieldName}
+        metrics.push(metricObject)
+    cubeConfig = {dimensions, metrics}
+    @cube = new OLAPCube(cubeConfig)
+    @upToDateISOString = null
+
+  addSnapshots: (snapshots, startOn, endBefore) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-TimeInStateCalculator-method-addSnapshots'>    /**
+</span>     * @method addSnapshots
+     * @member Lumenize.TimeInStateCalculator
+     *   Allows you to incrementally add snapshots to this calculator.
+     * @chainable
+     * @param {Object[]} snapshots An array of temporal data model snapshots.
+     * @param {String} startOn A ISOString (e.g. &#39;2012-01-01T12:34:56.789Z&#39;) indicating the time start of the period of
+     *   interest. On the second through nth call, this should equal the previous endBefore.
+     * @param {String} endBefore A ISOString (e.g. &#39;2012-01-01T12:34:56.789Z&#39;) indicating the moment just past the time
+     *   period of interest.
+     * @return {TimeInStateCalculator}
+     */
+/* &lt;CoffeeScript&gt;
+    if @upToDateISOString?
+      utils.assert(@upToDateISOString == startOn, &quot;startOn (#{startOn}) parameter should equal endBefore of previous call (#{@upToDateISOString}) to addSnapshots.&quot;)
+    @upToDateISOString = endBefore
+    timelineConfig = utils.clone(@config)
+    timelineConfig.startOn = new Time(startOn, Time.MILLISECOND, @config.tz)
+    timelineConfig.endBefore = new Time(endBefore, Time.MILLISECOND, @config.tz)
+    timeline = new Timeline(timelineConfig)
+
+    for s in snapshots
+      ticks = timeline.ticksThatIntersect(s[@config.validFromField], s[@config.validToField], @config.tz)
+      s.ticks = ticks.length
+
+    @cube.addFacts(snapshots)
+    return this
+
+  getResults: () -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-TimeInStateCalculator-method-getResults'>    /**
+</span>     * @method getResults
+     * @member Lumenize.TimeInStateCalculator
+     *   Returns the current state of the calculator
+     * @return {Object[]} Returns an Array of Maps like `{&lt;uniqueIDField&gt;: &lt;id&gt;, ticks: &lt;ticks&gt;, lastValidTo: &lt;lastValidTo&gt;}`
+     */
+/* &lt;CoffeeScript&gt;
+    out = []
+    uniqueIDs = @cube.getDimensionValues(@config.uniqueIDField)
+    for id in uniqueIDs
+      filter = {}
+      filter[@config.uniqueIDField] = id
+      cell = @cube.getCell(filter)
+      outRow = {}
+      outRow[@config.uniqueIDField] = id
+      outRow.ticks = cell.ticks
+      if @config.trackLastValueForTheseFields?
+        for fieldName in @config.trackLastValueForTheseFields
+          outRow[fieldName + &#39;_lastValue&#39;] = cell[fieldName + &#39;_lastValue&#39;]
+      out.push(outRow)
+    return out
+
+  getStateForSaving: (meta) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-TimeInStateCalculator-method-getStateForSaving'>    /**
+</span>     * @method getStateForSaving
+     * @member Lumenize.TimeInStateCalculator
+     *   Enables saving the state of this calculator. See class documentation for a detailed example.
+     * @param {Object} [meta] An optional parameter that will be added to the serialized output and added to the meta field
+     *   within the deserialized calculator.
+     * @return {Object} Returns an Ojbect representing the state of the calculator. This Object is suitable for saving to
+     *   to an object store. Use the static method `newFromSavedState()` with this Object as the parameter to reconstitute
+     *   the calculator.
+     */
+/* &lt;CoffeeScript&gt;
+    out =
+      config: @config
+      cubeSavedState: @cube.getStateForSaving()
+      upToDateISOString: @upToDateISOString
+    if meta?
+      out.meta = meta
+    return out
+
+  @newFromSavedState: (p) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-TimeInStateCalculator-static-method-newFromSavedState'>    /**
+</span>     * @method newFromSavedState
+     * @member Lumenize.TimeInStateCalculator
+     *   Deserializes a previously saved calculator and returns a new calculator. See class documentation for a detailed example.
+     * @static
+     * @param {String/Object} p A String or Object from a previously saved state
+     * @return {TimeInStateCalculator}
+     */
+/* &lt;CoffeeScript&gt;
+    if utils.type(p) is &#39;string&#39;
+      p = JSON.parse(p)
+    calculator = new TimeInStateCalculator(p.config)
+    calculator.cube = OLAPCube.newFromSavedState(p.cubeSavedState)
+    calculator.upToDateISOString = p.upToDateISOString
+    if p.meta?
+      calculator.meta = p.meta
+
+    return calculator
+
+exports.TimeInStateCalculator = TimeInStateCalculator
+
+&lt;/CoffeeScript&gt; */</pre>
+</body>
+</html>
