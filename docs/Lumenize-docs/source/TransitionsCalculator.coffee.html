@@ -136,7 +136,7 @@ class TransitionsCalculator # implements iCalculator
    * @cfg {String} tz The timezone for analysis in the form like `America/New_York`
    * @cfg {String} [validFromField = &quot;_ValidFrom&quot;]
    * @cfg {String} [validToField = &quot;_ValidTo&quot;]
-   * @cfg {String} [uniqueIDField = &quot;ObjectID&quot;] Not used right now but when drill-down is added it will be
+   * @cfg {String} [uniqueIDField = &quot;_EntityID&quot;] Not used right now but when drill-down is added it will be
    * @cfg {String} granularity &#39;month&#39;, &#39;week&#39;, &#39;quarter&#39;, etc. Use Time.MONTH, Time.WEEK, etc.
    * @cfg {String[]} [fieldsToSum=[]] It will track the count automatically but it can keep a running sum of other fields also
    * @cfg {Boolean} [asterixToDateTimePeriod=false] If set to true, then the still-in-progress last time period will be asterixed
@@ -151,7 +151,7 @@ class TransitionsCalculator # implements iCalculator
     unless @config.validToField?
       @config.validToField = &quot;_ValidTo&quot;
     unless @config.uniqueIDField?
-      @config.uniqueIDField = &quot;ObjectID&quot;
+      @config.uniqueIDField = &quot;_EntityID&quot;
     unless @config.fieldsToSum?
       @config.fieldsToSum = []
     unless @config.asterixToDateTimePeriod?

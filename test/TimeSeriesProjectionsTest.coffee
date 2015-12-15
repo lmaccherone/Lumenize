@@ -67,6 +67,7 @@ exports.TimeSeriesProjection =
     }
 
     config =
+      uniqueIDField: "ObjectID"
       metrics: metrics
       projectionsConfig: projectionsConfig
       granularity: granularity
@@ -329,6 +330,7 @@ exports.TimeSeriesProjection =
     }
 
     config =
+      uniqueIDField: "ObjectID"
       metrics: metrics
       projectionsConfig: projectionsConfig
       granularity: granularity

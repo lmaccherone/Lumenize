@@ -21,7 +21,7 @@
 
 {utils} = require(&#39;tztime&#39;)
 functions = require(&#39;./functions&#39;).functions
-{arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps} = require(&#39;./dataTransform&#39;)
+{arrayOfMaps_To_CSVStyleArray, csvStyleArray_To_ArrayOfMaps} = require(&#39;../&#39;)
 
 class OLAPCube
 &lt;/CoffeeScript&gt; */
@@ -606,44 +606,10 @@ class OLAPCube
      */
 /* &lt;CoffeeScript&gt;
     values = utils.values(@_dimensionValues[field])
-    values.sort(OLAPCube._compare)
+    values.sort(utils.compare)
     unless descending
       values.reverse()
     return values
-
-  @_compare: (a, b) -&gt;
-    # !TODO: Use utils.compare. I copied the below into utils but haven&#39;t changed below to use it yet. Waiting on a new release of tzTime.
-    if a is null
-      return 1
-    if b is null
-      return -1
-    switch utils.type(a)
-      when &#39;number&#39;, &#39;boolean&#39;, &#39;date&#39;
-        return b - a
-      when &#39;array&#39;
-        for value, index in a
-          if b.length - 1 &gt;= index and value &lt; b[index]
-            return 1
-          if b.length - 1 &gt;= index and value &gt; b[index]
-            return -1
-        if a.length &lt; b.length
-          return 1
-        else if a.length &gt; b.length
-          return -1
-        else
-          return 0
-      when &#39;object&#39;, &#39;string&#39;
-        aString = JSON.stringify(a)
-        bString = JSON.stringify(b)
-        if aString &lt; bString
-          return 1
-        else if aString &gt; bString
-          return -1
-        else
-          return 0
-      else
-        throw new Error(&quot;Do not know how to sort objects of type #{utils.type(a)}.&quot;)
-
 
   @roundToSignificance: (value, significance) -&gt;
     unless significance?
@@ -926,6 +892,7 @@ class OLAPCube
     return cube
 
 exports.OLAPCube = OLAPCube
+
 &lt;/CoffeeScript&gt; */</pre>
 </body>
 </html>

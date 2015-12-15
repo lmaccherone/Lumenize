@@ -138,7 +138,7 @@ class TimeInStateCalculator # implements iCalculator
     @cfg {String} tz The timezone for analysis
     @cfg {String} [validFromField = "_ValidFrom"]
     @cfg {String} [validToField = "_ValidTo"]
-    @cfg {String} [uniqueIDField = "ObjectID"]
+    @cfg {String} [uniqueIDField = "_EntityID"]
     @cfg {String} granularity This calculator will tell you how many ticks fall within the snapshots you feed in.
       This configuration value indicates the granularity of the ticks (i.e. Time.MINUTE, Time.HOUR, Time.DAY, etc.)
     @cfg {String[]/String} [workDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']] List of days of the week that you work on. You can specify this as an Array of Strings
@@ -167,7 +167,7 @@ class TimeInStateCalculator # implements iCalculator
     unless @config.validToField?
       @config.validToField = "_ValidTo"
     unless @config.uniqueIDField?
-      @config.uniqueIDField = "ObjectID"
+      @config.uniqueIDField = "_EntityID"
     utils.assert(@config.tz?, "Must provide a timezone to this calculator.")
     utils.assert(@config.granularity?, "Must provide a granularity to this calculator.")
     dimensions = [

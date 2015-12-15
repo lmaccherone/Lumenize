@@ -108,7 +108,7 @@ class Store
     @param {Object} config See Config options for details.
     @param {Object[]} [snapshots] Optional parameter allowing the population of the Store at instantiation.
 
-    @cfg {String} [uniqueIDField = "ObjectID"] Specifies the field that identifies unique entities.
+    @cfg {String} [uniqueIDField = "_EntityID"] Specifies the field that identifies unique entities.
     @cfg {String} [validFromField = "_ValidFrom"]
     @cfg {String} [validToField = "_ValidTo"]
     @cfg {String} [idField = "_id"]
@@ -120,7 +120,7 @@ class Store
     ###
     @config = utils.clone(@userConfig)
     unless @config.uniqueIDField?
-      @config.uniqueIDField = 'ObjectID'
+      @config.uniqueIDField = '_EntityID'
     unless @config.validFromField?
       @config.validFromField = '_ValidFrom'
     unless @config.validToField?

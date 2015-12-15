@@ -101,6 +101,7 @@ exports.TimeSeriesCalculatorTest =
     ]
 
     config =  # default workDays
+      uniqueIDField: "ObjectID"
       deriveFieldsOnInput: deriveFieldsOnInput
       metrics: metrics
       summaryMetricsConfig: summaryMetricsConfig
@@ -279,6 +280,7 @@ exports.TimeSeriesCalculatorTest =
     ]
 
     config =  # default workDays
+      uniqueIDField: "ObjectID"
       metrics: metrics
       granularity: Time.DAY
       tz: 'America/Chicago'
@@ -324,6 +326,7 @@ exports.TimeSeriesCalculatorTest =
     ]
 
     config =  # default workDays
+      uniqueIDField: "ObjectID"
       metrics: metrics
       granularity: Time.DAY
       tz: 'America/Chicago'
@@ -519,6 +522,7 @@ exports.TimeSeriesCalculatorTest =
     snapshots = csvStyleArray_To_ArrayOfMaps(csvStyleArray)
 
     config =
+      uniqueIDField: "ObjectID"
       granularity: Time.MONTH
       tz: "America/New_York"
       metrics: [

@@ -36,7 +36,7 @@
 /* &lt;CoffeeScript&gt;
 functions = {}
 
-_populateDependentValues = (values, dependencies, dependentValues = {}, prefix = &#39;&#39;) -&gt;
+functions._populateDependentValues = (values, dependencies, dependentValues = {}, prefix = &#39;&#39;) -&gt;
   out = {}
   for d in dependencies
     if d == &#39;count&#39;
@@ -292,7 +292,7 @@ functions.uniqueValues = (values, oldResult, newValues) -&gt;
  */
 /* &lt;CoffeeScript&gt;
 functions.average = (values, oldResult, newValues, dependentValues, prefix) -&gt;
-  {count, sum} = _populateDependentValues(values, functions.average.dependencies, dependentValues, prefix)
+  {count, sum} = functions._populateDependentValues(values, functions.average.dependencies, dependentValues, prefix)
   if count is 0
     return null
   else
@@ -314,7 +314,7 @@ functions.average.dependencies = [&#39;count&#39;, &#39;sum&#39;]
  */
 /* &lt;CoffeeScript&gt;
 functions.errorSquared = (values, oldResult, newValues, dependentValues, prefix) -&gt;
-  {count, sum} = _populateDependentValues(values, functions.errorSquared.dependencies, dependentValues, prefix)
+  {count, sum} = functions._populateDependentValues(values, functions.errorSquared.dependencies, dependentValues, prefix)
   mean = sum / count
   errorSquared = 0
   for v in values
@@ -338,7 +338,7 @@ functions.errorSquared.dependencies = [&#39;count&#39;, &#39;sum&#39;]
  */
 /* &lt;CoffeeScript&gt;
 functions.variance = (values, oldResult, newValues, dependentValues, prefix) -&gt;
-  {count, sum, sumSquares} = _populateDependentValues(values, functions.variance.dependencies, dependentValues, prefix)
+  {count, sum, sumSquares} = functions._populateDependentValues(values, functions.variance.dependencies, dependentValues, prefix)
   if count is 0
     return null
   else if count is 1
@@ -395,7 +395,7 @@ functions.standardDeviation.dependencies = functions.variance.dependencies
 functions.percentileCreator = (p) -&gt;
   f = (values, oldResult, newValues, dependentValues, prefix) -&gt;
     unless values?
-      {values} = _populateDependentValues(values, [&#39;values&#39;], dependentValues, prefix)
+      {values} = functions._populateDependentValues(values, [&#39;values&#39;], dependentValues, prefix)
     if values.length is 0
       return null
     sortfunc = (a, b) -&gt;

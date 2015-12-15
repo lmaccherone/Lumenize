@@ -159,6 +159,7 @@ class TimeSeriesCalculator # implements iCalculator
    * Let&#39;s build the config Object from the above specifications and instantiate the calculator.
    * 
    *     config =
+   *       uniqueIDField: &quot;ObjectID&quot;
    *       deriveFieldsOnInput: deriveFieldsOnInput
    *       metrics: metrics
    *       summaryMetricsConfig: summaryMetricsConfig
@@ -218,6 +219,7 @@ class TimeSeriesCalculator # implements iCalculator
    *     ]
    * 
    *     config =  # default workDays
+   *       uniqueIDField: &quot;ObjectID&quot;
    *       metrics: metrics
    *       granularity: Time.DAY
    *       tz: &#39;America/Chicago&#39;
@@ -283,7 +285,7 @@ class TimeSeriesCalculator # implements iCalculator
    * @cfg {String} tz The timezone for analysis
    * @cfg {String} [validFromField = &quot;_ValidFrom&quot;]
    * @cfg {String} [validToField = &quot;_ValidTo&quot;]
-   * @cfg {String} [uniqueIDField = &quot;ObjectID&quot;]
+   * @cfg {String} [uniqueIDField = &quot;_EntityID&quot;]
    * @cfg {String} granularity &#39;month&#39;, &#39;week&#39;, &#39;quarter&#39;, &#39;day&#39;, etc. Use Time.MONTH, Time.WEEK, etc.
    * @cfg {String[]/String} [workDays = [&#39;Monday&#39;, &#39;Tuesday&#39;, &#39;Wednesday&#39;, &#39;Thursday&#39;, &#39;Friday&#39;]] List of days of the week that you work on. You can specify this as an Array of Strings
    *    ([&#39;Monday&#39;, &#39;Tuesday&#39;, ...]) or a single comma seperated String (&quot;Monday,Tuesday,...&quot;).
@@ -449,7 +451,7 @@ class TimeSeriesCalculator # implements iCalculator
     unless @config.validToField?
       @config.validToField = &quot;_ValidTo&quot;
     unless @config.uniqueIDField?
-      @config.uniqueIDField = &quot;ObjectID&quot;
+      @config.uniqueIDField = &quot;_EntityID&quot;
     utils.assert(@config.tz?, &quot;Must provide a timezone to this calculator.&quot;)
     utils.assert(@config.granularity?, &quot;Must provide a granularity to this calculator.&quot;)
 
