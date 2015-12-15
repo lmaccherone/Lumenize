@@ -11,8 +11,5 @@ test/*.js.map
 lumenize.js
 lumenize.map
 lumenize.js.map
-.js
-.map
-.js.map
 play
 coverage
