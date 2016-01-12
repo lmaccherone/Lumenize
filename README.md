@@ -1,4 +1,4 @@
-# [Documentation](https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.3/docs/Lumenize-docs/index.html)
+# [Documentation](https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.3/docs/lumenize-docs/index.html)
 
 [![build status](https://secure.travis-ci.org/lmaccherone/Lumenize.svg)](http://travis-ci.org/lmaccherone/Lumenize)
 [![NPM version](https://badge.fury.io/js/lumenize.svg)](http://badge.fury.io/js/Lumenize)
