@@ -33,7 +33,6 @@
   },
   "preferGlobal": false,
   "dependencies": {
-    "lodash": "^3.10.1",
     "tztime": "^0.9.4"
   },
   "devDependencies": {
@@ -48,6 +47,7 @@
     "find-remove": "^0.2.5",
     "istanbul": "^0.3.17",
     "jsduckify": "^0.3.0",
+    "lodash": "^4.5.1",
     "marked": "0.2.x",
     "nodeunit": "^0.9.1",
     "orchestrator": "^0.3.7",
