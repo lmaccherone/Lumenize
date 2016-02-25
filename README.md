@@ -1,7 +1,6 @@
 # [Documentation](https://cdn.rawgit.com/lmaccherone/Lumenize/v1.0.3/docs/lumenize-docs/index.html)
 
 [![build status](https://secure.travis-ci.org/lmaccherone/Lumenize.svg)](http://travis-ci.org/lmaccherone/Lumenize)
-[![build status](https://david-dm.org/lmaccherone/Lumenize.svg)](https://david-dm.org/lmaccherone/Lumenize)
 [![bitHound](https://www.bithound.io/github/lmaccherone/Lumenize/badges/score.svg)](https://www.bithound.io/github/lmaccherone/Lumenize/master)
 [![Coverage Status](https://coveralls.io/repos/lmaccherone/Lumenize/badge.svg?branch=master&service=github)](https://coveralls.io/github/lmaccherone/Lumenize?branch=master)
 
