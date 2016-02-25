@@ -54,7 +54,7 @@ justHereForDocsAndDoctest = () ->
 
   ## Piecemeal usage ##
 
-  Sometimes you don't actually want a histogram. You want a way to create constantWidth or constantDepth or v-optimal buckets
+  Sometimes you don't actually want a histogram. You want a way to create constantWidth, constantDepth, log, or v-optimal buckets
   and you want a tool to know which bucket a particular value falls into. The cannonical example of this is for calculating
   percentiles for standardized testing... or for grading on a curve. The documentation for the `percentileBuckets()`
   function walks you through an example like this.
@@ -100,6 +100,40 @@ setParameters = (rows, valueField, firstStartOn, lastEndBelow, bucketCount, sign
     lastEndBelow = null
 
   return {values, bucketCount, firstStartOn, lowerBase, lastEndBelow, upperBase}
+
+histogram.bucketsLog = (rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount) ->
+  if significance?
+    throw new Error("Significance not supported for bucketsLog.")
+
+  {values, bucketCount, firstStartOn, lowerBase, lastEndBelow, upperBase} = setParameters(rows, valueField, firstStartOn, lastEndBelow, bucketCount, significance)
+
+  if lowerBase < 0
+    throw new Error("bucketsLog do not support values below zero. Strip those out if you want to use this.")
+
+  if lowerBase is 0
+    firstStartOn = 0
+  else
+    firstStartOnExponent = Math.floor(Math.log10(lowerBase))
+    firstStartOn = Math.pow(10, firstStartOnExponent)
+  lastEndBelowExponent = Math.floor(Math.log10(upperBase)) + 1
+  lastEndBelow = Math.pow(10, lastEndBelowExponent)
+
+  index = 0
+  startOn = firstStartOn
+  if startOn is 0
+    endBelow = 1
+  else
+    endBelow = Math.pow(10, firstStartOnExponent + 1)
+
+  buckets = []  # each row is {index, startOn, endBelow} meaning bucket  startOn <= x < endBelow
+
+  while endBelow <= lastEndBelow
+    buckets.push({index, startOn, endBelow})
+    startOn = endBelow
+    endBelow = endBelow * 10
+    index++
+
+  return buckets
 
 histogram.bucketsConstantWidth = (rows, valueField, significance, firstStartOn, lastEndBelow, bucketCount) ->
 
@@ -275,8 +309,8 @@ histogram.buckets = (rows, valueField, type = histogram.bucketsConstantWidth, si
   assumed to be an Array of Numbers representing the values to bucket. Otherwise, it is assumed to be an Array of Objects
   with a bunch of fields.
   @param {String} [valueField] Specifies the field containing the values to calculate the histogram on
-  @param {function} [type = histogram.constantWidth] Specifies how to pick the edges of the buckets. Three standard schemes
-    are provided: histogram.bucketsConstantWidth, histogram.bucketsConstantDepth, and histogram.bucketsVOptimal.
+  @param {function} [type = histogram.constantWidth] Specifies how to pick the edges of the buckets. Four schemes
+    are provided: histogram.bucketsConstantWidth, histogram.bucketsConstantDepth, histogram.bucketsLog, and histogram.bucketsVOptimal.
     You could inject your own but this function simply calls that so you may as well just create the buckets yourself.
   @param {Number} [significance] The multiple to which you want to round the bucket edges. 1 means whole numbers.
    0.1 means to round to tenths. 0.01 to hundreds. Etc. If you provide all of these last four parameters, ensure
@@ -437,8 +471,8 @@ histogram.histogram = (rows, valueField, type = histogram.constantWidth, signifi
    assumed to be an Array of Numbers representing the values to bucket. Otherwise, it is assumed to be an Array of Objects
    with a bunch of fields.
   @param {String} [valueField] Specifies the field containing the values to calculate the histogram on
-  @param {function} [type = histogram.constantWidth] Specifies how to pick the edges of the buckets. Three standard schemes
-    are provided: histogram.bucketsConstantWidth, histogram.bucketsConstantDepth, and histogram.bucketsVOptimal.
+  @param {function} [type = histogram.constantWidth] Specifies how to pick the edges of the buckets. Four schemes
+    are provided: histogram.bucketsConstantWidth, histogram.bucketsConstantDepth, histogram.bucketsLog, and histogram.bucketsVOptimal.
     However, you can inject your own.
   @param {Number} [significance] The multiple to which you want to round the bucket edges. 1 means whole numbers.
    0.1 means to round to tenths. 0.01 to hundreds. Etc. If you provide all of these last four parameters, ensure

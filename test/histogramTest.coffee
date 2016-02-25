@@ -94,6 +94,37 @@ exports.histogramTest =
 
     test.done()
 
+  testLog: (test) ->
+    values = [0.05, 0.5, 5, 50, 500, 5000]
+
+    h = histogram.histogram(values, null, histogram.bucketsLog)
+
+    counts = (row.count for row in h)
+    test.deepEqual([1, 1, 1, 1, 1, 1], counts)
+
+    test.done()
+
+  testLogZero: (test) ->
+    values = [0, 5, 50, 500, 5000]
+
+    h = histogram.histogram(values, null, histogram.bucketsLog)
+
+    counts = (row.count for row in h)
+    test.deepEqual([1, 1, 1, 1, 1], counts)
+
+    test.done()
+
+  testLogHigher: (test) ->
+    values = [500, 5000, 50000]
+
+    h = histogram.histogram(values, null, histogram.bucketsLog)
+    console.log(h)
+
+    counts = (row.count for row in h)
+    test.deepEqual([1, 1, 1], counts)
+
+    test.done()
+
   testPercentile: (test) ->
     values = []
     for i in [1..50]
