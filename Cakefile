@@ -8,7 +8,7 @@ findRemoveSync = require('find-remove')
 marked = require('marked')
 uglify = require("uglify-js")
 browserify = require('browserify')
-fileify = require('fileify-lm')
+#fileify = require('fileify-lm')
 _ = require('lodash')
 
 runSync = (command, options, next) ->  # !TODO: Upgrade to runSync in node-localstorage
@@ -110,36 +110,67 @@ task('publish', 'Publish to npm and add git tags', () ->
   )
 )
 
-
 task('build', 'Build with browserify and place in ./deploy', () ->
+  console.log('building...')
   invoke('update-bower-version')
 
   console.log('Compiling...')
   runSyncNoExit('coffee', ['--compile', 'lumenize.coffee', 'src'])
 
-  console.log('Browserifying...')
   b = browserify()
-  b.use(fileify('files', __dirname + '/node_modules/tztime/files'))
-  b.ignore(['files'])
-  b.require("./lumenize")
-  {name, version} = require('./package.json')
-  fileString = """
+  b.require('./lumenize', {expose: 'lumenize'})
+  b.transform('brfs')
+  b.bundle((err, buf) ->
+    fileString = buf.toString('utf8')
+
+    {name, version} = require('./package.json')
+    fileString = """
     /*
     #{name} version: #{version}
     */
-    #{b.bundle()}
-  """
-  deployFileName = "deploy/#{name}.js"
-  unless fs.existsSync('deploy')
-    fs.mkdirSync('deploy')
-  fs.writeFileSync(deployFileName, fileString)
+    #{fileString}
+    """
+    deployFileName = "deploy/#{name}.js"
+    unless fs.existsSync('deploy')
+      fs.mkdirSync('deploy')
+    fs.writeFileSync(deployFileName, fileString)
 
-  minFileString = uglify.minify(deployFileName).code
-  fs.writeFileSync("deploy/#{name}-min.js", minFileString)
-
-  console.log('done')
-  # !TODO: Need to run tests on the browserified version
+    minFileString = uglify.minify(deployFileName).code
+    fs.writeFileSync("deploy/#{name}-min.js", minFileString)
+    console.log('done')
+# !TODO: Need to run tests on the built version
+  )
 )
+
+#task('build', 'Build with browserify and place in ./deploy', () ->
+#  invoke('update-bower-version')
+#
+#  console.log('Compiling...')
+#  runSyncNoExit('coffee', ['--compile', 'lumenize.coffee', 'src'])
+#
+#  console.log('Browserifying...')
+#  b = browserify()
+#  b.use(fileify('files', __dirname + '/node_modules/tztime/files'))
+#  b.ignore(['files'])
+#  b.require("./lumenize")
+#  {name, version} = require('./package.json')
+#  fileString = """
+#    /*
+#    #{name} version: #{version}
+#    */
+#    #{b.bundle()}
+#  """
+#  deployFileName = "deploy/#{name}.js"
+#  unless fs.existsSync('deploy')
+#    fs.mkdirSync('deploy')
+#  fs.writeFileSync(deployFileName, fileString)
+#
+#  minFileString = uglify.minify(deployFileName).code
+#  fs.writeFileSync("deploy/#{name}-min.js", minFileString)
+#
+#  console.log('done')
+#  # !TODO: Need to run tests on the browserified version
+#)
 
 task('update-bower-version', 'Update bower.json with the version number specified in package.json', () ->
   bowerJSON = require('./bower.json')
