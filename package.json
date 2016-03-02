@@ -1,6 +1,6 @@
 {
   "name": "lumenize",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "./lumenize",
   "description": "Illuminating the forest AND the trees in your data.",
   "keywords": [
@@ -25,7 +25,7 @@
   },
   "homepage": "https://github.com/lmaccherone/Lumenize",
   "engines": {
-    "node": "~0.12.2"
+    "node": "^0.12.2"
   },
   "repository": {
     "type": "git",
@@ -33,7 +33,7 @@
   },
   "preferGlobal": false,
   "dependencies": {
-    "tztime": "^0.9.4"
+    "tztime": "^1.0.1"
   },
   "devDependencies": {
     "async": "~0.2.9",

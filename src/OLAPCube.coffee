@@ -170,7 +170,7 @@ class OLAPCube
   [materialized path](http://en.wikipedia.org/wiki/Materialized_path) array. This approach is commonly used with NoSQL databases like
   [CouchDB](http://probablyprogramming.com/2008/07/04/storing-hierarchical-data-in-couchdb) and
   [MongoDB (combining materialized path and array of ancestors)](http://docs.mongodb.org/manual/tutorial/model-tree-structures/)
-  and even SQL databases supporting array types like [Postgres](http://justcramer.com/2012/04/08/using-arrays-as-materialized-paths-in-postgres/).
+  and even SQL databases supporting array types like [Postgres](http://www.monkeyandcrow.com/blog/hierarchies_with_postgres/).
 
   This approach differs from the traditional OLAP/MDX fixed/named level hierarchy approach. In that approach, you assume
   that the number of levels in the hierarchy are fixed. Also, each level in the hierarchy is either represented by a different

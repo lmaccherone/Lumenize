@@ -71,6 +71,7 @@ Then in your code:
 
 ## Changelog ##
 
+* 1.0.4 - 2016-03-01 - Upgraded to tzTime latest to support webpack 
 * 1.0.3 - 2015-12-14 - Still trying to fix caching 
 * 1.0.2 - 2015-12-14 - Fixing CDN caching of old docs 
 * 1.0.1 - 2015-12-14 - Switched from googleapis CDN to rawgit because publishing to googleapis has been troublesome 
