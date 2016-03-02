@@ -142,36 +142,6 @@ task('build', 'Build with browserify and place in ./deploy', () ->
   )
 )
 
-#task('build', 'Build with browserify and place in ./deploy', () ->
-#  invoke('update-bower-version')
-#
-#  console.log('Compiling...')
-#  runSyncNoExit('coffee', ['--compile', 'lumenize.coffee', 'src'])
-#
-#  console.log('Browserifying...')
-#  b = browserify()
-#  b.use(fileify('files', __dirname + '/node_modules/tztime/files'))
-#  b.ignore(['files'])
-#  b.require("./lumenize")
-#  {name, version} = require('./package.json')
-#  fileString = """
-#    /*
-#    #{name} version: #{version}
-#    */
-#    #{b.bundle()}
-#  """
-#  deployFileName = "deploy/#{name}.js"
-#  unless fs.existsSync('deploy')
-#    fs.mkdirSync('deploy')
-#  fs.writeFileSync(deployFileName, fileString)
-#
-#  minFileString = uglify.minify(deployFileName).code
-#  fs.writeFileSync("deploy/#{name}-min.js", minFileString)
-#
-#  console.log('done')
-#  # !TODO: Need to run tests on the browserified version
-#)
-
 task('update-bower-version', 'Update bower.json with the version number specified in package.json', () ->
   bowerJSON = require('./bower.json')
   bowerJSON.version = require('./package.json').version
