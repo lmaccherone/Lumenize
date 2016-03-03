@@ -71,6 +71,7 @@ Then in your code:
 
 ## Changelog ##
 
+* 1.0.5 - 2016-03-02 - OLAPCube.slice() now implements default metric parameter 
 * 1.0.4 - 2016-03-01 - Upgraded to tzTime latest to support webpack 
 * 1.0.3 - 2015-12-14 - Still trying to fix caching 
 * 1.0.2 - 2015-12-14 - Fixing CDN caching of old docs 

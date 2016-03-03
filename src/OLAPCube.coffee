@@ -717,6 +717,8 @@ class OLAPCube
       rows = @config.dimensions[0].field
     unless columns?
       columns = @config.dimensions[1].field
+    unless metric?
+      metric = '_count'
     rowValues = @getDimensionValues(rows)
     columnValues = @getDimensionValues(columns)
     values = []

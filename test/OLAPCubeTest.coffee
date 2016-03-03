@@ -557,6 +557,15 @@ exports.olapTest =
     ]
     test.deepEqual(expected, actual)
 
+    actual = cube.slice()
+    expected = [
+      [ 'x', 'Total', 1, 2 ],
+      [ 'Total', 4, 3, 1 ],
+      [ 'A', 2, 1, 1 ],
+      [ 'B', 2, 2, null ]
+    ]
+    test.deepEqual(expected, actual)
+
     test.done()
 
   missingDimensionValueTest: (test) ->
