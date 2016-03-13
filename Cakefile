@@ -101,7 +101,7 @@ task('publish', 'Publish to npm and add git tags', () ->
           runSyncNoExit("git", ["push", "--tags"])
 
           console.log('removing .js and .map files')
-          invoke('clean')
+          runSync('cake', ['clean'])
 
       else
         console.error('Origin and master out of sync. Not publishing.')

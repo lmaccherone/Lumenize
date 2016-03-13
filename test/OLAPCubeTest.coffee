@@ -550,7 +550,7 @@ exports.olapTest =
 
     actual = cube.slice('Category', 'Priority', 'Sum', 0.1)
     expected = [
-      [ 'x', 'Total', 1, 2 ],
+      [ 'Category', 'Total', 1, 2 ],
       [ 'Total', 35.4, 30.4, 5 ],
       [ 'A', 15.4, 10.4, 5 ],
       [ 'B', 20, 20, null ]
@@ -559,7 +559,7 @@ exports.olapTest =
 
     actual = cube.slice()
     expected = [
-      [ 'x', 'Total', 1, 2 ],
+      [ 'Category', 'Total', 1, 2 ],
       [ 'Total', 4, 3, 1 ],
       [ 'A', 2, 1, 1 ],
       [ 'B', 2, 2, null ]

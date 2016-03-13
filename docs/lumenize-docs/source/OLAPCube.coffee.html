@@ -760,7 +760,7 @@ class OLAPCube
     columnValues = @getDimensionValues(columns)
     values = []
     topRow = []
-    topRow.push(&#39;x&#39;)
+    topRow.push(rows)
     for c, indexColumn in columnValues
       if c is null
         topRow.push(&#39;Total&#39;)
