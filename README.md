@@ -71,6 +71,7 @@ Then in your code:
 
 ## Changelog ##
 
+* 1.1.2 - 2016-03-28 - keepFacts fix wasn't quite right 
 * 1.1.1 - 2016-03-28 - Fixed bug with config.keepFacts only kept the first one. Note, this fix won't work with totals and 
   I have some question whether or not it will with hierarchical dimensions... but it didn't work at all before this fix
 * 1.1.0 - 2016-03-12 - **Slightly backward breaking** OLAPCube.slice() now returns the column label rather than 'x'
