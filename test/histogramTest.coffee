@@ -118,7 +118,6 @@ exports.histogramTest =
     values = [500, 5000, 50000]
 
     h = histogram.histogram(values, null, histogram.bucketsLog)
-    console.log(h)
 
     counts = (row.count for row in h)
     test.deepEqual([1, 1, 1], counts)

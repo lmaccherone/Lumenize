@@ -669,3 +669,30 @@ exports.olapTest =
     cube = new OLAPCube(config, facts)
 
     test.done()
+
+  testKeepFacts: (test) ->
+    facts = [
+      {x: 1, y: 'a', value: 10}
+      {x: 2, y: 'a', value: 20}
+      {x: 1, y: 'b', value: 30}
+      {x: 1, y: 'b', value: 40}
+    ]
+
+    dimensions = [
+      {field: "x"}
+      {field: "y"}
+    ]
+
+    config = {dimensions, keepFacts: true}
+
+    cube = new OLAPCube(config, facts)
+
+    expected = '''
+      |      ||                                                       "a"                                                       "b"|
+      |============================================================================================================================|
+      |1     ||                              [{"x":1,"y":"a","value":10}] [{"x":1,"y":"b","value":30},[{"x":1,"y":"b","value":40}]]|
+      |2     ||                              [{"x":2,"y":"a","value":20}]                                                          |
+    '''
+    test.equal(cube.toString(null, null, '_facts'), expected)
+
+    test.done()

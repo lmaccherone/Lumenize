@@ -466,6 +466,8 @@ class OLAPCube
       if olapRow?
         for m in @config.metrics
           olapRow[m.as] = m.f(olapRow[m.field + &#39;_values&#39;], olapRow[m.as], @currentValues[m.field], olapRow, m.field + &#39;_&#39;)
+        if olapRow._facts?
+          olapRow._facts.push(er._facts)
       else
         olapRow = er
         @cellIndex[filterString] = olapRow
