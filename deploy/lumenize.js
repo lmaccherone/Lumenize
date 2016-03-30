@@ -11160,9 +11160,6 @@ https://code.google.com/p/statistics-distributions-js/source/browse/trunk/statis
       }
     }
     bucketCount = Math.ceil(Math.sqrt(minCount));
-    if (bucketCount < 4) {
-      console.error("Bucket count of " + bucketCount + " is too low. Need more data.");
-    }
     significance = 1;
     buckets = histogram.buckets(smallestSetOfData, valueField, type, significance, minValue, maxValue + significance, bucketCount);
     histograms = {};

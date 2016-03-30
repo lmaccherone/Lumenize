@@ -545,8 +545,6 @@ histogram.discriminated = (rows, valueField, discriminatorField, type = histogra
       smallestSetOfData = data
 
   bucketCount = Math.ceil(Math.sqrt(minCount))  # Rounding up instead of rounding down because bucketCount is calculated from the smallestSetOfData
-  if bucketCount < 4
-    console.error("Bucket count of #{bucketCount} is too low. Need more data.")
 
   significance = 1
   buckets = histogram.buckets(smallestSetOfData, valueField, type, significance, minValue, maxValue + significance, bucketCount)
