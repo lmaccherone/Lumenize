@@ -501,18 +501,21 @@ histogram.discriminated = (rows, valueField, discriminatorField, type = histogra
   ###
   @method discriminated
   @static
-  @param {Object[]/Number[]} rows If no valueField is provided or the valueField parameter is null, then the first parameter is
-   assumed to be an Array of Numbers representing the values to bucket. Otherwise, it is assumed to be an Array of Objects
-   with a bunch of fields.
-  @param {String} [valueField] Specifies the field containing the values to calculate the histogram on
-  @param {String} [discriminatorField] Specifies the field containing the discriminator to split the histogram series by
+  @param {Object[]} rows Unlike the other histogram methods, this one requires the rows to be Objects becase we need
+   both a valueField and a discriminatorField.
+  @param {String} valueField Specifies the field containing the values to calculate the histogram on
+  @param {String} discriminatorField Specifies the field containing the discriminator to split the histogram series by
   @param {function} [type = histogram.constantWidth] Specifies how to pick the edges of the buckets. Four schemes
     are provided: histogram.bucketsConstantWidth, histogram.bucketsConstantDepth, histogram.bucketsLog, and histogram.bucketsVOptimal.
     However, you can inject your own.
-  @return {Object[]}
+  @return {Object}
 
   Will split the rows into series based upon unique discriminator values. It uses the smallest set to determine the number
-  of buckets. Then it calculates the histogram for each series using the same buckets.
+  of buckets, but it uses the entire set to determin the min, and max values. Then it calculates the histogram for each
+  series using the same buckets.
+
+  Note the shape of this output is very different from the other histogram methods. It's designed to be easily graphed
+  with HighCharts.
   ###
 
   discriminatedData = {}
@@ -549,10 +552,38 @@ histogram.discriminated = (rows, valueField, discriminatorField, type = histogra
   significance = 1
   buckets = histogram.buckets(smallestSetOfData, valueField, type, significance, minValue, maxValue + significance, bucketCount)
 
-  histograms = {}
+  series = []
+  categories = (bucket.label for bucket in buckets)
   for discriminatorValue, data of discriminatedData
-    histograms[discriminatorValue] = histogram.histogramFromBuckets(data, valueField, buckets)
-  return histograms
+    row = {name: discriminatorValue, data: histogram.histogramFromBuckets(data, valueField, buckets)}
+    series.push(row)
+
+  # Calculate stats for each series
+  lowerQuartileCalculator = functions.percentileCreator(25)
+  upperQuartileCalculator = functions.percentileCreator(75)
+  discriminatorValues = []
+  stats = []
+  boxPlotArrays = []
+  for discriminatorValue, data of discriminatedData
+    values = (row[valueField] for row in data)
+    min = functions.min(values)
+    p25 = lowerQuartileCalculator(values)
+    median = functions.median(values)
+    p75 = upperQuartileCalculator(values)
+    max = functions.max(values)
+    row = {min, p25, median, p75, max}
+    boxPlotArray = [min, p25, median, p75, max]
+    stats.push(row)
+    boxPlotArrays.push(boxPlotArray)
+    discriminatorValues.push(discriminatorValue)
+
+  if discriminatorValues.length is 2  # TODO: Make this work for more than two discriminatorValues
+    rawStrength = Math.abs(stats[0].p75 - stats[1].p25 + stats[1].p75 - stats[0].p25)
+    strength = rawStrength * 50 / (maxValue - minValue)
+  else
+    strength = null
+
+  return {categories, series, discriminatorValues, stats, boxPlotArrays, strength}
 
 histogram.clipping = (rows, valueField, noClipping = false) ->
   ###
