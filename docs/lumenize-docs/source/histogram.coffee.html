@@ -532,6 +532,67 @@ histogram.histogram = (rows, valueField, type = histogram.constantWidth, signifi
   buckets = histogram.buckets(rows, valueField, type, significance, firstStartOn, lastEndBelow, bucketCount)
   return histogram.histogramFromBuckets(rows, valueField, buckets)
 
+histogram.discriminated = (rows, valueField, discriminatorField, type = histogram.constantWidth, significance = 1) -&gt;
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-histogram-static-method-discriminated'>  /**
+</span>   * @method discriminated
+   * @member Lumenize.histogram
+   * @static
+   * @param {Object[]/Number[]} rows If no valueField is provided or the valueField parameter is null, then the first parameter is
+   *  assumed to be an Array of Numbers representing the values to bucket. Otherwise, it is assumed to be an Array of Objects
+   *  with a bunch of fields.
+   * @param {String} [valueField] Specifies the field containing the values to calculate the histogram on
+   * @param {String} [discriminatorField] Specifies the field containing the discriminator to split the histogram series by
+   * @param {function} [type = histogram.constantWidth] Specifies how to pick the edges of the buckets. Four schemes
+   *   are provided: histogram.bucketsConstantWidth, histogram.bucketsConstantDepth, histogram.bucketsLog, and histogram.bucketsVOptimal.
+   *   However, you can inject your own.
+   * @return {Object[]}
+   * 
+   * Will split the rows into series based upon unique discriminator values. It uses the smallest set to determine the number
+   * of buckets. Then it calculates the histogram for each series using the same buckets.
+   */
+/* &lt;CoffeeScript&gt;
+
+  discriminatedData = {}
+  for row in rows
+    value = row[valueField]
+    discriminatorValue = row[discriminatorField]
+    
+    if minValue?
+      minValue = Math.min(minValue, value)
+    else
+      minValue = value
+  
+    if maxValue?
+      maxValue = Math.max(maxValue, value)
+    else
+      maxValue = value
+
+    unless discriminatedData[discriminatorValue]?
+      discriminatedData[discriminatorValue] = []
+    discriminatedData[discriminatorValue].push(row)
+
+  minCount = null
+  for discriminatorValue, data of discriminatedData
+    if minCount?
+      if data.length &lt; minCount
+        minCount = data.length
+        smallestSetOfData = data
+    else
+      minCount = data.length
+      smallestSetOfData = data
+
+  bucketCount = Math.ceil(Math.sqrt(minCount))  # Rounding up instead of rounding down because bucketCount is calculated from the smallestSetOfData
+  if bucketCount &lt; 4
+    console.error(&quot;Bucket count of #{bucketCount} is too low. Need more data.&quot;)
+
+  significance = 1
+  buckets = histogram.buckets(smallestSetOfData, valueField, type, significance, minValue, maxValue + significance, bucketCount)
+
+  histograms = {}
+  for discriminatorValue, data of discriminatedData
+    histograms[discriminatorValue] = histogram.histogramFromBuckets(data, valueField, buckets)
+  return histograms
 
 histogram.clipping = (rows, valueField, noClipping = false) -&gt;
 &lt;/CoffeeScript&gt; */
