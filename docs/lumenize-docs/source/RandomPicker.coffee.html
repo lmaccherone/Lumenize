@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>The source code</title>
+  <link href="../resources/prettify/prettify.css" type="text/css" rel="stylesheet" />
+  <script type="text/javascript" src="../resources/prettify/prettify.js"></script>
+  <style type="text/css">
+    .highlight { display: block; background-color: #ddd; }
+  </style>
+  <script type="text/javascript">
+    function highlight() {
+      document.getElementById(location.hash.replace(/#/, "")).className = "highlight";
+    }
+  </script>
+</head>
+<body onload="prettyPrint(); highlight();">
+  <pre class="prettyprint lang-js">/* &lt;CoffeeScript&gt;
+class RandomPicker  # !TODO: Need to document config and methods!!!
+&lt;/CoffeeScript&gt; */
+<span id='Lumenize-RandomPicker'>  /**
+</span>   * @class Lumenize.RandomPicker
+   * 
+   * Takes a config object like the one shown below, with the same format as is output by Lumenize.histogram()
+   * 
+   *     config =
+   *       histogram: [
+   *         { label: &#39;&lt; 10&#39;, count: 1 },  # histogram fields index, startOn, and endBelow are ignored, but returned by getRow() if provided
+   *         { label: &#39;10-20&#39;, count: 10 },
+   *         { label: &#39;20-30&#39;, count: 102 },
+   *         { label: &#39;30-40&#39;, count: 45},
+   *         { label: &#39;&gt;= 40&#39;, count: 7}
+   *       ]
+   * 
+   * So that it will make more sense when used with hand generated distributions, it will also take the following
+   * 
+   *     config =
+   *       distribution: [
+   *         { value: -1.0, p: 0.25 }
+   *         { value:  2.0, p: 0.50 },
+   *         { value:  8.0, p: 0.25 }
+   *       ]
+   * 
+   * Note, that it runs the same exact code, just replacing what fields are used for the frequencyField and returnValueField
+   * Similarly, you can override these by explicitly including them in your config.
+   * 
+   * Also, note that you need not worry about making your &#39;p&#39; values add up to 1.0. It figures out the portion of the total
+   * 
+   */
+/* &lt;CoffeeScript&gt;
+  constructor: (@config) -&gt;
+    if @config.histogram?
+      @table = @config.histogram
+    else if @config.distribution?
+      @table = @config.distribution
+    else
+      throw new Error(&#39;Must provide either a histogram or distribution in your config.&#39;)
+
+    unless @config.frequencyField?
+      if @config.histogram?
+        @config.frequencyField = &#39;count&#39;
+      else if @config.distribution?
+        @config.frequencyField = &#39;p&#39;
+
+    unless @config.returnValueField?
+      if @config.histogram?
+        @config.returnValueField = &#39;label&#39;
+      else if @config.distribution?
+        @config.returnValueField = &#39;value&#39;
+
+    total = 0
+    total += r[@config.frequencyField] for r in @table
+    r._p = r[@config.frequencyField] / total for r in @table
+    cumulative = 0
+    for r in @table
+      cumulative += r._p
+      r._pCumulative = cumulative
+
+  getRow: () -&gt;
+    n = Math.random()
+    for r in @table
+      if n &lt; r._pCumulative
+        return r
+    return @table[@table.length - 1]  # Needed in rare cases due to real number math approximations
+
+  get: () -&gt;
+    return @getRow()[@config.returnValueField]
+
+
+exports.RandomPicker = RandomPicker
+&lt;/CoffeeScript&gt; */</pre>
+</body>
+</html>

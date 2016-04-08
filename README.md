@@ -71,6 +71,8 @@ Then in your code:
 
 ## Changelog ##
 
+* 1.2.0 - 2016-04-08 - **Very slight chance this is backward breaking**. Finally fixed the v-opimal bucketer lopsideness
+* 1.1.5 - 2016-03-29 - Made histogram.discriminated data better match HighCharts expectations
 * 1.1.4 - 2016-03-29 - Upgraded histogram.discriminated to show the strength of the discrimination and output in HighCharts format 
 * 1.1.3 - 2016-03-29 - Added histogram.discriminated 
 * 1.1.2 - 2016-03-28 - keepFacts fix wasn't quite right 

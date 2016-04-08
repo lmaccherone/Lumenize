@@ -1,5 +1,6 @@
 functions = require('./functions').functions
 utils = require('tztime').utils
+{RandomPicker} = require('./RandomPicker')
 
 histogram = {}
 
@@ -555,7 +556,9 @@ histogram.discriminated = (rows, valueField, discriminatorField, type = histogra
   series = []
   categories = (bucket.label for bucket in buckets)
   for discriminatorValue, data of discriminatedData
-    row = {name: discriminatorValue, data: histogram.histogramFromBuckets(data, valueField, buckets)}
+    h = histogram.histogramFromBuckets(data, valueField, buckets)
+    data = (row.count for row in h)
+    row = {name: discriminatorValue, data: data, histogram: h}
     series.push(row)
 
   # Calculate stats for each series
@@ -571,19 +574,49 @@ histogram.discriminated = (rows, valueField, discriminatorField, type = histogra
     median = functions.median(values)
     p75 = upperQuartileCalculator(values)
     max = functions.max(values)
-    row = {min, p25, median, p75, max}
+    row = {min, p25, median, p75, max, count: values.length}
     boxPlotArray = [min, p25, median, p75, max]
     stats.push(row)
     boxPlotArrays.push(boxPlotArray)
     discriminatorValues.push(discriminatorValue)
 
-  if discriminatorValues.length is 2  # TODO: Make this work for more than two discriminatorValues
-    rawStrength = Math.abs(stats[0].p75 - stats[1].p25 + stats[1].p75 - stats[0].p25)
-    strength = rawStrength * 50 / (maxValue - minValue)
-  else
-    strength = null
+  # Monte Carlo simulation to determine correct classification rate
+  qtyOverall = rows.length
+  distributionOverall = []
+  histograms = []
+  pickers = []
+  for row, index in series
+    distributionOverall.push({p: stats[index].count / qtyOverall, value: index})
+    histograms.push(row.histogram)
+    pickers.push(new RandomPicker({histogram: row.histogram, returnValueField: 'index'}))
+  pickerOverall = new RandomPicker({distribution: distributionOverall})
 
-  return {categories, series, discriminatorValues, stats, boxPlotArrays, strength}
+  columnPickers = []  # Key is column index
+  for column, columnIndex in histograms[0]
+    total = 0
+    counts = []
+    for row, index in series
+      count = histograms[index][columnIndex].count
+      counts.push(count)
+      total += count
+
+    columnDistribution = []
+    for count, index in counts
+      columnDistribution.push({p: count / total, value: index})
+    columnPickers.push(new RandomPicker({distribution: columnDistribution}))
+
+  correct = 0
+  simulationIterations = 1000
+  for i in [1..simulationIterations]
+    targetValue = pickerOverall.get()
+    targetIndex = pickers[targetValue].get()
+    actualValue = columnPickers[targetIndex].get()
+    if targetValue is actualValue
+      correct++
+
+  successfulClassificationRate = Math.floor(100 * correct / simulationIterations + 0.5)
+
+  return {categories, series, discriminatorValues, stats, boxPlotArrays, successfulClassificationRate}
 
 histogram.clipping = (rows, valueField, noClipping = false) ->
   ###

@@ -60,12 +60,11 @@ exports.Test =
 
     buckets = Classifier.generateVOptimalBucketer(values)
     expected = [
-      { value: 'B0', startOn: null, endBelow: 6 },
-      { value: 'B1', startOn: 6, endBelow: 9 },
-      { value: 'B2', startOn: 9, endBelow: 11 },
-      { value: 'B3', startOn: 11, endBelow: 18 },
-      { value: 'B4', startOn: 18, endBelow: 36 },
-      { value: 'B5', startOn: 36, endBelow: null }
+      { value: 'B0', startOn: null, endBelow: 9 },
+      { value: 'B1', startOn: 9, endBelow: 18 },
+      { value: 'B2', startOn: 18, endBelow: 36 },
+      { value: 'B3', startOn: 36, endBelow: 60.5 },
+      { value: 'B4', startOn: 60.5, endBelow: null }
     ]
 
     test.deepEqual(buckets, expected)
@@ -79,7 +78,9 @@ exports.Test =
     expected = [
       { value: 'B0', startOn: null, endBelow: 0.5 },
       { value: 'B1', startOn: 0.5, endBelow: 2 },
-      { value: 'B2', startOn: 2, endBelow: null }
+      { value: 'B2', startOn: 2, endBelow: 3.5 },
+      { value: 'B3', startOn: 3.5, endBelow: 4.5 },
+      { value: 'B4', startOn: 4.5, endBelow: null }
     ]
 
     test.deepEqual(buckets, expected)
@@ -167,22 +168,20 @@ exports.Test =
 
     expected = [
       {
-        "field": "TeamSize",
-        "type": "continuous",
-        "bins": [
-          {"value": "B0", "startOn": null, "endBelow": 2.5, "probabilities": {"0": 1, "1": 0}},
-          {"value": "B1", "startOn": 2.5, "endBelow": 4, "probabilities": {"0": 0.5, "1": 0.5}},
-          {"value": "B2", "startOn": 4, "endBelow": 6.5, "probabilities": {"0": 0.25, "1": 0.75}},
-          {"value": "B3", "startOn": 6.5, "endBelow": 11, "probabilities": {"0": 0.3333333333333333, "1": 0.6666666666666666}},
-          {"value": "B4", "startOn": 11, "endBelow": null, "probabilities": {"0": 0.6666666666666666, "1": 0.3333333333333333}}
+        field: 'TeamSize',
+        type: 'continuous',
+        bins: [
+          { value: 'B0', startOn: null, endBelow: 4, probabilities: { '0': 0.8, '1': 0.2 } },
+          { value: 'B1', startOn: 4, endBelow: 11, probabilities: { '0': 0.2857142857142857, '1': 0.7142857142857143 } },
+          { value: 'B2', startOn: 11, endBelow: 21, probabilities: { '0': 0.5, '1': 0.5 } },
+          { value: 'B3', startOn: 21, endBelow: null, probabilities: { '0': 1, '1': 0 } }
         ]
       },
       {
-        "field": "HasChildProject",
-        "type": "discrete",
-        "bins": [
-          {"value": 0, "probabilities": {"0": 0.5, "1": 0.5}},
-          {"value": 1, "probabilities": {"0": 0.5714285714285714, "1": 0.42857142857142855}}
+        field: 'HasChildProject',
+        type: 'discrete', bins: [
+          { value: 0, probabilities: { '0': 0.5, '1': 0.5 } },
+          { value: 1, probabilities: { '0': 0.5714285714285714, '1': 0.42857142857142855 } }
         ]
       }
     ]
@@ -197,12 +196,12 @@ exports.Test =
     test.equal(classifier.predict({TeamSize: 29, HasChildProject: 1}), 0)
     test.equal(classifier.predict({TeamSize: 29, HasChildProject: 0}), 0)
 
-    test.deepEqual(classifier.predict({TeamSize: 29, HasChildProject: 0}, true), {'0': 0.6956521739130435, '1': 0.30434782608695654})
+    test.deepEqual(classifier.predict({TeamSize: 5, HasChildProject: 1}, true), { '0': 0.3786982248520709, '1': 0.6213017751479291 })
 
     savedState = classifier.getStateForSaving('some meta data')
     newClassifier = BayesianClassifier.newFromSavedState(savedState)
     test.equal(newClassifier.meta, 'some meta data')
-    test.deepEqual(newClassifier.predict({TeamSize: 29, HasChildProject: 0}, true), {'0': 0.6956521739130435, '1': 0.30434782608695654})
+    test.deepEqual(newClassifier.predict({TeamSize: 5, HasChildProject: 1}, true), { '0': 0.3786982248520709, '1': 0.6213017751479291 })
 
     test.done()
 

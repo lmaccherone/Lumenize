@@ -1,5 +1,7 @@
-class RandomPicker  # !TODO: Need to get this in the docs!!!
+class RandomPicker  # !TODO: Need to document config and methods!!!
   ###
+  @class RandomPicker
+
   Takes a config object like the one shown below, with the same format as is output by Lumenize.histogram()
 
       config =
