@@ -141,6 +141,31 @@ exports.Test =
 
     test.done()
 
+#  testBoolean: (test) ->
+#    trainingSet = [
+#      {TeamSize: 5, HasChildProject: false, RealTeam: 1},
+#      {TeamSize: 3, HasChildProject: true, RealTeam: 0},
+#      {TeamSize: 3, HasChildProject: true, RealTeam: 1},
+#      {TeamSize: 1, HasChildProject: false, RealTeam: 0},
+#      {TeamSize: 2, HasChildProject: true, RealTeam: 0},
+#      {TeamSize: 2, HasChildProject: false, RealTeam: 0},
+#      {TeamSize: 15, HasChildProject: true, RealTeam: 0},
+#      {TeamSize: 27, HasChildProject: true, RealTeam: 0},
+#      {TeamSize: 13, HasChildProject: true, RealTeam: 1},
+#      {TeamSize: 7, HasChildProject: false, RealTeam: 1},
+#      {TeamSize: 7, HasChildProject: false, RealTeam: 0},
+#      {TeamSize: 9, HasChildProject: true, RealTeam: 1},
+#      {TeamSize: 6, HasChildProject: false, RealTeam: 1},
+#      {TeamSize: 5, HasChildProject: false, RealTeam: 1},
+#      {TeamSize: 5, HasChildProject: false, RealTeam: 0},
+#    ]
+#
+#    classifier = new BayesianClassifier(config)
+#
+#    percentWins = classifier.train(trainingSet)
+#
+#    test.ok(approximatelyEqual(percentWins, 0.733333))
+
   testBasic: (test) ->
     trainingSet = [
       {TeamSize: 5, HasChildProject: 0, RealTeam: 1},
